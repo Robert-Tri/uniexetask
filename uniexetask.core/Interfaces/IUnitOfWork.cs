@@ -9,7 +9,10 @@ namespace uniexetask.core.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository Users { get; }
+        IRefreshTokenRepository RefreshTokens { get; }
 
         int Save();
+
+        Task<int> SaveAsync();
     }
 }

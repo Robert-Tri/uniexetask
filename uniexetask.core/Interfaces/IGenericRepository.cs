@@ -10,13 +10,13 @@ namespace uniexetask.core.Interfaces
     public interface IGenericRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAsync(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "",
             int? pageIndex = null,
             int? pageSize = null);
 
-        Task<TEntity> GetByIDAsync(object id);
+        Task<TEntity?> GetByIDAsync(object id);
 
         Task InsertAsync(TEntity entity);
 

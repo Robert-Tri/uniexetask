@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    //[Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
@@ -26,7 +29,9 @@ namespace uniexetask.api.Controllers
             {
                 return NotFound();
             }
-            return Ok(usersList);
+            ApiResponse<IEnumerable<User>> response = new ApiResponse<IEnumerable<User>>();
+            response.Data = usersList;
+            return Ok(response);
         }
 
         /// <summary>

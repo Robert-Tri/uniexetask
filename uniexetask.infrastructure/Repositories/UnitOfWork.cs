@@ -11,12 +11,15 @@ namespace uniexetask.infrastructure.Repositories
     {
         private readonly UniExetaskContext _dbContext;
         public IUserRepository Users { get; }
+        public IRefreshTokenRepository RefreshTokens { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
-                            IUserRepository userRepository)
+                            IUserRepository userRepository,
+                            IRefreshTokenRepository refreshTokens)
         {
             _dbContext = dbContext;
             Users = userRepository;
+            RefreshTokens = refreshTokens;
         }
 
         public int Save()
@@ -38,5 +41,9 @@ namespace uniexetask.infrastructure.Repositories
             }
         }
 
+        public async Task<int> SaveAsync()
+        {
+            return await _dbContext.SaveChangesAsync();
+        }
     }
 }

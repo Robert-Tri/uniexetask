@@ -11,7 +11,7 @@ public partial class Nofitication
 
     public int ReceiverId { get; set; }
 
-    public int Message { get; set; }
+    public string Message { get; set; } = null!;
 
     public string Type { get; set; } = null!;
 

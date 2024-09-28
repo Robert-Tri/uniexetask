@@ -32,11 +32,21 @@ namespace uniexetask.web.Controllers
                 var response = await _httpClient.PostAsJsonAsync("auth/login", model);
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<string>>();
-                    if (result != null && !string.IsNullOrEmpty(result.Data))
+                    var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<TokenViewModel>>();
+                    if (result != null && result.Data != null)
                     {
-                        // Lưu token vào session
-                        HttpContext.Session.SetString("JWTToken", result.Data);
+                        Response.Cookies.Append("AccessToken", result.Data.AccessToken ?? "", new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            Expires = DateTime.UtcNow.AddMinutes(30)
+                        });
+                        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken ?? "", new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            Expires = DateTime.UtcNow.AddDays(30)
+                        });
                         return RedirectToAction("Index", "Home");
                     }
                 }
