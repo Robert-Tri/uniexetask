@@ -21,8 +21,8 @@ namespace uniexetask.infrastructure.Repositories
         }
 
         public async virtual Task<IEnumerable<TEntity>> GetAsync(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "",
             int? pageIndex = null,
             int? pageSize = null)
@@ -56,7 +56,7 @@ namespace uniexetask.infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public async virtual Task<TEntity> GetByIDAsync(object id)
+        public async virtual Task<TEntity?> GetByIDAsync(object id)
         {
             return await dbSet.FindAsync(id);
         }
@@ -68,7 +68,11 @@ namespace uniexetask.infrastructure.Repositories
 
         public virtual void Delete(object id)
         {
-            TEntity entityToDelete = dbSet.Find(id);
+            TEntity? entityToDelete = dbSet.Find(id);
+            if (entityToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(entityToDelete), "Entity to delete cannot be null");
+            }
             Delete(entityToDelete);
         }
 

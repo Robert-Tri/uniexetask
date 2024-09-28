@@ -9,9 +9,9 @@ public partial class Subject
 
     public string SubjectCode { get; set; } = null!;
 
-    public DateTime SubjectName { get; set; }
+    public string SubjectName { get; set; } = null!;
 
-    public int Description { get; set; }
+    public string Description { get; set; } = null!;
 
     public string Status { get; set; } = null!;
 

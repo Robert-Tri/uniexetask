@@ -16,7 +16,7 @@ namespace uniexetask.infrastructure.Repositories
 
         }
 
-        public async Task<User> AuthenticateAsync(string email, string password)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
             return await dbSet.FirstOrDefaultAsync(u =>
                 u.Email.ToLower() == email.ToLower() &&

@@ -9,6 +9,8 @@ namespace uniexetask.services.Interfaces
 {
     public interface IAuthService
     {
-        Task<User> LoginAsync(string username, string password);
+        Task<User?> GetUserByRefreshToken(string? refreshToken);
+        Task<User?> LoginAsync(string username, string password);
+        System.Threading.Tasks.Task SaveRefreshToken(int id, string refreshToken);
     }
 }
