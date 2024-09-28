@@ -35,6 +35,8 @@ public partial class User
 
     public virtual ICollection<Nofitication> NofiticationSenders { get; set; } = new List<Nofitication>();
 
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public virtual Role Role { get; set; } = null!;
 
     public virtual ICollection<Sponsor> Sponsors { get; set; } = new List<Sponsor>();

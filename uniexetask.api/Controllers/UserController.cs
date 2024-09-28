@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
+﻿using Microsoft.AspNetCore.Authorization;
+using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using AutoMapper;
-using OfficeOpenXml; // Để đọc file Excel
+using OfficeOpenXml;
 using System.IO;
 
 namespace uniexetask.api.Controllers
 {
+    //[Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
@@ -32,7 +35,9 @@ namespace uniexetask.api.Controllers
             {
                 return NotFound();
             }
-            return Ok(usersList);
+            ApiResponse<IEnumerable<User>> response = new ApiResponse<IEnumerable<User>>();
+            response.Data = usersList;
+            return Ok(response);
         }
 
         /// <summary>

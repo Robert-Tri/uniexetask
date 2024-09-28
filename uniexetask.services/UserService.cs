@@ -54,7 +54,7 @@ namespace uniexetask.services
             return usersList;
         }
 
-        public async Task<User> GetUserById(int userId)
+        public async Task<User?> GetUserById(int userId)
         {
             if (userId > 0)
             {

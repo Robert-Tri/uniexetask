@@ -42,6 +42,8 @@ public partial class UniExetaskContext : DbContext
 
     public virtual DbSet<Project> Projects { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<Requirement> Requirements { get; set; }
 
     public virtual DbSet<Resource> Resources { get; set; }
@@ -66,7 +68,7 @@ public partial class UniExetaskContext : DbContext
     {
         modelBuilder.Entity<Campus>(entity =>
         {
-            entity.HasKey(e => e.CampusId).HasName("PK__CAMPUS__01989FD1D20DE96D");
+            entity.HasKey(e => e.CampusId).HasName("PK__CAMPUS__01989FD100103ED3");
 
             entity.ToTable("CAMPUS");
 
@@ -84,7 +86,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<ChatGroup>(entity =>
         {
-            entity.HasKey(e => e.ChatGroupId).HasName("PK__CHAT_GRO__F18D35793DC5074C");
+            entity.HasKey(e => e.ChatGroupId).HasName("PK__CHAT_GRO__F18D35793CC39344");
 
             entity.ToTable("CHAT_GROUP");
 
@@ -115,7 +117,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<ChatMessage>(entity =>
         {
-            entity.HasKey(e => e.MessageId).HasName("PK__CHAT_MES__0BBF6EE6642C1C94");
+            entity.HasKey(e => e.MessageId).HasName("PK__CHAT_MES__0BBF6EE6559BD92F");
 
             entity.ToTable("CHAT_MESSAGE");
 
@@ -143,7 +145,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.EventId).HasName("PK__EVENT__2370F7279EC27DDB");
+            entity.HasKey(e => e.EventId).HasName("PK__EVENT__2370F7273AEA789B");
 
             entity.ToTable("EVENT");
 
@@ -173,7 +175,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<Group>(entity =>
         {
-            entity.HasKey(e => e.GroupId).HasName("PK__GROUP__D57795A0961D119E");
+            entity.HasKey(e => e.GroupId).HasName("PK__GROUP__D57795A0A48049F6");
 
             entity.ToTable("GROUP");
 
@@ -189,12 +191,12 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Project).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GROUP__project_i__7B5B524B");
+                .HasConstraintName("FK__GROUP__project_i__7A672E12");
         });
 
         modelBuilder.Entity<GroupInvite>(entity =>
         {
-            entity.HasKey(e => new { e.GroupId, e.NotificationId }).HasName("PK__GROUP_IN__3B720DE21B8DF914");
+            entity.HasKey(e => new { e.GroupId, e.NotificationId }).HasName("PK__GROUP_IN__3B720DE26CE70249");
 
             entity.ToTable("GROUP_INVITE");
 
@@ -216,17 +218,17 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Group).WithMany(p => p.GroupInvites)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GROUP_INV__group__14270015");
+                .HasConstraintName("FK__GROUP_INV__group__1332DBDC");
 
             entity.HasOne(d => d.Notification).WithMany(p => p.GroupInvites)
                 .HasForeignKey(d => d.NotificationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GROUP_INV__notif__151B244E");
+                .HasConstraintName("FK__GROUP_INV__notif__14270015");
         });
 
         modelBuilder.Entity<GroupMember>(entity =>
         {
-            entity.HasKey(e => new { e.GroupId, e.StudentId }).HasName("PK__GROUP_ME__67D4A5C909236B5D");
+            entity.HasKey(e => new { e.GroupId, e.StudentId }).HasName("PK__GROUP_ME__67D4A5C9D46923EF");
 
             entity.ToTable("GROUP_MEMBER");
 
@@ -239,17 +241,17 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Group).WithMany(p => p.GroupMembers)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GROUP_MEM__group__08B54D69");
+                .HasConstraintName("FK__GROUP_MEM__group__07C12930");
 
             entity.HasOne(d => d.Student).WithMany(p => p.GroupMembers)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GROUP_MEM__stude__09A971A2");
+                .HasConstraintName("FK__GROUP_MEM__stude__08B54D69");
         });
 
         modelBuilder.Entity<Label>(entity =>
         {
-            entity.HasKey(e => e.LabelId).HasName("PK__LABEL__E44FFA584979913C");
+            entity.HasKey(e => e.LabelId).HasName("PK__LABEL__E44FFA58EE8B5491");
 
             entity.ToTable("LABEL");
 
@@ -261,7 +263,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<MeetingSchedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__MEETING___C46A8A6FE5A602ED");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__MEETING___C46A8A6FCD22DD48");
 
             entity.ToTable("MEETING_SCHEDULE");
 
@@ -286,17 +288,17 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Group).WithMany(p => p.MeetingSchedules)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__MEETING_S__group__00200768");
+                .HasConstraintName("FK__MEETING_S__group__7F2BE32F");
 
             entity.HasOne(d => d.Mentor).WithMany(p => p.MeetingSchedules)
                 .HasForeignKey(d => d.MentorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__MEETING_S__mento__01142BA1");
+                .HasConstraintName("FK__MEETING_S__mento__00200768");
         });
 
         modelBuilder.Entity<Mentor>(entity =>
         {
-            entity.HasKey(e => e.MentorId).HasName("PK__MENTOR__E5D27EF3F0FC653A");
+            entity.HasKey(e => e.MentorId).HasName("PK__MENTOR__E5D27EF3FBBB18BD");
 
             entity.ToTable("MENTOR");
 
@@ -315,12 +317,12 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Mentors)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__MENTOR__user_id__73BA3083");
+                .HasConstraintName("FK__MENTOR__user_id__72C60C4A");
         });
 
         modelBuilder.Entity<Nofitication>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__NOFITICA__E059842FB5BB2374");
+            entity.HasKey(e => e.NotificationId).HasName("PK__NOFITICA__E059842F031A3E13");
 
             entity.ToTable("NOFITICATION");
 
@@ -328,7 +330,9 @@ public partial class UniExetaskContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
-            entity.Property(e => e.Message).HasColumnName("message");
+            entity.Property(e => e.Message)
+                .HasMaxLength(250)
+                .HasColumnName("message");
             entity.Property(e => e.ReceiverId).HasColumnName("receiver_id");
             entity.Property(e => e.SenderId).HasColumnName("sender_id");
             entity.Property(e => e.Status)
@@ -341,17 +345,17 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Receiver).WithMany(p => p.NofiticationReceivers)
                 .HasForeignKey(d => d.ReceiverId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__NOFITICAT__recei__0F624AF8");
+                .HasConstraintName("FK__NOFITICAT__recei__0E6E26BF");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.NofiticationSenders)
                 .HasForeignKey(d => d.SenderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__NOFITICAT__sende__0E6E26BF");
+                .HasConstraintName("FK__NOFITICAT__sende__0D7A0286");
         });
 
         modelBuilder.Entity<Permission>(entity =>
         {
-            entity.HasKey(e => e.PermissionId).HasName("PK__PERMISSI__E5331AFAA7F0158F");
+            entity.HasKey(e => e.PermissionId).HasName("PK__PERMISSI__E5331AFA1597D87B");
 
             entity.ToTable("PERMISSION");
 
@@ -366,7 +370,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<Project>(entity =>
         {
-            entity.HasKey(e => e.ProjectId).HasName("PK__PROJECT__BC799E1FC9EB9923");
+            entity.HasKey(e => e.ProjectId).HasName("PK__PROJECT__BC799E1F33F8F149");
 
             entity.ToTable("PROJECT");
 
@@ -395,7 +399,7 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Subject).WithMany(p => p.Projects)
                 .HasForeignKey(d => d.SubjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PROJECT__subject__5629CD9C");
+                .HasConstraintName("FK__PROJECT__subject__5535A963");
 
             entity.HasMany(d => d.Labels).WithMany(p => p.Projects)
                 .UsingEntity<Dictionary<string, object>>(
@@ -403,14 +407,14 @@ public partial class UniExetaskContext : DbContext
                     r => r.HasOne<Label>().WithMany()
                         .HasForeignKey("LabelId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_L__label__5FB337D6"),
+                        .HasConstraintName("FK__PROJECT_L__label__5EBF139D"),
                     l => l.HasOne<Project>().WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_L__proje__5EBF139D"),
+                        .HasConstraintName("FK__PROJECT_L__proje__5DCAEF64"),
                     j =>
                     {
-                        j.HasKey("ProjectId", "LabelId").HasName("PK__PROJECT___223D61BAFF76C671");
+                        j.HasKey("ProjectId", "LabelId").HasName("PK__PROJECT___223D61BAC5869895");
                         j.ToTable("PROJECT_LABEL");
                         j.IndexerProperty<int>("ProjectId").HasColumnName("project_id");
                         j.IndexerProperty<int>("LabelId").HasColumnName("label_id");
@@ -422,14 +426,14 @@ public partial class UniExetaskContext : DbContext
                     r => r.HasOne<Mentor>().WithMany()
                         .HasForeignKey("MentorId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_M__mento__778AC167"),
+                        .HasConstraintName("FK__PROJECT_M__mento__76969D2E"),
                     l => l.HasOne<Project>().WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_M__proje__76969D2E"),
+                        .HasConstraintName("FK__PROJECT_M__proje__75A278F5"),
                     j =>
                     {
-                        j.HasKey("ProjectId", "MentorId").HasName("PK__PROJECT___9224B9F0FC6D694F");
+                        j.HasKey("ProjectId", "MentorId").HasName("PK__PROJECT___9224B9F0640AD112");
                         j.ToTable("PROJECT_MENTOR");
                         j.IndexerProperty<int>("ProjectId").HasColumnName("project_id");
                         j.IndexerProperty<int>("MentorId").HasColumnName("mentor_id");
@@ -441,23 +445,54 @@ public partial class UniExetaskContext : DbContext
                     r => r.HasOne<Sponsor>().WithMany()
                         .HasForeignKey("SponsorId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_S__spons__6FE99F9F"),
+                        .HasConstraintName("FK__PROJECT_S__spons__6EF57B66"),
                     l => l.HasOne<Project>().WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__PROJECT_S__proje__6EF57B66"),
+                        .HasConstraintName("FK__PROJECT_S__proje__6E01572D"),
                     j =>
                     {
-                        j.HasKey("ProjectId", "SponsorId").HasName("PK__PROJECT___E79AE35A7A565ABE");
+                        j.HasKey("ProjectId", "SponsorId").HasName("PK__PROJECT___E79AE35A07CCFC78");
                         j.ToTable("PROJECT_SPONSOR");
                         j.IndexerProperty<int>("ProjectId").HasColumnName("project_id");
                         j.IndexerProperty<int>("SponsorId").HasColumnName("sponsor_id");
                     });
         });
 
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.TokenId).HasName("PK__REFRESH___CB3C9E17418B5AF2");
+
+            entity.ToTable("REFRESH_TOKEN");
+
+            entity.Property(e => e.TokenId).HasColumnName("token_id");
+            entity.Property(e => e.Created)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created");
+            entity.Property(e => e.Expires)
+                .HasColumnType("datetime")
+                .HasColumnName("expires");
+            entity.Property(e => e.Revoked)
+                .HasColumnType("datetime")
+                .HasColumnName("revoked");
+            entity.Property(e => e.Status)
+                .HasDefaultValue(true)
+                .HasColumnName("status");
+            entity.Property(e => e.Token)
+                .HasMaxLength(50)
+                .HasColumnName("token");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__REFRESH_T__user___1BC821DD");
+        });
+
         modelBuilder.Entity<Requirement>(entity =>
         {
-            entity.HasKey(e => e.RequirementId).HasName("PK__REQUIREM__2A73C1AD5181B1DB");
+            entity.HasKey(e => e.RequirementId).HasName("PK__REQUIREM__2A73C1ADAD263A02");
 
             entity.ToTable("REQUIREMENT");
 
@@ -474,12 +509,12 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Project).WithMany(p => p.Requirements)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__REQUIREME__proje__6383C8BA");
+                .HasConstraintName("FK__REQUIREME__proje__628FA481");
         });
 
         modelBuilder.Entity<Resource>(entity =>
         {
-            entity.HasKey(e => e.ResourceId).HasName("PK__RESOURCE__4985FC733E56EC39");
+            entity.HasKey(e => e.ResourceId).HasName("PK__RESOURCE__4985FC7302199BFB");
 
             entity.ToTable("RESOURCE");
 
@@ -499,12 +534,12 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Project).WithMany(p => p.Resources)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RESOURCE__projec__6754599E");
+                .HasConstraintName("FK__RESOURCE__projec__66603565");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__ROLE__760965CC64BDA0EE");
+            entity.HasKey(e => e.RoleId).HasName("PK__ROLE__760965CC404BD42A");
 
             entity.ToTable("ROLE");
 
@@ -529,7 +564,7 @@ public partial class UniExetaskContext : DbContext
                         .HasConstraintName("FK__ROLE_PERM__role___4316F928"),
                     j =>
                     {
-                        j.HasKey("RoleId", "PermissionId").HasName("PK__ROLE_PER__C85A546393D53628");
+                        j.HasKey("RoleId", "PermissionId").HasName("PK__ROLE_PER__C85A5463FA7508EC");
                         j.ToTable("ROLE_PERMISSION");
                         j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
                         j.IndexerProperty<int>("PermissionId").HasColumnName("permission_id");
@@ -538,7 +573,7 @@ public partial class UniExetaskContext : DbContext
 
         modelBuilder.Entity<Sponsor>(entity =>
         {
-            entity.HasKey(e => e.SponsorId).HasName("PK__SPONSOR__BE37D454EF7E9B7D");
+            entity.HasKey(e => e.SponsorId).HasName("PK__SPONSOR__BE37D45442608134");
 
             entity.ToTable("SPONSOR");
 
@@ -557,12 +592,12 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Sponsors)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SPONSOR__user_id__6C190EBB");
+                .HasConstraintName("FK__SPONSOR__user_id__6B24EA82");
         });
 
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasKey(e => e.StudentId).HasName("PK__STUDENT__2A33069AD32336FB");
+            entity.HasKey(e => e.StudentId).HasName("PK__STUDENT__2A33069A529412A8");
 
             entity.ToTable("STUDENT");
 
@@ -581,17 +616,19 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Students)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__STUDENT__user_id__04E4BC85");
+                .HasConstraintName("FK__STUDENT__user_id__03F0984C");
         });
 
         modelBuilder.Entity<Subject>(entity =>
         {
-            entity.HasKey(e => e.SubjectId).HasName("PK__SUBJECT__5004F6608A050065");
+            entity.HasKey(e => e.SubjectId).HasName("PK__SUBJECT__5004F660435A1053");
 
             entity.ToTable("SUBJECT");
 
             entity.Property(e => e.SubjectId).HasColumnName("subject_id");
-            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Description)
+                .HasMaxLength(250)
+                .HasColumnName("description");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasColumnName("status");
@@ -599,14 +636,13 @@ public partial class UniExetaskContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("subject_code");
             entity.Property(e => e.SubjectName)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
+                .HasMaxLength(50)
                 .HasColumnName("subject_name");
         });
 
         modelBuilder.Entity<uniexetask.core.Models.Task>(entity =>
         {
-            entity.HasKey(e => e.TaskId).HasName("PK__TASK__0492148D926959F6");
+            entity.HasKey(e => e.TaskId).HasName("PK__TASK__0492148D098902AE");
 
             entity.ToTable("TASK");
 
@@ -628,16 +664,16 @@ public partial class UniExetaskContext : DbContext
             entity.HasOne(d => d.Project).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__TASK__project_id__59FA5E80");
+                .HasConstraintName("FK__TASK__project_id__59063A47");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__USER__B9BE370FA12F3B22");
+            entity.HasKey(e => e.UserId).HasName("PK__USER__B9BE370FFDFA03FB");
 
             entity.ToTable("USER");
 
-            entity.HasIndex(e => e.Email, "UQ__USER__AB6E6164B010E360").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__USER__AB6E6164BEAEF03E").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.CampusId).HasColumnName("campus_id");
