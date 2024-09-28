@@ -1,4 +1,4 @@
-﻿CREATE DATABASE UniEXETask
+﻿﻿CREATE DATABASE UniEXETask
 
 GO
 
@@ -443,4 +443,3 @@ INSERT INTO REFRESH_TOKEN (user_id, token, expires, created, revoked, status)
 VALUES 
 (1, 'sample_token_123', '2025-01-01', GETDATE(), '2025-01-01', 1),
 (2, 'sample_token_456', '2025-01-01', GETDATE(), '2025-01-01', 1);
-
