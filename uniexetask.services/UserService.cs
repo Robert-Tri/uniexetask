@@ -36,7 +36,7 @@ namespace uniexetask.services
                 var users = await _unitOfWork.Users.GetByIDAsync(userId);
                 if (users != null)
                 {
-                    _unitOfWork.Users.Delete(users);
+                    users.Status = false; 
                     var result = _unitOfWork.Save();
 
                     if (result > 0)

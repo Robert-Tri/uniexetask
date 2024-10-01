@@ -188,16 +188,14 @@ namespace uniexetask.api.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateProduct(User users)
+        public async Task<IActionResult> UpdateUser(User user)
         {
-            if (users != null)
+            ApiResponse<bool> respone = new ApiResponse<bool>();
+            var isUserUpdated = await _userService.UpdateUser(user);
+            if (isUserUpdated)
             {
-                var isUserCreated = await _userService.UpdateUser(users);
-                if (isUserCreated)
-                {
-                    return Ok(isUserCreated);
-                }
-                return BadRequest();
+                respone.Data = isUserUpdated;
+                return Ok(respone);
             }
             else
             {
@@ -213,11 +211,13 @@ namespace uniexetask.api.Controllers
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteProduct(int userId)
         {
-            var isUserCreated = await _userService.DeleteUser(userId);
+            ApiResponse<bool> respone = new ApiResponse<bool>();
+            var isUserDeleted = await _userService.DeleteUser(userId);
 
-            if (isUserCreated)
+            if (isUserDeleted)
             {
-                return Ok(isUserCreated);
+                respone.Data = true;
+                return Ok(respone);
             }
             else
             {
