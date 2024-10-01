@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config';
 import './LoginForm.css';
 
 const LoginForm = () => {
@@ -12,10 +14,15 @@ const LoginForm = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-
         try {
-            // Giả lập đăng nhập thành công
-            console.log('Đăng nhập với:', { email, password });
+            const response = await axios.post(`${API_BASE_URL}api/auth/login`, {
+                email,
+                password,
+            });
+
+            document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
+            document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
+
             navigate('/home');
         } catch (err) {
             console.error(err);
