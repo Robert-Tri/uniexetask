@@ -14,14 +14,17 @@ namespace uniexetask.infrastructure.Repositories
         public IRefreshTokenRepository RefreshTokens { get; }
 
         public ICampusRepository Campus { get; }
+        public IRoleRepository Role { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
+                            IRoleRepository roleRepository,
                             ICampusRepository campusRepository,
                             IRefreshTokenRepository refreshTokens)
         {
             _dbContext = dbContext;
             Users = userRepository;
+            Role = roleRepository;
             Campus = campusRepository;
             RefreshTokens = refreshTokens;
         }

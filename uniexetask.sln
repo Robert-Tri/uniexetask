@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.api", "uniexetask.api\uniexetask.api.csproj", "{DCABCBFB-7DA0-468F-8F70-9EC21ABFE34E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.api", "uniexetask.api\uniexetask.api.csproj", "{DCABCBFB-7DA0-468F-8F70-9EC21ABFE34E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.web", "uniexetask.web\uniexetask.web.csproj", "{3B878E07-F4E2-49C1-9853-27DF8FC5AC0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.core", "uniexetask.core\uniexetask.core.csproj", "{87E2B9CA-A64B-40E6-BB88-2F3BE8E58909}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.core", "uniexetask.core\uniexetask.core.csproj", "{87E2B9CA-A64B-40E6-BB88-2F3BE8E58909}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.infrastructure", "uniexetask.infrastructure\uniexetask.infrastructure.csproj", "{B34A8945-DDB7-43BC-ADF1-63F768B85142}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.infrastructure", "uniexetask.infrastructure\uniexetask.infrastructure.csproj", "{B34A8945-DDB7-43BC-ADF1-63F768B85142}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.services", "uniexetask.services\uniexetask.services.csproj", "{3325C623-DDEB-44DC-A229-FFFD1D8F807C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.services", "uniexetask.services\uniexetask.services.csproj", "{3325C623-DDEB-44DC-A229-FFFD1D8F807C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{DCABCBFB-7DA0-468F-8F70-9EC21ABFE34E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCABCBFB-7DA0-468F-8F70-9EC21ABFE34E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCABCBFB-7DA0-468F-8F70-9EC21ABFE34E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3B878E07-F4E2-49C1-9853-27DF8FC5AC0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B878E07-F4E2-49C1-9853-27DF8FC5AC0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B878E07-F4E2-49C1-9853-27DF8FC5AC0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B878E07-F4E2-49C1-9853-27DF8FC5AC0E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87E2B9CA-A64B-40E6-BB88-2F3BE8E58909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87E2B9CA-A64B-40E6-BB88-2F3BE8E58909}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87E2B9CA-A64B-40E6-BB88-2F3BE8E58909}.Release|Any CPU.ActiveCfg = Release|Any CPU

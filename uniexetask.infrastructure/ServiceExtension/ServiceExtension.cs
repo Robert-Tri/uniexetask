@@ -22,6 +22,7 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICampusRepository, CampusRepsitory>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             return services;
