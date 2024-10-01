@@ -9,6 +9,7 @@ namespace uniexetask.core.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository Users { get; }
+        ICampusRepository Campus { get; }
         IRefreshTokenRepository RefreshTokens { get; }
 
         int Save();

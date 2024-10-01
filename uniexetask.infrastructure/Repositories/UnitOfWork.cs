@@ -13,12 +13,16 @@ namespace uniexetask.infrastructure.Repositories
         public IUserRepository Users { get; }
         public IRefreshTokenRepository RefreshTokens { get; }
 
+        public ICampusRepository Campus { get; }
+
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
+                            ICampusRepository campusRepository,
                             IRefreshTokenRepository refreshTokens)
         {
             _dbContext = dbContext;
             Users = userRepository;
+            Campus = campusRepository;
             RefreshTokens = refreshTokens;
         }
 
