@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginForm from './components/Login/LoginForm';
 import Home from './components/User/Home';
-import UserForm from './components/User/UserForm';
+import CreateUserForm from './components/User/CreateUserForm';
 
 function App() {
     return (
@@ -9,7 +9,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginForm />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/createUser" element={<UserForm />} />
+                <Route path="/createUser" element={<CreateUserForm />} />
             </Routes>
         </Router>
     );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './UserForm.css'; 
+import './CreateUserForm.css'; 
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
@@ -29,7 +29,7 @@ const UserForm = () => {
   };
 
   return (
-    
+    <div className="create-page">
     <form className="user-form" onSubmit={handleSubmit}>
       <h1>Tạo Người Dùng Mới</h1>
       <input
@@ -99,6 +99,7 @@ const UserForm = () => {
       
       <button type="submit" className="submit-button">Tạo người dùng</button>
     </form>
+    </div>
   );
 };
 
