@@ -16,6 +16,17 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:3000") // Thay đổi nếu cần
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials()); // Nếu bạn cần gửi cookie
+});
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,6 +64,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigin"); // Thêm dòng này
 
 app.UseAuthentication();
 
