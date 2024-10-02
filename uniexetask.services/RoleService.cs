@@ -13,7 +13,7 @@ namespace uniexetask.services
         }
         public async Task<IEnumerable<Role>> GetAllRole()
         {
-            var roleList = await _unitOfWork.Role.GetAsync();
+            var roleList = await _unitOfWork.Roles.GetAsync();
             return roleList;
         }
     }
