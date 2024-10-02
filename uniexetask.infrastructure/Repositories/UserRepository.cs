@@ -22,5 +22,16 @@ namespace uniexetask.infrastructure.Repositories
                 u.Email.ToLower() == email.ToLower() &&
                 u.Password == password);
         }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await dbSet.FirstOrDefaultAsync(u =>
+                u.Email.ToLower() == email.ToLower());
+        }
+
+        public async Task<User?> GetByIDAsync(int id)
+        {
+            return await dbSet.FindAsync(id);
+        }
     }
 }

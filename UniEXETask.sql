@@ -1,4 +1,5 @@
-﻿﻿CREATE DATABASE UniEXETask
+﻿
+CREATE DATABASE UniEXETask
 
 GO
 
@@ -32,7 +33,7 @@ CREATE TABLE PERMISSION (
 CREATE TABLE [USER] (
     user_id INT PRIMARY KEY IDENTITY(1,1),
     full_name NVARCHAR(100) NOT NULL,
-    [password] NVARCHAR(255) NOT NULL,
+    [password] NVARCHAR(255),
     email NVARCHAR(100) NOT NULL UNIQUE,
     phone NVARCHAR(20),
     campus_id INT NOT NULL,

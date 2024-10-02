@@ -79,5 +79,31 @@ namespace uniexetask.services
             }
 
         }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            try
+            {
+                // Log email tìm kiếm
+                Console.WriteLine($"Tìm kiếm user với email: {email}");
+
+                var user = await _userRepository.GetUserByEmailAsync(email);
+
+                // Kiểm tra xem user có tồn tại không
+                if (user == null)
+                {
+                    Console.WriteLine("Không tìm thấy user với email này.");
+                }
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi
+                Console.WriteLine($"Lỗi khi tìm user: {ex.Message}");
+                throw; // Ném lại ngoại lệ để xử lý bên ngoài nếu cần
+            }
+        }
+
     }
 }

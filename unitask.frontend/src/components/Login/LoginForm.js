@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { API_BASE_URL } from '../../config';
 import './LoginForm.css';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    
+
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-
         try {
-            // Giả lập đăng nhập thành công
-            console.log('Đăng nhập với:', { email, password });
+            const response = await axios.post(`${API_BASE_URL}api/auth/login`, {
+                email,
+                password,
+            });
+
+            document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
+            document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
+
             navigate('/home');
         } catch (err) {
             console.error(err);
@@ -23,9 +31,27 @@ const LoginForm = () => {
         }
     };
 
-    const handleGoogleLogin = () => {
-        // Xử lý đăng nhập bằng Google ở đây
-        console.log('Đăng nhập bằng Google');
+    const handleGoogleLoginSuccess = async (credentialResponse) => {
+        console.log('Credential Response:', credentialResponse); // Kiểm tra giá trị
+
+        setError('');
+        try {
+            const response = await axios.post(`${API_BASE_URL}api/auth/google-login`, {
+                token: credentialResponse.credential // Gửi token cho API
+            });
+
+            document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
+            document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
+
+            navigate('/home');
+        } catch (err) {
+            console.error(err);
+            setError('Đăng nhập bằng Google thất bại.');
+        }
+    };
+
+    const handleGoogleLoginError = () => {
+        setError('Đăng nhập bằng Google thất bại.');
     };
 
     return (
@@ -60,10 +86,11 @@ const LoginForm = () => {
                 <div className="separator">
                     <span>hoặc</span>
                 </div>
-                <button onClick={handleGoogleLogin} className="google-login-button">
-                    <img src="/images/logo-google.png" alt="Google logo" className="google-icon" />
-                    Đăng nhập bằng Google
-                </button>
+                <GoogleLogin
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={handleGoogleLoginError}
+                    clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com"
+                />
                 <p className="register-link">
                     Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
                 </p>

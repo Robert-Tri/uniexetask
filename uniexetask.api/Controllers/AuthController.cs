@@ -12,6 +12,8 @@ using uniexetask.services;
 using uniexetask.services.Interfaces;
 using uniexetask.core.Models;
 using Azure;
+using Google.Apis.Auth;
+
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace uniexetask.api.Controllers
@@ -113,5 +115,60 @@ namespace uniexetask.api.Controllers
                 return Convert.ToBase64String(randomNumber);
             }
         }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginModel model)
+        {
+            ApiResponse<TokenModel> response = new ApiResponse<TokenModel>();
+
+            try
+            {
+                // Validate Google Token
+                var payload = await GoogleJsonWebSignature.ValidateAsync(model.Token);
+
+                // Check if the email exists in the database
+                var user = await _authService.GetUserByEmailAsync(payload.Email);
+
+                if (user == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Email not registered.";
+                    return Unauthorized(response);
+                }
+
+                // Generate tokens
+                TokenModel token = new TokenModel
+                {
+                    AccessToken = GenerateAccessToken(user),
+                    RefreshToken = GenerateRefreshToken()
+                };
+
+                await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
+                response.Data = token;
+
+                // Set cookies
+                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddMinutes(30)
+                });
+                Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Expires = DateTime.UtcNow.AddDays(30)
+                });
+
+                return Ok(response);
+            }
+            catch (InvalidJwtException)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Invalid Google token.";
+                return Unauthorized(response);
+            }
+        }
+
     }
 }
