@@ -12,14 +12,23 @@ namespace uniexetask.infrastructure.Repositories
         private readonly UniExetaskContext _dbContext;
         public IUserRepository Users { get; }
         public IRefreshTokenRepository RefreshTokens { get; }
+        public IRoleRepository Roles { get; }
+        public IFeatureRepository Features { get; }
+        public IPermissionRepository Permissions { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
-                            IRefreshTokenRepository refreshTokens)
+                            IRefreshTokenRepository refreshTokens,
+                            IRoleRepository roles,
+                            IFeatureRepository features,
+                            IPermissionRepository permissions)
         {
             _dbContext = dbContext;
             Users = userRepository;
             RefreshTokens = refreshTokens;
+            Roles = roles;
+            Features = features;
+            Permissions = permissions;
         }
 
         public int Save()

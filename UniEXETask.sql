@@ -21,11 +21,20 @@ CREATE TABLE ROLE (
     description NVARCHAR(255)
 );
 
+-- Tạo bảng FEATURE
+CREATE TABLE FEATURE (
+    feature_id INT PRIMARY KEY IDENTITY(1,1),
+    name NVARCHAR(50) NOT NULL,
+    description NVARCHAR(255)
+);
+
 -- Tạo bảng Permission
 CREATE TABLE PERMISSION (
     permission_id INT PRIMARY KEY IDENTITY(1,1),
+	feature_id INT NOT NULL,
     name NVARCHAR(50) NOT NULL,
     description NVARCHAR(255)
+	FOREIGN KEY (feature_id) REFERENCES FEATURE(feature_id),
 );
 
 -- Tạo bảng User
@@ -79,7 +88,7 @@ CREATE TABLE SUBJECT (
     subject_id INT PRIMARY KEY IDENTITY(1,1),
     subject_code NVARCHAR(50) NOT NULL,
     subject_name NVARCHAR(50) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 );
 
@@ -88,7 +97,7 @@ CREATE TABLE PROJECT (
     project_id INT PRIMARY KEY IDENTITY(1,1),
     topic_code NVARCHAR(10) NOT NULL,
     topic_name NVARCHAR(50) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(255) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
@@ -102,7 +111,7 @@ CREATE TABLE TASK (
     task_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
     name NVARCHAR(50) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(255) NOT NULL,
 	due_date DATETIME NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
@@ -128,7 +137,7 @@ CREATE TABLE REQUIREMENT (
     requirement_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
     requestor_id INT NOT NULL,
-	content NVARCHAR(250) NOT NULL,
+	content NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
 );
@@ -137,9 +146,9 @@ CREATE TABLE REQUIREMENT (
 CREATE TABLE RESOURCE (
     resource_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
-    name NVARCHAR(250) NOT NULL,
+    name NVARCHAR(255) NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Status 1', 'Status 2')) NOT NULL,
-	url NVARCHAR(250) NOT NULL,
+	url NVARCHAR(255) NOT NULL,
 	upload_by INT NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
 );
@@ -149,7 +158,7 @@ CREATE TABLE SPONSOR (
     sponsor_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Status 1', 'Status 2')) NOT NULL,
-	investment_field NVARCHAR(250) NOT NULL,
+	investment_field NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
 );
@@ -167,8 +176,8 @@ CREATE TABLE PROJECT_SPONSOR (
 CREATE TABLE MENTOR (
     mentor_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-	title NVARCHAR(250) NOT NULL,
-	specialty NVARCHAR(250) NOT NULL,
+	title NVARCHAR(255) NOT NULL,
+	specialty NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
 );
@@ -186,7 +195,7 @@ CREATE TABLE PROJECT_MENTOR (
 CREATE TABLE [GROUP] (
     group_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
-	group_name NVARCHAR(250) NOT NULL,
+	group_name NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
 );
@@ -200,7 +209,7 @@ CREATE TABLE MEETING_SCHEDULE (
 	meeting_date DATETIME NOT NULL,
 	duration INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
-	content NVARCHAR(250) NOT NULL,
+	content NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id),
@@ -211,7 +220,7 @@ CREATE TABLE STUDENT (
     student_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
 	student_code NVARCHAR(10) NOT NULL,
-	major NVARCHAR(250) NOT NULL,
+	major NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
 );
@@ -231,7 +240,7 @@ CREATE TABLE NOFITICATION (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
-	message NVARCHAR(250) NOT NULL,
+	message NVARCHAR(255) NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
 	created_at DATETIME NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
@@ -257,11 +266,11 @@ CREATE TABLE GROUP_INVITE (
 CREATE TABLE EVENT (
     event_id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(50) NOT NULL,
-    description NVARCHAR(250) NOT NULL,
+    description NVARCHAR(255) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
-	location NVARCHAR(250) NOT NULL,
-	reg_url NVARCHAR(250) NOT NULL,
+	location NVARCHAR(255) NOT NULL,
+	reg_url NVARCHAR(255) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 );
 
@@ -293,12 +302,45 @@ VALUES
 ('mentor', 'Mentor providing guidance to projects'),
 ('sponsor', 'Sponsor investing in projects');
 
--- Thêm dữ liệu mẫu cho bảng Permission
-INSERT INTO PERMISSION (name, description)
+-- Thêm dữ liệu mẫu cho bảng feature
+INSERT INTO FEATURE (name, description)
 VALUES 
-('view_project', 'Permission to view projects'),
-('edit_project', 'Permission to edit projects'),
-('delete_project', 'Permission to delete projects');
+('User Management', 'Feature to manage (view, create, update, delete, import) users'),
+('Project Management', 'Feature to manage (view, create, update, delete) projects'),
+('Event Management', 'Feature to manage (view, create, update, delete) events'),
+('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the project'),
+('Group Management', 'Feature to manage (view, create, update, delete) group'),
+('Resource Management', 'Feature to manage (view, upload, update, delete, download) resources in the project');
+
+-- Thêm dữ liệu mẫu cho bảng Permission
+INSERT INTO PERMISSION (feature_id, name, description)
+VALUES 
+(1, 'view_user', 'Permission to view users'),
+(1, 'create_user', 'Permission to create users'),
+(1, 'edit_user', 'Permission to edit users'),
+(1, 'delete_user', 'Permission to delete users'),
+(1, 'import_user', 'Permission to import users from ecel file'),
+(2, 'view_project', 'Permission to view projects'),
+(2, 'create_project', 'Permission to create projects'),
+(2, 'edit_project', 'Permission to edit projects'),
+(2, 'delete_project', 'Permission to delete projects'),
+(3, 'view_event', 'Permission to view events'),
+(3, 'create_event', 'Permission to create events'),
+(3, 'edit_event', 'Permission to edit events'),
+(3, 'delete_event', 'Permission to delete events'),
+(4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
+(4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
+(4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
+(4, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
+(5, 'view_group', 'Permission to view group'),
+(5, 'create_group', 'Permission to create group'),
+(5, 'edit_group', 'Permission to edit group'),
+(5, 'delete_group', 'Permission to delete group'),
+(6, 'view_resource', 'Permission to view resources'),
+(6, 'upload_resource', 'Permission to create resources'),
+(6, 'edit_resource', 'Permission to edit resources'),
+(6, 'delete_resource', 'Permission to delete resources'),
+(6, 'download_resource', 'Permission to delete resources');
 
 -- Thêm dữ liệu mẫu cho bảng User
 INSERT INTO [USER] (full_name, [password], email, phone, campus_id, role_id)

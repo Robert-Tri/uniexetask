@@ -10,6 +10,9 @@ namespace uniexetask.core.Interfaces
     {
         IUserRepository Users { get; }
         IRefreshTokenRepository RefreshTokens { get; }
+        IRoleRepository Roles { get; }
+        IFeatureRepository Features { get; }
+        IPermissionRepository Permissions { get; }
 
         int Save();
 
