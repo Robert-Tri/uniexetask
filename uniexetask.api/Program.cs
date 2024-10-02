@@ -14,16 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICampusService, CampusService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:3000") // Thay đổi nếu cần
+        builder => builder.WithOrigins("http://localhost:3000") 
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials()); // Nếu bạn cần gửi cookie
+                          .AllowCredentials()); 
 });
 
 
@@ -65,7 +67,7 @@ app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin"); // Thêm dòng này
+app.UseCors("AllowSpecificOrigin"); 
 
 app.UseAuthentication();
 
