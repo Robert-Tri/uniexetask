@@ -15,16 +15,19 @@ namespace uniexetask.infrastructure.Repositories
         public IRoleRepository Roles { get; }
         public IFeatureRepository Features { get; }
         public IPermissionRepository Permissions { get; }
+        public ICampusRepository Campus { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
                             IRefreshTokenRepository refreshTokens,
                             IRoleRepository roles,
                             IFeatureRepository features,
-                            IPermissionRepository permissions)
+                            IPermissionRepository permissions,
+                            ICampusRepository campusRepository)
         {
             _dbContext = dbContext;
             Users = userRepository;
+            Campus = campusRepository;
             RefreshTokens = refreshTokens;
             Roles = roles;
             Features = features;

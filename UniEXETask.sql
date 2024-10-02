@@ -1,4 +1,5 @@
-﻿CREATE DATABASE UniEXETask
+﻿
+CREATE DATABASE UniEXETask
 
 GO
 
@@ -41,7 +42,7 @@ CREATE TABLE PERMISSION (
 CREATE TABLE [USER] (
     user_id INT PRIMARY KEY IDENTITY(1,1),
     full_name NVARCHAR(100) NOT NULL,
-    [password] NVARCHAR(255) NOT NULL,
+    [password] NVARCHAR(255),
     email NVARCHAR(100) NOT NULL UNIQUE,
     phone NVARCHAR(20),
     campus_id INT NOT NULL,
@@ -485,4 +486,3 @@ INSERT INTO REFRESH_TOKEN (user_id, token, expires, created, revoked, status)
 VALUES 
 (1, 'sample_token_123', '2025-01-01', GETDATE(), '2025-01-01', 1),
 (2, 'sample_token_456', '2025-01-01', GETDATE(), '2025-01-01', 1);
-
