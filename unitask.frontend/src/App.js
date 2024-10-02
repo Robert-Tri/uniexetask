@@ -2,6 +2,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginForm from './components/Login/LoginForm';
 import Home from './components/User/Home';
+import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/User/CreateUserForm';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
                     <Route path="/" element={<LoginForm />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/createUser" element={<CreateUserForm />} />
+                    <Route path="/role-permission" element={<RolePermission />} />
                 </Routes>
             </Router>
         </GoogleOAuthProvider>

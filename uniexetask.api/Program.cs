@@ -10,24 +10,22 @@ using Unitask.Api.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", // Đặt tên chính sách CORS
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddScoped<ICampusService, CampusService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:3000") 
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials()); 
-});
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -55,7 +53,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -68,12 +68,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAllOrigins"); // Thêm dòng này
 app.UseMiddleware<JwtMiddleware>();
 
 app.UseHttpsRedirection();
-
-app.UseCors("AllowSpecificOrigin"); 
 
 app.UseAuthentication();
 
