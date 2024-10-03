@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
-
 public partial class ChatGroup
 {
     public int ChatGroupId { get; set; }

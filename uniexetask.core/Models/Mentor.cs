@@ -15,5 +15,5 @@ public partial class Mentor
 
     public virtual User User { get; set; } = null!;
 
-    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 }
