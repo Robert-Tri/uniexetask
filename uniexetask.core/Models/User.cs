@@ -9,7 +9,7 @@ public partial class User
 
     public string FullName { get; set; } = null!;
 
-    public string? Password { get; set; } = null!;
+    public string? Password { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -36,6 +36,8 @@ public partial class User
     public virtual ICollection<Nofitication> NofiticationSenders { get; set; } = new List<Nofitication>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public virtual ICollection<RegForm> RegForms { get; set; } = new List<RegForm>();
 
     public virtual Role Role { get; set; } = null!;
 

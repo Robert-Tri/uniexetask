@@ -17,5 +17,7 @@ public partial class Student
 
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
 
+    public virtual ICollection<TaskAssign> TaskAssigns { get; set; } = new List<TaskAssign>();
+
     public virtual User User { get; set; } = null!;
 }

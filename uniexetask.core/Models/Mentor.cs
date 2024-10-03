@@ -9,11 +9,7 @@ public partial class Mentor
 
     public int UserId { get; set; }
 
-    public string Title { get; set; } = null!;
-
     public string Specialty { get; set; } = null!;
-
-    public string Status { get; set; } = null!;
 
     public virtual ICollection<MeetingSchedule> MeetingSchedules { get; set; } = new List<MeetingSchedule>();
 
