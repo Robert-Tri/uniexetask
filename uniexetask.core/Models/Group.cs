@@ -20,4 +20,6 @@ public partial class Group
     public virtual ICollection<MeetingSchedule> MeetingSchedules { get; set; } = new List<MeetingSchedule>();
 
     public virtual Project Project { get; set; } = null!;
+
+    public virtual ICollection<Mentor> Mentors { get; set; } = new List<Mentor>();
 }

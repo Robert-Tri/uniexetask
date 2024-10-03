@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
-
 public partial class SponsorshipDetail
 {
     public int SponsorshipDetailId { get; set; }
