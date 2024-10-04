@@ -16,6 +16,9 @@ namespace uniexetask.infrastructure.Repositories
         public IFeatureRepository Features { get; }
         public IPermissionRepository Permissions { get; }
         public ICampusRepository Campus { get; }
+        public IProjectRepository Projects { get; }
+        public IGroupRepository Groups { get; }
+        public IMentorRepository Mentors { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -23,7 +26,10 @@ namespace uniexetask.infrastructure.Repositories
                             IRoleRepository roles,
                             IFeatureRepository features,
                             IPermissionRepository permissions,
-                            ICampusRepository campusRepository)
+                            ICampusRepository campusRepository,
+                            IProjectRepository projects,
+                            IGroupRepository groups,
+                            IMentorRepository mentors)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -32,6 +38,9 @@ namespace uniexetask.infrastructure.Repositories
             Roles = roles;
             Features = features;
             Permissions = permissions;
+            Projects = projects;
+            Groups = groups;
+            Mentors = mentors;
         }
 
         public int Save()

@@ -9,15 +9,13 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
 {
-    public class RolePermissionService : IRolePermissionService
+    public class RolePermissionService : IRolePermissionService 
     {
-        private readonly IRoleRepository _roleRepository;
         public IUnitOfWork _unitOfWork;
 
-        public RolePermissionService(IUnitOfWork unitOfWork, IRoleRepository roleRepository)
+        public RolePermissionService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _roleRepository = roleRepository;
         }
 
         public async Task<IEnumerable<Feature>> GetFeatures()
@@ -34,10 +32,10 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Permission>?> GetRolePermissionsByRole(string roleName)
         {
-            var role = await _roleRepository.GetRoleByNameAsync(roleName);
+            var role = await _unitOfWork.Roles.GetRoleByNameAsync(roleName);
             if (role == null) return null;
 
-            var roleWithPermissions = await _roleRepository.GetRoleWithPermissionsAsync(role.RoleId);
+            var roleWithPermissions = await _unitOfWork.Roles.GetRoleWithPermissionsAsync(role.RoleId);
             if (roleWithPermissions == null) return null;
             else
             {

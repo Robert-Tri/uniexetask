@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.services;
@@ -10,7 +11,7 @@ namespace uniexetask.api.Controllers
     //[Authorize]
     [Route("api/role-permission")]
     [ApiController]
-    public class RolePermissionController : Controller
+    public class RolePermissionController : ControllerBase
     {
         public readonly IRolePermissionService _rolePermissionService;
         public RolePermissionController(IRolePermissionService rolePermissionService)
@@ -42,7 +43,6 @@ namespace uniexetask.api.Controllers
 
             var rolePermissions = await _rolePermissionService.GetRolePermissionsByRole(role);
             if (rolePermissions == null) return NotFound();
-
             RolePermissionModel model = new RolePermissionModel
             {
                 Features = features,
