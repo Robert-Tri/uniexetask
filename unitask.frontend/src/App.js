@@ -6,7 +6,6 @@ import LoginForm from './components/Login/LoginForm';
 import Home from './components/user/Home';
 import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/user/CreateUserForm';
-import CreateUserForm from './components/User/CreateUserForm';
 import MentorPendingProjects from './views/project/MentorPendingProjects';
 
 const LayoutRoute = ({ children }) => (
