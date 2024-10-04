@@ -71,7 +71,7 @@
   width: 100%;
 }
 
-h1 {
+.user-form h1 {
   text-align: center;
   color: orange; 
   font-size: 24px;
