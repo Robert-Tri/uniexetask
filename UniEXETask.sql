@@ -124,7 +124,6 @@ CREATE TABLE PROJECT (
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
-	score INT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
@@ -460,10 +459,10 @@ VALUES
 ('EXE102', 'Advanced Entrepreneurship', 2, 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
-INSERT INTO PROJECT (topic_code, topic_name, description, start_date, end_date, subject_id, score, status)
+INSERT INTO PROJECT (topic_code, topic_name, description, start_date, end_date, subject_id, status)
 VALUES 
-('TP001', 'Green Energy', 'Research on renewable energy', '2024-09-01', '2025-01-01', 1, 90, 'Status 1'),
-('TP002', 'Smart City', 'Building smart city systems', '2024-09-01', '2025-01-01', 2, 85, 'Status 2');
+('TP001', 'Green Energy', 'Research on renewable energy', '2024-09-01', '2025-01-01', 1, 'Status 1'),
+('TP002', 'Smart City', 'Building smart city systems', '2024-09-01', '2025-01-01', 2, 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
