@@ -23,11 +23,11 @@ namespace uniexetask.services
             return groups;
         }
 
-        public async Task<Group?> GetGroupWithProjectAsync(int groupId)
+/*        public async Task<Group?> GetGroupWithProjectAsync(int groupId)
         {
             var group = await _unitOfWork.Groups.GetGroupWithProjectAsync(groupId);
             return group;
-        }
+        }*/
 
         public async Task<Group> GetGroupById(int id)
         {

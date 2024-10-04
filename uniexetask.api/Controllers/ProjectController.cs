@@ -48,7 +48,7 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "4")]
+/*        [Authorize(Roles = "4")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetProjectsPendingWithMentor()
         {
@@ -80,6 +80,6 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<ProjectPendingModel>> response = new ApiResponse<IEnumerable<ProjectPendingModel>>();
             response.Data = projects;
             return Ok(response);
-        }
+        }*/
     }
 }
