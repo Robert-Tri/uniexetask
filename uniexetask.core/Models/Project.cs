@@ -7,6 +7,8 @@ public partial class Project
 {
     public int ProjectId { get; set; }
 
+    public int GroupId { get; set; }
+
     public string TopicCode { get; set; } = null!;
 
     public string TopicName { get; set; } = null!;
@@ -23,7 +25,7 @@ public partial class Project
 
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
 
-    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
+    public virtual Group Group { get; set; } = null!;
 
     public virtual ICollection<Requirement> Requirements { get; set; } = new List<Requirement>();
 
