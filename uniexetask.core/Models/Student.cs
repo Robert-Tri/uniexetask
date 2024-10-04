@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
+
 public partial class Student
 {
     public int StudentId { get; set; }

@@ -19,11 +19,20 @@ CREATE TABLE ROLE (
     description NVARCHAR(255)
 );
 
+-- Tạo bảng FEATURE
+CREATE TABLE FEATURE (
+    feature_id INT PRIMARY KEY IDENTITY(1,1),
+    name NVARCHAR(50) NOT NULL,
+    description NVARCHAR(255)
+);
+
 -- Tạo bảng Permission
 CREATE TABLE PERMISSION (
     permission_id INT PRIMARY KEY IDENTITY(1,1),
+	feature_id INT NOT NULL,
     name NVARCHAR(50) NOT NULL,
     description NVARCHAR(255)
+	FOREIGN KEY (feature_id) REFERENCES FEATURE(feature_id),
 );
 
 -- Tạo bảng User
@@ -335,18 +344,51 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng Role
 INSERT INTO ROLE (name, description)
 VALUES 
-('admin', 'Administrator with full access'),
-('manager', 'Manager with project management privileges'),
-('student', 'Student participating in projects'),
-('mentor', 'Mentor providing guidance to projects'),
-('sponsor', 'Sponsor investing in projects');
+('Admin', 'Administrator with full access'),
+('Manager', 'Manager with project management privileges'),
+('Student', 'Student participating in projects'),
+('Mentor', 'Mentor providing guidance to projects'),
+('Sponsor', 'Sponsor investing in projects');
+
+-- Thêm dữ liệu mẫu cho bảng feature
+INSERT INTO FEATURE (name, description)
+VALUES 
+('User Management', 'Feature to manage (view, create, update, delete, import) users'),
+('Project Management', 'Feature to manage (view, create, update, delete) projects'),
+('Event Management', 'Feature to manage (view, create, update, delete) events'),
+('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the project'),
+('Group Management', 'Feature to manage (view, create, update, delete) group'),
+('Resource Management', 'Feature to manage (view, upload, update, delete, download) resources in the project');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
-INSERT INTO PERMISSION (name, description)
+INSERT INTO PERMISSION (feature_id, name, description)
 VALUES 
-('view_project', 'Permission to view projects'),
-('edit_project', 'Permission to edit projects'),
-('delete_project', 'Permission to delete projects');
+(1, 'view_user', 'Permission to view users'),
+(1, 'create_user', 'Permission to create users'),
+(1, 'edit_user', 'Permission to edit users'),
+(1, 'delete_user', 'Permission to delete users'),
+(1, 'import_user', 'Permission to import users from ecel file'),
+(2, 'view_project', 'Permission to view projects'),
+(2, 'create_project', 'Permission to create projects'),
+(2, 'edit_project', 'Permission to edit projects'),
+(2, 'delete_project', 'Permission to delete projects'),
+(3, 'view_event', 'Permission to view events'),
+(3, 'create_event', 'Permission to create events'),
+(3, 'edit_event', 'Permission to edit events'),
+(3, 'delete_event', 'Permission to delete events'),
+(4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
+(4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
+(4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
+(4, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
+(5, 'view_group', 'Permission to view group'),
+(5, 'create_group', 'Permission to create group'),
+(5, 'edit_group', 'Permission to edit group'),
+(5, 'delete_group', 'Permission to delete group'),
+(6, 'view_resource', 'Permission to view resources'),
+(6, 'upload_resource', 'Permission to create resources'),
+(6, 'edit_resource', 'Permission to edit resources'),
+(6, 'delete_resource', 'Permission to delete resources'),
+(6, 'download_resource', 'Permission to delete resources');
 
 -- Thêm dữ liệu mẫu cho bảng User
 INSERT INTO [USER] (full_name, [password], email, phone, campus_id, role_id)
@@ -393,11 +435,11 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
-(1, 1), (1, 2), (1, 3), -- Admin có toàn quyền
-(2, 1), (2, 2),         -- Manager có quyền xem và chỉnh sửa dự án
-(3, 1),                 -- Student chỉ có quyền xem dự án
-(4, 1),                 -- Mentor có quyền xem dự án
-(5, 1);                 -- Sponsor có quyền xem dự án
+(1, 1), (1, 2), (1, 3),
+(2, 1), (2, 2),
+(3, 1),
+(4, 1),
+(5, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chatbox_name, created_by, owner_id, type)
@@ -501,9 +543,3 @@ INSERT INTO EVENT (name, description, start_date, end_date, location, reg_url, s
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', 'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
 ('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', 'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
-
--- Thêm dữ liệu mẫu cho bảng REFRESHTOKEN
-INSERT INTO REFRESH_TOKEN (user_id, token, expires, created, revoked, status)
-VALUES 
-(1, 'sample_token_123', '2025-01-01', GETDATE(), '2025-01-01', 1),
-(2, 'sample_token_456', '2025-01-01', GETDATE(), '2025-01-01', 1);
