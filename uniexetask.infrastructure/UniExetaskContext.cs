@@ -723,6 +723,8 @@ public partial class UniExetaskContext : DbContext
             entity.Property(e => e.StudentCode)
                 .HasMaxLength(10)
                 .HasColumnName("student_code");
+            entity.HasIndex(e => e.StudentCode)
+                .IsUnique();
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.Students)

@@ -62,10 +62,10 @@ CREATE TABLE ROLE_PERMISSION (
 CREATE TABLE STUDENT (
     student_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-	student_code NVARCHAR(10) NOT NULL,
-	major NVARCHAR(250) NOT NULL,
-	is_eligible BIT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+    student_code NVARCHAR(10) NOT NULL UNIQUE,
+    major NVARCHAR(250) NOT NULL,
+    is_eligible BIT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng MENTOR
@@ -404,10 +404,10 @@ VALUES
 ('Student User 3', 'hashed_password', 'student3@uniexetask.com', '0901000009', 2, 3),
 ('Mentor User 3', 'hashed_password', 'mentor3@uniexetask.com', '0901000010', 3, 4),
 ('Sponsor User 3', 'hashed_password', 'sponsor3@uniexetask.com', '0901000011', 3, 5),
-('Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
-('Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
-('Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
-('Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
+(N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
+(N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
+(N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
+(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
 
 -- Thêm dữ liệu mẫu cho bảng STUDENT
 INSERT INTO STUDENT (user_id, student_code, major, is_eligible)
@@ -415,10 +415,10 @@ VALUES
 (3, 'ST12345', 'Computer Science', 1),
 (6, 'ST67890', 'Information Technology', 1),
 (9, 'SS162981', 'Financial Economics', 0),
-(12, 'ST12345', 'Software Engineering', 1),
-(13, 'ST12345', 'Software Engineering', 1),
-(14, 'ST12345', 'Software Engineering', 1),
-(15, 'ST12345', 'Software Engineering', 1);
+(12, 'SE162014', 'Software Engineering', 1),
+(13, 'SE162032', 'Software Engineering', 1),
+(14, 'SE162087', 'Software Engineering', 1),
+(15, 'SE162056', 'Software Engineering', 1);
 
 -- Thêm dữ liệu mẫu cho bảng SPONSOR
 INSERT INTO SPONSOR (user_id)
@@ -541,5 +541,5 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng EVENT
 INSERT INTO EVENT (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
-('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', 'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
-('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', 'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
+('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
