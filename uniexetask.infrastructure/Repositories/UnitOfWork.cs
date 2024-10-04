@@ -74,6 +74,7 @@ namespace uniexetask.infrastructure.Repositories
             if (group != null && mentor != null)
             {
                 group.Mentors.Add(mentor);
+                group.Status = "Status 2";
                 await _dbContext.SaveChangesAsync();
             }  
         }
