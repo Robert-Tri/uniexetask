@@ -188,10 +188,10 @@ namespace uniexetask.api.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateUser(User user)
+        public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
             ApiResponse<bool> respone = new ApiResponse<bool>();
-            var isUserUpdated = await _userService.UpdateUser(user);
+            var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
             if (isUserUpdated)
             {
                 respone.Data = isUserUpdated;

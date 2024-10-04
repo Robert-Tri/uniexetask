@@ -77,7 +77,7 @@ namespace uniexetask.services
                     user.FullName = users.FullName;
                     user.Email = users.Email;
                     user.Password = users.Password;
-                    user.Campus = users.Campus;
+                    user.CampusId = users.CampusId;
                     user.Phone = users.Phone;
                     user.Status = users.Status;
                     user.RoleId = users.RoleId;

@@ -21,5 +21,7 @@ namespace uniexetask.core.Interfaces
         int Save();
 
         Task<int> SaveAsync();
+
+        Task AddMentorToGroup(int groupId, int mentorId);
     }
 }
