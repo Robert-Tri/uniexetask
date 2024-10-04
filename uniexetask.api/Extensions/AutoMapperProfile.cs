@@ -9,7 +9,7 @@ namespace Unitask.Api.Extensions
         public AutoMapperProfile()
         {
             CreateMap<UserModel, User>().ReverseMap();
-
+            CreateMap<UserUpdateModel, User>().ReverseMap();
         }
     }
 }
