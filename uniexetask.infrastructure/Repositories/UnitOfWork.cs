@@ -66,5 +66,16 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await _dbContext.SaveChangesAsync();
         }
+        public async Task AddMentorToGroup(int groupId, int mentorId)
+        {
+            var group = await _dbContext.Groups.FindAsync(groupId);
+            var mentor = await _dbContext.Mentors.FindAsync(mentorId);
+
+            if (group != null && mentor != null)
+            {
+                group.Mentors.Add(mentor);
+                await _dbContext.SaveChangesAsync();
+            }  
+        }
     }
 }

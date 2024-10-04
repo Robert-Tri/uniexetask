@@ -17,10 +17,27 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<IEnumerable<Group>> GetGroupsAsync()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.Status.Equals("status 1"));
+            return groups;
+        }
+
         public async Task<Group?> GetGroupWithProjectAsync(int groupId)
         {
             var group = await _unitOfWork.Groups.GetGroupWithProjectAsync(groupId);
             return group;
+        }
+
+        public async Task<Group> GetGroupById(int id)
+        {
+            var group = await _unitOfWork.Groups.GetByIDAsync(id);
+            return group;
+        }
+
+        public async System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId)
+        {
+            await _unitOfWork.AddMentorToGroup(groupId, mentorId);
         }
     }
 }

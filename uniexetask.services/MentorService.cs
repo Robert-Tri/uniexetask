@@ -28,5 +28,15 @@ namespace uniexetask.services
             var mentorWithGroup = await _unitOfWork.Mentors.GetMentorWithGroupAsync(mentor.MentorId);
             return mentorWithGroup;
         }
+        public async Task<Mentor> GetMentorById(int id)
+        {
+            var mentor = await _unitOfWork.Mentors.GetByIDAsync(id);
+            return mentor;
+        }
+        public async Task<IEnumerable<Mentor>> GetMentorsAsync()
+        {
+            var mentors = await _unitOfWork.Mentors.GetAsync();
+            return mentors;
+        }
     }
 }
