@@ -27,6 +27,9 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IFeatureRepository, FeatureRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped<IMentorRepository, MentorRepository>();
 
             return services;
         }

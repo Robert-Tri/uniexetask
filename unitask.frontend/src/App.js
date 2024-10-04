@@ -6,6 +6,8 @@ import LoginForm from './components/Login/LoginForm';
 import Home from './components/user/Home';
 import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/user/CreateUserForm';
+import CreateUserForm from './components/User/CreateUserForm';
+import MentorPendingProjects from './views/project/MentorPendingProjects';
 
 const LayoutRoute = ({ children }) => (
   <Layout>
@@ -22,6 +24,7 @@ function App() {
                     <Route path="/home" element={<LayoutRoute><Home /></LayoutRoute>} />
                     <Route path="/createUser" element={<LayoutRoute><CreateUserForm /></LayoutRoute>} />
                     <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
+                    <Route path="/projects/pending" element={<MentorPendingProjects />} />
                 </Routes>
             </Router>
         </GoogleOAuthProvider>
