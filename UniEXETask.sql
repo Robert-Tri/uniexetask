@@ -1,12 +1,9 @@
-﻿
+﻿USE master
+GO
 CREATE DATABASE UniEXETask
-
 GO
-
 USE UniEXETask
-
 GO
-
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
@@ -22,11 +19,20 @@ CREATE TABLE ROLE (
     description NVARCHAR(255)
 );
 
+-- Tạo bảng FEATURE
+CREATE TABLE FEATURE (
+    feature_id INT PRIMARY KEY IDENTITY(1,1),
+    name NVARCHAR(50) NOT NULL,
+    description NVARCHAR(255)
+);
+
 -- Tạo bảng Permission
 CREATE TABLE PERMISSION (
     permission_id INT PRIMARY KEY IDENTITY(1,1),
+	feature_id INT NOT NULL,
     name NVARCHAR(50) NOT NULL,
     description NVARCHAR(255)
+	FOREIGN KEY (feature_id) REFERENCES FEATURE(feature_id),
 );
 
 -- Tạo bảng User
@@ -43,16 +49,6 @@ CREATE TABLE [USER] (
     FOREIGN KEY (role_id) REFERENCES ROLE(role_id)
 );
 
--- Tạo bảng STUDENT
-CREATE TABLE STUDENT (
-    student_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-	student_code NVARCHAR(10) NOT NULL,
-	major NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
-);
-
 -- Tạo bảng ROLE_PERMISSION
 CREATE TABLE ROLE_PERMISSION (
     role_id INT NOT NULL,
@@ -60,6 +56,31 @@ CREATE TABLE ROLE_PERMISSION (
     PRIMARY KEY (role_id, permission_id),
     FOREIGN KEY (role_id) REFERENCES Role(role_id),
     FOREIGN KEY (permission_id) REFERENCES PERMISSION(permission_id)
+);
+
+-- Tạo bảng STUDENT
+CREATE TABLE STUDENT (
+    student_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+	student_code NVARCHAR(10) NOT NULL,
+	major NVARCHAR(250) NOT NULL,
+	is_eligible BIT NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+);
+
+-- Tạo bảng MENTOR
+CREATE TABLE MENTOR (
+    mentor_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+	specialty NVARCHAR(250) NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+);
+
+-- Tạo bảng SPONSOR
+CREATE TABLE SPONSOR (
+    sponsor_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng CHAT_GROUP
@@ -71,7 +92,7 @@ CREATE TABLE CHAT_GROUP (
 	owner_id INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Public', 'Private')) NOT NULL,
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
-	FOREIGN KEY (owner_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng CHAT_MESSAGE
@@ -91,7 +112,7 @@ CREATE TABLE SUBJECT (
     subject_code NVARCHAR(50) NOT NULL,
     subject_name NVARCHAR(50) NOT NULL,
 	description NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
 );
 
 -- Tạo bảng PROJECT
@@ -105,7 +126,7 @@ CREATE TABLE PROJECT (
 	subject_id INT NOT NULL,
 	score INT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
 -- Tạo bảng TASK
@@ -117,7 +138,7 @@ CREATE TABLE TASK (
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
 -- Tạo bảng TASK_ASSIGN
@@ -127,13 +148,13 @@ CREATE TABLE TASK_ASSIGN (
     student_id INT NOT NULL,
 	completion_date DATETIME NOT NULL,
 	FOREIGN KEY (task_id) REFERENCES TASK(task_id),
-	FOREIGN KEY (student_id) REFERENCES STUDENT(student_id),
+	FOREIGN KEY (student_id) REFERENCES STUDENT(student_id)
 );
 
 -- Tạo bảng LABEL
 CREATE TABLE LABEL (
     label_id INT PRIMARY KEY IDENTITY(1,1),
-    label_name NVARCHAR(50) NOT NULL,	
+    label_name NVARCHAR(50) NOT NULL
 );
 
 -- Tạo bảng PROJECT_LABEL
@@ -152,10 +173,10 @@ CREATE TABLE REQUIREMENT (
     requestor_id INT NOT NULL,
 	content NVARCHAR(250) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
--- Tạo bảng RESOURCE
+-- Tạo bảng DOCUMENT
 CREATE TABLE DOCUMENT (
     document_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
@@ -164,14 +185,7 @@ CREATE TABLE DOCUMENT (
 	url NVARCHAR(250) NOT NULL,
 	upload_by INT NOT NULL,
 	is_financial_report BIT NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-);
-
--- Tạo bảng SPONSOR
-CREATE TABLE SPONSOR (
-    sponsor_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
 -- Tạo bảng PROJECT_SPONSOR
@@ -185,30 +199,22 @@ CREATE TABLE SPONSORSHIP_DETAIL (
     FOREIGN KEY (sponsor_id) REFERENCES SPONSOR(sponsor_id)
 );
 
--- Tạo bảng MENTOR
-CREATE TABLE MENTOR (
-    mentor_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-	specialty NVARCHAR(250) NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
-);
-
--- Tạo bảng PROJECT_MENTOR
-CREATE TABLE PROJECT_MENTOR (
-    project_id INT NOT NULL,
-    mentor_id INT NOT NULL,
-    PRIMARY KEY (project_id, mentor_id),
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-    FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
-);
-
 -- Tạo bảng GROUP
 CREATE TABLE [GROUP] (
     group_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
 	group_name NVARCHAR(250) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
+);
+
+-- Tạo bảng MENTOR_GROUP
+CREATE TABLE MENTOR_GROUP (
+    group_id INT NOT NULL,
+    mentor_id INT NOT NULL,
+    PRIMARY KEY (group_id, mentor_id),
+    FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
+    FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
 -- Tạo bảng MEETING_SCHEDULE
@@ -223,7 +229,7 @@ CREATE TABLE MEETING_SCHEDULE (
 	content NVARCHAR(250) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
-	FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id),
+	FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
 -- Tạo bảng GROUP_MEMBER
@@ -246,7 +252,7 @@ CREATE TABLE NOFITICATION (
 	created_at DATETIME NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (sender_id) REFERENCES [USER](user_id),
-	FOREIGN KEY (receiver_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (receiver_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng GROUP_INVITE
@@ -272,7 +278,7 @@ CREATE TABLE EVENT (
 	end_date DATETIME NOT NULL,
 	location NVARCHAR(250) NOT NULL,
 	reg_url NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
 );
 
 -- Tạo bảng SCORE_COMPONENT
@@ -283,7 +289,7 @@ CREATE TABLE SCORE_COMPONENT (
     percentage FLOAT NOT NULL,
 	milestone_name NVARCHAR(100) NOT NULL,
 	created_date DATETIME DEFAULT GETDATE() NOT NULL,
-    updated_date DATETIME NOT NULL,
+    updated_date DATETIME NOT NULL
 );
 
 -- Tạo bảng SCORE
@@ -295,7 +301,7 @@ CREATE TABLE SCORE (
 	scored_by NVARCHAR(100) NOT NULL,
 	rating_status BIT NOT NULL,
 	FOREIGN KEY (component_id) REFERENCES SCORE_COMPONENT(component_id),
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
 -- Tạo bảng REFRESH_TOKEN
@@ -307,14 +313,14 @@ CREATE TABLE REFRESH_TOKEN (
 	created  DATETIME DEFAULT GETDATE() NOT NULL,
 	revoked  DATETIME NOT NULL,
 	status BIT NOT NULL DEFAULT 1,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng ROLE_REG
 CREATE TABLE ROLE_REG (
     role_reg_id INT PRIMARY KEY IDENTITY(1,1),
     role_reg_name INT NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(250) NOT NULL
 );
 
 -- Tạo bảng REG_FORM
@@ -324,7 +330,7 @@ CREATE TABLE REG_FORM (
 	role_reg_id INT NOT NULL,
 	content_reg NVARCHAR(250) NOT NULL,
 	FOREIGN KEY (user_reg_id) REFERENCES [USER](user_id),
-    FOREIGN KEY (role_reg_id) REFERENCES ROLE_REG(role_reg_id),
+    FOREIGN KEY (role_reg_id) REFERENCES ROLE_REG(role_reg_id)
 );
 
 
@@ -338,36 +344,102 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng Role
 INSERT INTO ROLE (name, description)
 VALUES 
-('admin', 'Administrator with full access'),
-('manager', 'Manager with project management privileges'),
-('student', 'Student participating in projects'),
-('mentor', 'Mentor providing guidance to projects'),
-('sponsor', 'Sponsor investing in projects');
+('Admin', 'Administrator with full access'),
+('Manager', 'Manager with project management privileges'),
+('Student', 'Student participating in projects'),
+('Mentor', 'Mentor providing guidance to projects'),
+('Sponsor', 'Sponsor investing in projects');
+
+-- Thêm dữ liệu mẫu cho bảng feature
+INSERT INTO FEATURE (name, description)
+VALUES 
+('User Management', 'Feature to manage (view, create, update, delete, import) users'),
+('Project Management', 'Feature to manage (view, create, update, delete) projects'),
+('Event Management', 'Feature to manage (view, create, update, delete) events'),
+('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the project'),
+('Group Management', 'Feature to manage (view, create, update, delete) group'),
+('Resource Management', 'Feature to manage (view, upload, update, delete, download) resources in the project');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
-INSERT INTO PERMISSION (name, description)
+INSERT INTO PERMISSION (feature_id, name, description)
 VALUES 
-('view_project', 'Permission to view projects'),
-('edit_project', 'Permission to edit projects'),
-('delete_project', 'Permission to delete projects');
+(1, 'view_user', 'Permission to view users'),
+(1, 'create_user', 'Permission to create users'),
+(1, 'edit_user', 'Permission to edit users'),
+(1, 'delete_user', 'Permission to delete users'),
+(1, 'import_user', 'Permission to import users from ecel file'),
+(2, 'view_project', 'Permission to view projects'),
+(2, 'create_project', 'Permission to create projects'),
+(2, 'edit_project', 'Permission to edit projects'),
+(2, 'delete_project', 'Permission to delete projects'),
+(3, 'view_event', 'Permission to view events'),
+(3, 'create_event', 'Permission to create events'),
+(3, 'edit_event', 'Permission to edit events'),
+(3, 'delete_event', 'Permission to delete events'),
+(4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
+(4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
+(4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
+(4, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
+(5, 'view_group', 'Permission to view group'),
+(5, 'create_group', 'Permission to create group'),
+(5, 'edit_group', 'Permission to edit group'),
+(5, 'delete_group', 'Permission to delete group'),
+(6, 'view_resource', 'Permission to view resources'),
+(6, 'upload_resource', 'Permission to create resources'),
+(6, 'edit_resource', 'Permission to edit resources'),
+(6, 'delete_resource', 'Permission to delete resources'),
+(6, 'download_resource', 'Permission to delete resources');
 
 -- Thêm dữ liệu mẫu cho bảng User
 INSERT INTO [USER] (full_name, [password], email, phone, campus_id, role_id)
 VALUES 
 ('Admin User', 'hashed_password', 'admin@uniexetask.com', '0901000001', 1, 1),
 ('Manager User', 'hashed_password', 'manager@uniexetask.com', '0901000002', 2, 2),
-('Student User', 'hashed_password', 'student@uniexetask.com', '0901000003', 3, 3),
-('Mentor User', 'hashed_password', 'mentor@uniexetask.com', '0901000004', 1, 4),
-('Sponsor User', 'hashed_password', 'sponsor@uniexetask.com', '0901000005', 2, 5);
+('Student User 1', 'hashed_password', 'student1@uniexetask.com', '0901000003', 3, 3),
+('Mentor User 1', 'hashed_password', 'mentor1@uniexetask.com', '0901000004', 1, 4),
+('Sponsor User 1', 'hashed_password', 'sponsor1@uniexetask.com', '0901000005', 2, 5),
+('Student User 2', 'hashed_password', 'student2@uniexetask.com', '0901000006', 1, 3),
+('Mentor User 2', 'hashed_password', 'mentor2@uniexetask.com', '0901000007', 2, 4),
+('Sponsor User 2', 'hashed_password', 'sponsor2@uniexetask.com', '0901000008', 1, 5),
+('Student User 3', 'hashed_password', 'student3@uniexetask.com', '0901000009', 2, 3),
+('Mentor User 3', 'hashed_password', 'mentor3@uniexetask.com', '0901000010', 3, 4),
+('Sponsor User 3', 'hashed_password', 'sponsor3@uniexetask.com', '0901000011', 3, 5),
+('Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
+('Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
+('Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
+('Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
+
+-- Thêm dữ liệu mẫu cho bảng STUDENT
+INSERT INTO STUDENT (user_id, student_code, major, is_eligible)
+VALUES 
+(3, 'ST12345', 'Computer Science', 1),
+(6, 'ST67890', 'Information Technology', 1),
+(9, 'SS162981', 'Financial Economics', 0),
+(12, 'ST12345', 'Software Engineering', 1),
+(13, 'ST12345', 'Software Engineering', 1),
+(14, 'ST12345', 'Software Engineering', 1),
+(15, 'ST12345', 'Software Engineering', 1);
+
+-- Thêm dữ liệu mẫu cho bảng SPONSOR
+INSERT INTO SPONSOR (user_id)
+VALUES 
+(5),
+(8);
+
+-- Thêm dữ liệu mẫu cho bảng MENTOR
+INSERT INTO MENTOR (user_id, specialty)
+VALUES 
+(4, 'Renewable Energy'),
+(7, 'Urban Planning');
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
-(1, 1), (1, 2), (1, 3), -- Admin có toàn quyền
-(2, 1), (2, 2),         -- Manager có quyền xem và chỉnh sửa dự án
-(3, 1),                 -- Student chỉ có quyền xem dự án
-(4, 1),                 -- Mentor có quyền xem dự án
-(5, 1);                 -- Sponsor có quyền xem dự án
+(1, 1), (1, 2), (1, 3),
+(2, 1), (2, 2),
+(3, 1),
+(4, 1),
+(5, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chatbox_name, created_by, owner_id, type)
@@ -429,23 +501,6 @@ VALUES
 (1, 'Energy Research Report', 'Status 1', 'http://example.com/energy_report.pdf', 1, 0),
 (2, 'Smart City Plan', 'Status 2', 'http://example.com/smart_city_plan.pdf', 2, 0);
 
--- Thêm dữ liệu mẫu cho bảng SPONSOR
-INSERT INTO SPONSOR (user_id)
-VALUES 
-(5),
-(5);
-
--- Thêm dữ liệu mẫu cho bảng MENTOR
-INSERT INTO MENTOR (user_id, specialty, status)
-VALUES 
-(4, 'Renewable Energy', 'Status 1'),
-(4, 'Urban Planning', 'Status 2');
-
--- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
-INSERT INTO PROJECT_MENTOR (project_id, mentor_id)
-VALUES 
-(1, 1), 
-(2, 2);
 
 -- Thêm dữ liệu mẫu cho bảng GROUP
 INSERT INTO [GROUP] (project_id, group_name, status)
@@ -453,17 +508,17 @@ VALUES
 (1, 'Green Energy Team', 'Status 1'),
 (2, 'Smart City Team', 'Status 2');
 
+-- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
+INSERT INTO MENTOR_GROUP (group_id, mentor_id)
+VALUES 
+(1, 1), 
+(2, 2);
+
 -- Thêm dữ liệu mẫu cho bảng MEETING_SCHEDULE
 INSERT INTO MEETING_SCHEDULE (group_id, mentor_id, location, meeting_date, duration, type, content, status)
 VALUES 
 (1, 1, 1, '2024-10-01', 60, 'Offline', 'Discussing project progress', 'Status 1'),
 (2, 2, 2, '2024-11-01', 90, 'Online', 'Planning prototype development', 'Status 2');
-
--- Thêm dữ liệu mẫu cho bảng STUDENT
-INSERT INTO STUDENT (user_id, student_code, major, status)
-VALUES 
-(3, 'ST12345', 'Computer Science', 'Status 1'),
-(3, 'ST67890', 'Information Technology', 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP_MEMBER
 INSERT INTO GROUP_MEMBER (group_id, student_id, role)
@@ -478,7 +533,7 @@ VALUES
 (2, 3, 'Meeting reminder', 'Online', GETDATE(), 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP_INVITE
-INSERT INTO GROUP_INVITE (group_id, notification_id, inviter_id, invitee_id, created_at, updated_at, status)
+INSERT INTO GROUP_INVITE (group_id, notification_id, inviter_id, invitee_id, created_date, updated_date, status)
 VALUES 
 (1, 1, 1, 2, GETDATE(), GETDATE(), 'Status 1'),
 (2, 2, 2, 3, GETDATE(), GETDATE(), 'Status 2');
@@ -488,9 +543,3 @@ INSERT INTO EVENT (name, description, start_date, end_date, location, reg_url, s
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', 'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
 ('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', 'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
-
--- Thêm dữ liệu mẫu cho bảng REFRESHTOKEN
-INSERT INTO REFRESH_TOKEN (user_id, token, expires, created, revoked, status)
-VALUES 
-(1, 'sample_token_123', '2025-01-01', GETDATE(), '2025-01-01', 1),
-(2, 'sample_token_456', '2025-01-01', GETDATE(), '2025-01-01', 1);

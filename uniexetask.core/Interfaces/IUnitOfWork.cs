@@ -14,6 +14,9 @@ namespace uniexetask.core.Interfaces
         IRoleRepository Roles { get; }
         IFeatureRepository Features { get; }
         IPermissionRepository Permissions { get; }
+        IProjectRepository Projects { get; }
+        IGroupRepository Groups { get; }
+        IMentorRepository Mentors { get; }
 
         int Save();
 

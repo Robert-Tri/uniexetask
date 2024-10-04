@@ -38,6 +38,4 @@ public partial class Project
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 
     public virtual ICollection<Label> Labels { get; set; } = new List<Label>();
-
-    public virtual ICollection<Mentor> Mentors { get; set; } = new List<Mentor>();
 }
