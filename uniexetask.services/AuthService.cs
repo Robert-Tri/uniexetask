@@ -12,24 +12,20 @@ namespace uniexetask.services
     public class AuthService : IAuthService
     {
         public IUnitOfWork _unitOfWork;
-        private readonly IUserRepository _userRepository;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthService(IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository, IUnitOfWork unitOfWork)
+        public AuthService(IUnitOfWork unitOfWork)
         {
-            _userRepository = userRepository;
-            _refreshTokenRepository = refreshTokenRepository;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<User?> GetUserByRefreshToken(string? refreshToken)
         {
-            var rt = await _refreshTokenRepository.GetUserByRefreshTokenAsync(refreshToken);
+            var rt = await _unitOfWork.RefreshTokens.GetUserByRefreshTokenAsync(refreshToken);
             if (rt == null)
             {
                 return null;
             }
-            var user = await _userRepository.GetByIDAsync(rt.UserId);
+            var user = await _unitOfWork.Users.GetByIDAsync(rt.UserId);
             if (user == null) 
             {
                 return null;
@@ -39,7 +35,7 @@ namespace uniexetask.services
 
         public async Task<User?> LoginAsync(string email, string password)
         {
-            var user = await _userRepository.AuthenticateAsync(email, password);
+            var user = await _unitOfWork.Users.AuthenticateAsync(email, password);
             if (user == null)
             {
                 return null;
@@ -66,7 +62,7 @@ namespace uniexetask.services
 
         private async System.Threading.Tasks.Task  RevokeRefreshToken(int id)
         {
-            var rts = await _refreshTokenRepository.GetRefreshTokensByUserId(id);
+            var rts = await _unitOfWork.RefreshTokens.GetRefreshTokensByUserId(id);
             if (rts != null)
             {
                 foreach (var token in rts)
@@ -87,7 +83,7 @@ namespace uniexetask.services
                 // Log email tìm kiếm
                 Console.WriteLine($"Tìm kiếm user với email: {email}");
 
-                var user = await _userRepository.GetUserByEmailAsync(email);
+                var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
 
                 // Kiểm tra xem user có tồn tại không
                 if (user == null)

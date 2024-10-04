@@ -44,16 +44,40 @@ namespace uniexetask.api.Middleware
                 }
                 else
                 {
-                    var refreshTokenResult = await RefreshAccessToken(rt);
-                    if (refreshTokenResult != null)
+                    var newAccessToken = await RefreshAccessToken(rt);
+                    if (newAccessToken != null)
                     {
-                        context.Response.Cookies.Append("AccessToken", refreshTokenResult.AccessToken);
-                        context.User = ValidateToken(refreshTokenResult.AccessToken);
+                        context.Response.Cookies.Append("AccessToken", newAccessToken);
+                        context.User = ValidateToken(newAccessToken);
+                    }
+                    else
+                    {
+                        await HandleUnauthorized(context);
+                        return;
                     }
                 }
             }
+            else
+            {
+                await HandleUnauthorized(context);
+                return;
+            }
 
             await _next(context);
+        }
+
+        private async Task HandleUnauthorized(HttpContext context)
+        {
+            if (context.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Unauthorized");
+            }
+            else
+            {
+                // For regular requests, redirect to login page
+                context.Response.Redirect("https://localhost:3000");
+            }
         }
 
         public ClaimsPrincipal? ValidateToken(string token)
@@ -84,15 +108,15 @@ namespace uniexetask.api.Middleware
             }
         }
 
-        private async Task<TokenModel> RefreshAccessToken(string refreshToken)
+        private async Task<string?> RefreshAccessToken(string refreshToken)
         {
             using (var httpClient = new HttpClient())
             {
-                var response = await httpClient.PostAsJsonAsync("api/auth/refresh-token", new { RefreshToken = refreshToken });
+                var response = await httpClient.PostAsJsonAsync("https://localhost:7289/api/auth/refresh-token", new { RefreshToken = refreshToken });
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<TokenModel>();
+                    return await response.Content.ReadAsStringAsync();
                 }
                 return null;
             }

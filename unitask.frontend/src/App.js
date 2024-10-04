@@ -4,6 +4,7 @@ import LoginForm from './components/Login/LoginForm';
 import Home from './components/User/Home';
 import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/User/CreateUserForm';
+import MentorPendingProjects from './views/project/MentorPendingProjects';
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/createUser" element={<CreateUserForm />} />
                     <Route path="/role-permission" element={<RolePermission />} />
+                    <Route path="/projects/pending" element={<MentorPendingProjects />} />
                 </Routes>
             </Router>
         </GoogleOAuthProvider>
