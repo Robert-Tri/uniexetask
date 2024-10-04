@@ -9,6 +9,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface IProjectService
     {
+        Task<IEnumerable<Project>> GetAllProjects();
         Task<Project?> GetProjectsPendingAsync(int projectId);
     }
 }

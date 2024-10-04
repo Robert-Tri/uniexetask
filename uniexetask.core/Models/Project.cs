@@ -19,8 +19,6 @@ public partial class Project
 
     public int SubjectId { get; set; }
 
-    public int Score { get; set; }
-
     public string Status { get; set; } = null!;
 
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();

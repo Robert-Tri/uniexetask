@@ -15,6 +15,11 @@ namespace uniexetask.infrastructure.Repositories
         {
         }
 
+        public async Task<IEnumerable<Project>> GetAllProjects()
+        {
+            return await dbSet.ToListAsync();
+        }
+
         public async Task<Project?> GetProjectsPendingAsync(int projectId)
         {
             return await dbSet.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.Status.Equals("Status 1"));

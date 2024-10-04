@@ -17,6 +17,12 @@ namespace uniexetask.services
         {
             _unitOfWork = unitOfWork;
         }
+        public async Task<IEnumerable<Project>> GetAllProjects()
+
+        {
+            var project = await _unitOfWork.Projects.GetAllProjects();
+            return project;
+        }
 
         public async Task<Project?> GetProjectsPendingAsync(int projectId)
         {
