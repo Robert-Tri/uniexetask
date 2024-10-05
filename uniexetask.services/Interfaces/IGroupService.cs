@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Models;
+﻿using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
@@ -17,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> CreateGroup(Group group);
         Task<Group> GetGroupById(int id);
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);
+        System.Threading.Tasks.Task AddMentorToGroupAutomatically();
     }
 }

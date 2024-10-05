@@ -96,32 +96,8 @@ namespace uniexetask.api.Controllers
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
-            var groups = (IEnumerable<dynamic>)(await _groupService.GetApprovedGroupsAsync());
-            var mentors = await _mentorService.GetMentorsAsync();
-            int totalGroups = groups.Count();
-            int totalMentors = mentors.Count();
-            int average = totalGroups / totalMentors;
-            int remainder = totalGroups % totalMentors;
-            int groupIndex = 0;
+            await _groupService.AddMentorToGroupAutomatically();
 
-            foreach (var mentor in mentors)
-            {
-                int groupsToAssign = average + (remainder > 0 ? 1 : 0);
-
-                for (int i = 0; i < groupsToAssign; i++)
-                {
-                    if (groupIndex >= totalGroups)
-                        break;
-
-                    var group = groups.ElementAt(groupIndex);
-                    await _groupService.AddMentorToGroup(group.GroupId, mentor.MentorId);
-                    groupIndex++;
-                }
-                if (remainder > 0)
-                {
-                    remainder--;
-                }
-            }
             return Ok();
         }
 
