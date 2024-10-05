@@ -9,7 +9,6 @@ const ProjectList = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Dùng axios để call API
     axios
       .get(`${API_BASE_URL}api/projects`)
       .then((response) => {

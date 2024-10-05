@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
 
-public partial class ScoreComponent
+public partial class Criterion
 {
-    public int ComponentId { get; set; }
+    public int CriteriaId { get; set; }
 
-    public string ComponentName { get; set; } = null!;
+    public string CriteriaName { get; set; } = null!;
 
     public string Description { get; set; } = null!;
 
@@ -19,5 +19,5 @@ public partial class ScoreComponent
 
     public DateTime UpdatedDate { get; set; }
 
-    public virtual ICollection<Score> Scores { get; set; } = new List<Score>();
+    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 }

@@ -23,6 +23,30 @@ namespace uniexetask.api.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("group-subject")]
+        public async Task<IActionResult> GetGroupAndSubject()
+        {
+            var groupsList = await _groupService.GetGroupAndSubject();
+            if (groupsList == null)
+            {
+                return NotFound();
+            }
+            List<GroupListModel> groups = new List<GroupListModel>();
+            foreach (var group in groupsList)
+            {
+                if (group != null) groups.Add(new GroupListModel
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    SubjectName = group.Subject.SubjectName,
+                    HasMentor = group.HasMentor
+                });
+            }
+            ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
+            response.Data = groups;
+            return Ok(response);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetGroupList()
         {
