@@ -11,6 +11,7 @@ import MentorPendingProjects from './views/project/MentorPendingProjects';
 import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
+import GroupDetail from './components/group/GroupDetail'; // Import GroupDetail
 
 const LayoutRoute = ({ children }) => (
   <Layout>
@@ -19,24 +20,24 @@ const LayoutRoute = ({ children }) => (
 );
 
 function App() {
-    return (
-        <GoogleOAuthProvider clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com">
-            <Router>
-                <Routes>
-                    <Route path="/" element={<LoginForm />} />
-                    <Route path="/home" element={<LayoutRoute><Home /></LayoutRoute>} />
-                    <Route path="/createUser" element={<LayoutRoute><CreateUserForm /></LayoutRoute>} />
-                    <Route path="/addMember" element={<LayoutRoute><AddMemberForm /></LayoutRoute>} />
-                    <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
-                    <Route path="/projects/pending" element={<MentorPendingProjects />} />
-                    <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />
-                    <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
-                    <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
-
-                </Routes>
-            </Router>
-        </GoogleOAuthProvider>
-    );
+  return (
+    <GoogleOAuthProvider clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com">
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginForm />} />
+          <Route path="/home" element={<LayoutRoute><Home /></LayoutRoute>} />
+          <Route path="/createUser" element={<LayoutRoute><CreateUserForm /></LayoutRoute>} />
+          <Route path="/addMember" element={<LayoutRoute><AddMemberForm /></LayoutRoute>} />
+          <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
+          <Route path="/projects/pending" element={<MentorPendingProjects />} />
+          <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />
+          <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
+          <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
+          <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
+        </Routes>
+      </Router>
+    </GoogleOAuthProvider>
+  );
 }
 
 export default App;
