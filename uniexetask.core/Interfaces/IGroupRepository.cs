@@ -10,7 +10,5 @@ namespace uniexetask.core.Interfaces
     public interface IGroupRepository : IGenericRepository<Group>
     {
         //Task<Group?> GetGroupWithProjectAsync(int groupId);
-        Task<IEnumerable<Group>> GetAllGroups();
-
     }
 }

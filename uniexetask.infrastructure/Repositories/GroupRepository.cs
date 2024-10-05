@@ -22,10 +22,5 @@ namespace uniexetask.infrastructure.Repositories
                         .FirstOrDefaultAsync(r => r.GroupId == groupId);
                 }*/
 
-        public async Task<IEnumerable<Group>> GetAllGroups()
-        {
-            return await dbSet.ToListAsync();
-        }
-
     }
 }

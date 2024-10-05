@@ -12,7 +12,7 @@ const GroupList = () => {
     // Hàm để gọi API lấy danh sách nhóm
     const fetchGroups = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}api/group`);
+        const response = await axios.get(`${API_BASE_URL}api/group/group-subject`);
         if (response.data.success) {
           setGroups(response.data.data);
         }

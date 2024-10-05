@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Group>> GetAllGroups()
+        public async Task<IEnumerable<Group>> GetGroupAndSubject()
         {
             var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
             return groups;
@@ -31,7 +32,7 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Group>> GetAllGroup()
         {
-            var groupList = await _unitOfWork.Groups.GetAsync();
+            var groupList = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
             return groupList;
         }
 
