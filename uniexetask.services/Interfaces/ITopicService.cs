@@ -7,10 +7,8 @@ using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
-    public interface IStudentService
+    public interface ITopicService
     {
-        Task<IEnumerable<Student>> GetAllStudent();
-        Task<Student?> GetStudentById(int studentId);
-        Task<Student?> GetStudentByCode(string studentCode);
+        Task<IEnumerable<Topic>> GetAllTopics();
     }
 }

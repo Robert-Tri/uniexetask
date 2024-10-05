@@ -30,5 +30,20 @@ namespace uniexetask.api.Controllers
             response.Data = studentList;
             return Ok(response);
         }
+
+        [HttpGet("{studentCode}")]
+        public async Task<IActionResult> GetStudentByStdentCode(string studentCode)
+        {
+            var student = await _studentsService.GetStudentByCode(studentCode);
+
+            if (student != null)
+            {
+                return Ok(student);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
     }
 }

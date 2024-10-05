@@ -32,5 +32,16 @@ namespace uniexetask.services
             }
             return false;
         }
+
+        public async Task<List<User>> GetUsersByGroupId(int groupId)
+        {
+            // Lấy danh sách các thành viên trong group với GroupId
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync(gm => gm.GroupId == groupId, includeProperties: "Student.User");
+
+            // Lấy User từ mỗi GroupMember
+            var users = groupMembers.Select(gm => gm.Student.User).ToList();
+
+            return users;
+        }
     }
 }
