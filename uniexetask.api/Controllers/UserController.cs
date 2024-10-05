@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using uniexetask.api.Models.Request;
-﻿using Microsoft.AspNetCore.Authorization;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
-using AutoMapper;
-using OfficeOpenXml;
-using System.IO;
 
 namespace uniexetask.api.Controllers
 {
