@@ -37,11 +37,9 @@ public partial class User
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
-    public virtual ICollection<RegForm> RegForms { get; set; } = new List<RegForm>();
-
     public virtual Role Role { get; set; } = null!;
 
-    public virtual ICollection<Sponsor> Sponsors { get; set; } = new List<Sponsor>();
+    public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 }

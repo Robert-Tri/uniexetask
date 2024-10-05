@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 ﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
@@ -14,10 +16,36 @@ namespace uniexetask.api.Controllers
     {
         private IGroupService _groupService;
         private IMentorService _mentorService;
-        public GroupController(IGroupService groupService, IMentorService mentorService)
+        private readonly IMapper _mapper;
+        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper)
         {
             _groupService = groupService;
             _mentorService = mentorService;
+            _mapper = mapper;
+        }
+
+        [HttpGet("group-subject")]
+        public async Task<IActionResult> GetGroupAndSubject()
+        {
+            var groupsList = await _groupService.GetGroupAndSubject();
+            if (groupsList == null)
+            {
+                return NotFound();
+            }
+            List<GroupListModel> groups = new List<GroupListModel>();
+            foreach (var group in groupsList)
+            {
+                if (group != null) groups.Add(new GroupListModel
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    SubjectName = group.Subject.SubjectName,
+                    HasMentor = group.HasMentor
+                });
+            }
+            ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
+            response.Data = groups;
+            return Ok(response);
         }
 
         [HttpGet("getapprovedgroup")]
@@ -36,7 +64,7 @@ namespace uniexetask.api.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetGroupMemberList()
+        public async Task<IActionResult> GetGroupList()
         {
             var groupList = await _groupService.GetAllGroup();
             if (groupList == null)
@@ -48,6 +76,23 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup([FromBody] GroupModel group)
+        {
+
+            var obj = _mapper.Map<Group>(group);
+            var isGroupCreated = await _groupService.CreateGroup(obj);
+
+            if (isGroupCreated)
+            {
+                return Ok(isGroupCreated);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
@@ -56,7 +101,7 @@ namespace uniexetask.api.Controllers
             int totalGroups = groups.Count();
             int totalMentors = mentors.Count();
             int average = totalGroups / totalMentors;
-            int remainder = totalGroups % totalMentors; 
+            int remainder = totalGroups % totalMentors;
             int groupIndex = 0;
 
             foreach (var mentor in mentors)
@@ -79,5 +124,6 @@ namespace uniexetask.api.Controllers
             }
             return Ok();
         }
+
     }
 }

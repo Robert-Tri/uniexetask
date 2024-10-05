@@ -17,7 +17,10 @@ namespace uniexetask.core.Interfaces
         IProjectRepository Projects { get; }
         IGroupRepository Groups { get; }
         IGroupMemberRepository GroupMembers { get; }
+        IStudentRepository Students { get; }
         IMentorRepository Mentors { get; }
+        ITopicRepository Topics { get; }
+
 
         int Save();
 

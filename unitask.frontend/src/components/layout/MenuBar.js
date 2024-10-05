@@ -12,14 +12,14 @@ const MenuBar = () => {
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
+                <a href="/topics" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  <LayoutDashboard className="inline-block mr-1" size={16} /> Topics
+                </a>
+                <a href="/groups" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                  <Users className="inline-block mr-1" size={16} /> Groups
+                </a>
                 <a href="/projects" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <LayoutDashboard className="inline-block mr-1" size={16} /> Projects
-                </a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <Users className="inline-block mr-1" size={16} /> Nhóm
-                </a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <FolderKanban className="inline-block mr-1" size={16} /> Dự án
+                  <FolderKanban className="inline-block mr-1" size={16} /> Projects
                 </a>
                 <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   <MessageSquare className="inline-block mr-1" size={16} /> Trò chuyện

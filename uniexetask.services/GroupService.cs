@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,12 @@ namespace uniexetask.services
         public GroupService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<IEnumerable<Group>> GetGroupAndSubject()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
+            return groups;
         }
 
         public async Task<IEnumerable<object>> GetApprovedGroupsAsync()
@@ -46,8 +53,24 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Group>> GetAllGroup()
         {
-            var groupList = await _unitOfWork.Groups.GetAsync();
+            var groupList = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
             return groupList;
+        }
+
+        public async Task<bool> CreateGroup(Group group)
+        {
+            if (group != null)
+            {
+                await _unitOfWork.Groups.InsertAsync(group);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
         }
 
         /*        public async Task<Group?> GetGroupWithProjectAsync(int groupId)

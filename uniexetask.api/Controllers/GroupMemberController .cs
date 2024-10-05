@@ -13,11 +13,13 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class GroupMemberController : ControllerBase
     {
+        private IGroupService _groupService;
         public IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
 
-        public GroupMemberController(IGroupMemberService groupMemberService, IMapper mapper)
+        public GroupMemberController(IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper)
         {
+            _groupService = groupService;
             _groupMemberService = groupMemberService;
             _mapper = mapper;
         }
@@ -56,6 +58,44 @@ namespace uniexetask.api.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("CreateGroupWithMember")]
+        public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
+        {
+            
+            var objGroup = _mapper.Map<Group>(request.Group);
+            var isGroupCreated = await _groupService.CreateGroup(objGroup);
+
+            if (!isGroupCreated)
+            {
+                return BadRequest("Failed to create group");
+            }
+
+            
+            var createdGroupId = objGroup.GroupId;
+
+            
+            var member = request.Member;
+            member.GroupId = createdGroupId; 
+            if (string.IsNullOrEmpty(member.Role) || member.Role != "Member")
+            {
+                member.Role = "Member";
+            }
+
+            var objMember = _mapper.Map<GroupMember>(member);
+            var isUserCreated = await _groupMemberService.AddMember(objMember);
+
+            if (isUserCreated)
+            {
+                return Ok(new { GroupId = createdGroupId, MemberCreated = isUserCreated });
+            }
+            else
+            {
+                return BadRequest("Failed to add member to group");
+            }
+        }
+
+
 
     }
 }
