@@ -9,11 +9,7 @@ public partial class Project
 
     public int GroupId { get; set; }
 
-    public string TopicCode { get; set; } = null!;
-
-    public string TopicName { get; set; } = null!;
-
-    public string Description { get; set; } = null!;
+    public int TopicId { get; set; }
 
     public DateTime StartDate { get; set; }
 
@@ -27,15 +23,15 @@ public partial class Project
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual ICollection<Requirement> Requirements { get; set; } = new List<Requirement>();
+    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 
-    public virtual ICollection<Score> Scores { get; set; } = new List<Score>();
-
-    public virtual ICollection<SponsorshipDetail> SponsorshipDetails { get; set; } = new List<SponsorshipDetail>();
+    public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
 
     public virtual Subject Subject { get; set; } = null!;
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+    public virtual Topic Topic { get; set; } = null!;
 
     public virtual ICollection<Label> Labels { get; set; } = new List<Label>();
 }

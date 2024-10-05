@@ -20,6 +20,7 @@ namespace uniexetask.infrastructure.Repositories
         public IGroupRepository Groups { get; }
         public IGroupMemberRepository GroupMembers { get; }
         public IMentorRepository Mentors { get; }
+        public ITopicRepository Topics { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -30,6 +31,7 @@ namespace uniexetask.infrastructure.Repositories
                             ICampusRepository campusRepository,
                             IProjectRepository projects,
                             IGroupRepository groups,
+                            ITopicRepository topics,
                             IGroupMemberRepository groupMembers,
                             IMentorRepository mentors)
         {
@@ -44,6 +46,7 @@ namespace uniexetask.infrastructure.Repositories
             Groups = groups;
             GroupMembers = groupMembers;
             Mentors = mentors;
+            Topics = topics;
         }
 
         public int Save()
