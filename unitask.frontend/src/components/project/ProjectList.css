@@ -1,0 +1,59 @@
+/* ProjectList.css */
+.project-list {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .search-box {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .project-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: transform 0.3s;
+  }
+  
+  .project-item:hover {
+    transform: scale(1.02);
+  }
+  
+  .project-item h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #f17015; /* Màu chính */
+  }
+  
+  .project-item p {
+    margin: 10px 0;
+    color: #555;
+  }
+  
+  .details-button {
+    background-color: #f17015; /* Màu chính */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .details-button:hover {
+    background-color: #d65a10;
+  }
+  

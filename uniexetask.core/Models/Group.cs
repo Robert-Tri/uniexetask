@@ -7,8 +7,6 @@ public partial class Group
 {
     public int GroupId { get; set; }
 
-    public int ProjectId { get; set; }
-
     public string GroupName { get; set; } = null!;
 
     public string Status { get; set; } = null!;
@@ -19,7 +17,7 @@ public partial class Group
 
     public virtual ICollection<MeetingSchedule> MeetingSchedules { get; set; } = new List<MeetingSchedule>();
 
-    public virtual Project Project { get; set; } = null!;
+    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
     public virtual ICollection<Mentor> Mentors { get; set; } = new List<Mentor>();
 }

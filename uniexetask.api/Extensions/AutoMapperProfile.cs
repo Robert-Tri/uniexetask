@@ -10,6 +10,7 @@ namespace Unitask.Api.Extensions
         {
             CreateMap<UserModel, User>().ReverseMap();
             CreateMap<UserUpdateModel, User>().ReverseMap();
+            CreateMap<GroupMemberModel, GroupMember>().ReverseMap();
         }
     }
 }

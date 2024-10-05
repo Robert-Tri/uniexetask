@@ -7,9 +7,9 @@ using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
-    public interface IProjectService
+    public interface IGroupMemberService
     {
-        Task<IEnumerable<Project>> GetAllProjects();
-        Task<Project?> GetProjectsPendingAsync(int projectId);
+        Task<IEnumerable<GroupMember>> GetAllGroupMember();
+        Task<bool> AddMember(GroupMember member);
     }
 }

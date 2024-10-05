@@ -62,10 +62,10 @@ CREATE TABLE ROLE_PERMISSION (
 CREATE TABLE STUDENT (
     student_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-	student_code NVARCHAR(10) NOT NULL,
-	major NVARCHAR(250) NOT NULL,
-	is_eligible BIT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+    student_code NVARCHAR(10) NOT NULL UNIQUE,
+    major NVARCHAR(250) NOT NULL,
+    is_eligible BIT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
 -- Tạo bảng MENTOR
@@ -115,18 +115,26 @@ CREATE TABLE SUBJECT (
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
 );
 
+-- Tạo bảng GROUP
+CREATE TABLE [GROUP] (
+    group_id INT PRIMARY KEY IDENTITY(1,1),
+	group_name NVARCHAR(250) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
+);
+
 -- Tạo bảng PROJECT
 CREATE TABLE PROJECT (
     project_id INT PRIMARY KEY IDENTITY(1,1),
+	group_id INT NOT NULL,
     topic_code NVARCHAR(10) NOT NULL,
     topic_name NVARCHAR(50) NOT NULL,
 	description NVARCHAR(250) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
-	score INT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
 -- Tạo bảng TASK
@@ -199,14 +207,6 @@ CREATE TABLE SPONSORSHIP_DETAIL (
     FOREIGN KEY (sponsor_id) REFERENCES SPONSOR(sponsor_id)
 );
 
--- Tạo bảng GROUP
-CREATE TABLE [GROUP] (
-    group_id INT PRIMARY KEY IDENTITY(1,1),
-    project_id INT NOT NULL,
-	group_name NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
-);
 
 -- Tạo bảng MENTOR_GROUP
 CREATE TABLE MENTOR_GROUP (
@@ -404,10 +404,10 @@ VALUES
 ('Student User 3', 'hashed_password', 'student3@uniexetask.com', '0901000009', 2, 3),
 ('Mentor User 3', 'hashed_password', 'mentor3@uniexetask.com', '0901000010', 3, 4),
 ('Sponsor User 3', 'hashed_password', 'sponsor3@uniexetask.com', '0901000011', 3, 5),
-('Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
-('Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
-('Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
-('Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
+(N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
+(N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
+(N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
+(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
 
 -- Thêm dữ liệu mẫu cho bảng STUDENT
 INSERT INTO STUDENT (user_id, student_code, major, is_eligible)
@@ -415,10 +415,10 @@ VALUES
 (3, 'ST12345', 'Computer Science', 1),
 (6, 'ST67890', 'Information Technology', 1),
 (9, 'SS162981', 'Financial Economics', 0),
-(12, 'ST12345', 'Software Engineering', 1),
-(13, 'ST12345', 'Software Engineering', 1),
-(14, 'ST12345', 'Software Engineering', 1),
-(15, 'ST12345', 'Software Engineering', 1);
+(12, 'SE162014', 'Software Engineering', 1),
+(13, 'SE162032', 'Software Engineering', 1),
+(14, 'SE162087', 'Software Engineering', 1),
+(15, 'SE162056', 'Software Engineering', 1);
 
 -- Thêm dữ liệu mẫu cho bảng SPONSOR
 INSERT INTO SPONSOR (user_id)
@@ -459,11 +459,17 @@ VALUES
 ('EXE101', 'Entrepreneurship Basics', 1, 'Status 1'),
 ('EXE102', 'Advanced Entrepreneurship', 2, 'Status 2');
 
--- Thêm dữ liệu mẫu cho bảng PROJECT
-INSERT INTO PROJECT (topic_code, topic_name, description, start_date, end_date, subject_id, score, status)
+-- Thêm dữ liệu mẫu cho bảng GROUP
+INSERT INTO [GROUP] (group_name, status)
 VALUES 
-('TP001', 'Green Energy', 'Research on renewable energy', '2024-09-01', '2025-01-01', 1, 90, 'Status 1'),
-('TP002', 'Smart City', 'Building smart city systems', '2024-09-01', '2025-01-01', 2, 85, 'Status 2');
+('Green Energy Team', 'Status 1'),
+('Smart City Team', 'Status 2');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT
+INSERT INTO PROJECT (group_id, topic_code, topic_name, description, start_date, end_date, subject_id, status)
+VALUES 
+(1, 'TP001', 'Green Energy', 'Research on renewable energy', '2024-09-01', '2025-01-01', 1, 'Status 1'),
+(2, 'TP002', 'Smart City', 'Building smart city systems', '2024-09-01', '2025-01-01', 2, 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
@@ -501,13 +507,6 @@ VALUES
 (1, 'Energy Research Report', 'Status 1', 'http://example.com/energy_report.pdf', 1, 0),
 (2, 'Smart City Plan', 'Status 2', 'http://example.com/smart_city_plan.pdf', 2, 0);
 
-
--- Thêm dữ liệu mẫu cho bảng GROUP
-INSERT INTO [GROUP] (project_id, group_name, status)
-VALUES 
-(1, 'Green Energy Team', 'Status 1'),
-(2, 'Smart City Team', 'Status 2');
-
 -- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
 INSERT INTO MENTOR_GROUP (group_id, mentor_id)
 VALUES 
@@ -541,5 +540,5 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng EVENT
 INSERT INTO EVENT (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
-('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', 'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
-('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', 'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
+('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');

@@ -7,9 +7,7 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface IProjectRepository : IGenericRepository<Project>
+    public interface IGroupMemberRepository : IGenericRepository<GroupMember>
     {
-        Task<IEnumerable<Project>> GetAllProjects();
-        Task<Project?> GetProjectsPendingAsync(int projectId);
     }
 }

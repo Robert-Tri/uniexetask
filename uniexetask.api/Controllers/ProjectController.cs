@@ -22,7 +22,32 @@ namespace uniexetask.api.Controllers
             _mentorService = mentorService;
             _groupService = groupService;
         }
-        [Authorize(Roles = "4")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjectList()
+        {
+            var projectsList = await _projectService.GetAllProjects();
+            if (projectsList == null)
+            {
+                return NotFound();
+            }
+            List<ProjectListModel> projects = new List<ProjectListModel>();
+            foreach (var project in projectsList)
+            {
+                if (project != null) projects.Add(new ProjectListModel
+                {
+                    TopicCode = project.TopicCode,
+                    TopicName = project.TopicName,
+                    Description = project.Description,
+                    StartDate = project.StartDate
+                });
+            }
+            ApiResponse<IEnumerable<ProjectListModel>> response = new ApiResponse<IEnumerable<ProjectListModel>>();
+            response.Data = projects;
+            return Ok(response);
+        }
+
+/*        [Authorize(Roles = "4")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetProjectsPendingWithMentor()
         {
@@ -54,6 +79,6 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<ProjectPendingModel>> response = new ApiResponse<IEnumerable<ProjectPendingModel>>();
             response.Data = projects;
             return Ok(response);
-        }
+        }*/
     }
 }
