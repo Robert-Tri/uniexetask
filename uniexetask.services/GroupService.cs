@@ -29,6 +29,22 @@ namespace uniexetask.services
             return groupList;
         }
 
+        public async Task<bool> CreateGroup(Group group)
+        {
+            if (group != null)
+            {
+                await _unitOfWork.Groups.InsertAsync(group);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         /*        public async Task<Group?> GetGroupWithProjectAsync(int groupId)
                 {
                     var group = await _unitOfWork.Groups.GetGroupWithProjectAsync(groupId);
