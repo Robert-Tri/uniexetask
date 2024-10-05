@@ -10,5 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IStudentService
     {
         Task<IEnumerable<Student>> GetAllStudent();
+        Task<Student?> GetStudentById(int studentId);
+        Task<Student?> GetStudentByCode(string studentCode);
     }
 }
