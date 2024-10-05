@@ -70,13 +70,21 @@ namespace uniexetask.infrastructure.Repositories
         {
             var group = await _dbContext.Groups.FindAsync(groupId);
             var mentor = await _dbContext.Mentors.FindAsync(mentorId);
-
-            if (group != null && mentor != null)
+            if (group.Status == "Status 2")
             {
+                group.Mentors.Clear();
                 group.Mentors.Add(mentor);
-                group.Status = "Status 2";
                 await _dbContext.SaveChangesAsync();
-            }  
+            }
+            else
+            {
+                if (group != null && mentor != null)
+                {
+                    group.Mentors.Add(mentor);
+                    group.Status = "Status 2";
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
         }
     }
 }
