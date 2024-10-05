@@ -3,9 +3,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import LoginForm from './components/Login/LoginForm';
-import Home from './components/user/Home';
+import Home from './components/User/Home';
 import RolePermission from './views/role_permission/RolePermission';
-import CreateUserForm from './components/user/CreateUserForm';
+import CreateUserForm from './components/User/CreateUserForm';
+import AddMemberForm from './components/User/AddMemberForm';
 import MentorPendingProjects from './views/project/MentorPendingProjects';
 import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/" element={<LoginForm />} />
                     <Route path="/home" element={<LayoutRoute><Home /></LayoutRoute>} />
                     <Route path="/createUser" element={<LayoutRoute><CreateUserForm /></LayoutRoute>} />
+                    <Route path="/addMember" element={<LayoutRoute><AddMemberForm /></LayoutRoute>} />
                     <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
                     <Route path="/projects/pending" element={<MentorPendingProjects />} />
                     <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.services;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -13,16 +15,18 @@ namespace uniexetask.api.Controllers
     {
         private IGroupService _groupService;
         private IMentorService _mentorService;
-        public GroupController(IGroupService groupService, IMentorService mentorService)
+        private readonly IMapper _mapper;
+        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper)
         {
             _groupService = groupService;
             _mentorService = mentorService;
+            _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetProjectList()
+        [HttpGet("group-subject")]
+        public async Task<IActionResult> GetGroupAndSubject()
         {
-            var groupsList = await _groupService.GetAllGroups();
+            var groupsList = await _groupService.GetGroupAndSubject();
             if (groupsList == null)
             {
                 return NotFound();
@@ -43,6 +47,36 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetGroupList()
+        {
+            var groupList = await _groupService.GetAllGroup();
+            if (groupList == null)
+            {
+                return NotFound();
+            }
+            ApiResponse<IEnumerable<Group>> response = new ApiResponse<IEnumerable<Group>>();
+            response.Data = groupList;
+            return Ok(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup([FromBody] GroupModel group)
+        {
+
+            var obj = _mapper.Map<Group>(group);
+            var isGroupCreated = await _groupService.CreateGroup(obj);
+
+            if (isGroupCreated)
+            {
+                return Ok(isGroupCreated);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
@@ -51,7 +85,7 @@ namespace uniexetask.api.Controllers
             int totalGroups = groups.Count();
             int totalMentors = mentors.Count();
             int average = totalGroups / totalMentors;
-            int remainder = totalGroups % totalMentors; 
+            int remainder = totalGroups % totalMentors;
             int groupIndex = 0;
 
             foreach (var mentor in mentors)
@@ -74,5 +108,6 @@ namespace uniexetask.api.Controllers
             }
             return Ok();
         }
+
     }
 }

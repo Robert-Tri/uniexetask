@@ -18,6 +18,7 @@ namespace uniexetask.infrastructure.Repositories
         public ICampusRepository Campus { get; }
         public IProjectRepository Projects { get; }
         public IGroupRepository Groups { get; }
+        public IGroupMemberRepository GroupMembers { get; }
         public IMentorRepository Mentors { get; }
         public ITopicRepository Topics { get; }
 
@@ -30,8 +31,9 @@ namespace uniexetask.infrastructure.Repositories
                             ICampusRepository campusRepository,
                             IProjectRepository projects,
                             IGroupRepository groups,
-                            IMentorRepository mentors,
-                            ITopicRepository topics)
+                            ITopicRepository topics,
+                            IGroupMemberRepository groupMembers,
+                            IMentorRepository mentors)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -42,6 +44,7 @@ namespace uniexetask.infrastructure.Repositories
             Permissions = permissions;
             Projects = projects;
             Groups = groups;
+            GroupMembers = groupMembers;
             Mentors = mentors;
             Topics = topics;
         }

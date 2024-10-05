@@ -30,7 +30,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
-
+builder.Services.AddScoped<IGroupMemberService, GroupMemberService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

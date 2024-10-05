@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -12,10 +13,12 @@ namespace uniexetask.api.Controllers
     public class RoleController : ControllerBase
     {
         public IRoleService _roleService;
+        private readonly IMapper _mapper;
 
-        public RoleController(IRoleService roleService)
+        public RoleController(IRoleService roleService, IMapper mapper)
         {
             _roleService = roleService;
+            _mapper = mapper;
         }
 
         [HttpGet]

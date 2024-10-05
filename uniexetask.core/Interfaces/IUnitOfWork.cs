@@ -16,6 +16,7 @@ namespace uniexetask.core.Interfaces
         IPermissionRepository Permissions { get; }
         IProjectRepository Projects { get; }
         IGroupRepository Groups { get; }
+        IGroupMemberRepository GroupMembers { get; }
         IMentorRepository Mentors { get; }
         ITopicRepository Topics { get; }
 
