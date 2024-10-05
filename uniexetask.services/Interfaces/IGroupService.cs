@@ -10,7 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IGroupService
     {
         //Task<Group?> GetGroupWithProjectAsync(int groupId);
-        Task<IEnumerable<Group>> GetGroupsAsync();
+        Task<IEnumerable<object>> GetApprovedGroupsAsync();
         Task<IEnumerable<Group>> GetAllGroup();
         Task<Group> GetGroupById(int id);
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);

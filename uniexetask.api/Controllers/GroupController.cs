@@ -20,6 +20,13 @@ namespace uniexetask.api.Controllers
             _mentorService = mentorService;
         }
 
+        [HttpGet("getapprovedgroup")]
+        public async Task<IEnumerable<object>> GetApprovedGroup()
+        {
+            var groups = await _groupService.GetApprovedGroupsAsync();
+            return groups;
+        }
+
         [HttpPost("addmentortogroup")]
         public async Task<IActionResult> AddMentorToGroup(int groupId, int mentorId)
         {
@@ -44,7 +51,7 @@ namespace uniexetask.api.Controllers
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
-            var groups = (await _groupService.GetGroupsAsync()).ToList();
+            var groups = (IEnumerable<dynamic>)(await _groupService.GetApprovedGroupsAsync());
             var mentors = await _mentorService.GetMentorsAsync();
             int totalGroups = groups.Count();
             int totalMentors = mentors.Count();
@@ -61,7 +68,7 @@ namespace uniexetask.api.Controllers
                     if (groupIndex >= totalGroups)
                         break;
 
-                    var group = groups[groupIndex];
+                    var group = groups.ElementAt(groupIndex);
                     await _groupService.AddMentorToGroup(group.GroupId, mentor.MentorId);
                     groupIndex++;
                 }

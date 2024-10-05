@@ -73,18 +73,18 @@ namespace uniexetask.infrastructure.Repositories
         {
             var group = await _dbContext.Groups.FindAsync(groupId);
             var mentor = await _dbContext.Mentors.FindAsync(mentorId);
-            if (group.Status == "Status 2")
+            if (group.Status == "Approved")
             {
                 group.Mentors.Clear();
                 group.Mentors.Add(mentor);
                 await _dbContext.SaveChangesAsync();
             }
-            else
+            else if(group.Status == "Pending")
             {
                 if (group != null && mentor != null)
                 {
                     group.Mentors.Add(mentor);
-                    group.Status = "Status 2";
+                    group.Status = "Mentor Assigned";
                     await _dbContext.SaveChangesAsync();
                 }
             }

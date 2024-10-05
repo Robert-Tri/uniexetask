@@ -17,10 +17,31 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Group>> GetGroupsAsync()
+        public async Task<IEnumerable<object>> GetApprovedGroupsAsync()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.Status.Equals("status 1"));
-            return groups;
+            var groups = await _unitOfWork.Groups.GetAsync(
+                filter: g => g.Status.Equals("Status 1"),
+                includeProperties: "GroupMembers.Student"
+            );
+
+            var result = groups.Select(g => new
+            {
+                g.GroupId,
+                g.GroupName, 
+                g.Status,
+                GroupMembers = g.GroupMembers.Select(m => new
+                {
+                    m.StudentId,
+                    m.Role,
+                    Student = new
+                    {
+                        m.Student.StudentCode,
+                        m.Student.Major,
+                    }
+                })
+            });
+
+            return result;
         }
 
         public async Task<IEnumerable<Group>> GetAllGroup()
