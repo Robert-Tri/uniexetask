@@ -11,6 +11,7 @@ namespace uniexetask.services.Interfaces
     {
         //Task<Group?> GetGroupWithProjectAsync(int groupId);
         Task<IEnumerable<Group>> GetGroupsAsync();
+        Task<IEnumerable<Group>> GetAllGroup();
         Task<Group> GetGroupById(int id);
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);
     }
