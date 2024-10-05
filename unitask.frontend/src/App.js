@@ -8,6 +8,8 @@ import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/user/CreateUserForm';
 import MentorPendingProjects from './views/project/MentorPendingProjects';
 import ProjectList from './components/project/ProjectList';
+import TopicList from './components/topic/TopicList';
+import GroupList from './components/group/GroupList';
 
 const LayoutRoute = ({ children }) => (
   <Layout>
@@ -26,6 +28,8 @@ function App() {
                     <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
                     <Route path="/projects/pending" element={<MentorPendingProjects />} />
                     <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />
+                    <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
+                    <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
 
                 </Routes>
             </Router>

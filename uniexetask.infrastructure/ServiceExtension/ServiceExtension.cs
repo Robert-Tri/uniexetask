@@ -30,6 +30,7 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
+            services.AddScoped<ITopicRepository, TopicRepository>();
 
             return services;
         }

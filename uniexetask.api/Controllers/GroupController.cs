@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using uniexetask.api.Models.Request;
+using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -16,6 +18,31 @@ namespace uniexetask.api.Controllers
             _groupService = groupService;
             _mentorService = mentorService;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjectList()
+        {
+            var groupsList = await _groupService.GetAllGroups();
+            if (groupsList == null)
+            {
+                return NotFound();
+            }
+            List<GroupListModel> groups = new List<GroupListModel>();
+            foreach (var group in groupsList)
+            {
+                if (group != null) groups.Add(new GroupListModel
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    SubjectName = group.Subject.SubjectName,
+                    HasMentor = group.HasMentor
+                });
+            }
+            ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
+            response.Data = groups;
+            return Ok(response);
+        }
+
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {

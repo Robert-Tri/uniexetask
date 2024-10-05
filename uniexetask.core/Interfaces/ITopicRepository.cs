@@ -7,10 +7,8 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface IGroupRepository : IGenericRepository<Group>
+    public interface ITopicRepository : IGenericRepository<Topic>
     {
-        //Task<Group?> GetGroupWithProjectAsync(int groupId);
-        Task<IEnumerable<Group>> GetAllGroups();
-
+        Task<IEnumerable<Topic>> GetAllTopics();
     }
 }

@@ -17,6 +17,12 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<IEnumerable<Group>> GetAllGroups()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
+            return groups;
+        }
+
         public async Task<IEnumerable<Group>> GetGroupsAsync()
         {
             var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.Status.Equals("status 1"));

@@ -17,6 +17,8 @@ namespace uniexetask.core.Interfaces
         IProjectRepository Projects { get; }
         IGroupRepository Groups { get; }
         IMentorRepository Mentors { get; }
+        ITopicRepository Topics { get; }
+
 
         int Save();
 
