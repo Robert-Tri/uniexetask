@@ -95,7 +95,20 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("GetUsersByGroupId/{groupId}")]
+        public async Task<IActionResult> GetUsersByGroupId(int groupId)
+        {
+            var users = await _groupMemberService.GetUsersByGroupId(groupId);
 
+            if (users != null && users.Any())
+            {
+                return Ok(users); // Trả về danh sách đầy đủ thông tin User
+            }
+            else
+            {
+                return NotFound("No members found in this group.");
+            }
+        }
 
     }
 }

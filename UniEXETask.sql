@@ -58,22 +58,24 @@ CREATE TABLE ROLE_PERMISSION (
     FOREIGN KEY (permission_id) REFERENCES PERMISSION(permission_id)
 );
 
--- Tạo bảng STUDENT
-CREATE TABLE STUDENT (
-    student_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-    student_code NVARCHAR(10) NOT NULL UNIQUE,
-    major NVARCHAR(250) NOT NULL,
-    is_eligible BIT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES [USER](user_id)
-);
-
 -- Tạo bảng MENTOR
 CREATE TABLE MENTOR (
     mentor_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
 	specialty NVARCHAR(250) NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+);
+
+-- Tạo bảng STUDENT
+CREATE TABLE STUDENT (
+    student_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+	lecturer_id INT NOT NULL,
+    student_code NVARCHAR(10) NOT NULL UNIQUE,
+    major NVARCHAR(250) NOT NULL,
+    is_eligible BIT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (lecturer_id) REFERENCES MENTOR(mentor_id)
 );
 
 -- Tạo bảng CHAT_GROUP
@@ -397,22 +399,22 @@ VALUES
 (N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
 (N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
 
--- Thêm dữ liệu mẫu cho bảng STUDENT
-INSERT INTO STUDENT (user_id, student_code, major, is_eligible)
-VALUES 
-(3, 'ST12345', 'Computer Science', 1),
-(6, 'ST67890', 'Information Technology', 1),
-(9, 'SS162981', 'Financial Economics', 0),
-(12, 'SE162014', 'Software Engineering', 1),
-(13, 'SE162032', 'Software Engineering', 1),
-(14, 'SE162087', 'Software Engineering', 1),
-(15, 'SE162056', 'Software Engineering', 1);
-
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
 VALUES 
 (4, 'Renewable Energy'),
 (7, 'Urban Planning');
+
+-- Thêm dữ liệu mẫu cho bảng STUDENT
+INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, is_eligible)
+VALUES 
+(3, 1,'ST12345', 'Computer Science', 1),
+(6, 1,'ST67890', 'Information Technology', 1),
+(9, 2,'SS162981', 'Financial Economics', 0),
+(12, 2,'SE162014', 'Software Engineering', 1),
+(13, 1,'SE162032', 'Software Engineering', 1),
+(14, 1,'SE162087', 'Software Engineering', 1),
+(15, 2,'SE162056', 'Software Engineering', 1);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
