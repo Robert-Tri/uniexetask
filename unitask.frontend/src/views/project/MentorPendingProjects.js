@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, TextField, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Button, IconButton } from '@mui/material';
+import { Stack, TextField, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Button, FormControl, InputLabel } from '@mui/material';
 import axios from 'axios';
 
 const MentorPendingProjects = () => {
@@ -57,30 +57,28 @@ const MentorPendingProjects = () => {
 
   return (
     <div>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} sm={6}>
-          <TextField
-            label="Search"
-            variant="outlined"
-            fullWidth
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Select
-            label="Filter"
-            value={filter}
-            onChange={handleFilterChange}
-            fullWidth
-          >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="pending">Chờ Phê Duyệt</MenuItem>
-            <MenuItem value="approved">Đã Chấp Nhận</MenuItem>
-            <MenuItem value="rejected">Đã Từ Chối</MenuItem>
-          </Select>
-        </Grid>
-      </Grid>
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+      <TextField
+        label="Search"
+        variant="outlined"
+        fullWidth
+        value={searchQuery}
+        onChange={handleSearchChange}
+      />
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel>Filter</InputLabel>
+        <Select
+          label="Filter"
+          value={filter}
+          onChange={handleFilterChange}
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="pending">Chờ Phê Duyệt</MenuItem>
+          <MenuItem value="approved">Đã Chấp Nhận</MenuItem>
+          <MenuItem value="rejected">Đã Từ Chối</MenuItem>
+        </Select>
+      </FormControl>
+    </Stack>
 
       <Table>
         <TableHead>

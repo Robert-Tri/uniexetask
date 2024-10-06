@@ -69,8 +69,8 @@ namespace uniexetask.api.Controllers
                 {
                     id = project.ProjectId.ToString(),
                     GroupName = item.GroupName,
-                    Topic = project.TopicName,
-                    Description = project.Description,
+                    Topic = project.Topic.TopicName,
+                    Description = project.Topic.Description,
                     Status = project.Status
                 });
             }
@@ -80,7 +80,7 @@ namespace uniexetask.api.Controllers
         }
 
         [Authorize(Roles = "4")]
-        [HttpPost("projects/{projectId}/update-status")]
+        [HttpPost("projects/{projectIdStr}/update-status")]
         public async Task<IActionResult> UpdateProjectStatus(string projectIdStr, [FromBody] string action)
         {
             if (string.IsNullOrEmpty(projectIdStr) || !int.TryParse(projectIdStr, out int projectId) || string.IsNullOrEmpty(action))

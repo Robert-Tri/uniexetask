@@ -21,5 +21,12 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(r => r.Projects)
                 .FirstOrDefaultAsync(r => r.GroupId == groupId);
         }
+
+        public async Task<Group?> GetGroupWithSubjectAsync(int groupId)
+        {
+            return await dbSet
+                .Include(r => r.Subject)
+                .FirstOrDefaultAsync(r => r.GroupId == groupId);
+        }
     }
 }

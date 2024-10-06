@@ -12,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<Group> GetGroupById(int id);
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);
         System.Threading.Tasks.Task AddMentorToGroupAutomatically();
+        Task<Group?> GetGroupWithSubject(int groupId);
     }
 }

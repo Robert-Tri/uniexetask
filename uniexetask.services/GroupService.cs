@@ -165,5 +165,10 @@ namespace uniexetask.services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<Group?> GetGroupWithSubject(int groupId)
+        {
+            return await _unitOfWork.Groups.GetGroupWithSubjectAsync(groupId);
+        }
     }
 }

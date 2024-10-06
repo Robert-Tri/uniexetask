@@ -7,6 +7,7 @@ using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
+using System;
 
 namespace uniexetask.api.Controllers
 {
@@ -100,6 +101,23 @@ namespace uniexetask.api.Controllers
 
             return Ok();
         }
+        [HttpGet("/subject/{groupIdStr}")]
+        public async Task<IActionResult> GétubjectInGroup(string groupIdStr)
+        {
+            if (string.IsNullOrEmpty(groupIdStr) || !int.TryParse(groupIdStr, out int groupId))
+            {
+                return NotFound();
+            }
+            var group = await _groupService.GetGroupWithSubject(groupId);
+            if (group == null)
+            {
+                return NotFound();
+            }
+            ApiResponse<SubjectModel> response = new ApiResponse<SubjectModel>();
+            SubjectModel model = _mapper.Map<SubjectModel>(group.Subject);
 
+            response.Data = model;
+            return Ok(response);
+        }
     }
 }
