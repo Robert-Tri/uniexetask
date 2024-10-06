@@ -4,7 +4,6 @@ using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -37,9 +36,10 @@ namespace uniexetask.api.Controllers
             {
                 if (project != null) projects.Add(new ProjectListModel
                 {
-                    TopicCode = project.TopicCode,
-                    TopicName = project.TopicName,
-                    Description = project.Description,
+                    ProjectId = project.ProjectId,
+                    TopicCode = project.Topic.TopicCode,
+                    TopicName = project.Topic.TopicName,
+                    Description = project.Topic.Description,
                     StartDate = project.StartDate
                 });
             }

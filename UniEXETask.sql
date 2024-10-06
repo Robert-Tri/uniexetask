@@ -58,16 +58,6 @@ CREATE TABLE ROLE_PERMISSION (
     FOREIGN KEY (permission_id) REFERENCES PERMISSION(permission_id)
 );
 
--- Tạo bảng STUDENT
-CREATE TABLE STUDENT (
-    student_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-    student_code NVARCHAR(10) NOT NULL UNIQUE,
-    major NVARCHAR(250) NOT NULL,
-    is_eligible BIT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES [USER](user_id)
-);
-
 -- Tạo bảng MENTOR
 CREATE TABLE MENTOR (
     mentor_id INT PRIMARY KEY IDENTITY(1,1),
@@ -76,11 +66,16 @@ CREATE TABLE MENTOR (
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
--- Tạo bảng SPONSOR
-CREATE TABLE SPONSOR (
-    sponsor_id INT PRIMARY KEY IDENTITY(1,1),
+-- Tạo bảng STUDENT
+CREATE TABLE STUDENT (
+    student_id INT PRIMARY KEY IDENTITY(1,1),
     user_id INT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
+	lecturer_id INT NOT NULL,
+    student_code NVARCHAR(10) NOT NULL UNIQUE,
+    major NVARCHAR(250) NOT NULL,
+    is_eligible BIT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id),
+	FOREIGN KEY (lecturer_id) REFERENCES MENTOR(mentor_id)
 );
 
 -- Tạo bảng CHAT_GROUP
@@ -115,25 +110,35 @@ CREATE TABLE SUBJECT (
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
 );
 
+-- Tạo bảng TOPIC
+CREATE TABLE TOPIC (
+    topic_id INT PRIMARY KEY IDENTITY(1,1),
+	topic_code NVARCHAR(50) NOT NULL,
+	topic_name NVARCHAR(100) NOT NULL,
+	description NVARCHAR(250) NOT NULL
+);
+
 -- Tạo bảng GROUP
 CREATE TABLE [GROUP] (
     group_id INT PRIMARY KEY IDENTITY(1,1),
 	group_name NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
+	subject_id INT NOT NULL,
+	hasMentor BIT NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Approved', 'Overdue')) NOT NULL,
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
 -- Tạo bảng PROJECT
 CREATE TABLE PROJECT (
     project_id INT PRIMARY KEY IDENTITY(1,1),
 	group_id INT NOT NULL,
-    topic_code NVARCHAR(10) NOT NULL,
-    topic_name NVARCHAR(50) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	topic_id INT NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	FOREIGN KEY (topic_id) REFERENCES TOPIC(topic_id),
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
@@ -174,16 +179,6 @@ CREATE TABLE PROJECT_LABEL (
     FOREIGN KEY (label_id) REFERENCES LABEL(label_id)
 );
 
--- Tạo bảng REQUIREMENT
-CREATE TABLE REQUIREMENT (
-    requirement_id INT PRIMARY KEY IDENTITY(1,1),
-    project_id INT NOT NULL,
-    requestor_id INT NOT NULL,
-	content NVARCHAR(250) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
-	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
-);
-
 -- Tạo bảng DOCUMENT
 CREATE TABLE DOCUMENT (
     document_id INT PRIMARY KEY IDENTITY(1,1),
@@ -197,14 +192,14 @@ CREATE TABLE DOCUMENT (
 );
 
 -- Tạo bảng PROJECT_SPONSOR
-CREATE TABLE SPONSORSHIP_DETAIL (
+CREATE TABLE SPONSORSHIP (
     sponsorship_detail_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
-	sponsor_id INT NOT NULL,
+	user_id INT NOT NULL,
 	amount_money MONEY NOT NULL, 
-	sponsorship_status NVARCHAR(20) CHECK (sponsorship_status IN ('Status 1', 'Status 2')) NOT NULL,
+	isInvesting BIT NOT NULL,
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-    FOREIGN KEY (sponsor_id) REFERENCES SPONSOR(sponsor_id)
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
 
@@ -282,9 +277,9 @@ CREATE TABLE EVENT (
 );
 
 -- Tạo bảng SCORE_COMPONENT
-CREATE TABLE SCORE_COMPONENT (
-    component_id INT PRIMARY KEY IDENTITY(1,1),
-    component_name NVARCHAR(250) NOT NULL,
+CREATE TABLE CRITERIA (
+    criteria_id INT PRIMARY KEY IDENTITY(1,1),
+    criteria_name NVARCHAR(250) NOT NULL,
 	description NVARCHAR(250) NOT NULL,
     percentage FLOAT NOT NULL,
 	milestone_name NVARCHAR(100) NOT NULL,
@@ -293,14 +288,15 @@ CREATE TABLE SCORE_COMPONENT (
 );
 
 -- Tạo bảng SCORE
-CREATE TABLE SCORE (
+CREATE TABLE SCORE_CRITERIA (
     score_id INT PRIMARY KEY IDENTITY(1,1),
-    component_id INT NOT NULL,
+    criteria_id INT NOT NULL,
 	project_id INT NOT NULL,
     score FLOAT NOT NULL,
 	scored_by NVARCHAR(100) NOT NULL,
+	comment NVARCHAR(250) NOT NULL,
 	rating_status BIT NOT NULL,
-	FOREIGN KEY (component_id) REFERENCES SCORE_COMPONENT(component_id),
+	FOREIGN KEY (criteria_id) REFERENCES CRITERIA(criteria_id),
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
@@ -316,21 +312,15 @@ CREATE TABLE REFRESH_TOKEN (
 	FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
--- Tạo bảng ROLE_REG
-CREATE TABLE ROLE_REG (
-    role_reg_id INT PRIMARY KEY IDENTITY(1,1),
-    role_reg_name INT NOT NULL,
-	description NVARCHAR(250) NOT NULL
-);
-
--- Tạo bảng REG_FORM
-CREATE TABLE REG_FORM (
-    reg_form_id INT PRIMARY KEY IDENTITY(1,1),
-    user_reg_id INT NOT NULL,
-	role_reg_id INT NOT NULL,
-	content_reg NVARCHAR(250) NOT NULL,
-	FOREIGN KEY (user_reg_id) REFERENCES [USER](user_id),
-    FOREIGN KEY (role_reg_id) REFERENCES ROLE_REG(role_reg_id)
+-- Tạo bảng REG_TOPIC_FORM
+CREATE TABLE REG_TOPIC_FORM (
+    reg_id INT PRIMARY KEY IDENTITY(1,1),
+    group_id INT NOT NULL,
+	topic_code NVARCHAR(50) NOT NULL,
+	topic_name NVARCHAR(100) NOT NULL,
+	description NVARCHAR(250) NOT NULL,
+	status BIT NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
 
@@ -409,28 +399,22 @@ VALUES
 (N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
 (N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
 
--- Thêm dữ liệu mẫu cho bảng STUDENT
-INSERT INTO STUDENT (user_id, student_code, major, is_eligible)
-VALUES 
-(3, 'ST12345', 'Computer Science', 1),
-(6, 'ST67890', 'Information Technology', 1),
-(9, 'SS162981', 'Financial Economics', 0),
-(12, 'SE162014', 'Software Engineering', 1),
-(13, 'SE162032', 'Software Engineering', 1),
-(14, 'SE162087', 'Software Engineering', 1),
-(15, 'SE162056', 'Software Engineering', 1);
-
--- Thêm dữ liệu mẫu cho bảng SPONSOR
-INSERT INTO SPONSOR (user_id)
-VALUES 
-(5),
-(8);
-
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
 VALUES 
 (4, 'Renewable Energy'),
 (7, 'Urban Planning');
+
+-- Thêm dữ liệu mẫu cho bảng STUDENT
+INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, is_eligible)
+VALUES 
+(3, 1,'ST12345', 'Computer Science', 1),
+(6, 1,'ST67890', 'Information Technology', 1),
+(9, 2,'SS162981', 'Financial Economics', 0),
+(12, 2,'SE162014', 'Software Engineering', 1),
+(13, 1,'SE162032', 'Software Engineering', 1),
+(14, 1,'SE162087', 'Software Engineering', 1),
+(15, 2,'SE162056', 'Software Engineering', 1);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -460,16 +444,23 @@ VALUES
 ('EXE102', 'Advanced Entrepreneurship', 2, 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP
-INSERT INTO [GROUP] (group_name, status)
+INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status)
 VALUES 
-('Green Energy Team', 'Status 1'),
-('Smart City Team', 'Status 2');
+('Green Energy Team', 1, 1, 'Initialized'),
+('Smart City Team', 2, 1, 'Approved'),
+('UniEXETask', 1, 1, 'Overdue');
+
+-- Thêm dữ liệu mẫu cho bảng TOPIC
+INSERT INTO TOPIC (topic_code, topic_name, description)
+VALUES 
+('TP001', 'Green Energy', 'Research on renewable energy'),
+('TP002', 'Smart City', 'Building smart city systems');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
-INSERT INTO PROJECT (group_id, topic_code, topic_name, description, start_date, end_date, subject_id, status)
+INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status)
 VALUES 
-(1, 'TP001', 'Green Energy', 'Research on renewable energy', '2024-09-01', '2025-01-01', 1, 'Status 1'),
-(2, 'TP002', 'Smart City', 'Building smart city systems', '2024-09-01', '2025-01-01', 2, 'Status 2');
+(1, 1, '2024-09-01', '2025-01-01', 1, 'Status 1'),
+(2, 2, '2024-09-01', '2025-01-01', 2, 'Status 2');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
@@ -495,12 +486,6 @@ VALUES
 (1, 1), -- Green Energy project with 'Renewable Energy' label
 (2, 2); -- Smart City project with 'Smart City' label
 
--- Thêm dữ liệu mẫu cho bảng REQUIREMENT
-INSERT INTO REQUIREMENT (project_id, requestor_id, content, status)
-VALUES 
-(1, 1, 'Request for additional resources on renewable energy', 'Status 1'),
-(2, 2, 'Request for smart city infrastructure guidance', 'Status 2');
-
 -- Thêm dữ liệu mẫu cho bảng RESOURCE
 INSERT INTO DOCUMENT(project_id, name, type, url, upload_by, is_financial_report)
 VALUES 
@@ -523,7 +508,12 @@ VALUES
 INSERT INTO GROUP_MEMBER (group_id, student_id, role)
 VALUES 
 (1, 1, 'Leader'), 
-(2, 2, 'Member');
+(1, 2, 'Member'),
+(2, 3, 'Leader'), 
+(2, 4, 'Member'),
+(3, 5, 'Leader'),
+(3, 6, 'Member'),
+(3, 7, 'Member');
 
 -- Thêm dữ liệu mẫu cho bảng NOFITICATION
 INSERT INTO NOFITICATION (sender_id, receiver_id, message, type, created_at, status)
