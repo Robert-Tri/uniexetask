@@ -1,4 +1,4 @@
-.create-page {
+.createPage {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,7 +9,7 @@
   font-family: 'Arial', sans-serif;
 }
 
-.create-page::before {
+.createPage::before {
   content: "";
   position: absolute;
   top: 0;
@@ -19,33 +19,33 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.user-form {
+.userForm {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 400px; /* Giới hạn chiều rộng */
-  margin: 0 auto; /* Căn giữa theo chiều ngang */
+  max-width: 400px;
+  margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: absolute; /* Thiết lập vị trí tuyệt đối */
-  top: 50%; /* Đưa form xuống giữa chiều dọc */
-  left: 50%; /* Đưa form vào giữa chiều ngang */
-  transform: translate(-50%, -50%); /* Dịch chuyển lên và sang trái một nửa chiều cao và chiều rộng của form */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.form-input {
+.formInput {
   margin-bottom: 15px;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
-  box-sizing: border-box; /* Giúp nội dung không tràn ra ngoài */
+  box-sizing: border-box;
 }
 
-.submit-button {
+.submitButton {
   padding: 10px;
   font-size: 16px;
   color: white;
@@ -56,11 +56,11 @@
   transition: background-color 0.3s ease;
 }
 
-.submit-button:hover {
+.submitButton:hover {
   background-color: orange;
 }
 
-.user-form select {
+.userFormSelect {
   appearance: none;
   background-color: white;
   border: 1px solid #ccc;
@@ -71,9 +71,9 @@
   width: 100%;
 }
 
-.user-form h1 {
+.userFormTitle {
   text-align: center;
-  color: orange; 
+  color: orange;
   font-size: 24px;
   margin-bottom: 20px;
 }
