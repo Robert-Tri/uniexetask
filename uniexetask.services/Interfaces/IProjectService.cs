@@ -10,6 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IProjectService
     {
         Task<IEnumerable<Project>> GetAllProjects();
-        Task<Project?> GetProjectsPendingAsync(int projectId);
+        Task<Project?> GetProjectPendingByGroupAsync(Group group);
+        Task<bool> UpdateProjectStatus(int projectId, string action);
     }
 }

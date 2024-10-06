@@ -4,7 +4,6 @@ namespace uniexetask.services.Interfaces
 {
     public interface IGroupService
     {
-        //Task<Group?> GetGroupWithProjectAsync(int groupId);
         Task<IEnumerable<object>> GetApprovedGroupsAsync();
         Task<IEnumerable<Group>> GetGroupAndSubject();
         Task<IEnumerable<Group>> GetGroupsAsync();
@@ -13,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<Group> GetGroupById(int id);
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);
         System.Threading.Tasks.Task AddMentorToGroupAutomatically();
+        Task<Group?> GetGroupWithSubject(int groupId);
     }
 }

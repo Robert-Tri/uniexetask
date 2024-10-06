@@ -13,5 +13,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Feature>> GetFeatures();
         Task<IEnumerable<Permission>?> GetRolePermissionsByRole(string role);
         Task<IEnumerable<string>?> GetRoles();
+        Task<bool> UpdateRolePermissionsAsync(string roleName, List<int> permissions);
     }
 }

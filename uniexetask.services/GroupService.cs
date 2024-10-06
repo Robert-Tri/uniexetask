@@ -150,12 +150,6 @@ namespace uniexetask.services
             return false;
         }
 
-        /*        public async Task<Group?> GetGroupWithProjectAsync(int groupId)
-                {
-                    var group = await _unitOfWork.Groups.GetGroupWithProjectAsync(groupId);
-                    return group;
-                }*/
-
         public async Task<Group> GetGroupById(int id)
         {
             var group = await _unitOfWork.Groups.GetByIDAsync(id);
@@ -170,6 +164,11 @@ namespace uniexetask.services
         public Task<IEnumerable<Group>> GetGroupsAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Group?> GetGroupWithSubject(int groupId)
+        {
+            return await _unitOfWork.Groups.GetGroupWithSubjectAsync(groupId);
         }
     }
 }

@@ -57,5 +57,28 @@ namespace uniexetask.services
             }
             return null;
         }
+
+        public async Task<bool> UpdateRolePermissionsAsync(string roleName, List<int> permissionIds)
+        {
+            var role = await _unitOfWork.Roles.GetRoleByNameAsync(roleName);
+            if (role == null) return false;
+
+            var roleWithPermission = await _unitOfWork.Roles.GetRoleWithPermissionsAsync(role.RoleId);
+            if(roleWithPermission == null) return false;
+
+            var permissions = roleWithPermission.Permissions.ToList();
+            foreach (var permission in permissions)
+            {
+                role.Permissions.Remove(permission);  
+            }
+            foreach (var permissionId in permissionIds)
+            {
+                var permission = await _unitOfWork.Permissions.GetByIDAsync(permissionId);
+                if (permission == null) return false;
+                roleWithPermission.Permissions.Add(permission);
+            }
+            _unitOfWork.Save();
+            return true;
+        }
     }
 }

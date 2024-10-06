@@ -10,6 +10,7 @@ namespace uniexetask.core.Interfaces
     public interface IProjectRepository : IGenericRepository<Project>
     {
         Task<IEnumerable<Project>> GetAllProjects();
+        Task<Project?> GetProjectPendingByGroupId(int groupId);
         Task<Project?> GetProjectsPendingAsync(int projectId);
     }
 }

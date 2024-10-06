@@ -1,6 +1,6 @@
 /* CSS cho component TopicsList */
   
-input[type="text"] {
+.topic-list input[type="text"] {
   width: 300px;
   padding: 10px;
   margin-bottom: 20px;
