@@ -4,6 +4,16 @@ CREATE DATABASE UniEXETask
 GO
 USE UniEXETask
 GO
+
+-- Tạo bảng TIMELINE
+CREATE TABLE TIMELINE (
+    timeline_id INT PRIMARY KEY IDENTITY(1,1),
+    timeline_name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(250) NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL
+);
+
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
