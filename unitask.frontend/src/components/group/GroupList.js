@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Sử dụng useNavigate
 import { API_BASE_URL } from '../../config';
-import './GroupList.css';
+import styles from './GroupList.module.css'; // Import CSS module
 
 const GroupList = () => {
   const [groups, setGroups] = useState([]);
@@ -46,13 +46,14 @@ const GroupList = () => {
         placeholder="Tìm kiếm nhóm theo tên hoặc môn học..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        className={styles.input} // Áp dụng class từ module
       />
-      <ul className='group-list'>
+      <ul className={styles.groupList}>
         {filteredGroups.map(group => (
-          <li key={group.groupId} onClick={() => handleGroupClick(group.groupId)}>
-            <h2>{group.groupName}</h2>
-            <p>Môn học: {group.subjectName}</p>
-            <p>Có mentor: {group.hasMentor ? 'Có' : 'Không'}</p>
+          <li key={group.groupId} onClick={() => handleGroupClick(group.groupId)} className={styles.groupItem}>
+            <h2 className={styles.groupName}>{group.groupName}</h2>
+            <p className={styles.groupInfo}>Môn học: {group.subjectName}</p>
+            <p className={styles.groupInfo}>Có mentor: {group.hasMentor ? 'Có' : 'Không'}</p>
           </li>
         ))}
       </ul>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
-import './ProjectList.css';
+import styles from './ProjectList.module.css'; // Import CSS module
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
@@ -37,22 +37,22 @@ const ProjectList = () => {
   };
 
   return (
-    <div className="project-list">
+    <div className={styles.projectList}>
       <input
         type="text"
-        className="search-box"
+        className={styles.searchBox}
         placeholder="Search by topic name or description..."
         value={searchTerm}
         onChange={handleSearch}
       />
       <ul>
         {filteredProjects.map((project) => (
-          <li key={project.topicCode} className="project-item">
+          <li key={project.topicCode} className={styles.projectItem}>
             <h2>{project.topicName}</h2>
             <p>{project.description}</p>
             <p>Start Date: {new Date(project.startDate).toLocaleDateString()}</p>
             <button
-              className="details-button"
+              className={styles.detailsButton}
               onClick={() => alert(`Details of ${project.topicName}`)}
             >
               Details

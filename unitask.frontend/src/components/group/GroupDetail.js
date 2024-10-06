@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../../config';
-import './GroupDetail.css'; // Nếu cần CSS
+import styles from './GroupDetail.module.css'; // Import CSS module
 
 const GroupDetail = () => {
   const { groupId } = useParams(); // Lấy groupId từ URL
@@ -33,12 +33,12 @@ const GroupDetail = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="group-detail">
-      <h1>Chi tiết nhóm</h1>
-      <ul className="member-list">
+    <div className={styles.groupDetail}>
+      <h1 className={styles.groupDetailTitle}>Chi tiết nhóm</h1>
+      <ul className={styles.memberList}>
         {members.map((member) => (
-          <li key={member.userId}>
-            <h2 className="member-name">{member.fullName}</h2>
+          <li key={member.userId} className={styles.memberItem}>
+            <h2 className={styles.memberName}>{member.fullName}</h2>
             <p><strong>Email:</strong> {member.email}</p> {/* In đậm từ "Email:" */}
             {member.students && member.students.map((student) => (
               <div key={student.studentId}>

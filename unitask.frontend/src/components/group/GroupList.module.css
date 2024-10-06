@@ -1,5 +1,4 @@
-
-.group-list input[type="text"] {
+.input {
   width: 100%;
   padding: 10px;
   margin: 20px 0;
@@ -8,12 +7,12 @@
   font-size: 16px;
 }
 
-.group-list {
+.groupList {
   list-style-type: none;
   padding: 0;
 }
 
-.group-list li {
+.groupItem {
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -22,16 +21,16 @@
   transition: background 0.3s;
 }
 
-li:hover {
+.groupItem:hover {
   background: #f0f0f0;
 }
 
-h2 {
+.groupName {
   margin: 0 0 5px;
   color: #4CAF50;
 }
 
-p {
+.groupInfo {
   margin: 5px 0;
   color: #666;
 }
