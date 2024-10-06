@@ -52,5 +52,32 @@ namespace uniexetask.api.Controllers
             response.Data = model;
             return Ok(response);
         }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsModel request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.RoleName) || request.Permissions == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid request data." });
+            }
+
+            try
+            {
+                var result = await _rolePermissionService.UpdateRolePermissionsAsync(request.RoleName, request.Permissions);
+
+                if (result)
+                {
+                    return Ok(new { success = true, message = "Permissions updated successfully." });
+                }
+                else
+                {
+                    return StatusCode(500, new { success = false, message = "Failed to update permissions." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
     }
 }

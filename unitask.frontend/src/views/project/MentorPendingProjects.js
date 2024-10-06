@@ -11,7 +11,7 @@ const MentorPendingProjects = () => {
     const fetchProjects = async () => {
       try {
         const response = await axios.get('https://localhost:7289/api/projects/pending', {
-            withCredentials: true, // Thêm tùy chọn này
+            withCredentials: true
         });
         setProjects(response.data.data);
       } catch (error) {
@@ -30,14 +30,21 @@ const MentorPendingProjects = () => {
     setFilter(event.target.value);
   };
 
-  const handleAccept = (projectId) => {
-    // Thực hiện API chấp nhận
-    console.log('Accept project with id:', projectId);
-  };
-
-  const handleReject = (projectId) => {
-    // Thực hiện API từ chối
-    console.log('Reject project with id:', projectId);
+  const handleAction = async (projectId, action) => {
+    try {
+      const response = await axios.post(
+        `https://localhost:7289/api/projects/${projectId}/update-status`,
+        { action },
+        { withCredentials: true }
+      );
+  
+      if (response.status === 200) {
+        setProjects((prevProjects) => prevProjects.filter(p => p.id !== projectId));
+        console.log(`Project ${action}ed successfully:`, response.data);
+      }
+    } catch (error) {
+      console.error(`Error during ${action}ing project:`, error);
+    }
   };
 
   const filteredProjects = projects.filter((project) => {
@@ -94,14 +101,14 @@ const MentorPendingProjects = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => handleAccept(project.id)}
+                  onClick={() => handleAction(project.id, 'accept')}
                 >
                   Accept
                 </Button>
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => handleReject(project.id)}
+                  onClick={() => handleAction(project.id, 'reject')}
                   style={{ marginLeft: '10px' }}
                 >
                   Reject

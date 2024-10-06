@@ -48,7 +48,7 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-/*        [Authorize(Roles = "4")]
+        [Authorize(Roles = "4")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetProjectsPendingWithMentor()
         {
@@ -60,17 +60,14 @@ namespace uniexetask.api.Controllers
             }
             var mentor = await _mentorService.GetMentorWithGroupAsync(userId);
             if (mentor == null) return NotFound();
-
-            Group? group = new Group();
             Project? project = new Project();
             List<ProjectPendingModel> projects = new List<ProjectPendingModel>();
             foreach (var item in mentor.Groups)
             {
-                group = await _groupService.GetGroupWithProjectAsync(item.GroupId);
-                if (group == null) continue;
-                project = await _projectService.GetProjectsPendingAsync(group.ProjectId);
-                if (project != null) projects.Add(new ProjectPendingModel 
-                { 
+                project = await _projectService.GetProjectPendingByGroupAsync(item);
+                if (project != null) projects.Add(new ProjectPendingModel
+                {
+                    id = project.ProjectId.ToString(),
                     GroupName = item.GroupName,
                     Topic = project.TopicName,
                     Description = project.Description,
@@ -80,6 +77,19 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<ProjectPendingModel>> response = new ApiResponse<IEnumerable<ProjectPendingModel>>();
             response.Data = projects;
             return Ok(response);
-        }*/
+        }
+
+        [Authorize(Roles = "4")]
+        [HttpPost("projects/{projectId}/update-status")]
+        public async Task<IActionResult> UpdateProjectStatus(string projectIdStr, [FromBody] string action)
+        {
+            if (string.IsNullOrEmpty(projectIdStr) || !int.TryParse(projectIdStr, out int projectId) || string.IsNullOrEmpty(action))
+            {
+                return NotFound();
+            }
+            var result = await _projectService.UpdateProjectStatus(projectId, action);
+            if (result) return Ok("Done");
+            else return BadRequest();
+        }
     }
 }

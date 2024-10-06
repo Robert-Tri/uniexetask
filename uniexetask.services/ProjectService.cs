@@ -24,10 +24,30 @@ namespace uniexetask.services
             return project;
         }
 
-        public async Task<Project?> GetProjectsPendingAsync(int projectId)
+        public async Task<Project?> GetProjectPendingByGroupAsync(Group group)
         {
-            var project = await _unitOfWork.Projects.GetProjectsPendingAsync(projectId);
+            var project = await _unitOfWork.Projects.GetProjectPendingByGroupId(group.GroupId);
             return project;
+        }
+
+        public async Task<bool> UpdateProjectStatus(int projectId, string action)
+        {
+            var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+            if (project == null) return false;
+
+            if (action.Equals("accept")) 
+            {
+                project.Status = "Accepted";
+                _unitOfWork.Save();
+                return true;
+            }
+            else if (action.Equals("reject"))
+            {
+                project.Status = "Rejected";
+                _unitOfWork.Save();
+                return true;
+            }
+            else return false;
         }
     }
 }

@@ -4,6 +4,7 @@ import PageContainer from '../../components/container/PageContainer';
 import DashboardCard from '../../components/shared/DashboardCard';
 import axios from 'axios';
 
+
 const RolePermission = () => {
   const [rolesData, setRolesData] = useState([]);
   const [featuresData, setFeaturesData] = useState([]);
@@ -73,9 +74,33 @@ const RolePermission = () => {
     }));
   };
 
-  const handleSave = () => {
-    console.log('Saving permissions for role:', selectedRole, rolePermissions);
-    // Thực hiện lưu dữ liệu tại đây
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      
+      const payload = {
+        roleName: selectedRole,
+        permissions: Object.keys(rolePermissions).filter((permissionId) => rolePermissions[permissionId])
+      };
+  
+      const response = await axios.post('https://localhost:7289/api/role-permission/update', payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+            
+      if (response.data.success) {
+        alert('Cập nhật quyền thành công!');
+      } else {
+        console.error(response.data.ErrorMessage);
+        alert('Cập nhật quyền thất bại!');
+      }
+    } catch (error) {
+      console.error('Error updating permissions:', error);
+      alert('Đã xảy ra lỗi khi cập nhật quyền.');
+    } finally {
+      setLoading(false); // Tắt loading sau khi lưu xong
+    }
   };
 
   return (
