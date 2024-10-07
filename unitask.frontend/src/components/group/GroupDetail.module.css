@@ -1,24 +1,22 @@
-/* src/components/group/GroupDetail.css */
-
-.group-detail h1 {
+.groupDetailTitle {
     text-align: center; /* Căn giữa tiêu đề */
     font-weight: bold;  /* In đậm tiêu đề */
     font-size: 2rem;    /* Kích thước phông chữ lớn hơn */
 }
 
-.member-list {
+.memberList {
     list-style-type: none;
     padding: 0;
 }
 
-.member-list li {
+.memberItem {
     border: 1px solid black; /* Thay đổi border thành màu đen */
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
 }
 
-.member-name {
+.memberName {
     color: orange; /* Đặt màu cho tên sinh viên thành màu cam */
     font-weight: bold; /* Tăng độ đậm cho tên */
 }

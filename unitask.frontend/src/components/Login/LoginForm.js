@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { API_BASE_URL } from '../../config';
-import './LoginForm.css';
+import styles from './LoginForm.module.css'; // Import CSS module
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -32,12 +32,12 @@ const LoginForm = () => {
     };
 
     const handleGoogleLoginSuccess = async (credentialResponse) => {
-        console.log('Credential Response:', credentialResponse); // Kiểm tra giá trị
+        console.log('Credential Response:', credentialResponse);
 
         setError('');
         try {
             const response = await axios.post(`${API_BASE_URL}api/auth/google-login`, {
-                token: credentialResponse.credential // Gửi token cho API
+                token: credentialResponse.credential
             });
 
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
@@ -55,12 +55,12 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="login-page">
-            <div className="login-container">
-                <h1 className="site-title">UniEXETask</h1>
-                <form onSubmit={handleLogin} className="login-form">
+        <div className={styles.loginPage}>
+            <div className={styles.loginContainer}>
+                <h1 className={styles.siteTitle}>UniEXETask</h1>
+                <form onSubmit={handleLogin} className={styles.loginForm}>
                     <h2>Đăng Nhập</h2>
-                    <div className="input-group">
+                    <div className={styles.inputGroup}>
                         <label htmlFor="email">Email</label>
                         <input
                             id="email"
@@ -70,7 +70,7 @@ const LoginForm = () => {
                             required
                         />
                     </div>
-                    <div className="input-group">
+                    <div className={styles.inputGroup}>
                         <label htmlFor="password">Mật khẩu</label>
                         <input
                             id="password"
@@ -80,10 +80,10 @@ const LoginForm = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="login-button">Đăng Nhập</button>
-                    {error && <p className="error">{error}</p>}
+                    <button type="submit" className={styles.loginButton}>Đăng Nhập</button>
+                    {error && <p className={styles.error}>{error}</p>}
                 </form>
-                <div className="separator">
+                <div className={styles.separator}>
                     <span>hoặc</span>
                 </div>
                 <GoogleLogin
@@ -91,7 +91,7 @@ const LoginForm = () => {
                     onError={handleGoogleLoginError}
                     clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com"
                 />
-                <p className="register-link">
+                <p className={styles.registerLink}>
                     Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
                 </p>
             </div>

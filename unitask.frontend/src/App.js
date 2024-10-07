@@ -12,7 +12,10 @@ import TopicRegistration from './views/project/TopicRegistration';
 import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
-import GroupDetail from './components/group/GroupDetail'; // Import GroupDetail
+import GroupDetail from './components/group/GroupDetail';
+import Users from './components/User/Users';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LayoutRoute = ({ children }) => (
   <Layout>
@@ -21,6 +24,7 @@ const LayoutRoute = ({ children }) => (
 );
 
 function App() {
+
   return (
     <GoogleOAuthProvider clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com">
       <Router>
@@ -36,7 +40,9 @@ function App() {
           <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
           <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
           <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
+          <Route path="/Users" element={<LayoutRoute><Users /></LayoutRoute>} />
         </Routes>
+        <ToastContainer />
       </Router>
     </GoogleOAuthProvider>
   );
