@@ -15,6 +15,8 @@ public partial class User
 
     public string? Phone { get; set; }
 
+    public string? Avatar { get; set; }
+
     public int CampusId { get; set; }
 
     public bool Status { get; set; }

@@ -23,6 +23,8 @@ public partial class Group
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
+    public virtual ICollection<RegMemberForm> RegMemberForms { get; set; } = new List<RegMemberForm>();
+
     public virtual ICollection<RegTopicForm> RegTopicForms { get; set; } = new List<RegTopicForm>();
 
     public virtual Subject Subject { get; set; } = null!;
