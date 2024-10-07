@@ -28,5 +28,13 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(r => r.Subject)
                 .FirstOrDefaultAsync(r => r.GroupId == groupId);
         }
+        public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
+        {
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.HasMentor == false).AsNoTracking().ToListAsync();
+        }
+        public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
+        {
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == "Approved").AsNoTracking().ToListAsync();
+        }
     }
 }
