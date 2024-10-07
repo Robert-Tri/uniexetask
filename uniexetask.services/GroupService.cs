@@ -26,10 +26,7 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<object>> GetApprovedGroupsAsync()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(
-                filter: g => g.HasMentor == false,
-                includeProperties: "GroupMembers.Student"
-            );
+            var groups = await _unitOfWork.Groups.GetApprovedGroupsWithGroupMembersAndStudent();
 
             var result = groups.Select(g => new
             {
@@ -54,8 +51,8 @@ namespace uniexetask.services
 
         public async System.Threading.Tasks.Task AddMentorToGroupAutomatically()
         {
-            // Bước 1: Lấy tất cả các group có Status 1
-            var groups = (IEnumerable<dynamic>)(await GetApprovedGroupsAsync());
+            // Bước 1: Lấy tất cả các group chưa có mentor
+            var groups = await _unitOfWork.Groups.GetHasNoMentorGroupsWithGroupMembersAndStudent();
 
             // Bước 2: Đếm số lượng group trung bình cho mỗi mentor
             var mentorGroupCounts = new Dictionary<int, int>(); // Lưu số lượng nhóm đã được gán cho từng mentor
@@ -63,7 +60,7 @@ namespace uniexetask.services
             var allMentors = await _unitOfWork.Mentors.GetAsync(); // Lấy tất cả các mentor từ cơ sở dữ liệu
             var totalGroups = groups.Count();
             var mentorCount = allMentors.Count();
-            var averageGroupsPerMentor = totalGroups / mentorCount; // Số nhóm trung bình mỗi mentor nên có
+            var averageGroupsPerMentor = Math.Max(totalGroups / mentorCount, 1); // Số nhóm trung bình mỗi mentor nên có
 
             foreach (var mentor in allMentors)
             {
@@ -122,8 +119,29 @@ namespace uniexetask.services
                 // Bước 6: Gán mentor vào group
                 if (mentorToAdd != null)
                 {
-                    await _unitOfWork.AddMentorToGroup(group.GroupId, mentorToAdd.MentorId);
-                    mentorGroupCounts[mentorToAdd.MentorId]++; // Cập nhật số nhóm mà mentor này đã được gán
+                    await AddMentorToGroup(group.GroupId, mentorToAdd.MentorId);
+                    mentorGroupCounts[mentorToAdd.MentorId]++;
+                }
+            }
+        }
+        public async System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId)
+        {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            var mentor = await _unitOfWork.Mentors.GetByIDAsync(mentorId);
+            if (group.HasMentor == true)
+            {
+                group.Mentors.Clear();
+                group.Mentors.Add(mentor);
+                _unitOfWork.Save();
+            }
+            else if (group.HasMentor == false)
+            {
+                if (group != null && mentor != null)
+                {
+                    group.Mentors.Add(mentor);
+                    group.HasMentor = true;
+                    _unitOfWork.Groups.Update(group);
+                    _unitOfWork.Save();
                 }
             }
         }
@@ -154,11 +172,6 @@ namespace uniexetask.services
         {
             var group = await _unitOfWork.Groups.GetByIDAsync(id);
             return group;
-        }
-
-        public async System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId)
-        {
-            await _unitOfWork.AddMentorToGroup(groupId, mentorId);
         }
 
         public Task<IEnumerable<Group>> GetGroupsAsync()
