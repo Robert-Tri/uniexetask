@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
-import './TopicList.css';
+import styles from './TopicList.module.css'; // Import CSS module
 
 const TopicsList = () => {
   const [topics, setTopics] = useState([]);
@@ -25,7 +25,7 @@ const TopicsList = () => {
 
   useEffect(() => {
     // Filter topics based on search term
-    const results = topics.filter(topic =>
+    const results = topics.filter((topic) =>
       topic.topicCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       topic.topicName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -40,24 +40,28 @@ const TopicsList = () => {
     <div>
       <input
         type="text"
+        className={styles.searchInput} // Sử dụng CSS module class
         placeholder="Search by topic code or name..."
         value={searchTerm}
         onChange={handleSearch}
       />
-      <table>
+      <table className={styles.table}>
         <thead>
           <tr>
-            <th>Topic Code</th>
-            <th>Topic Name</th>
-            <th>Description</th>
+            <th className={styles.th}>Topic Code</th>
+            <th className={styles.th}>Topic Name</th>
+            <th className={styles.th}>Description</th>
           </tr>
         </thead>
         <tbody>
-          {filteredTopics.map(topic => (
-            <tr key={topic.topicId}>
-              <td>{topic.topicCode}</td>
-              <td>{topic.topicName}</td>
-              <td>{topic.description}</td>
+          {filteredTopics.map((topic, index) => (
+            <tr
+              key={topic.topicId}
+              className={`${styles.tbodyRow} ${index % 2 === 0 ? styles.trEven : ''} ${styles.trHover}`}
+            >
+              <td className={styles.td}>{topic.topicCode}</td>
+              <td className={styles.td}>{topic.topicName}</td>
+              <td className={styles.td}>{topic.description}</td>
             </tr>
           ))}
         </tbody>

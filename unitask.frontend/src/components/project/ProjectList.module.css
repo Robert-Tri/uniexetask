@@ -1,11 +1,10 @@
-/* ProjectList.css */
-.project-list {
+.projectList {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.search-box {
+.searchBox {
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
@@ -14,7 +13,7 @@
   font-size: 16px;
 }
 
-.project-item {
+.projectItem {
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -23,22 +22,22 @@
   transition: transform 0.3s;
 }
 
-.project-item:hover {
+.projectItem:hover {
   transform: scale(1.02);
 }
 
-.project-item h2 {
+.projectItem h2 {
   margin: 0;
   font-size: 24px;
   color: #f17015; /* Màu chính */
 }
 
-.project-item p {
+.projectItem p {
   margin: 10px 0;
   color: #555;
 }
 
-.details-button {
+.detailsButton {
   background-color: #f17015; /* Màu chính */
   color: #fff;
   border: none;
@@ -48,6 +47,6 @@
   transition: background-color 0.3s;
 }
 
-.details-button:hover {
+.detailsButton:hover {
   background-color: #d65a10;
 }
