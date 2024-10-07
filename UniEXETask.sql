@@ -52,6 +52,7 @@ CREATE TABLE [USER] (
     [password] NVARCHAR(255),
     email NVARCHAR(100) NOT NULL UNIQUE,
     phone NVARCHAR(20),
+	avatar NVARCHAR(250),
     campus_id INT NOT NULL,
     status BIT NOT NULL DEFAULT 1,
     role_id INT NOT NULL,
@@ -275,8 +276,8 @@ CREATE TABLE GROUP_INVITE (
 );
 
 -- Tạo bảng EVENT
-CREATE TABLE EVENT (
-    event_id INT PRIMARY KEY IDENTITY(1,1),
+CREATE TABLE WORKSHOP (
+    workshop_id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(50) NOT NULL,
     description NVARCHAR(250) NOT NULL,
 	start_date DATETIME NOT NULL,
@@ -324,7 +325,7 @@ CREATE TABLE REFRESH_TOKEN (
 
 -- Tạo bảng REG_TOPIC_FORM
 CREATE TABLE REG_TOPIC_FORM (
-    reg_id INT PRIMARY KEY IDENTITY(1,1),
+    reg_topic_id INT PRIMARY KEY IDENTITY(1,1),
     group_id INT NOT NULL,
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
@@ -333,6 +334,14 @@ CREATE TABLE REG_TOPIC_FORM (
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
+-- Tạo bảng REG_MEMBER_FORM
+CREATE TABLE REG_MEMBER_FORM (
+    reg_member_id INT PRIMARY KEY IDENTITY(1,1),
+    group_id INT NOT NULL,
+	description NVARCHAR(250) NOT NULL,
+	status BIT NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
+);
 
 -- Thêm dữ liệu mẫu cho bảng Campus
 INSERT INTO CAMPUS (campus_code, campus_name, location)
@@ -537,8 +546,8 @@ VALUES
 (1, 1, 1, 2, GETDATE(), GETDATE(), 'Status 1'),
 (2, 2, 2, 3, GETDATE(), GETDATE(), 'Status 2');
 
--- Thêm dữ liệu mẫu cho bảng EVENT
-INSERT INTO EVENT (name, description, start_date, end_date, location, reg_url, status)
+-- Thêm dữ liệu mẫu cho bảng WORKSHOP
+INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Status 1'),
 ('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Status 2');
