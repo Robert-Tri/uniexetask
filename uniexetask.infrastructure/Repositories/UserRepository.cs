@@ -33,5 +33,9 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet.FindAsync(id);
         }
+        public async Task<IEnumerable<User>> GetUsersWithCampusAndRole()
+        {
+            return await dbSet.Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
+        }
     }
 }
