@@ -50,7 +50,8 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<User>> GetAllUsers()
         {
-            var usersList = await _unitOfWork.Users.GetAsync(includeProperties: "Campus,Role");
+            //var usersList = await _unitOfWork.Users.GetAsync(includeProperties: "Campus,Role");
+            var usersList = await _unitOfWork.Users.GetUsersWithCampusAndRole();
             return usersList;
         }
 
