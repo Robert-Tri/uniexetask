@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
 
-public partial class Event
+public partial class Workshop
 {
-    public int EventId { get; set; }
+    public int WorkshopId { get; set; }
 
     public string Name { get; set; } = null!;
 
