@@ -84,6 +84,16 @@ export default function Users() {
             setRecords(records.map(item =>
                 item.user_id === userId ? { ...item, status: false } : item
             ));
+            toast.success('Delete user successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
         });
     };
 
@@ -111,7 +121,7 @@ export default function Users() {
             await userService.insertUser(user);
         else {
             await userService.updateUser(user);
-            toast.success('User update successfully!', {
+            toast.success('Update user successfully!', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,

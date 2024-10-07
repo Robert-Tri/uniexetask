@@ -42,9 +42,9 @@ function App() {
           <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
           <Route path="/Users" element={<LayoutRoute><Users /></LayoutRoute>} />
         </Routes>
+        <ToastContainer />
       </Router>
     </GoogleOAuthProvider>
-
   );
 }
 
