@@ -14,11 +14,13 @@ namespace uniexetask.api.Controllers
     public class GroupMemberController : ControllerBase
     {
         private IGroupService _groupService;
+        private IStudentService _studentService;
         public IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
 
-        public GroupMemberController(IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper)
+        public GroupMemberController(IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper)
         {
+            _studentService = studentService;
             _groupService = groupService;
             _groupMemberService = groupMemberService;
             _mapper = mapper;
@@ -62,38 +64,55 @@ namespace uniexetask.api.Controllers
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
-            
+            // Đặt mặc định HasMentor là false và Status là "Initialized"
+            request.Group.HasMentor = false;
+            request.Group.Status = "Initialized";
+
+            // Tạo nhóm
             var objGroup = _mapper.Map<Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);
 
             if (!isGroupCreated)
             {
-                return BadRequest("Failed to create group");
+                return BadRequest("Tạo nhóm thất bại");
             }
 
-            
             var createdGroupId = objGroup.GroupId;
 
-            
-            var member = request.Member;
-            member.GroupId = createdGroupId; 
-            if (string.IsNullOrEmpty(member.Role) || member.Role != "Member")
+            // Thêm nhiều sinh viên vào nhóm
+            var memberCreationResults = new List<object>(); // Để lưu kết quả tạo thành viên
+            foreach (var studentCode in request.StudentCodes)
             {
-                member.Role = "Member";
+                var student = await _studentService.GetStudentByCode(studentCode);
+                if (student == null)
+                {
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Không tìm thấy sinh viên" });
+                    continue;
+                }
+
+                var member = new GroupMemberModel
+                {
+                    GroupId = createdGroupId,
+                    StudentId = student.StudentId,
+                    Role = "Member"
+                };
+
+                var objMember = _mapper.Map<GroupMember>(member);
+                var isUserCreated = await _groupMemberService.AddMember(objMember);
+
+                memberCreationResults.Add(new
+                {
+                    StudentCode = studentCode,
+                    Success = isUserCreated,
+                    Message = isUserCreated ? "Thành viên đã được thêm thành công" : "Thêm thành viên thất bại"
+                });
             }
 
-            var objMember = _mapper.Map<GroupMember>(member);
-            var isUserCreated = await _groupMemberService.AddMember(objMember);
-
-            if (isUserCreated)
-            {
-                return Ok(new { GroupId = createdGroupId, MemberCreated = isUserCreated });
-            }
-            else
-            {
-                return BadRequest("Failed to add member to group");
-            }
+            return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
         }
+
+
+
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
