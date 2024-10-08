@@ -184,46 +184,56 @@ export default function Users() {
                     <TblHead />
                     <TableBody>
                         {
-                            recordsAfterPagingAndSorting().map(item =>
-                            (<TableRow key={item.user_id}>
-                                <TableCell>{item.user_id}</TableCell>
-                                <TableCell>{item.fullName}</TableCell>
-                                <TableCell>{item.email}</TableCell>
-                                <TableCell>{item.phone}</TableCell>
-                                <TableCell>{item.campusName}</TableCell>
-                                <TableCell>
-                                    <span
-                                        style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            backgroundColor: item.status ? '#d0f0c0' : '#f8d7da',
-                                            color: item.status ? '#006400' : '#721c24',
-                                            fontWeight: 'bold'
-                                        }}
-                                    >
-                                        {item.status ? 'Active' : 'Inactive'}
-                                    </span>
-                                </TableCell>
-                                <TableCell>{item.roleName}</TableCell>
-                                <TableCell>
-                                    <ActionButton
-                                        bgColor="#CBD2F0"
-                                        textColor="#3E5B87"
-                                        onClick={() => { openInPopup(item); }}
-                                    >
-                                        <EditOutlinedIcon fontSize="small" />
-                                    </ActionButton>
-                                    <ActionButton
-                                        bgColor="#FFB3B3"
-                                        textColor="#C62828"
-                                        onClick={() => handleDelete(item.user_id)}
-                                    >
-                                        <DeleteIcon fontSize="small" />
-                                    </ActionButton>
-                                </TableCell>
-                            </TableRow>))
+                            recordsAfterPagingAndSorting() && recordsAfterPagingAndSorting().length > 0 ? (
+                                recordsAfterPagingAndSorting().map(item => (
+                                    <TableRow key={item.user_id}>
+                                        <TableCell>{item.user_id}</TableCell>
+                                        <TableCell>{item.fullName}</TableCell>
+                                        <TableCell>{item.email}</TableCell>
+                                        <TableCell>{item.phone}</TableCell>
+                                        <TableCell>{item.campusName}</TableCell>
+                                        <TableCell>
+                                            <span
+                                                style={{
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: item.status ? '#d0f0c0' : '#f8d7da',
+                                                    color: item.status ? '#006400' : '#721c24',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                {item.status ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>{item.roleName}</TableCell>
+                                        <TableCell>
+                                            <ActionButton
+                                                bgColor="#CBD2F0"
+                                                textColor="#3E5B87"
+                                                onClick={() => { openInPopup(item); }}
+                                            >
+                                                <EditOutlinedIcon fontSize="small" />
+                                            </ActionButton>
+                                            <ActionButton
+                                                bgColor="#FFB3B3"
+                                                textColor="#C62828"
+                                                onClick={() => handleDelete(item.user_id)}
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </ActionButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={headCells.length} style={{ textAlign: 'center' }}>
+                                        No records found.
+                                    </TableCell>
+                                </TableRow>
+                            )
                         }
                     </TableBody>
+
                 </TblContainer>
                 <TblPagination />
             </Paper>
