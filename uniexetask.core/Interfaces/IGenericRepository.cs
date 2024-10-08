@@ -27,5 +27,7 @@ namespace uniexetask.core.Interfaces
         void Update(TEntity entityToUpdate);
 
         Task<int> CountAsync();
+
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> filter);
     }
 }
