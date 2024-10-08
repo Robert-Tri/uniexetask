@@ -16,7 +16,6 @@ import GroupDetail from './components/group/GroupDetail';
 import Users from './components/User/Users';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider } from './contexts/AuthContext';
 
 const LayoutRoute = ({ children }) => (
   <Layout>
@@ -28,7 +27,6 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com">
-        <AuthProvider>
           <Router>
             <Routes>
               <Route path="/" element={<LoginForm />} />
@@ -46,7 +44,6 @@ function App() {
             </Routes>
             <ToastContainer />
           </Router>
-        </AuthProvider>
     </GoogleOAuthProvider>
   );
 }

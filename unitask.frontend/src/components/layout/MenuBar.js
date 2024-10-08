@@ -1,24 +1,19 @@
 // MenuBar.js
 import React, { useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
 import StudentMenuBar from './StudentMenuBar';
 import MentorMenuBar from './MentorMenuBar';
 import ManagerMenuBar from './ManagerMenuBar';
+import useAuth from "../../hooks/useAuth";
 
 const MenuBar = () => {
-  const { user } = useContext(AuthContext);
+  const {id, username, role} = useAuth()
 
-  if (!user) {
-    return null; // or a loading spinner
-  }
 
-  const role = user.role;
-
-  if (role === '2') {
+  if (role === 'Manager') {
     return <ManagerMenuBar />;
-  } else if (role === '3') {
+  } else if (role === 'Student') {
     return <StudentMenuBar />;
-  } else if (role === '4') {
+  } else if (role === 'Mentor') {
     return <MentorMenuBar />;
   } else {
     return null;
