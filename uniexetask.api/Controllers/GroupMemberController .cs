@@ -64,11 +64,9 @@ namespace uniexetask.api.Controllers
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
-            // Đặt mặc định HasMentor là false và Status là "Initialized"
             request.Group.HasMentor = false;
             request.Group.Status = "Initialized";
-
-            // Tạo nhóm
+           
             var objGroup = _mapper.Map<Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);
 
@@ -79,10 +77,18 @@ namespace uniexetask.api.Controllers
 
             var createdGroupId = objGroup.GroupId;
 
-            // Thêm nhiều sinh viên vào nhóm
+            // Kiểm tra mã sinh viên trùng lặp
+            var studentCodesHashSet = new HashSet<string>();
             var memberCreationResults = new List<object>(); // Để lưu kết quả tạo thành viên
+
             foreach (var studentCode in request.StudentCodes)
             {
+                if (!studentCodesHashSet.Add(studentCode)) /
+                {
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Mã sinh viên trùng, đã bỏ qua" });
+                    continue;
+                }
+
                 var student = await _studentService.GetStudentByCode(studentCode);
                 if (student == null)
                 {
@@ -90,7 +96,6 @@ namespace uniexetask.api.Controllers
                     continue;
                 }
 
-                // Kiểm tra xem sinh viên đã có trong nhóm chưa
                 bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
                 if (studentExistsInGroup)
                 {
@@ -118,10 +123,6 @@ namespace uniexetask.api.Controllers
 
             return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
         }
-
-
-
-
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
