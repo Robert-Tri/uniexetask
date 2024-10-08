@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import LoginForm from './components/Login/LoginForm';
-import Home from './components/home/Home';
+import Home from './components/User/Home';
 import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/User/CreateUserForm';
 import AddMemberForm from './components/User/AddMemberForm';
@@ -13,10 +13,11 @@ import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
 import GroupDetail from './components/group/GroupDetail';
-import Users from './components/User/Users';
+import Users from './views/user/Users';
+import WorkShops from './views/workshop/WorkShops';
 import HomeManager from './components/home/HomeManager';
-
 import { ToastContainer, toast } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
 
 const LayoutRoute = ({ children }) => (
@@ -43,6 +44,7 @@ function App() {
               <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
               <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
               <Route path="/Users" element={<LayoutRoute><Users /></LayoutRoute>} />
+              <Route path="/WorkShops" element={<LayoutRoute><WorkShops /></LayoutRoute>} />
               <Route path="/HomeManager" element={<LayoutRoute><HomeManager /></LayoutRoute>} />
 
             </Routes>

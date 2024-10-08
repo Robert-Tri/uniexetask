@@ -33,6 +33,8 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IGroupMemberService, GroupMemberService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IWorkShopService, WorkShopService>();
+builder.Services.AddScoped<ITimeLineService, TimeLineService>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -61,24 +63,7 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("CanViewUser", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_user")));
-
-    options.AddPolicy("CanCreateUser", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "create_user")));
-
-    options.AddPolicy("CanEditUser", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_user")));
-
-    options.AddPolicy("CanDeleteUser", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_user")));
-});
+builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -100,7 +85,6 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowSpecificOrigins"); // Thêm dòng này
 app.UseMiddleware<JwtMiddleware>();
-app.UseMiddleware<PermissionsMiddleware>();
 
 app.UseHttpsRedirection();
 

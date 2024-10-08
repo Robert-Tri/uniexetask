@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
-using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -13,13 +11,9 @@ namespace uniexetask.api.Controllers
     public class RolePermissionController : ControllerBase
     {
         public readonly IRolePermissionService _rolePermissionService;
-        private readonly IMapper _mapper;
-
-
-        public RolePermissionController(IRolePermissionService rolePermissionService, IMapper mapper)
+        public RolePermissionController(IRolePermissionService rolePermissionService)
         {
             _rolePermissionService = rolePermissionService;
-            _mapper = mapper;
         }
 
         //[Authorize(Roles = "1")]

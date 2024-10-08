@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -23,10 +23,9 @@ const LoginForm = () => {
                 email,
                 password,
             });
-            const decodedToken = jwtDecode(response.data.data.accessToken);
+
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
-            document.cookie = `Permissions=${decodedToken.permissions}; path=/; secure;`;
 
             if (role === 'Manager') {
                 navigate('/HomeManager');
@@ -48,10 +47,9 @@ const LoginForm = () => {
             const response = await axios.post(`${API_BASE_URL}api/auth/google-login`, {
                 token: credentialResponse.credential
             });
-            const decodedToken = jwtDecode(response.data.data.accessToken);
+
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
-            document.cookie = `Permissions=${decodedToken.permissions}; path=/; secure;`;
 
             if (role === 'Manager') {
                 navigate('/HomeManager');

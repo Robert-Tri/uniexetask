@@ -13,8 +13,6 @@ namespace Unitask.Api.Extensions
             CreateMap<GroupMemberModel, GroupMember>().ReverseMap();
             CreateMap<GroupModel, Group>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
-            CreateMap<FeatureModel, Feature>().ReverseMap();
-            CreateMap<PermissionModel, Permission>().ReverseMap();
         }
     }
 }

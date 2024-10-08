@@ -5,10 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Models;
 
-namespace uniexetask.services.Interfaces
+namespace uniexetask.core.Interfaces
 {
-    public interface IRoleService
+    public interface IWorkShopRepository : IGenericRepository<Workshop>
     {
-        Task<IEnumerable<Role>> GetAllRole();
     }
 }

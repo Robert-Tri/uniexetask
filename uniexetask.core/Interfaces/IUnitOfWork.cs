@@ -20,12 +20,12 @@ namespace uniexetask.core.Interfaces
         IStudentRepository Students { get; }
         IMentorRepository Mentors { get; }
         ITopicRepository Topics { get; }
+        IWorkShopRepository WorkShops { get; }
+        ITimeLineRepository TimeLines { get; }
 
 
         int Save();
 
         Task<int> SaveAsync();
-
-        Task AddMentorToGroup(int groupId, int mentorId);
     }
 }

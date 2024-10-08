@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, TextField, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Button, FormControl, InputLabel, CircularProgress, Backdrop } from '@mui/material';
+import { Stack, TextField, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Button, FormControl, InputLabel } from '@mui/material';
 import axios from 'axios';
-import { API_BASE_URL } from '../../config';
 
 const MentorPendingProjects = () => {
   const [projects, setProjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}api/projects/pending`, {
+        const response = await axios.get('https://localhost:7289/api/projects/pending', {
             withCredentials: true
         });
         setProjects(response.data.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -36,10 +31,9 @@ const MentorPendingProjects = () => {
   };
 
   const handleAction = async (projectId, action) => {
-    setLoading(true);
     try {
       const response = await axios.post(
-        `${API_BASE_URL}api/projects/${projectId}/update-status`,
+        `https://localhost:7289/api/projects/${projectId}/update-status`,
         { action },
         { withCredentials: true }
       );
@@ -50,8 +44,6 @@ const MentorPendingProjects = () => {
       }
     } catch (error) {
       console.error(`Error during ${action}ing project:`, error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -65,9 +57,6 @@ const MentorPendingProjects = () => {
 
   return (
     <div>
-    <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading}>
-        <CircularProgress color="inherit" />
-    </Backdrop>
     <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
       <TextField
         label="Search"

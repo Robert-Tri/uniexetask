@@ -48,13 +48,13 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "4")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetProjectsPendingWithMentor()
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(userRole) || !userRole.Equals("Mentor"))
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(userRole) || !userRole.Equals("4"))
             {
                 return NotFound();
             }

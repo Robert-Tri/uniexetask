@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import UserForm from './UserForm';
+import WorkShopForm from './WorkShopForm';
 import PageHeader from "../../components/PageHeader";
-import PeopleOutlineTwoToneIcon from '@material-ui/icons/PeopleOutlineTwoTone';
+import EventAvailableTwoToneIcon from '@material-ui/icons/EventAvailableTwoTone';
 import { Paper, makeStyles, TableBody, TableRow, TableCell, Toolbar, InputAdornment } from '@material-ui/core';
 import useTable from "../../components/useTable";
-import * as userService from "../../services/userService";
-import * as roleService from "../../services/roleService";
-import * as campusService from '../../services/campusService';
-import Controls from '../../components/controls/ActionButton';
+import * as workshopService from "../../services/workShopService";
+import Controls from '../../components/controls/Controls';
 import { Search } from "@material-ui/icons";
 import AddIcon from '@material-ui/icons/Add';
 import Popup from '../../components/Popup';
@@ -15,6 +13,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { toast } from 'react-toastify';
+import ActionButton from '../../components/controls/ActionButton';
 
 const useStyles = makeStyles(theme => ({
     pageContent: {
@@ -31,58 +30,55 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const headCells = [
-    { id: 'user_id', label: 'UserID' },
-    { id: 'fullName', label: 'User Name' },
-    { id: 'email', label: 'Email Address (Personal)' },
-    { id: 'phone', label: 'Mobile Number' },
-    { id: 'campusName', label: 'Campus' },
+    { id: 'workshopId', label: 'Workshop ID' },
+    { id: 'name', label: 'Workshop Name' },
+    { id: 'location', label: 'Location' },
+    { id: 'startDate', label: 'Start Date' },
+    { id: 'endDate', label: 'End Date' },
     { id: 'status', label: 'Status' },
-    { id: 'role', label: 'Role' },
     { id: 'actions', label: 'Actions', disableSorting: true }
 ];
 
-export default function Users() {
+export default function WorkShops() {
     const classes = useStyles();
     const [recordForEdit, setRecordForEdit] = useState(null);
     const [records, setRecords] = useState([]);
     const [filterFn, setFilterFn] = useState({ fn: items => { return items; } });
     const [openPopup, setOpenPopup] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '' });
-    const [campusMap, setCampusMap] = useState(new Map());
-    const [roleMap, setRoleMap] = useState(new Map());
 
     useEffect(() => {
         const fetchData = async () => {
-            const users = await userService.getAllUsers();
-            setRecords(users);
-
-            const campuses = await campusService.getAllCampuses();
-            const map = new Map(campuses.map(campus => [campus.campusName, campus.campusId]));
-            setCampusMap(map);
-
-            const roles = await roleService.getAllRoles();
-            const roleMap = new Map(roles.map(role => [role.name, role.roleId]));
-            setRoleMap(roleMap);
+            const workshops = await workshopService.getWorkShops();
+            setRecords(workshops);
         };
 
         fetchData();
     }, []);
 
-    const handleDelete = userId => {
+    const handleDelete = workshopId => {
         setConfirmDialog({
             isOpen: true,
-            title: 'Are you sure you want to delete this user?',
+            title: 'Are you sure you want to delete this workshop?',
             subTitle: "You can't undo this operation",
-            onConfirm: () => { onDeleteConfirm(userId) }
+            onConfirm: () => { onDeleteConfirm(workshopId) }
         });
     };
 
-    const onDeleteConfirm = userId => {
+    const onDeleteConfirm = workshopId => {
         setConfirmDialog({ ...confirmDialog, isOpen: false });
-        userService.deleteUser(userId).then(() => {
-            setRecords(records.map(item =>
-                item.user_id === userId ? { ...item, status: false } : item
-            ));
+        workshopService.deleteWorkshop(workshopId).then(() => {
+            setRecords(records.filter(item => item.workshopId !== workshopId));
+            toast.success('Delete workshop successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
         });
     };
 
@@ -100,17 +96,15 @@ export default function Users() {
                 if (target.value === "")
                     return items;
                 else
-                    return items.filter(x => x.fullName.toLowerCase().includes(target.value));
+                    return items.filter(x => x.name.toLowerCase().includes(target.value));
             }
         });
     };
 
-    const addOrEdit = async (user, resetForm) => {
-        if (user.user_id === 0)
-            await userService.insertUser(user);
-        else {
-            await userService.updateUser(user);
-            toast.success('User update successfully!', {
+    const addOrEdit = async (workshop, resetForm) => {
+        if (workshop.workshopId === 0){
+            await workshopService.insertWorkshop(workshop);
+            toast.success('Insert workshop successfully!', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -119,40 +113,46 @@ export default function Users() {
                 draggable: true,
                 progress: undefined,
                 theme: "colored",
-                });
+            });
+        }
+            
+        
+        else {
+            await workshopService.updateWorkshop(workshop);
+            toast.success('Update workshop successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
         }
 
         resetForm();
         setRecordForEdit(null);
         setOpenPopup(false);
-        userService.getAllUsers().then(data => setRecords(data));
+        workshopService.getWorkShops().then(data => setRecords(data));
     };
 
     const openInPopup = item => {
-        const campusId = campusMap.get(item.campusName) || '';
-        const roleId = roleMap.get(item.roleName) || '';
-
-        const updatedItem = {
-            ...item,
-            campusId: campusId,
-            roleId: roleId
-        };
-
-        setRecordForEdit(updatedItem);
+        setRecordForEdit(item);
         setOpenPopup(true);
     };
 
     return (
         <>
             <PageHeader
-                title="New User"
-                subTitle="Form design with validation"
-                icon={<PeopleOutlineTwoToneIcon fontSize="large" />}
+                title="New Workshop"
+                subTitle="Workshop management with validation"
+                icon={<EventAvailableTwoToneIcon fontSize="large" />}
             />
             <Paper className={classes.pageContent}>
                 <Toolbar>
                     <Controls.Input
-                        label="Search Users"
+                        label="Search Workshops"
                         className={classes.searchInput}
                         InputProps={{
                             startAdornment: (<InputAdornment position="start">
@@ -174,39 +174,40 @@ export default function Users() {
                     <TableBody>
                         {
                             recordsAfterPagingAndSorting().map(item =>
-                            (<TableRow key={item.user_id}>
-                                <TableCell>{item.user_id}</TableCell>
-                                <TableCell>{item.fullName}</TableCell>
-                                <TableCell>{item.email}</TableCell>
-                                <TableCell>{item.phone}</TableCell>
-                                <TableCell>{item.campusName}</TableCell>
+                            (<TableRow key={item.workshopId}>
+                                <TableCell>{item.workshopId}</TableCell>
+                                <TableCell>{item.name}</TableCell>
+                                <TableCell>{item.location}</TableCell>
+                                <TableCell>{item.startDate.toLocaleDateString()}</TableCell>
+                                <TableCell>{item.endDate.toLocaleDateString()}</TableCell>
                                 <TableCell>
                                     <span
                                         style={{
                                             padding: '4px 8px',
                                             borderRadius: '4px',
-                                            backgroundColor: item.status ? '#d0f0c0' : '#f8d7da',
-                                            color: item.status ? '#006400' : '#721c24',
+                                            backgroundColor: item.status === 'Active' ? '#d0f0c0' : '#f8d7da',
+                                            color: item.status === 'Active' ? '#006400' : '#721c24',
                                             fontWeight: 'bold'
                                         }}
                                     >
-                                        {item.status ? 'Active' : 'Inactive'}
+                                        {item.status}
                                     </span>
                                 </TableCell>
-                                <TableCell>{item.roleName}</TableCell>
                                 <TableCell>
-                                    <Controls.ActionButton
+                                    <ActionButton
                                         bgColor="#CBD2F0"
                                         textColor="#3E5B87"
-                                        onClick={() => { openInPopup(item) }}>
+                                        onClick={() => { openInPopup(item); }}
+                                    >
                                         <EditOutlinedIcon fontSize="small" />
-                                    </Controls.ActionButton>
-                                    <Controls.ActionButton
+                                    </ActionButton>
+                                    <ActionButton
                                         bgColor="#FFB3B3"
                                         textColor="#C62828"
-                                        onClick={() => handleDelete(item.user_id)}>
+                                        onClick={() => handleDelete(item.workshopId)}
+                                    >
                                         <DeleteIcon fontSize="small" />
-                                    </Controls.ActionButton>
+                                    </ActionButton>
                                 </TableCell>
                             </TableRow>))
                         }
@@ -215,11 +216,11 @@ export default function Users() {
                 <TblPagination />
             </Paper>
             <Popup
-                title="User Form" // Đổi tiêu đề
+                title="Workshop Form"
                 openPopup={openPopup}
                 setOpenPopup={setOpenPopup}
             >
-                <UserForm
+                <WorkShopForm
                     recordForEdit={recordForEdit}
                     addOrEdit={addOrEdit} />
             </Popup>
