@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { API_BASE_URL } from '../../config';
 import styles from './LoginForm.module.css'; // Import CSS module
+import { jwtDecode } from 'jwt-decode';
+import useAuth from "../../hooks/useAuth";
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const {id, username, role} = useAuth()
 
     const navigate = useNavigate();
 
@@ -24,7 +27,12 @@ const LoginForm = () => {
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
-            navigate('/home');
+            if (role === 'Manager') {
+                navigate('/HomeManager');
+            } else {
+                navigate('/home');
+            }
+
         } catch (err) {
             console.error(err);
             setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
@@ -43,7 +51,11 @@ const LoginForm = () => {
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
-            navigate('/home');
+            if (role === 'Manager') {
+                navigate('/HomeManager');
+            } else {
+                navigate('/home');
+            }
         } catch (err) {
             console.error(err);
             setError('Đăng nhập bằng Google thất bại.');

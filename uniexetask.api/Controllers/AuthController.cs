@@ -170,5 +170,32 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+
+            // Get user ID from the claims
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                response.Success = false;
+                response.ErrorMessage = "User not found.";
+                return Unauthorized(response);
+            }
+
+            // Clear refresh token from the database
+            await _authService.ClearRefreshToken(Convert.ToInt32(userId));
+
+            // Clear cookies (if using cookies)
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("RefreshToken");
+
+            response.Data = "Logout successful.";
+            return Ok(response);
+        }
+
     }
 }

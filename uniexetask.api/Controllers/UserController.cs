@@ -38,11 +38,7 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Get product by id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
+
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetProductById(int userId)
         {
