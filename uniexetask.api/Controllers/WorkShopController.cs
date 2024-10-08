@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using uniexetask.api.Extensions;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
@@ -12,11 +13,12 @@ namespace uniexetask.api.Controllers
     public class WorkShopController : ControllerBase
     {
         private readonly IWorkShopService _workShopService;
-        public WorkShopController(IWorkShopService workShopService)
+        private readonly IEmailService _emailService;
+        public WorkShopController(IWorkShopService workShopService, IEmailService emailService)
         {
             _workShopService = workShopService;
+            _emailService = emailService;
         }
-        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetWorkShops()
         {
@@ -30,6 +32,7 @@ namespace uniexetask.api.Controllers
         {
             await _workShopService.CreateWorkShop(workshop);
             ApiResponse<Workshop> respone = new ApiResponse<Workshop>();
+
             respone.Data = workshop;
             return Ok(respone);
         }
