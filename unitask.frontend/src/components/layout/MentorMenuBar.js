@@ -1,10 +1,9 @@
-// MentorMenuBar.js
 import React from 'react';
-import { Menu, LayoutDashboard, Users, FolderKanban, MessageSquare } from 'lucide-react';
+import { Menu, Users, FolderKanban, MessageSquare } from 'lucide-react';
 
 const MentorMenuBar = () => {
     return (
-        <nav className="bg-gray-800 z-50 relative"> {/* Thêm z-index và relative */}
+        <nav className="bg-gray-800 z-50 fixed top-16 left-0 w-full"> {/* Sửa thành fixed, top 16px dưới Header */}
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
@@ -14,7 +13,7 @@ const MentorMenuBar = () => {
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-4">
                     <a href="/groups" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                      <Users className="inline-block mr-1" size={16} /> Manager Group
+                      <Users className="inline-block mr-1" size={16} /> Manage Group
                     </a>
                     <a href="/projects" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       <FolderKanban className="inline-block mr-1" size={16} /> Meeting Schedule
