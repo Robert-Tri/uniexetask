@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link từ React Router
 import { User, Settings } from 'lucide-react';
+import useAuth from "../../hooks/useAuth";
 
 const Header = () => {
+  const {id, username, role} = useAuth()
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <img src="/images/logo-dai-hoc-fpt.svg" alt="Logo" className="h-10 w-35" />
-          {/* Tiêu đề của ứng dụng */}
+          <Link to="/home">
+            <img src="/images/logo-dai-hoc-fpt.svg" alt="Logo" className="h-10 w-35 cursor-pointer" />
+          </Link>          {/* Tiêu đề của ứng dụng */}
           <h1 className="text-xl font-bold text-gray-800">UniEXETask</h1>
         </div>
         <div className="flex items-center space-x-2">
           {/* Thông tin sinh viên căn phải */}
           <div className="flex flex-col items-end text-gray-600">
-            <span className="text-lg font-semibold">Tên Sinh Viên</span> {/* Tên lớn hơn */}
-            <span className="text-sm">Vai Trò</span> {/* Vai trò nhỏ hơn */}
+            <span className="text-lg font-semibold">{username}</span> {/* Tên lớn hơn */}
+            <span className="text-sm">{role}</span> {/* Vai trò nhỏ hơn */}
           </div>
           <div className="relative">
             <img

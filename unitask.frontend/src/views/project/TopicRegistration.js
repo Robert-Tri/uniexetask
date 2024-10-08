@@ -28,8 +28,7 @@ import {
     CircularProgress
   } from '@mui/material';
 import axios from 'axios';
-import data from './data.json';
-
+import { API_BASE_URL } from '../../config';
 
 const TopicRegistration = () => {
   const [groupParams] = useSearchParams();
@@ -52,7 +51,7 @@ const TopicRegistration = () => {
     const fetchTopic = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`https://localhost:7289/api/topic/${groupId}`);
+            const response = await fetch(`${API_BASE_URL}api/topic/${groupId}`);
             if (!response.ok) {
               throw new Error('Network response was not ok');
             }
@@ -68,7 +67,7 @@ const TopicRegistration = () => {
     const fetchSubject = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`https://localhost:7289/api/group/subject/${groupId}`);
+          const response = await fetch(`${API_BASE_URL}api/group/subject/${groupId}`);
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
