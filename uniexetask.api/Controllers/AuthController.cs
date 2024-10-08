@@ -15,6 +15,7 @@ using Azure;
 using Google.Apis.Auth;
 
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Primitives;
 
 namespace uniexetask.api.Controllers
 {
@@ -24,11 +25,15 @@ namespace uniexetask.api.Controllers
     {
         private readonly IConfiguration _configuration;
         public readonly IAuthService _authService;
+        public readonly IRoleService _roleService;
+        public readonly IRolePermissionService _rolePermissionService;
 
-        public AuthController(IConfiguration configuration, IAuthService authService)
+        public AuthController(IConfiguration configuration, IAuthService authService, IRoleService roleService, IRolePermissionService rolePermissionService)
         {
             _configuration = configuration;
             _authService = authService;
+            _roleService = roleService;
+            _rolePermissionService = rolePermissionService;
         }
 
         [HttpPost("login")]
@@ -40,24 +45,24 @@ namespace uniexetask.api.Controllers
             {
                 TokenModel token = new TokenModel
                 {
-                    AccessToken = GenerateAccessToken(user),
-                    RefreshToken = GenerateRefreshToken()
+                    AccessToken = await GenerateAccessToken(user),
+                    RefreshToken = await GenerateRefreshToken()
                 };
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
                 response.Data = token;
-
+/*
                 Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(30)
+                    Expires = DateTime.UtcNow.AddMinutes(1)
                 });
                 Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
                     Expires = DateTime.UtcNow.AddDays(30)
-                });
+                });*/
 
                 return Ok(response);
             }
@@ -74,27 +79,37 @@ namespace uniexetask.api.Controllers
 
             if (user == null)
                 return Unauthorized("Your session has expired. Please log in again.");
-            var newAccessToken = GenerateAccessToken(user);
+            var newAccessToken = await GenerateAccessToken(user);
             Response.Cookies.Append("AccessToken", newAccessToken ?? "", new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                Expires = DateTime.UtcNow.AddMinutes(30)
+                Expires = DateTime.UtcNow.AddMinutes(1),
+                SameSite = SameSiteMode.None
             });
             return Ok(newAccessToken);
         }
 
-        private string GenerateAccessToken(User user)
+        private async Task<string> GenerateAccessToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key must be configured")));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
+            var role = await _roleService.GetRoleById(user.RoleId);
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.RoleId.ToString())
+                new Claim(ClaimTypes.Role, role.Name),
+                new Claim(ClaimTypes.Name, user.FullName)
             };
+            var permissions = await _rolePermissionService.GetRolePermissionsByRole(role.Name);
+            if (permissions != null)
+            {
+                foreach (var permission in permissions)
+                {
+                    claims.Add(new Claim("permissions", permission.Name));
+                }
+            }
 
             var token = new JwtSecurityToken(
                         issuer: _configuration["Jwt:Issuer"],
@@ -106,14 +121,17 @@ namespace uniexetask.api.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private string GenerateRefreshToken()
+        private static async Task<string> GenerateRefreshToken()
         {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
+            return await System.Threading.Tasks.Task.Run(() =>
             {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
+                var randomNumber = new byte[32];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(randomNumber);
+                    return Convert.ToBase64String(randomNumber);
+                }
+            });
         }
 
         [HttpPost("google-login")]
@@ -139,26 +157,26 @@ namespace uniexetask.api.Controllers
                 // Generate tokens
                 TokenModel token = new TokenModel
                 {
-                    AccessToken = GenerateAccessToken(user),
-                    RefreshToken = GenerateRefreshToken()
+                    AccessToken = await GenerateAccessToken(user),
+                    RefreshToken = await GenerateRefreshToken()
                 };
 
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
                 response.Data = token;
 
                 // Set cookies
-                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
+/*                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(30)
+                    Expires = DateTime.UtcNow.AddMinutes(1)
                 });
                 Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
                     Expires = DateTime.UtcNow.AddDays(30)
-                });
+                });*/
 
                 return Ok(response);
             }

@@ -3,7 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import LoginForm from './components/Login/LoginForm';
-import Home from './components/User/Home';
+import Home from './components/home/Home';
 import RolePermission from './views/role_permission/RolePermission';
 import CreateUserForm from './components/User/CreateUserForm';
 import AddMemberForm from './components/User/AddMemberForm';

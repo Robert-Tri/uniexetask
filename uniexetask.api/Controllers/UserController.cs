@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using uniexetask.api.Models.Request;
@@ -25,6 +26,7 @@ namespace uniexetask.api.Controllers
         /// Get the list of product
         /// </summary>
         /// <returns></returns>
+        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {
@@ -40,7 +42,7 @@ namespace uniexetask.api.Controllers
 
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetProductById(int userId)
+        public async Task<IActionResult> GetUserById(int userId)
         {
             var users = await _userService.GetUserById(userId);
 

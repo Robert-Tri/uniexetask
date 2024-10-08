@@ -63,7 +63,24 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanViewUser", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_user")));
+
+    options.AddPolicy("CanCreateUser", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "create_user")));
+
+    options.AddPolicy("CanEditUser", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_user")));
+
+    options.AddPolicy("CanDeleteUser", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_user")));
+});
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -85,6 +102,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowSpecificOrigins"); // Thêm dòng này
 app.UseMiddleware<JwtMiddleware>();
+app.UseMiddleware<PermissionsMiddleware>();
 
 app.UseHttpsRedirection();
 
