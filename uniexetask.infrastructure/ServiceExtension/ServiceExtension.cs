@@ -31,10 +31,10 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IGroupMemberRepository, GroupMemberRepsitory>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-
             services.AddScoped<IStudentRepository, StudentRepsitory>();
-
             services.AddScoped<ITopicRepository, TopicRepository>();
+            services.AddScoped<IWorkShopRepository, WorkShopRepository>();
+            services.AddScoped<ITimeLineRepository, TimeLineRepository>();
 
 
             return services;

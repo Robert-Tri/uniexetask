@@ -13,7 +13,8 @@ import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
 import GroupDetail from './components/group/GroupDetail';
-import Users from './components/User/Users';
+import Users from './views/user/Users';
+import WorkShops from './views/workshop/WorkShops';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
           <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
           <Route path="/Users" element={<LayoutRoute><Users /></LayoutRoute>} />
+          <Route path="/WorkShops" element={<LayoutRoute><WorkShops /></LayoutRoute>} />
         </Routes>
         <ToastContainer />
       </Router>
