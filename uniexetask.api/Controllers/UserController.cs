@@ -46,7 +46,7 @@ namespace uniexetask.api.Controllers
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetProductById(int userId)
+        public async Task<IActionResult> GetUserById(int userId)
         {
             var users = await _userService.GetUserById(userId);
 
