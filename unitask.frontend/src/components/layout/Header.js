@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { User, Settings } from 'lucide-react';
+import useAuth from "../../hooks/useAuth";
 
 const Header = () => {
+  const {id, username, role} = useAuth()
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
@@ -15,8 +17,8 @@ const Header = () => {
         <div className="flex items-center space-x-2">
           {/* Thông tin sinh viên căn phải */}
           <div className="flex flex-col items-end text-gray-600">
-            <span className="text-lg font-semibold">Tên Sinh Viên</span> {/* Tên lớn hơn */}
-            <span className="text-sm">Vai Trò</span> {/* Vai trò nhỏ hơn */}
+            <span className="text-lg font-semibold">{username}</span> {/* Tên lớn hơn */}
+            <span className="text-sm">{role}</span> {/* Vai trò nhỏ hơn */}
           </div>
           <div className="relative">
             <img
