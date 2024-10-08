@@ -1,18 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom'; // Import Link từ React Router
 import { User, Settings } from 'lucide-react';
+import useAuth from "../../hooks/useAuth";
 
 const Header = () => {
+  const {id, username, role} = useAuth()
   const [showDropdown, setShowDropdown] = useState(false);
-  const { user } = useContext(AuthContext);
-
-  if (!user) {
-    return null; // or a loading spinner
-  }
-  const fullname = user.fullname;
-  const rolename = user.rolename;
-  const role = user.role;
 
   return (
     <header className="bg-white shadow-md">
@@ -26,8 +19,8 @@ const Header = () => {
         <div className="flex items-center space-x-2">
           {/* Thông tin sinh viên căn phải */}
           <div className="flex flex-col items-end text-gray-600">
-            <span className="text-lg font-semibold">{fullname}</span> {/* Tên lớn hơn */}
-            <span className="text-sm">{rolename}</span> {/* Vai trò nhỏ hơn */}
+            <span className="text-lg font-semibold">{username}</span> {/* Tên lớn hơn */}
+            <span className="text-sm">{role}</span> {/* Vai trò nhỏ hơn */}
           </div>
           <div className="relative">
             <img
