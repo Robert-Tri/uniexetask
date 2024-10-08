@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link từ React Router
 import { User, Settings } from 'lucide-react';
 import useAuth from "../../hooks/useAuth";
 
@@ -10,8 +11,9 @@ const Header = () => {
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <img src="/images/logo-dai-hoc-fpt.svg" alt="Logo" className="h-10 w-35" />
-          {/* Tiêu đề của ứng dụng */}
+          <Link to="/home">
+            <img src="/images/logo-dai-hoc-fpt.svg" alt="Logo" className="h-10 w-35 cursor-pointer" />
+          </Link>          {/* Tiêu đề của ứng dụng */}
           <h1 className="text-xl font-bold text-gray-800">UniEXETask</h1>
         </div>
         <div className="flex items-center space-x-2">
