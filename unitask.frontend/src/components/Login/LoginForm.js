@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { API_BASE_URL } from '../../config';
 import styles from './LoginForm.module.css'; // Import CSS module
+import { jwtDecode } from 'jwt-decode';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -20,9 +21,10 @@ const LoginForm = () => {
                 email,
                 password,
             });
-
+            const decodedToken = jwtDecode(response.data.data.accessToken);
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
+            document.cookie = `Permissions=${decodedToken.permissions}; path=/; secure;`;
 
             navigate('/home');
         } catch (err) {
@@ -39,9 +41,10 @@ const LoginForm = () => {
             const response = await axios.post(`${API_BASE_URL}api/auth/google-login`, {
                 token: credentialResponse.credential
             });
-
+            const decodedToken = jwtDecode(response.data.data.accessToken);
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
+            document.cookie = `Permissions=${decodedToken.permissions}; path=/; secure;`;
 
             navigate('/home');
         } catch (err) {
