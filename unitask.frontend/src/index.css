@@ -17,3 +17,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+header {
+  position: fixed;    /* Cố định header */
+  top: 0;             /* Nằm ở trên cùng */
+  left: 0;            /* Nằm ở bên trái */
+  width: 100%;        /* Độ rộng 100% */
+  z-index: 50;        /* Đảm bảo nó nằm trên các phần tử khác */
+  height: 70px;       /* Đặt chiều cao cho header */
+}

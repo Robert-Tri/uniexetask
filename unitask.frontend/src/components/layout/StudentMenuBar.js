@@ -3,7 +3,7 @@ import { Menu, LayoutDashboard, Users, FolderKanban, MessageSquare } from 'lucid
 
 const StudentMenuBar = () => {
     return (
-        <nav className="bg-gray-800 z-50 relative"> {/* Thêm z-index và relative */}
+        <nav className="bg-gray-800 z-50 top-16 left-0 w-full" style={{marginTop: '70px'}}>
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
