@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -15,7 +16,7 @@ namespace uniexetask.api.Controllers
         {
             _workShopService = workShopService;
         }
-
+        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetWorkShops()
         {

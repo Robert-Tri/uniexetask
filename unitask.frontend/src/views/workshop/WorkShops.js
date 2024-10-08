@@ -6,27 +6,16 @@ import { Paper, makeStyles, TableBody, TableRow, TableCell, Toolbar, InputAdornm
 import useTable from "../../components/useTable";
 import * as workshopService from "../../services/workShopService";
 import Controls from '../../components/controls/Controls';
-import { Search } from "@material-ui/icons";
-import AddIcon from '@material-ui/icons/Add';
+import { Search, Add as AddIcon, EditOutlined, Delete } from '@material-ui/icons';
 import Popup from '../../components/Popup';
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import DeleteIcon from '@material-ui/icons/Delete';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { toast } from 'react-toastify';
 import ActionButton from '../../components/controls/ActionButton';
 
 const useStyles = makeStyles(theme => ({
-    pageContent: {
-        margin: theme.spacing(5),
-        padding: theme.spacing(3)
-    },
-    searchInput: {
-        width: '75%'
-    },
-    newButton: {
-        position: 'absolute',
-        right: '10px'
-    }
+    pageContent: { margin: theme.spacing(5), padding: theme.spacing(3) },
+    searchInput: { width: '75%' },
+    newButton: { position: 'absolute', right: '10px' }
 }));
 
 const headCells = [
@@ -41,18 +30,17 @@ const headCells = [
 
 export default function WorkShops() {
     const classes = useStyles();
-    const [recordForEdit, setRecordForEdit] = useState(null);
     const [records, setRecords] = useState([]);
-    const [filterFn, setFilterFn] = useState({ fn: items => { return items; } });
+    const [filterFn, setFilterFn] = useState({ fn: items => items });
     const [openPopup, setOpenPopup] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subTitle: '' });
+    const [recordForEdit, setRecordForEdit] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             const workshops = await workshopService.getWorkShops();
             setRecords(workshops);
         };
-
         fetchData();
     }, []);
 
@@ -61,80 +49,40 @@ export default function WorkShops() {
             isOpen: true,
             title: 'Are you sure you want to delete this workshop?',
             subTitle: "You can't undo this operation",
-            onConfirm: () => { onDeleteConfirm(workshopId) }
+            onConfirm: () => onDeleteConfirm(workshopId)
         });
     };
 
     const onDeleteConfirm = workshopId => {
-        setConfirmDialog({ ...confirmDialog, isOpen: false });
         workshopService.deleteWorkshop(workshopId).then(() => {
             setRecords(records.filter(item => item.workshopId !== workshopId));
-            toast.success('Delete workshop successfully!', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
+            toast.success('Delete workshop successfully!');
         });
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
     };
 
-    const {
-        TblContainer,
-        TblHead,
-        TblPagination,
-        recordsAfterPagingAndSorting
-    } = useTable(records, headCells, filterFn);
+    const { TblContainer, TblHead, TblPagination, recordsAfterPagingAndSorting } = useTable(records, headCells, filterFn);
 
     const handleSearch = e => {
-        let target = e.target;
+        const value = e.target.value.toLowerCase();
         setFilterFn({
-            fn: items => {
-                if (target.value === "")
-                    return items;
-                else
-                    return items.filter(x => x.name.toLowerCase().includes(target.value));
-            }
+            fn: items => (value === "" ? items : items.filter(x => x.name.toLowerCase().includes(value)))
         });
     };
 
     const addOrEdit = async (workshop, resetForm) => {
-        if (workshop.workshopId === 0){
+        if (workshop.workshopId === 0) {
             await workshopService.insertWorkshop(workshop);
-            toast.success('Insert workshop successfully!', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
-        }
-            
-        
-        else {
+            toast.success('Insert workshop successfully!');
+        } else {
             await workshopService.updateWorkshop(workshop);
-            toast.success('Update workshop successfully!', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
+            toast.success('Update workshop successfully!');
         }
-
         resetForm();
         setRecordForEdit(null);
         setOpenPopup(false);
-        workshopService.getWorkShops().then(data => setRecords(data));
+        const workshops = await workshopService.getWorkShops();
+        setRecords(workshops); // Update records after add/edit
     };
 
     const openInPopup = item => {
@@ -144,21 +92,13 @@ export default function WorkShops() {
 
     return (
         <>
-            <PageHeader
-                title="New Workshop"
-                subTitle="Workshop management with validation"
-                icon={<EventAvailableTwoToneIcon fontSize="large" />}
-            />
+            <PageHeader title="New Workshop" subTitle="Workshop management with validation" icon={<EventAvailableTwoToneIcon fontSize="large" />} />
             <Paper className={classes.pageContent}>
                 <Toolbar>
                     <Controls.Input
                         label="Search Workshops"
                         className={classes.searchInput}
-                        InputProps={{
-                            startAdornment: (<InputAdornment position="start">
-                                <Search />
-                            </InputAdornment>)
-                        }}
+                        InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
                         onChange={handleSearch}
                     />
                     <Controls.Button
@@ -172,62 +112,50 @@ export default function WorkShops() {
                 <TblContainer>
                     <TblHead />
                     <TableBody>
-                        {
-                            recordsAfterPagingAndSorting().map(item =>
-                            (<TableRow key={item.workshopId}>
-                                <TableCell>{item.workshopId}</TableCell>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>{item.location}</TableCell>
-                                <TableCell>{item.startDate.toLocaleDateString()}</TableCell>
-                                <TableCell>{item.endDate.toLocaleDateString()}</TableCell>
-                                <TableCell>
-                                    <span
-                                        style={{
+                        {recordsAfterPagingAndSorting().length > 0 ? (
+                            recordsAfterPagingAndSorting().map(item => (
+                                <TableRow key={item.workshopId}>
+                                    <TableCell>{item.workshopId}</TableCell>
+                                    <TableCell>{item.name}</TableCell>
+                                    <TableCell>{item.location}</TableCell>
+                                    <TableCell>{new Date(item.startDate).toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(item.endDate).toLocaleDateString()}</TableCell>
+                                    <TableCell>
+                                        <span style={{
                                             padding: '4px 8px',
                                             borderRadius: '4px',
                                             backgroundColor: item.status === 'Active' ? '#d0f0c0' : '#f8d7da',
                                             color: item.status === 'Active' ? '#006400' : '#721c24',
                                             fontWeight: 'bold'
-                                        }}
-                                    >
-                                        {item.status}
-                                    </span>
+                                        }}>
+                                            {item.status}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <ActionButton bgColor="#CBD2F0" textColor="#3E5B87" onClick={() => openInPopup(item)}>
+                                            <EditOutlined fontSize="small" />
+                                        </ActionButton>
+                                        <ActionButton bgColor="#FFB3B3" textColor="#C62828" onClick={() => handleDelete(item.workshopId)}>
+                                            <Delete fontSize="small" />
+                                        </ActionButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={headCells.length} style={{ textAlign: 'center' }}>
+                                    No records found.
                                 </TableCell>
-                                <TableCell>
-                                    <ActionButton
-                                        bgColor="#CBD2F0"
-                                        textColor="#3E5B87"
-                                        onClick={() => { openInPopup(item); }}
-                                    >
-                                        <EditOutlinedIcon fontSize="small" />
-                                    </ActionButton>
-                                    <ActionButton
-                                        bgColor="#FFB3B3"
-                                        textColor="#C62828"
-                                        onClick={() => handleDelete(item.workshopId)}
-                                    >
-                                        <DeleteIcon fontSize="small" />
-                                    </ActionButton>
-                                </TableCell>
-                            </TableRow>))
-                        }
+                            </TableRow>
+                        )}
                     </TableBody>
                 </TblContainer>
                 <TblPagination />
             </Paper>
-            <Popup
-                title="Workshop Form"
-                openPopup={openPopup}
-                setOpenPopup={setOpenPopup}
-            >
-                <WorkShopForm
-                    recordForEdit={recordForEdit}
-                    addOrEdit={addOrEdit} />
+            <Popup title="Workshop Form" openPopup={openPopup} setOpenPopup={setOpenPopup}>
+                <WorkShopForm recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
             </Popup>
-            <ConfirmDialog
-                confirmDialog={confirmDialog}
-                setConfirmDialog={setConfirmDialog}
-            />
+            <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>
     );
 }
