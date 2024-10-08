@@ -1,12 +1,13 @@
 ﻿using System.Net.Mail;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 
 namespace uniexetask.api.Extensions
 {
-    public class Email : IEmail
+    public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        public Email(IConfiguration configuration)
+        public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
         }

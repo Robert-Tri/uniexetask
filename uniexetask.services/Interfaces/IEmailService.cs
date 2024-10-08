@@ -1,6 +1,6 @@
 ﻿namespace uniexetask.api.Extensions
 {
-    public interface IEmail
+    public interface IEmailService
     {
         Task SendEmailAsync(string email, string subject, string message);
     }
