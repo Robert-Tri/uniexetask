@@ -22,6 +22,8 @@ namespace uniexetask.infrastructure.Repositories
         public IStudentRepository Students { get; }
         public IMentorRepository Mentors { get; }
         public ITopicRepository Topics { get; }
+        public IWorkShopRepository WorkShops { get; }
+        public ITimeLineRepository TimeLines { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -35,7 +37,9 @@ namespace uniexetask.infrastructure.Repositories
                             ITopicRepository topics,
                             IGroupMemberRepository groupMembers,
                             IStudentRepository students,
-                            IMentorRepository mentors)
+                            IMentorRepository mentors,
+                            IWorkShopRepository workshops,
+                            ITimeLineRepository timelines)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -50,6 +54,8 @@ namespace uniexetask.infrastructure.Repositories
             GroupMembers = groupMembers;
             Mentors = mentors;
             Topics = topics;
+            WorkShops = workshops;
+            TimeLines = timelines;
         }
 
         public int Save()
@@ -74,27 +80,6 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<int> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync();
-        }
-        public async Task AddMentorToGroup(int groupId, int mentorId)
-        {
-            var group = await _dbContext.Groups.FindAsync(groupId);
-            var mentor = await _dbContext.Mentors.FindAsync(mentorId);
-            if (group.HasMentor == true)
-            {
-                group.Mentors.Clear();
-                group.Mentors.Add(mentor);
-                await _dbContext.SaveChangesAsync();
-            }
-            else if(group.HasMentor == false)
-            {
-                if (group != null && mentor != null)
-                {
-                    group.Mentors.Add(mentor);
-                    group.HasMentor = true;
-                    _dbContext.Groups.Update(group);
-                    await _dbContext.SaveChangesAsync();
-                }
-            }
         }
     }
 }
