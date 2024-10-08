@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { API_BASE_URL } from '../../config';
 import styles from './LoginForm.module.css'; // Import CSS module
+import { AuthContext } from '../../contexts/AuthContext';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const { fetchUserInfo } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
@@ -23,7 +25,8 @@ const LoginForm = () => {
 
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
-
+            
+            await fetchUserInfo();
             navigate('/home');
         } catch (err) {
             console.error(err);
@@ -43,6 +46,7 @@ const LoginForm = () => {
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
+            await fetchUserInfo();
             navigate('/home');
         } catch (err) {
             console.error(err);

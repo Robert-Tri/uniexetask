@@ -15,6 +15,7 @@ using Azure;
 using Google.Apis.Auth;
 
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Primitives;
 
 namespace uniexetask.api.Controllers
 {
@@ -24,11 +25,13 @@ namespace uniexetask.api.Controllers
     {
         private readonly IConfiguration _configuration;
         public readonly IAuthService _authService;
+        public readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration, IAuthService authService)
+        public AuthController(IConfiguration configuration, IAuthService authService, IUserService userService)
         {
             _configuration = configuration;
             _authService = authService;
+            _userService = userService;
         }
 
         [HttpPost("login")]
@@ -169,6 +172,31 @@ namespace uniexetask.api.Controllers
                 return Unauthorized(response);
             }
         }
+
+        [Authorize]
+        [HttpGet("userinfo")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var userClaims = identity.Claims;
+                var userId = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var email = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var userRole = userClaims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var user = await _userService.GetUserById(Convert.ToInt32(userId));
+                return Ok(new
+                {
+                    userId,
+                    email,
+                    role = userRole,
+                    fullname = user.FullName,
+                    rolename = user.Role.Name
+                });
+            }
+            return Unauthorized();
+        }
+
 
     }
 }

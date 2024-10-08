@@ -1,36 +1,28 @@
-import React from 'react';
-import { Menu, LayoutDashboard, Users, FolderKanban, MessageSquare } from 'lucide-react';
+// MenuBar.js
+import React, { useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
+import StudentMenuBar from './StudentMenuBar';
+import MentorMenuBar from './MentorMenuBar';
+import ManagerMenuBar from './ManagerMenuBar';
 
 const MenuBar = () => {
-  return (
-    <nav className="bg-gray-800 z-50 relative"> {/* Thêm z-index và relative */}
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 text-white">
-              <Menu size={24} />
-            </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <a href="/topics" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <LayoutDashboard className="inline-block mr-1" size={16} /> Topics
-                </a>
-                <a href="/groups" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <Users className="inline-block mr-1" size={16} /> Groups
-                </a>
-                <a href="/projects" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <FolderKanban className="inline-block mr-1" size={16} /> Projects
-                </a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                  <MessageSquare className="inline-block mr-1" size={16} /> Trò chuyện
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return null; // or a loading spinner
+  }
+
+  const role = user.role;
+
+  if (role === '2') {
+    return <ManagerMenuBar />;
+  } else if (role === '3') {
+    return <StudentMenuBar />;
+  } else if (role === '4') {
+    return <MentorMenuBar />;
+  } else {
+    return null;
+  }
 };
 
 export default MenuBar;

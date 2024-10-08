@@ -16,5 +16,9 @@ namespace uniexetask.services
             var roleList = await _unitOfWork.Roles.GetAsync();
             return roleList;
         }
+        public async Task<Role> GetRoleById(int id)
+        {
+            return await _unitOfWork.Roles.GetByIDAsync(id);
+        }
     }
 }
