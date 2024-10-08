@@ -90,6 +90,14 @@ namespace uniexetask.api.Controllers
                     continue;
                 }
 
+                // Kiểm tra xem sinh viên đã có trong nhóm chưa
+                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+                if (studentExistsInGroup)
+                {
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Sinh viên đã có nhóm" });
+                    continue;
+                }
+
                 var member = new GroupMemberModel
                 {
                     GroupId = createdGroupId,
@@ -110,6 +118,7 @@ namespace uniexetask.api.Controllers
 
             return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
         }
+
 
 
 
