@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -64,9 +65,14 @@ namespace uniexetask.api.Controllers
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
+            // Lấy userId từ claim
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            // Đặt mặc định HasMentor là false và Status là "Initialized"
             request.Group.HasMentor = false;
             request.Group.Status = "Initialized";
-           
+
+            // Tạo nhóm
             var objGroup = _mapper.Map<Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);
 
@@ -77,13 +83,33 @@ namespace uniexetask.api.Controllers
 
             var createdGroupId = objGroup.GroupId;
 
+            // Thêm userId với vai trò Leader vào nhóm
+            if (!string.IsNullOrEmpty(userIdString))
+            {
+                var leaderMember = new GroupMemberModel
+                {
+                    GroupId = createdGroupId,
+                    StudentId = int.Parse(userIdString), // Chuyển đổi userIdString sang dạng int nếu cần thiết
+                    Role = "Leader"
+                };
+
+                var objLeader = _mapper.Map<GroupMember>(leaderMember);
+                var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
+
+                if (!isLeaderCreated)
+                {
+                    return BadRequest("Không thể thêm Leader vào nhóm");
+                }
+            }
+
             // Kiểm tra mã sinh viên trùng lặp
             var studentCodesHashSet = new HashSet<string>();
             var memberCreationResults = new List<object>(); // Để lưu kết quả tạo thành viên
 
+            // Thêm các sinh viên vào nhóm
             foreach (var studentCode in request.StudentCodes)
             {
-                if (!studentCodesHashSet.Add(studentCode)) /
+                if (!studentCodesHashSet.Add(studentCode))
                 {
                     memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Mã sinh viên trùng, đã bỏ qua" });
                     continue;
@@ -96,6 +122,7 @@ namespace uniexetask.api.Controllers
                     continue;
                 }
 
+                // Kiểm tra xem sinh viên đã có trong nhóm chưa
                 bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
                 if (studentExistsInGroup)
                 {
@@ -123,6 +150,7 @@ namespace uniexetask.api.Controllers
 
             return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
         }
+
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
