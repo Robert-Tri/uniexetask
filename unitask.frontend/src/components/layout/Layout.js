@@ -7,12 +7,12 @@ import useAuth from "../../hooks/useAuth";
 const Layout = ({ children }) => {
   const {id, username, role} = useAuth()
 
-  if (role === 'Manager') {
+  if (role.toLowerCase() === 'manager') {
       return (
         <div className="flex flex-col min-h-screen">
           <Header />
           <MenuBar />
-          <main className="flex-grow container mx-auto px-4 py-8" style={{paddingTop: '5px', paddingBottom: '130px'}}>
+          <main className="flex-grow container mx-auto px-4 py-8" style={{paddingTop: '135px'}}>
             {children}
           </main>
           <Footer />
@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
         <div className="flex flex-col min-h-screen">
           <Header />
           <MenuBar />
-          <main className="flex-grow container mx-auto px-4 py-8" style={{paddingTop: '5px', paddingBottom: '130px'}}>
+          <main className="flex-grow container mx-auto px-4 py-8" style={{paddingTop: '135px'}}>
             {children}
           </main>
           <Footer />
