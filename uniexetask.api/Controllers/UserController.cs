@@ -26,7 +26,7 @@ namespace uniexetask.api.Controllers
         /// Get the list of product
         /// </summary>
         /// <returns></returns>
-        [Authorize(Policy = "CanViewUser")]
+        //[Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {

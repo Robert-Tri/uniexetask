@@ -22,6 +22,8 @@ namespace uniexetask.core.Interfaces
         ITopicRepository Topics { get; }
         IWorkShopRepository WorkShops { get; }
         ITimeLineRepository TimeLines { get; }
+        ITaskRepository Tasks { get; }
+        ITaskAssignRepository TaskAssigns { get; }
 
 
         int Save();
