@@ -12,7 +12,7 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class RoleController : ControllerBase
     {
-        public IRoleService _roleService;
+        private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
 
         public RoleController(IRoleService roleService, IMapper mapper)

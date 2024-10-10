@@ -15,8 +15,8 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-        private IGroupService _groupService;
-        private IMentorService _mentorService;
+        private readonly IGroupService _groupService;
+        private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
         public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper)
         {

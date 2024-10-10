@@ -13,9 +13,9 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class GroupMemberController : ControllerBase
     {
-        private IGroupService _groupService;
-        private IStudentService _studentService;
-        public IGroupMemberService _groupMemberService;
+        private readonly IGroupService _groupService;
+        private readonly IStudentService _studentService;
+        private readonly IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
 
         public GroupMemberController(IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper)

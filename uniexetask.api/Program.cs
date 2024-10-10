@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using uniexetask.api.Hubs;
 using uniexetask.api.Middleware;
 using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
@@ -21,6 +22,10 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -33,6 +38,8 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IGroupMemberService, GroupMemberService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IChatGroupService, ChatGroupService>();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -109,5 +116,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<ChatHub>("/chathub");
+app.MapHub<UserStatusHub>("/userStatusHub");
 app.Run();

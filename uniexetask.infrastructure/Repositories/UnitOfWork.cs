@@ -22,6 +22,8 @@ namespace uniexetask.infrastructure.Repositories
         public IStudentRepository Students { get; }
         public IMentorRepository Mentors { get; }
         public ITopicRepository Topics { get; }
+        public IChatGroupRepository ChatGroups { get; }
+        public IChatMessageRepository ChatMessages { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -35,7 +37,9 @@ namespace uniexetask.infrastructure.Repositories
                             ITopicRepository topics,
                             IGroupMemberRepository groupMembers,
                             IStudentRepository students,
-                            IMentorRepository mentors)
+                            IMentorRepository mentors,
+                            IChatGroupRepository chatGroups,
+                            IChatMessageRepository chatMessages)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -50,6 +54,8 @@ namespace uniexetask.infrastructure.Repositories
             GroupMembers = groupMembers;
             Mentors = mentors;
             Topics = topics;
+            ChatGroups = chatGroups;
+            ChatMessages = chatMessages;
         }
 
         public int Save()

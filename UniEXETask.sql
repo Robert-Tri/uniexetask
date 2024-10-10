@@ -92,11 +92,12 @@ CREATE TABLE STUDENT (
 -- Tạo bảng CHAT_GROUP
 CREATE TABLE CHAT_GROUP (
     chat_group_id INT PRIMARY KEY IDENTITY(1,1),
-    chatbox_name NVARCHAR(50) NOT NULL,
+    chat_group_name NVARCHAR(50) NOT NULL,
+	chat_group_avatar nvarchar(255),
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
 	created_by INT NOT NULL,
 	owner_id INT NOT NULL,
-	type NVARCHAR(20) CHECK (type IN ('Public', 'Private')) NOT NULL,
+	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
 );
@@ -445,16 +446,19 @@ VALUES
 (5, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
-INSERT INTO CHAT_GROUP (chatbox_name, created_by, owner_id, type)
+INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, type)
 VALUES 
-('Admin Group', 1, 1, 'Public'),
-('Project Chat', 2, 2, 'Private');
+('Admin Group', null, 1, 1, 'Group'),
+('Project Chat', null, 2, 2, 'Group'),
+('Admin User', null, 2, 2, 'Personal');
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
 VALUES 
 (1, 1, 'Welcome to the Admin Group!'),
-(2, 2, 'Project discussions start here.');
+(2, 2, 'Project discussions start here.'),
+(3, 1, 'Hello guy.'),
+(3, 2, 'Hello admin.');
 
 -- Thêm dữ liệu mẫu cho bảng SUBJECT
 INSERT INTO SUBJECT (subject_code, subject_name, description, status)

@@ -7,7 +7,9 @@ public partial class ChatGroup
 {
     public int ChatGroupId { get; set; }
 
-    public string ChatboxName { get; set; } = null!;
+    public string ChatGroupName { get; set; } = null!;
+
+    public string? ChatGroupAvatar { get; set; }
 
     public DateTime CreatedDate { get; set; }
 

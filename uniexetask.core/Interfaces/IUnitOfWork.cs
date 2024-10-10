@@ -20,6 +20,8 @@ namespace uniexetask.core.Interfaces
         IStudentRepository Students { get; }
         IMentorRepository Mentors { get; }
         ITopicRepository Topics { get; }
+        IChatGroupRepository ChatGroups { get; }
+        IChatMessageRepository ChatMessages { get; }
 
 
         int Save();

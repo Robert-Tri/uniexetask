@@ -9,6 +9,7 @@ import CreateUserForm from './components/User/CreateUserForm';
 import AddMemberForm from './components/User/AddMemberForm';
 import MentorPendingProjects from './views/project/MentorPendingProjects';
 import TopicRegistration from './views/project/TopicRegistration';
+import ChatUI from './views/chat/chatUI';
 import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
@@ -36,6 +37,7 @@ function App() {
             <Route path="/role-permission" element={<LayoutRoute><RolePermission /></LayoutRoute>} />
             <Route path="/projects/pending" element={<LayoutRoute><MentorPendingProjects /></LayoutRoute>} />
             <Route path="/projects/register" element={<LayoutRoute><TopicRegistration /></LayoutRoute>} />
+            <Route path="/chat" element={<LayoutRoute><ChatUI /></LayoutRoute>} />
             <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />
             <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
             <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
