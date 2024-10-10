@@ -28,7 +28,7 @@ const LoginForm = () => {
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
             if (role.toLowerCase() === 'manager') {
-                navigate('/HomeManager');
+                navigate('/Users');
             } else {
                 navigate('/home');
             }
@@ -52,7 +52,7 @@ const LoginForm = () => {
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
             if (role.toLowerCase() === 'manager') {
-                navigate('/HomeManager');
+                navigate('/Users');
             } else {
                 navigate('/home');
             }
