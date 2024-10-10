@@ -67,7 +67,16 @@ export default function Users() {
     const onDeleteConfirm = userId => {
         userService.deleteUser(userId).then(() => {
             setRecords(records.map(item => (item.user_id === userId ? { ...item, status: false } : item)));
-            toast.success('Delete user successfully!');
+            toast.success('User update successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                });
         });
         setConfirmDialog({ ...confirmDialog, isOpen: false });
     };
@@ -80,12 +89,26 @@ export default function Users() {
     };
 
     const addOrEdit = async (user, resetForm) => {
-        user.user_id === 0 ? await userService.insertUser(user) : await userService.updateUser(user);
+        if (user.user_id === 0)
+            await userService.insertUser(user);
+        else {
+            await userService.updateUser(user);
+            toast.success('User update successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                });
+        }
+
         resetForm();
         setRecordForEdit(null);
         setOpenPopup(false);
-        setRecords(await userService.getAllUsers());
-        toast.success('Update user successfully!');
+        userService.getAllUsers().then(data => setRecords(data));
     };
 
     const openInPopup = item => {

@@ -22,7 +22,17 @@ namespace uniexetask.api.Extensions
                     EnableSsl = true,
                     Credentials = new NetworkCredential(mail, password)
                 };
-                await client.SendMailAsync(new MailMessage(from: mail, to: email, subject, message));
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(mail),
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true // Đặt nội dung là HTML
+                };
+                mailMessage.To.Add(email);
+
+                await client.SendMailAsync(mailMessage);
             }
             catch (Exception ex)
             {
@@ -30,5 +40,6 @@ namespace uniexetask.api.Extensions
                 throw;
             }
         }
+
     }
 }

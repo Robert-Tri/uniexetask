@@ -4,43 +4,47 @@ import Controls from "../../components/controls/Controls";
 import { useForm, Form } from '../../components/useForm';
 
 const initialFValues = {
-    workshopId: 0,
-    name: '',
-    description: '',
+    timelineId: 0,
+    timelineName: '',
     startDate: new Date(),
-    startTime: new Date(), // Thêm thuộc tính startTime
-    endTime: new Date(),   // Thêm thuộc tính endTime
-    location: '',
-    regUrl: '',
-    status: ''
-}
+    endDate: new Date(),
+    startTime: new Date(),
+    endTime: new Date(),
+    description: ''
+};
 
-export default function WorkShopForm(props) {
+export default function TimelineForm(props) {
     const { addOrEdit, recordForEdit } = props;
 
     const validate = (fieldValues = values) => {
         let temp = { ...errors }
-        if ('name' in fieldValues)
-            temp.name = fieldValues.name ? "" : "This field is required."
-        if ('description' in fieldValues)
-            temp.description = fieldValues.description ? "" : "This field is required."
+        if ('timelineName' in fieldValues)
+            temp.timelineName = fieldValues.timelineName ? "" : "This field is required.";
         if ('startDate' in fieldValues)
-            temp.startDate = fieldValues.startDate ? "" : "This field is required."
+            temp.startDate = fieldValues.startDate ? "" : "This field is required.";
+        if ('endDate' in fieldValues)
+            temp.endDate = fieldValues.endDate ? "" : "This field is required.";
         if ('startTime' in fieldValues)
-            temp.startTime = fieldValues.startTime ? "" : "This field is required." // Kiểm tra startTime
+            temp.startTime = fieldValues.startTime ? "" : "This field is required.";
         if ('endTime' in fieldValues)
-            temp.endTime = fieldValues.endTime ? "" : "This field is required." // Kiểm tra endTime
-        if ('location' in fieldValues)
-            temp.location = fieldValues.location ? "" : "This field is required."
-        if ('regUrl' in fieldValues)
-            temp.regUrl = fieldValues.regUrl ? "" : "This field is required."
+            temp.endTime = fieldValues.endTime ? "" : "This field is required.";
+        if ('status' in fieldValues)
+            temp.status = fieldValues.status ? "" : "This field is required.";
+
+        if (fieldValues.endDate && fieldValues.startDate) {
+            temp.endDate = new Date(fieldValues.endDate) < new Date(fieldValues.startDate) ? "End date cannot be before start date." : "";
+        }
+        if (fieldValues.endTime && fieldValues.startTime) {
+            temp.endTime = new Date(fieldValues.endTime) < new Date(fieldValues.startTime) ? "End time cannot be before start time." : "";
+        }
+
         setErrors({
             ...temp
         });
 
         if (fieldValues === values)
-            return Object.values(temp).every(x => x === "")
-    }
+            return Object.values(temp).every(x => x === "");
+    };
 
     const {
         values,
@@ -56,13 +60,13 @@ export default function WorkShopForm(props) {
         if (validate()) {
             addOrEdit(values, resetForm);
         }
-    }
+    };
 
     useEffect(() => {
         if (recordForEdit != null)
             setValues({
                 ...recordForEdit
-            })
+            });
     }, [recordForEdit]);
 
     return (
@@ -70,15 +74,15 @@ export default function WorkShopForm(props) {
             <Grid container>
                 <Grid item xs={6}>
                     <Controls.Input
-                        name="name"
-                        label="Workshop Name"
-                        value={values.name}
+                        name="timelineName"
+                        label="Timeline Name"
+                        value={values.timelineName}
                         onChange={handleInputChange}
-                        error={errors.name}
+                        error={errors.timelineName}
                     />
                     <Controls.Input
-                        label="Description"
                         name="description"
+                        label="Description"
                         value={values.description}
                         onChange={handleInputChange}
                         error={errors.description}
@@ -90,14 +94,13 @@ export default function WorkShopForm(props) {
                         onChange={handleInputChange}
                         error={errors.startDate}
                     />
-                    <Controls.Input
-                        name="location"
-                        label="Location"
-                        value={values.location}
+                    <Controls.DatePicker
+                        name="endDate"
+                        label="End Date"
+                        value={values.endDate}
                         onChange={handleInputChange}
-                        error={errors.location}
+                        error={errors.endDate}
                     />
-
                 </Grid>
                 <Grid item xs={6}>
                     <Controls.TimePicker
@@ -114,13 +117,6 @@ export default function WorkShopForm(props) {
                         onChange={handleInputChange}
                         error={errors.endTime}
                     />
-                    <Controls.Input
-                        name="regUrl"
-                        label="Registration URL"
-                        value={values.regUrl}
-                        onChange={handleInputChange}
-                        error={errors.regUrl}
-                    />
                     <div>
                         <Controls.Button
                             type="submit"
@@ -133,5 +129,5 @@ export default function WorkShopForm(props) {
                 </Grid>
             </Grid>
         </Form>
-    )
+    );
 }
