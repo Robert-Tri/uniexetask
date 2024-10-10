@@ -9,5 +9,6 @@ namespace uniexetask.core.Interfaces
 {
     public interface IGroupMemberRepository : IGenericRepository<GroupMember>
     {
+       
     }
 }

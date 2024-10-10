@@ -35,6 +35,11 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<ITopicRepository, TopicRepository>();
             services.AddScoped<IChatGroupRepository, ChatGroupRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IWorkShopRepository, WorkShopRepository>();
+            services.AddScoped<ITimeLineRepository, TimeLineRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<ITaskAssignRepository, TaskAssignRepository>();
+
 
             return services;
         }

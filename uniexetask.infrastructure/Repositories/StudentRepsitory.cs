@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,11 @@ namespace uniexetask.infrastructure.Repositories
     {
         public StudentRepsitory(UniExetaskContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<IEnumerable<Student>> GetEligibleStudentsWithUser()
+        {
+            return await dbSet.Where(s => s.IsEligible == true).Include(s => s.User).ToListAsync();
         }
     }
 }

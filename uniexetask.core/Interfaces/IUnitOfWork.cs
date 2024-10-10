@@ -22,12 +22,14 @@ namespace uniexetask.core.Interfaces
         ITopicRepository Topics { get; }
         IChatGroupRepository ChatGroups { get; }
         IChatMessageRepository ChatMessages { get; }
+        IWorkShopRepository WorkShops { get; }
+        ITimeLineRepository TimeLines { get; }
+        ITaskRepository Tasks { get; }
+        ITaskAssignRepository TaskAssigns { get; }
 
 
         int Save();
 
         Task<int> SaveAsync();
-
-        Task AddMentorToGroup(int groupId, int mentorId);
     }
 }

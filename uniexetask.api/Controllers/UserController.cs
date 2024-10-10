@@ -26,7 +26,7 @@ namespace uniexetask.api.Controllers
         /// Get the list of product
         /// </summary>
         /// <returns></returns>
-        [Authorize(Policy = "CanViewUser")]
+        //[Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {
@@ -40,13 +40,9 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Get product by id
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
+
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetProductById(int userId)
+        public async Task<IActionResult> GetUserById(int userId)
         {
             var users = await _userService.GetUserById(userId);
 
@@ -86,6 +82,7 @@ namespace uniexetask.api.Controllers
                         // Lấy giá trị của campus_id và role_id từ file Excel
                         var campusName = worksheet.Cells[row, 6].Text; // Cột 6: campus_id
                         var roleName = worksheet.Cells[row, 8].Text; // Cột 8: role_id
+                        var khoiText = worksheet.Cells[row, 9].Text; // Cột 9: Khoi (ví dụ: K18, K19, v.v.)
 
                         // Chuyển đổi campus_id từ tên sang số ID tương ứng
                         int campusId;
@@ -125,19 +122,29 @@ namespace uniexetask.api.Controllers
                                 roleId = 5;
                                 break;
                             default:
-                                roleId = 0; 
+                                roleId = 0;
                                 break;
+                        }
+
+                        // Xử lý mật khẩu dựa trên giá trị của Khoi
+                        string password = worksheet.Cells[row, 3].Text; // Mật khẩu từ file Excel
+                        int khoiNumber = int.Parse(khoiText.Substring(1)); // Lấy số sau chữ "K"
+
+                        if (khoiNumber >= 19)
+                        {
+                            // Sinh mật khẩu ngẫu nhiên nếu Khoi >= 19
+                            password = GenerateRandomPassword(6);
                         }
 
                         var user = new UserModel
                         {
-                            FullName = worksheet.Cells[row, 2].Text,   
-                            Password = worksheet.Cells[row, 3].Text,   
-                            Email = worksheet.Cells[row, 4].Text,      
-                            Phone = worksheet.Cells[row, 5].Text,      
-                            CampusId = campusId,                       
-                            Status = bool.Parse(worksheet.Cells[row, 7].Text),  
-                            RoleId = roleId                           
+                            FullName = worksheet.Cells[row, 2].Text,
+                            Password = password,                        // Sử dụng mật khẩu đã được xử lý
+                            Email = worksheet.Cells[row, 4].Text,
+                            Phone = worksheet.Cells[row, 5].Text,
+                            CampusId = campusId,
+                            Status = bool.Parse(worksheet.Cells[row, 7].Text),
+                            RoleId = roleId
                         };
                         usersList.Add(user);
                     }
@@ -157,6 +164,16 @@ namespace uniexetask.api.Controllers
 
             return Ok("All users were successfully created.");
         }
+
+        // Hàm tạo mật khẩu ngẫu nhiên
+        private string GenerateRandomPassword(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
 
 
 

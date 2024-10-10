@@ -40,5 +40,9 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<IEnumerable<Student>> GetEligibleStudentsWithUser()
+        {
+            return await _unitOfWork.Students.GetEligibleStudentsWithUser();
+        }
     }
 }

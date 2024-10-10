@@ -14,5 +14,7 @@ namespace uniexetask.services.Interfaces
         System.Threading.Tasks.Task SaveRefreshToken(int id, string refreshToken);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> RevokeRefreshToken(int userId);
+        System.Threading.Tasks.Task ClearRefreshToken(int userId);
+
     }
 }

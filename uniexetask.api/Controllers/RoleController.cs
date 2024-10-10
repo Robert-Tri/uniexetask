@@ -33,5 +33,21 @@ namespace uniexetask.api.Controllers
             response.Data = rolesList;
             return Ok(response);
         }
+
+        [HttpGet("{roleId}")]
+        public async Task<IActionResult> GetRoleById(int roleId)
+        {
+            var role = await _roleService.GetRoleById(roleId);
+            if (role == null)
+            {
+                return NotFound(); // Trả về 404 nếu không tìm thấy role
+            }
+            ApiResponse<Role> response = new ApiResponse<Role>
+            {
+                Data = role
+            };
+            return Ok(response); // Trả về role nếu tìm thấy
+        }
+
     }
 }
