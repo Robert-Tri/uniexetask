@@ -3,7 +3,7 @@ import { Menu, LayoutDashboard, Users, FolderKanban, MessageSquare } from 'lucid
 
 const StudentMenuBar = () => {
     return (
-        <nav className="bg-gray-800 z-50 top-16 left-0 w-full" style={{marginTop: '70px'}}>
+        <nav className="bg-[#281942] top-16 left-0 w-full fixed z-20">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
@@ -12,16 +12,16 @@ const StudentMenuBar = () => {
                 </div>
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-4">
-                    <a href="/topics" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="/topics" className="text-white hover:bg-[#602d84] hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       <LayoutDashboard className="inline-block mr-1" size={16} /> Topics
                     </a>
-                    <a href="/groups" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="/groups" className="text-white hover:bg-[#602d84] hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       <Users className="inline-block mr-1" size={16} /> Groups
                     </a>
-                    <a href="/projects" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="/projects" className="text-white hover:bg-[#602d84] hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       <FolderKanban className="inline-block mr-1" size={16} /> Projects
                     </a>
-                    <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="#" className="text-white hover:bg-[#602d84] hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       <MessageSquare className="inline-block mr-1" size={16} /> Trò chuyện
                     </a>
                   </div>
