@@ -9,6 +9,7 @@ import CreateUserForm from './components/User/CreateUserForm';
 import AddMemberForm from './components/User/AddMemberForm';
 import MentorPendingProjects from './views/project/MentorPendingProjects';
 import TopicRegistration from './views/project/TopicRegistration';
+import ChatUI from './views/chat/chatUI';
 import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
@@ -48,6 +49,7 @@ function App() {
               <Route path="/WorkShops" element={<LayoutRoute><WorkShops /></LayoutRoute>} />
               <Route path="/Timelines" element={<LayoutRoute><Timelines /> </LayoutRoute>} />
               <Route path="/HomeManager" element={<LayoutRoute><HomeManager /></LayoutRoute>} />
+              <Route path="/chat" element={<LayoutRoute><ChatUI /></LayoutRoute>} />
 
             </Routes>
             <ToastContainer />

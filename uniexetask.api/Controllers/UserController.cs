@@ -14,7 +14,7 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public readonly IUserService _userService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public UserController(IUserService userService, IMapper mapper)
         {

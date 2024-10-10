@@ -12,9 +12,9 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        public IProjectService _projectService;
-        public IMentorService _mentorService;
-        public IGroupService _groupService;
+        private readonly IProjectService _projectService;
+        private readonly IMentorService _mentorService;
+        private readonly IGroupService _groupService;
 
         public ProjectController(IProjectService projectService, IGroupService groupService, IMentorService mentorService)
         {

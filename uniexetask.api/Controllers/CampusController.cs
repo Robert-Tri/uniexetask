@@ -11,7 +11,7 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class CampusController : ControllerBase
     {
-        public ICampusService _campusService;
+        private readonly ICampusService _campusService;
 
         public CampusController(ICampusService campusService)
         {

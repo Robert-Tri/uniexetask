@@ -13,7 +13,7 @@ namespace uniexetask.api.Controllers
     public class TopicController : ControllerBase
     {
 
-        private ITopicService _topicService;
+        private readonly ITopicService _topicService;
         private readonly IMapper _mapper;
         public TopicController(ITopicService userService, IMapper mapper)
         {

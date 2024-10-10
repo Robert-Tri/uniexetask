@@ -22,6 +22,8 @@ namespace uniexetask.infrastructure.Repositories
         public IStudentRepository Students { get; }
         public IMentorRepository Mentors { get; }
         public ITopicRepository Topics { get; }
+        public IChatGroupRepository ChatGroups { get; }
+        public IChatMessageRepository ChatMessages { get; }
         public IWorkShopRepository WorkShops { get; }
         public ITimeLineRepository TimeLines { get; }
         public ITaskRepository Tasks { get; }
@@ -40,6 +42,8 @@ namespace uniexetask.infrastructure.Repositories
                             IGroupMemberRepository groupMembers,
                             IStudentRepository students,
                             IMentorRepository mentors,
+                            IChatGroupRepository chatGroups,
+                            IChatMessageRepository chatMessages,
                             IWorkShopRepository workshops,
                             ITimeLineRepository timelines,
                             ITaskRepository tasks,
@@ -58,6 +62,8 @@ namespace uniexetask.infrastructure.Repositories
             GroupMembers = groupMembers;
             Mentors = mentors;
             Topics = topics;
+            ChatGroups = chatGroups;
+            ChatMessages = chatMessages;
             WorkShops = workshops;
             TimeLines = timelines;
             Tasks = tasks;

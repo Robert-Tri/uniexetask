@@ -24,9 +24,9 @@ namespace uniexetask.api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public readonly IAuthService _authService;
-        public readonly IRoleService _roleService;
-        public readonly IRolePermissionService _rolePermissionService;
+        private readonly IAuthService _authService;
+        private readonly IRoleService _roleService;
+        private readonly IRolePermissionService _rolePermissionService;
 
         public AuthController(IConfiguration configuration, IAuthService authService, IRoleService roleService, IRolePermissionService rolePermissionService)
         {
@@ -69,6 +69,31 @@ namespace uniexetask.api.Controllers
             response.Success = false;
             response.ErrorMessage = "Authentication failed!";
             return Unauthorized(response);
+        }
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new ApiResponse<string>
+                {
+                    Success = false,
+                    ErrorMessage = "User not authenticated."
+                });
+            }
+
+            var userId = int.Parse(userIdClaim);
+            await _authService.RevokeRefreshToken(userId);
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("RefreshToken");
+
+            return Ok(new ApiResponse<string>
+            {
+                Success = true,
+                Data = "Logout successful."
+            });
         }
 
         [HttpPost("refresh-token")]
@@ -187,33 +212,5 @@ namespace uniexetask.api.Controllers
                 return Unauthorized(response);
             }
         }
-
-        [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            ApiResponse<string> response = new ApiResponse<string>();
-
-            // Get user ID from the claims
-            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                response.Success = false;
-                response.ErrorMessage = "User not found.";
-                return Unauthorized(response);
-            }
-
-            // Clear refresh token from the database
-            await _authService.ClearRefreshToken(Convert.ToInt32(userId));
-
-            // Clear cookies (if using cookies)
-            Response.Cookies.Delete("AccessToken");
-            Response.Cookies.Delete("RefreshToken");
-
-            response.Data = "Logout successful.";
-            return Ok(response);
-        }
-
     }
 }
