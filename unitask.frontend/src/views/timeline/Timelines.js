@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import WorkShopForm from './WorkShopForm';
+import TimelineForm from './TimelineForm';
 import PageHeader from "../../components/PageHeader";
 import EventAvailableTwoToneIcon from '@material-ui/icons/EventAvailableTwoTone';
 import { Paper, makeStyles, TableBody, TableRow, TableCell, Toolbar, InputAdornment } from '@material-ui/core';
 import useTable from "../../components/useTable";
-import * as workshopService from "../../services/workShopService";
+import * as timelineService from "../../services/timeLineService";
 import Controls from '../../components/controls/Controls';
 import { Search, Add as AddIcon, EditOutlined, Delete } from '@material-ui/icons';
 import Popup from '../../components/Popup';
@@ -19,17 +19,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const headCells = [
-    { id: 'workshopId', label: 'Workshop ID' },
-    { id: 'name', label: 'Workshop Name' },
-    { id: 'location', label: 'Location' },
-    { id: 'Date', label: 'Date' },
-    { id: 'startTime', label: 'Start Time' },
-    { id: 'endTime', label: 'End Time' },
-    { id: 'status', label: 'Status' },
+    { id: 'timelineId', label: 'Timeline ID' },
+    { id: 'timelineName', label: 'Timeline Name' },
+    { id: 'description', label: 'Description' },
+    { id: 'startDate', label: 'Start Date' },
+    { id: 'endDate', label: 'End Date' },
     { id: 'actions', label: 'Actions', disableSorting: true }
 ];
 
-export default function WorkShops() {
+export default function Timelines() {
     const classes = useStyles();
     const [records, setRecords] = useState([]);
     const [filterFn, setFilterFn] = useState({ fn: items => items });
@@ -39,25 +37,25 @@ export default function WorkShops() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const workshops = await workshopService.getWorkShops();
-            setRecords(workshops);
+            const timelines = await timelineService.getTimelines();
+            setRecords(timelines);
         };
         fetchData();
     }, []);
 
-    const handleDelete = workshopId => {
+    const handleDelete = timelineId => {
         setConfirmDialog({
             isOpen: true,
-            title: 'Are you sure you want to delete this workshop?',
+            title: 'Are you sure you want to delete this timeline?',
             subTitle: "You can't undo this operation",
-            onConfirm: () => onDeleteConfirm(workshopId)
+            onConfirm: () => onDeleteConfirm(timelineId)
         });
     };
 
-    const onDeleteConfirm = workshopId => {
-        workshopService.deleteWorkshop(workshopId).then(() => {
-            setRecords(records.filter(item => item.workshopId !== workshopId));
-            toast.success('Delete workshop successfully!', {
+    const onDeleteConfirm = timelineId => {
+        timelineService.deleteTimeline(timelineId).then(() => {
+            setRecords(records.filter(item => item.timelineId !== timelineId));
+            toast.success('Delete timeline successfully!', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -76,27 +74,14 @@ export default function WorkShops() {
     const handleSearch = e => {
         const value = e.target.value.toLowerCase();
         setFilterFn({
-            fn: items => (value === "" ? items : items.filter(x => x.name.toLowerCase().includes(value)))
+            fn: items => (value === "" ? items : items.filter(x => x.timelineName.toLowerCase().includes(value)))
         });
     };
 
-    const addOrEdit = async (workshop, resetForm) => {
-
-        const startDateTime = new Date(workshop.startDate);
-        startDateTime.setHours(workshop.startTime.getHours(), workshop.startTime.getMinutes());
-        const endDateTime = new Date(workshop.startDate);
-        endDateTime.setHours(workshop.endTime.getHours(), workshop.endTime.getMinutes());
-
-        const workshopData = {
-            ...workshop,
-            startDate: startDateTime.toISOString(),
-            endDate: endDateTime.toISOString()
-        };
-        console.log(workshopData);
-
-        if (workshopData.workshopId === 0) {
-            await workshopService.insertWorkshop(workshopData);
-            toast.success('Insert workshop successfully!', {
+    const addOrEdit = async (timeline, resetForm) => {
+        if (timeline.timelineId === 0) {
+            await timelineService.insertTimeline(timeline);
+            toast.success('Insert timeline successfully!', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -107,8 +92,8 @@ export default function WorkShops() {
                 theme: "colored",
             });
         } else {
-            await workshopService.updateWorkshop(workshopData);
-            toast.success('Update workshop successfully!', {
+            await timelineService.updateTimeline(timeline);
+            toast.success('Update timeline successfully!', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -122,8 +107,8 @@ export default function WorkShops() {
         resetForm();
         setRecordForEdit(null);
         setOpenPopup(false);
-        const workshops = await workshopService.getWorkShops();
-        setRecords(workshops);
+        const timelines = await timelineService.getTimelines();
+        setRecords(timelines);
     };
 
     const openInPopup = item => {
@@ -133,11 +118,11 @@ export default function WorkShops() {
 
     return (
         <>
-            <PageHeader title="New Workshop" subTitle="Workshop management with validation" icon={<EventAvailableTwoToneIcon fontSize="large" />} />
+            <PageHeader title="New Timeline" subTitle="Timeline management with validation" icon={<EventAvailableTwoToneIcon fontSize="large" />} />
             <Paper className={classes.pageContent}>
                 <Toolbar>
                     <Controls.Input
-                        label="Search Workshops"
+                        label="Search Timelines"
                         className={classes.searchInput}
                         InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
                         onChange={handleSearch}
@@ -155,52 +140,37 @@ export default function WorkShops() {
                     <TableBody>
                         {recordsAfterPagingAndSorting().length > 0 ? (
                             recordsAfterPagingAndSorting().map(item => (
-                                <TableRow key={item.workshopId}>
-                                    <TableCell>{item.workshopId}</TableCell>
-                                    <TableCell>{item.name}</TableCell>
-                                    <TableCell>{item.location}</TableCell>
+                                <TableRow key={item.timelineId}>
+                                    <TableCell>{item.timelineId}</TableCell>
+                                    <TableCell>{item.timelineName}</TableCell>
+                                    <TableCell>{item.description}</TableCell>
                                     <TableCell>
-                                        {new Date(item.startDate).toLocaleDateString('en-US', {
+                                        {new Date(item.startDate).toLocaleString('en-US', {
                                             timeZone: 'Asia/Bangkok',
                                             year: 'numeric',
                                             month: '2-digit',
-                                            day: '2-digit'
-                                        })}
-                                    </TableCell>
-                                    <TableCell>
-                                        {new Date(item.startDate).toLocaleTimeString('en-US', {
-                                            timeZone: 'Asia/Bangkok',
+                                            day: '2-digit',
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             hour12: false
                                         })}
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(item.endDate).toLocaleTimeString('en-US', {
+                                        {new Date(item.endDate).toLocaleString('en-US', {
                                             timeZone: 'Asia/Bangkok',
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             hour12: false
                                         })}
-                                    </TableCell>
-
-
-                                    <TableCell>
-                                        <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            backgroundColor: item.status === 'Active' ? '#d0f0c0' : '#f8d7da',
-                                            color: item.status === 'Active' ? '#006400' : '#721c24',
-                                            fontWeight: 'bold'
-                                        }}>
-                                            {item.status}
-                                        </span>
                                     </TableCell>
                                     <TableCell>
                                         <ActionButton bgColor="#CBD2F0" textColor="#3E5B87" onClick={() => openInPopup(item)}>
                                             <EditOutlined fontSize="small" />
                                         </ActionButton>
-                                        <ActionButton bgColor="#FFB3B3" textColor="#C62828" onClick={() => handleDelete(item.workshopId)}>
+                                        <ActionButton bgColor="#FFB3B3" textColor="#C62828" onClick={() => handleDelete(item.timelineId)}>
                                             <Delete fontSize="small" />
                                         </ActionButton>
                                     </TableCell>
@@ -217,8 +187,8 @@ export default function WorkShops() {
                 </TblContainer>
                 <TblPagination />
             </Paper>
-            <Popup title="Workshop Form" openPopup={openPopup} setOpenPopup={setOpenPopup}>
-                <WorkShopForm recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
+            <Popup title="Timeline Form" openPopup={openPopup} setOpenPopup={setOpenPopup}>
+                <TimelineForm recordForEdit={recordForEdit} addOrEdit={addOrEdit} />
             </Popup>
             <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
         </>

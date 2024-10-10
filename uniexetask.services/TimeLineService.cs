@@ -34,7 +34,10 @@ namespace uniexetask.services
             var timeLineToUpdate = await _unitOfWork.TimeLines.GetByIDAsync(timeLine.TimelineId);
             if (timeLineToUpdate != null)
             {
-                timeLineToUpdate = timeLine;
+                timeLineToUpdate.TimelineName = timeLine.TimelineName;
+                timeLineToUpdate.Description = timeLine.Description;
+                timeLineToUpdate.StartDate = timeLine.StartDate;
+                timeLineToUpdate.EndDate = timeLine.EndDate;
                 _unitOfWork.TimeLines.Update(timeLineToUpdate);
                 _unitOfWork.Save();
             }
