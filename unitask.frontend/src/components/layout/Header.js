@@ -10,7 +10,7 @@ const handleLogout = async () => {
     await axios.post(`${API_BASE_URL}api/auth/logout`, null, {
       withCredentials: true // Đảm bảo cookie được gửi kèm theo request
     });
-    window.location.href = '/login'; 
+    window.location.href = '/'; 
   } catch (error) {
     console.error('Error logging out:', error);
   }

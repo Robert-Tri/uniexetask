@@ -43,7 +43,7 @@ namespace uniexetask.infrastructure.Repositories
                             IStudentRepository students,
                             IMentorRepository mentors,
                             IChatGroupRepository chatGroups,
-                            IChatMessageRepository chatMessages
+                            IChatMessageRepository chatMessages,
                             IWorkShopRepository workshops,
                             ITimeLineRepository timelines,
                             ITaskRepository tasks,

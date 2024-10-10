@@ -102,21 +102,5 @@ namespace uniexetask.services
                 throw; // Ném lại ngoại lệ để xử lý bên ngoài nếu cần
             }
         }
-
-        public async System.Threading.Tasks.Task ClearRefreshToken(int userId)
-        {
-            var refreshTokens = await _unitOfWork.RefreshTokens.GetRefreshTokensByUserId(userId);
-            if (refreshTokens != null)
-            {
-                foreach (var token in refreshTokens)
-                {
-                    token.Status = false; // Vô hiệu hóa token
-                    token.Revoked = DateTime.UtcNow; // Đặt thời gian thu hồi token
-                    _unitOfWork.RefreshTokens.Update(token);
-                }
-                await _unitOfWork.SaveAsync();
-            }
-        }
-
     }
 }
