@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Models;
 
-namespace uniexetask.core.Interfaces
+namespace uniexetask.services.Interfaces
 {
-    public interface IGroupMemberRepository : IGenericRepository<GroupMember>
+    public interface ITaskAssignService
     {
-       
+        Task<IEnumerable<TaskAssign?>> GetTaskAssignsByStudent(int studentId);
+
     }
 }

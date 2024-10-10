@@ -7,8 +7,9 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface IGroupMemberRepository : IGenericRepository<GroupMember>
+    public interface ITaskRepository : IGenericRepository<core.Models.Task>
     {
-       
+        Task<IEnumerable<core.Models.Task>> GetTasksByProjectAsync(int projectId);
+
     }
 }

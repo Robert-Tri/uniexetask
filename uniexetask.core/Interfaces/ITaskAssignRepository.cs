@@ -7,8 +7,9 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface IGroupMemberRepository : IGenericRepository<GroupMember>
+    public interface ITaskAssignRepository : IGenericRepository<TaskAssign>
     {
-       
+        Task<IEnumerable<TaskAssign>> GetTaskAssignsByStudentAsync(int studentId);
+
     }
 }

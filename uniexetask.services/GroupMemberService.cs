@@ -17,6 +17,22 @@ namespace uniexetask.services
             return groupList;
         }
 
+        public async Task<GroupMember?> GetGroupByStudentId(int studentId)
+        {
+            var groupMember = (await _unitOfWork.GroupMembers.GetAsync(
+                gm => gm.StudentId == studentId,
+                includeProperties: "Group")) 
+                .FirstOrDefault();
+
+            return groupMember;
+        }
+
+        public async Task<bool> CheckIfStudentInGroup(int studentId)
+        {
+            return await _unitOfWork.GroupMembers.AnyAsync(gm => gm.StudentId == studentId);
+        }
+
+
         public async Task<bool> AddMember(GroupMember members)
         {
             if (members != null)
@@ -35,10 +51,8 @@ namespace uniexetask.services
 
         public async Task<List<User>> GetUsersByGroupId(int groupId)
         {
-            // Lấy danh sách các thành viên trong group với GroupId
             var groupMembers = await _unitOfWork.GroupMembers.GetAsync(gm => gm.GroupId == groupId, includeProperties: "Student.User");
 
-            // Lấy User từ mỗi GroupMember
             var users = groupMembers.Select(gm => gm.Student.User).ToList();
 
             return users;

@@ -27,8 +27,8 @@ const LoginForm = () => {
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
-            if (role === 'Manager') {
-                navigate('/HomeManager');
+            if (role.toLowerCase() === 'manager') {
+                navigate('/Users');
             } else {
                 navigate('/home');
             }
@@ -51,8 +51,8 @@ const LoginForm = () => {
             document.cookie = `AccessToken=${response.data.data.accessToken}; path=/; secure;`;
             document.cookie = `RefreshToken=${response.data.data.refreshToken}; path=/; secure;`;
 
-            if (role === 'Manager') {
-                navigate('/HomeManager');
+            if (role.toLowerCase() === 'manager') {
+                navigate('/Users');
             } else {
                 navigate('/home');
             }

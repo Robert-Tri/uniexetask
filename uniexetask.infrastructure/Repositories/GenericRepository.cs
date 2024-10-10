@@ -95,5 +95,10 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await context.Set<TEntity>().CountAsync();
         }
+
+        public async virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> filter)
+        {
+            return await dbSet.AnyAsync(filter);
+        }
     }
 }
