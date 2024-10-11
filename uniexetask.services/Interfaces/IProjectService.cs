@@ -12,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Project>> GetAllProjects();
         Task<Project?> GetProjectPendingByGroupAsync(Group group);
         Task<bool> UpdateProjectStatus(int projectId, string action);
+        public Task<Project?> GetProjectByStudentId(int studentId);
     }
 }

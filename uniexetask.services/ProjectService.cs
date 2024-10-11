@@ -49,5 +49,10 @@ namespace uniexetask.services
             }
             else return false;
         }
+        public async Task<Project?> GetProjectByStudentId(int studentId)
+        {
+            var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
+            return await _unitOfWork.Projects.GetProjectByGroupId((int)groupId);
+        }
     }
 }
