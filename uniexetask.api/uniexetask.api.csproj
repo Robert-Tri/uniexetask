@@ -24,4 +24,10 @@
     <ProjectReference Include="..\uniexetask.services\uniexetask.services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="exeunitask-firebase-adminsdk-3jz7t-66373e3f35.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

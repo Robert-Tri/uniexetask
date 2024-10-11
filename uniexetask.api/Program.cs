@@ -9,6 +9,8 @@ using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,15 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
+
+builder.Services.AddSingleton(
+    StorageClient.Create(
+        GoogleCredential.FromFile(
+            Path.Combine(Directory.GetCurrentDirectory(), "exeunitask-firebase-adminsdk-3jz7t-66373e3f35.json")
+        )
+    )
+);
+
 builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
