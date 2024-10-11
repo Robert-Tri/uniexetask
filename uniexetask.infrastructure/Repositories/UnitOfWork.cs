@@ -28,6 +28,7 @@ namespace uniexetask.infrastructure.Repositories
         public ITimeLineRepository TimeLines { get; }
         public ITaskRepository Tasks { get; }
         public ITaskAssignRepository TaskAssigns { get; }
+        public IReqMemberRepository ReqMembers { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -47,6 +48,7 @@ namespace uniexetask.infrastructure.Repositories
                             IWorkShopRepository workshops,
                             ITimeLineRepository timelines,
                             ITaskRepository tasks,
+                            IReqMemberRepository reqMembers,
                             ITaskAssignRepository taskAssigns)
         {
             _dbContext = dbContext;
@@ -68,6 +70,7 @@ namespace uniexetask.infrastructure.Repositories
             TimeLines = timelines;
             Tasks = tasks;
             TaskAssigns = taskAssigns;
+            ReqMembers = reqMembers;
         }
 
         public int Save()

@@ -56,6 +56,7 @@ builder.Services.AddScoped<ITimeLineService, TimeLineService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
+builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
