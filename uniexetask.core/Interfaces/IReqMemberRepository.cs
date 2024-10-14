@@ -7,8 +7,7 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface IGroupMemberRepository : IGenericRepository<GroupMember>
+    public interface IReqMemberRepository : IGenericRepository<RegMemberForm>
     {
-       Task<int?> GetGroupIdByStudentId(int studentId);
     }
 }

@@ -9,6 +9,8 @@ using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +25,20 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
+
+builder.Services.AddSingleton(
+    StorageClient.Create(
+        GoogleCredential.FromFile(
+            Path.Combine(Directory.GetCurrentDirectory(), "exeunitask-firebase-adminsdk-3jz7t-66373e3f35.json")
+        )
+    )
+);
+
 builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-builder.Services.AddDIServices(builder.Configuration);
+builder.Services.AddDIServices(builder.Configuration); 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
@@ -45,6 +56,8 @@ builder.Services.AddScoped<ITimeLineService, TimeLineService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
+builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);

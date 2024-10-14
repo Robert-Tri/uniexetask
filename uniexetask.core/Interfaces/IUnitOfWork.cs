@@ -26,6 +26,8 @@ namespace uniexetask.core.Interfaces
         ITimeLineRepository TimeLines { get; }
         ITaskRepository Tasks { get; }
         ITaskAssignRepository TaskAssigns { get; }
+        IReqMemberRepository ReqMembers { get; }
+        IDocumentRepository Documents { get; }
 
 
         int Save();
