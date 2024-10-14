@@ -20,6 +20,7 @@ import { Phone, Videocam, Send } from "@mui/icons-material";
 import { styled } from '@mui/system';
 import { API_BASE_URL } from '../../config';
 import useAuth from "../../hooks/useAuth";
+import { useOnlineStatus } from '../../contexts/OnlineStatusContext';
 
 const ScrollableBox = styled(Box)(({ theme }) => ({
     '&::-webkit-scrollbar': {
@@ -38,19 +39,21 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
   }));
 
   const ChatUI = () => {
+    const { onlineUsers } = useOnlineStatus();
     const [loading, setLoading] = useState(true);
     const [chatData, setChatData] = useState([]);
     const [chatGroupData, setChatGroupData] = useState([]);
     const [connection, setConnection] = useState(null);
     const [newMessage, setNewMessage] = useState("");
     const [currentGroupId, setCurrentGroupId] = useState(null);
+    const [currentReceiverId, setCurrentReceiverId] = useState(null);
+    const [currentChatGroupName, setCurrentChatGroupName] = useState("");
     const { id, username } = useAuth();
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatGroupData]);
-
 
     useEffect(() => {
       const fetchData = async () => {
@@ -120,7 +123,10 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
       }
     }, []);
   
-    const handleGroupClick = useCallback((groupId) => {
+    const handleGroupClick = useCallback((groupId, groupName, receiverId) => {
+      if (receiverId !== 0) setCurrentReceiverId(receiverId)
+      console.log("Selected Group:", groupName);
+      setCurrentChatGroupName(groupName);
       setCurrentGroupId(groupId);
       fetchMessages(groupId);
       
@@ -175,7 +181,7 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
                 <React.Fragment key={index}>
                   <ListItem
                     button = "true"
-                    onClick={() => handleGroupClick(group.chatGroup.chatGroupId)}
+                    onClick={() => handleGroupClick(group.chatGroup.chatGroupId, group.chatGroup.chatGroupName, group.receiverId)}
                     sx={{
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -226,8 +232,8 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
             color: "white",
           }}>
             <Box>
-              <Typography variant="h6">{chatData.user}</Typography>
-              <Typography variant="body2">{chatData.status}</Typography>
+              <Typography variant="h6">{currentChatGroupName}</Typography>
+              <Typography variant="body2">Status: {onlineUsers[currentReceiverId] ? 'Online' : 'Offline'}</Typography>
             </Box>
             <Box>
               <IconButton sx={{ color: "white" }}>

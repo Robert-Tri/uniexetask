@@ -44,14 +44,30 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = "Chat group not found";
                 return NotFound(response);
             }
+            int recceiverId = 0;
             foreach (var chatgroup in chatgroups) 
             {
+                if (chatgroup.Type.Equals("Personal") && recceiverId == 0)
+                {
+                    var messages = await _chatGroupService.GetMessagesInChatGroup(chatgroup.ChatGroupId);
+                    foreach (var message in messages)
+                    {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                        if (message.UserId != userId) 
+                        {
+                            recceiverId = message.UserId;
+                            break;
+                        }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    }
+                }
                 var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
                 if (latestMessage == null) continue;
                 list.Add(new ChatGroupResponse
                 {
                     ChatGroup = chatgroup,
-                    LatestMessage = latestMessage.MessageContent
+                    LatestMessage = latestMessage.MessageContent,
+                    ReceiverId = recceiverId
                 });
             }
             response.Data = list;
