@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -62,6 +63,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
@@ -83,23 +85,42 @@ namespace uniexetask.api.Controllers
 
             var createdGroupId = objGroup.GroupId;
 
-            // Thêm userId với vai trò Leader vào nhóm
             if (!string.IsNullOrEmpty(userIdString))
             {
-                var leaderMember = new GroupMemberModel
+                if (int.TryParse(userIdString, out int userId))
                 {
-                    GroupId = createdGroupId,
-                    StudentId = int.Parse(userIdString), // Chuyển đổi userIdString sang dạng int nếu cần thiết
-                    Role = "Leader"
-                };
+                    var student = await _studentService.GetStudentByUserId(userId);
 
-                var objLeader = _mapper.Map<GroupMember>(leaderMember);
-                var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
+                    if (student != null)
+                    {
+                        var leaderMember = new GroupMemberModel
+                        {
+                            GroupId = createdGroupId,
+                            StudentId = student.StudentId, 
+                            Role = "Leader"
+                        };
 
-                if (!isLeaderCreated)
-                {
-                    return BadRequest("Không thể thêm Leader vào nhóm");
+                        var objLeader = _mapper.Map<GroupMember>(leaderMember);
+                        var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
+
+                        if (!isLeaderCreated)
+                        {
+                            return BadRequest("Không thể thêm Leader vào nhóm");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("Không tìm thấy sinh viên với ID đã cho");
+                    }
                 }
+                else
+                {
+                    return BadRequest("ID người dùng không hợp lệ.");
+                }
+            }
+            else
+            {
+                return BadRequest("ID người dùng không được để trống.");
             }
 
             // Kiểm tra mã sinh viên trùng lặp

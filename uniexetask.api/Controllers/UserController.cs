@@ -56,6 +56,21 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("ProfileUser/{userId}")]
+        public async Task<IActionResult> ProfileUser(int userId)
+        {
+            var users = await _userService.GetUserByIdWithCampusAndRole(userId);
+
+            if (users != null)
+            {
+                return Ok(users);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost]
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
@@ -74,17 +89,15 @@ namespace uniexetask.api.Controllers
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(stream))
                 {
-                    var worksheet = package.Workbook.Worksheets[0]; // Lấy sheet đầu tiên
+                    var worksheet = package.Workbook.Worksheets[0]; 
                     int rowCount = worksheet.Dimension.Rows;
 
-                    for (int row = 2; row <= rowCount; row++) // Giả sử dòng đầu tiên là tiêu đề
+                    for (int row = 2; row <= rowCount; row++) 
                     {
-                        // Lấy giá trị của campus_id và role_id từ file Excel
-                        var campusName = worksheet.Cells[row, 6].Text; // Cột 6: campus_id
-                        var roleName = worksheet.Cells[row, 8].Text; // Cột 8: role_id
-                        var khoiText = worksheet.Cells[row, 9].Text; // Cột 9: Khoi (ví dụ: K18, K19, v.v.)
+                        var campusName = worksheet.Cells[row, 6].Text;
+                        var roleName = worksheet.Cells[row, 8].Text; 
+                        var khoiText = worksheet.Cells[row, 9].Text; 
 
-                        // Chuyển đổi campus_id từ tên sang số ID tương ứng
                         int campusId;
                         switch (campusName)
                         {
@@ -98,13 +111,12 @@ namespace uniexetask.api.Controllers
                                 campusId = 3;
                                 break;
                             default:
-                                campusId = 0; // Hoặc giá trị mặc định nếu không khớp
+                                campusId = 0; 
                                 break;
                         }
 
-                        // Chuyển đổi role_id từ tên sang số ID tương ứng
                         int roleId;
-                        switch (roleName.ToLower()) // Chuyển đổi sang chữ thường để tránh vấn đề phân biệt chữ hoa
+                        switch (roleName.ToLower()) 
                         {
                             case "admin":
                                 roleId = 1;
@@ -126,20 +138,20 @@ namespace uniexetask.api.Controllers
                                 break;
                         }
 
-                        // Xử lý mật khẩu dựa trên giá trị của Khoi
-                        string password = worksheet.Cells[row, 3].Text; // Mật khẩu từ file Excel
-                        int khoiNumber = int.Parse(khoiText.Substring(1)); // Lấy số sau chữ "K"
+                        
+                        string password = worksheet.Cells[row, 3].Text; 
+                        int khoiNumber = int.Parse(khoiText.Substring(1)); 
 
                         if (khoiNumber >= 19)
                         {
-                            // Sinh mật khẩu ngẫu nhiên nếu Khoi >= 19
+                            
                             password = GenerateRandomPassword(6);
                         }
 
                         var user = new UserModel
                         {
                             FullName = worksheet.Cells[row, 2].Text,
-                            Password = password,                        // Sử dụng mật khẩu đã được xử lý
+                            Password = password,                       
                             Email = worksheet.Cells[row, 4].Text,
                             Phone = worksheet.Cells[row, 5].Text,
                             CampusId = campusId,
@@ -165,7 +177,7 @@ namespace uniexetask.api.Controllers
             return Ok("All users were successfully created.");
         }
 
-        // Hàm tạo mật khẩu ngẫu nhiên
+       
         private string GenerateRandomPassword(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

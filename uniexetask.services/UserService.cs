@@ -68,6 +68,19 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<User?> GetUserByIdWithCampusAndRole(int userId)
+        {
+            if (userId > 0)
+            {
+                var users = await _unitOfWork.Users.GetByIDWithCampusAndRole(userId);
+                if (users != null)
+                {
+                    return users;
+                }
+            }
+            return null;
+        }
+
         public async Task<bool> UpdateUser(User users)
         {
             if (users != null)
