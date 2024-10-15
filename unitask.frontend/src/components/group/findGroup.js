@@ -178,36 +178,39 @@ const FindGroup = () => {
         </tbody>
       </table>
 
+      
       {/* Rows per Page Selector moved below the table */}
-      <div className={styles.rowsPerPage}>
-        <label htmlFor="rowsPerPage">Rows per page:</label>
-        <select
-          id="rowsPerPage"
-          value={rowsPerPage}
-          onChange={(e) => setRowsPerPage(Number(e.target.value))}
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={15}>15</option>
-        </select>
-      </div>
+<div className={styles.rowsPerPage}>
+  <label htmlFor="rowsPerPage">Rows per page:</label>
+  <select
+    id="rowsPerPage"
+    value={rowsPerPage}
+    onChange={(e) => setRowsPerPage(Number(e.target.value))}
+  >
+    <option value={5}>5</option>
+    <option value={10}>10</option>
+    <option value={15}>15</option>
+  </select>
+</div>
+
 
       {/* Pagination Controls */}
-      <div className={styles.pagination}>
-        <button
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+<div className={styles.pagination}>
+  <button
+    onClick={() => setCurrentPage(currentPage - 1)}
+    disabled={currentPage === 1}
+  >
+    ◀
+  </button>
+  <span>Page {currentPage} of {totalPages}</span>
+  <button
+    onClick={() => setCurrentPage(currentPage + 1)}
+    disabled={currentPage === totalPages}
+  >
+    ▶
+  </button>
+</div>
+
     </div>
   );
 };
