@@ -4,7 +4,7 @@
 
 .createButton {
   margin-bottom: 10px;
-  background-color: #4CAF50; /* Màu nền cho nút */
+  background-color: orange; /* Màu nền cho nút */
   color: white; /* Màu chữ */
   border: none;
   padding: 10px 15px; /* Padding cho nút */
@@ -109,3 +109,18 @@
   margin: 0 10px; /* Khoảng cách giữa văn bản và các nút */
   font-weight: bold; /* Chữ đậm */
 }
+.rowsPerPage {
+  display: flex; /* Sử dụng flex để sắp xếp ngang */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  margin: 10px 0;
+}
+
+.rowsPerPage label {
+  margin-top: 15px; /* Khoảng cách phía trên giữa label và select */
+  margin-right: 10px; /* Khoảng cách giữa label và select */
+}
+
+.rowsPerPage select {
+  margin-top: 10px; /* Nếu cần, có thể thêm khoảng cách trên cho select */
+}
+
