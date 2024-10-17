@@ -32,7 +32,12 @@ namespace uniexetask.api.Controllers
                 reqMember.RegMemberId,
                 reqMember.Description,
                 reqMember.Status,
-                GroupName = reqMember.Group.GroupName, 
+                GroupName = reqMember.Group.GroupName,
+                LeaderName = reqMember.Group.GroupMembers
+                    .Where(gm => gm.Role == "Leader") 
+                    .Select(gm => gm.Student.User.FullName)
+                    .FirstOrDefault(),
+                SubjectCode = reqMember.Group.Subject.SubjectCode,
                 MemberCount = reqMember.Group.GroupMembers.Count() 
             });
 

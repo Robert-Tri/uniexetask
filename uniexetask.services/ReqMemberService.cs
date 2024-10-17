@@ -14,7 +14,7 @@ namespace uniexetask.services
         public async Task<IEnumerable<RegMemberForm>> GetAllReqMember()
         {
             var reqMemberList = await _unitOfWork.ReqMembers.GetAsync(
-                includeProperties: "Group,Group.GroupMembers"); 
+                includeProperties: "Group,Group.GroupMembers,Group.Subject,Group.GroupMembers.Student.User");
             return reqMemberList;
         }
 
