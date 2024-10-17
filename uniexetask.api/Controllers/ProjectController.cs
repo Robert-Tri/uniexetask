@@ -40,7 +40,10 @@ namespace uniexetask.api.Controllers
                     TopicCode = project.Topic.TopicCode,
                     TopicName = project.Topic.TopicName,
                     Description = project.Topic.Description,
-                    StartDate = project.StartDate
+                    SubjectName = project.Subject.SubjectName,
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Status = project.Status
                 });
             }
             ApiResponse<IEnumerable<ProjectListModel>> response = new ApiResponse<IEnumerable<ProjectListModel>>();
