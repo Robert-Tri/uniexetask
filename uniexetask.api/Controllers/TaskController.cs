@@ -33,5 +33,17 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("byStudent/{studentId}")]
+        public async Task<IActionResult> GetTasksByStudent(string studentId)
+        {
+            var tasksList = await _taskService.GetTasksByStudent(int.Parse(studentId));
+            if (tasksList == null)
+            {
+                return NotFound();
+            }
+            ApiResponse<IEnumerable<core.Models.Task>> response = new ApiResponse<IEnumerable<core.Models.Task>>();
+            response.Data = tasksList;
+            return Ok(response);
+        }
     }
 }

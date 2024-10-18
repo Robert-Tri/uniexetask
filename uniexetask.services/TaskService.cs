@@ -30,5 +30,38 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<IEnumerable<core.Models.Task?>> GetTasksByStudent(int studentId)
+        {
+            if (studentId > 0)
+            {
+                var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
+
+                if (groupId == null)
+                {
+                    return null;
+                }
+
+                var project = await _unitOfWork.Projects.GetProjectByGroupId(groupId);
+
+                if (project == null)
+                {
+                    return null;
+                }
+
+                var tasks = await _unitOfWork.Tasks.GetTasksByProjectAsync(project.ProjectId);
+
+                if (tasks != null)
+                {
+                    foreach (var task in tasks)
+                    {
+                        task.Project = null;
+                    }
+                    return tasks;
+                }
+            }
+
+            return null;
+        }
+
     }
 }
