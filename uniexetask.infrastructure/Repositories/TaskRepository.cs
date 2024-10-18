@@ -18,6 +18,7 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Where(t => t.ProjectId == projectId)
+                .Include(t => t.TaskAssigns)
                 .ToListAsync();
         }
 

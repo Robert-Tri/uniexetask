@@ -14,6 +14,7 @@ import ProjectList from './components/project/ProjectList';
 import TopicList from './components/topic/TopicList';
 import GroupList from './components/group/GroupList';
 import GroupDetail from './components/group/GroupDetail';
+import FindGroup from './components/group/findGroup';
 import Users from './views/user/Users';
 import WorkShops from './views/workshop/WorkShops';
 import Timelines from './views/timeline/Timelines';
@@ -45,6 +46,7 @@ function App() {
               <Route path="/projects" element={<LayoutRoute><ProjectList /></LayoutRoute>} />
               <Route path="/topics" element={<LayoutRoute><TopicList /></LayoutRoute>} />
               <Route path="/groups" element={<LayoutRoute><GroupList /></LayoutRoute>} />
+              <Route path="/findGroups" element={<LayoutRoute><FindGroup /></LayoutRoute>} />
               <Route path="/group-detail/:groupId" element={<LayoutRoute><GroupDetail /></LayoutRoute>} />
               <Route path="/Users" element={<LayoutRoute><Users /></LayoutRoute>} />
               <Route path="/WorkShops" element={<LayoutRoute><WorkShops /></LayoutRoute>} />

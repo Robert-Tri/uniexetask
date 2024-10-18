@@ -20,7 +20,7 @@ namespace uniexetask.services
         public async Task<IEnumerable<Project>> GetAllProjects()
 
         {
-            var project = await _unitOfWork.Projects.GetAsync(includeProperties: "Topic");
+            var project = await _unitOfWork.Projects.GetAsync(includeProperties: "Topic,Subject");
             return project;
         }
 

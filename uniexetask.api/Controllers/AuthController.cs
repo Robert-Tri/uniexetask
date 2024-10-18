@@ -50,7 +50,7 @@ namespace uniexetask.api.Controllers
                 };
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
                 response.Data = token;
-/*
+
                 Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
@@ -62,7 +62,7 @@ namespace uniexetask.api.Controllers
                     HttpOnly = true,
                     Secure = true,
                     Expires = DateTime.UtcNow.AddDays(30)
-                });*/
+                });
 
                 return Ok(response);
             }
