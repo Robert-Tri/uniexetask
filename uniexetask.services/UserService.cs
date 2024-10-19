@@ -68,6 +68,11 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<IEnumerable<User>> SearchUsersByEmailAsync(string query)
+        {
+            return await _unitOfWork.Users.SearchUsersByEmailAsync(query);
+        }
+
         public async Task<bool> UpdateUser(User users)
         {
             if (users != null)

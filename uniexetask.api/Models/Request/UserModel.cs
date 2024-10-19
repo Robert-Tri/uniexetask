@@ -13,6 +13,7 @@ namespace uniexetask.api.Models.Request
         public string Email { get; set; } = null!;
 
         public string? Phone { get; set; }
+        public string? Avatar { get; set; }
 
         public int CampusId { get; set; }
 

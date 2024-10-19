@@ -39,5 +39,20 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet.Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
         }
+
+        public async Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId)
+        {
+            return await dbSet.Include(i => i.ChatGroups)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<IEnumerable<User>> SearchUsersByEmailAsync(string query)
+        {
+            return await dbSet
+                        .Where(u => EF.Functions.Like(u.Email, $"%{query}%"))
+                        .Take(5)
+                        .ToListAsync();
+        }
     }
 }

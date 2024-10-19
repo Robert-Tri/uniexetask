@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
@@ -17,27 +18,42 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<bool> AddMembersToChatGroupAsync(int chatGroupId, List<string> emails)
+        {
+            var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
+
+            if (chatGroup == null || !chatGroup.Type.Equals("Group"))
+                return false;
+            foreach (var email in emails) 
+            {
+                var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
+                if (user == null) continue;
+                chatGroup.Users.Add(user);
+            }
+            _unitOfWork.Save();
+            return true;
+        }
+
         public async Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId)
         {
-            var chatMessage = await _unitOfWork.ChatMessages.GetFirstMessagesInChatGroupByUserIdAsync(userId);
-            if (chatMessage == null) return null;
+            var userWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(userId);
+            if (userWithChatGroups == null || userWithChatGroups.ChatGroups == null) return null;
             List<ChatGroup> chatGroups = new List<ChatGroup>();
-            foreach (var message in chatMessage)
+            foreach (var chatgroup in userWithChatGroups.ChatGroups)
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(message.ChatGroupId);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                if (chatGroup == null) continue;
-                if (chatGroup.Type.Equals("Personal"))
+                if (chatgroup.Type.Equals("Personal"))
                 {
-                    var messageByOther = await _unitOfWork.ChatMessages.GetFirstMessageInChatGroupByUserIdAsync(userId, chatGroup.ChatGroupId);
-                    if (messageByOther == null) continue;
-                    var user = await _unitOfWork.Users.GetByIDAsync(messageByOther.UserId);
-                    if (user == null) continue;
-                    chatGroup.ChatGroupName = user.FullName;
-                    chatGroup.ChatGroupAvatar = user.Avatar;
+                    var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatgroup.ChatGroupId);
+                    if (chatGroupWithUsers == null || chatGroupWithUsers.Users == null) continue;
+                    foreach (var user in chatGroupWithUsers.Users)
+                    {
+                        if (user.UserId == userId) continue;
+                        chatgroup.ChatGroupName = user.FullName;
+                        chatgroup.ChatGroupAvatar = user.Avatar;
+                        break;
+                    }
                 }
-                chatGroups.Add(chatGroup);
+                chatGroups.Add(chatgroup);
             }
             return chatGroups;
         }

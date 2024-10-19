@@ -13,5 +13,7 @@ namespace uniexetask.core.Interfaces
         Task<User?> GetByIDAsync(int id);
         Task<User?> GetUserByEmailAsync(string email);
         Task<IEnumerable<User>> GetUsersWithCampusAndRole();
+        Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId);
+        Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
     }
 }

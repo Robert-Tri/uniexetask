@@ -110,5 +110,53 @@ namespace uniexetask.api.Controllers
             response.Data = list;
             return Ok(response);
         }
+
+        [HttpPost("add-members")]
+        public async Task<IActionResult> AddMembers([FromBody] AddMembersModel request)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            if (request == null || request.GroupId <= 0 || request.Emails == null || request.Emails.Count == 0)
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            var result = await _chatGroupService.AddMembersToChatGroupAsync(request.GroupId, request.Emails);
+
+            if (result)
+            {
+                response.Data = "Members added successfully.";
+                return Ok(response);
+            }
+            else
+            {
+                response.Success = false;
+                response.ErrorMessage = "Failed to add members.";
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete("remove")]
+        public async Task<IActionResult> RemoveMemberOutOfGroupChat([FromBody] AddMembersModel request)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            if (request == null || request.GroupId <= 0 || request.Emails == null || request.Emails.Count == 0)
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            var result = await _chatGroupService.AddMembersToChatGroupAsync(request.GroupId, request.Emails);
+
+            if (result)
+            {
+                response.Data = "Members added successfully.";
+                return Ok(response);
+            }
+            else
+            {
+                response.Success = false;
+                response.ErrorMessage = "Failed to add members.";
+                return BadRequest(response);
+            }
+        }
     }
 }

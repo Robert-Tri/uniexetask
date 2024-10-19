@@ -18,5 +18,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> UpdateUser(User userDetails);
 
         Task<bool> DeleteUser(int userId);
+        Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
     }
 }

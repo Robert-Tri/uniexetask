@@ -44,4 +44,6 @@ public partial class User
     public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
+
+    public virtual ICollection<ChatGroup> ChatGroups { get; set; } = new List<ChatGroup>();
 }

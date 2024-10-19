@@ -113,6 +113,15 @@ CREATE TABLE CHAT_MESSAGE (
     FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
 
+-- Tạo bảng USER_CHAT_GROUP
+CREATE TABLE USER_CHAT_GROUP (
+    user_id INT NOT NULL,
+    chat_group_id INT NOT NULL,
+    PRIMARY KEY (user_id, chat_group_id),
+    FOREIGN KEY (user_id) REFERENCES [USER](user_id),
+    FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id)
+);
+
 -- Tạo bảng SUBJECT
 CREATE TABLE SUBJECT (
     subject_id INT PRIMARY KEY IDENTITY(1,1),
@@ -451,6 +460,14 @@ VALUES
 ('Admin Group', null, 1, 1, 'Group'),
 ('Project Chat', null, 2, 2, 'Group'),
 ('Admin User', null, 2, 2, 'Personal');
+
+-- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
+INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
+VALUES 
+(1, 1),
+(2, 2),
+(2, 3),
+(1, 3);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
