@@ -111,6 +111,40 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{chatGroupIdStr}/members")]
+        public async Task<IActionResult> GetMembersInChatGroup(string chatGroupIdStr)
+        {
+            ApiResponse<IEnumerable<MemberInChatGroupResponse>> response = new ApiResponse<IEnumerable<MemberInChatGroupResponse>>();
+            List<MemberInChatGroupResponse> list = new List<MemberInChatGroupResponse>();
+            if (string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
+            {
+                response.Success = false;
+                response.ErrorMessage = "Chat group id not found";
+                return NotFound(response);
+            }
+            var chatGroup = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatGroupId);
+            if (chatGroup == null)
+            {
+                response.Success = false;
+                response.ErrorMessage = "Chat group not found";
+                return NotFound(response);
+            }
+            foreach (var user in chatGroup.Users)
+            {
+                if (user == null) continue;
+
+                list.Add(new MemberInChatGroupResponse
+                {
+                    UserId = user.UserId,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    IsOwner = (user.UserId == chatGroup.OwnerId) ? true : false,
+                });
+            }
+            response.Data = list;
+            return Ok(response);
+        }
+
         [HttpPost("add-members")]
         public async Task<IActionResult> AddMembers([FromBody] AddMembersModel request)
         {
@@ -135,20 +169,16 @@ namespace uniexetask.api.Controllers
             }
         }
 
+
         [HttpDelete("remove")]
-        public async Task<IActionResult> RemoveMemberOutOfGroupChat([FromBody] AddMembersModel request)
+        public async Task<IActionResult> RemoveMemberOutOfGroupChat([FromBody] RemoveMemberOutOfChatGroupModel request)
         {
             ApiResponse<string> response = new ApiResponse<string>();
-            if (request == null || request.GroupId <= 0 || request.Emails == null || request.Emails.Count == 0)
-            {
-                return BadRequest("Invalid request.");
-            }
-
-            var result = await _chatGroupService.AddMembersToChatGroupAsync(request.GroupId, request.Emails);
+            var result = await _chatGroupService.RemoveMemberOutOfGroupChat(request.UserId, request.ChatGroupId);
 
             if (result)
             {
-                response.Data = "Members added successfully.";
+                response.Data = "Member has been kicked out.";
                 return Ok(response);
             }
             else

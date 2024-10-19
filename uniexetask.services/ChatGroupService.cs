@@ -58,6 +58,11 @@ namespace uniexetask.services
             return chatGroups;
         }
 
+        public async Task<ChatGroup?> GetChatGroupWithUsersByChatGroupId(int chatGroupId)
+        {
+            return await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroupId);
+        }
+
         public async Task<ChatMessage?> GetLatestMessageInChatGroup(int chatGroupId)
         {
             return await _unitOfWork.ChatMessages.GetLatestMessageInChatGroup(chatGroupId);
@@ -73,6 +78,20 @@ namespace uniexetask.services
         public System.Threading.Tasks.Task MarkAsReadAsync(string chatGroupId, string userId, int lastReadMessageId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> RemoveMemberOutOfGroupChat(int userId, int chatGroupId)
+        {
+            var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroupId);
+            if (chatGroup == null) return false;
+            var userToRemove = chatGroup.Users.FirstOrDefault(u => u.UserId == userId);
+            if (userToRemove != null)
+            {
+                chatGroup.Users.Remove(userToRemove);
+                _unitOfWork.Save();
+                return true;
+            }
+            return false;
         }
 
         public async Task<ChatMessage> SaveMessageAsync(int chatGroupId, int userId, string message)
