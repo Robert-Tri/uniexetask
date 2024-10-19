@@ -19,7 +19,6 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Include(x => x.Users)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.ChatGroupId == chatGroupId);
         }
     }
