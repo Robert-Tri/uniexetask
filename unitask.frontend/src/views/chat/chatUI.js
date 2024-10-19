@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from "axios";
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { debounce } from 'lodash';  // Import lodash debounce
 import {
+  Menu, 
+  MenuItem,
   Avatar,
   Box,
   IconButton,
@@ -14,12 +17,21 @@ import {
   ListItemText,
   Divider,
   Backdrop,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Chip,
+  Autocomplete 
 } from "@mui/material";
-import { Phone, Videocam, Send } from "@mui/icons-material";
+import { Phone, Videocam, Send, MoreVert } from "@mui/icons-material";
 import { styled } from '@mui/system';
 import { API_BASE_URL } from '../../config';
 import useAuth from "../../hooks/useAuth";
+import { useOnlineStatus } from '../../contexts/OnlineStatusContext';
 
 const ScrollableBox = styled(Box)(({ theme }) => ({
     '&::-webkit-scrollbar': {
@@ -38,19 +50,110 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
   }));
 
   const ChatUI = () => {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false); // State cho Dialog
+    const [searchEmail, setSearchEmail] = useState(""); // State cho input tìm email
+    const [emailSuggestions, setEmailSuggestions] = useState([]); // Gợi ý email
+    const [selectedEmails, setSelectedEmails] = useState([]); // Danh sách email đã chọn
+    const {onlineUsers } = useOnlineStatus();
     const [loading, setLoading] = useState(true);
+    const [loadingSuggestions, setLoadingSuggestions] = useState(false);
     const [chatData, setChatData] = useState([]);
     const [chatGroupData, setChatGroupData] = useState([]);
     const [connection, setConnection] = useState(null);
     const [newMessage, setNewMessage] = useState("");
     const [currentGroupId, setCurrentGroupId] = useState(null);
+    const [currentChatGroupType, setCurrentChatGroupType] = useState("");
+    const [currentReceiverId, setCurrentReceiverId] = useState(null);
+    const [currentChatGroupName, setCurrentChatGroupName] = useState("");
     const { id, username } = useAuth();
     const messagesEndRef = useRef(null);
+    const menuOpen = Boolean(anchorEl);
+
+    const handleMenuOpen = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
+  
+    const handleAddMemberClick = () => {
+      setOpenDialog(true);
+      handleMenuClose();
+    };
+  
+    const handleDialogClose = () => {
+      setOpenDialog(false);
+      setSearchEmail("");
+      setSelectedEmails([]);
+    };
+  
+    const handleSearchChange = (event) => {
+      setSearchEmail(event.target.value);
+      fetchEmailSuggestions(event.target.value); // Gọi API khi có thay đổi
+    };
+  
+    const fetchEmailSuggestions = useCallback(
+      debounce(async (query) => {
+        if (!query) return; // Nếu input trống, không cần tìm kiếm
+        setLoadingSuggestions(true);
+        try {
+          const response = await axios.get(`${API_BASE_URL}api/user/search-email`, {
+            params: { query },
+          });
+          setEmailSuggestions(response.data.data || []);
+        } catch (error) {
+          console.error("Error fetching email suggestions:", error);
+        } finally {
+          setLoadingSuggestions(false);
+        }
+      }, 300), // Debounce để giảm gọi API liên tục
+      []
+    );
+  
+    const handleAddEmail = (email) => {
+      if (!selectedEmails.includes(email)) {
+        setSelectedEmails([...selectedEmails, email]);
+      }
+      setSearchEmail("");
+      setEmailSuggestions([]); // Xóa gợi ý sau khi chọn email
+    };
+  
+    const handleRemoveEmail = (email) => {
+      setSelectedEmails(selectedEmails.filter((e) => e !== email));
+    };
+  
+    const handleAddMembers = async () => {
+      try {
+        const response = await axios.post(`${API_BASE_URL}api/chat-groups/add-members`, {
+          groupId: currentGroupId,
+          emails: selectedEmails,
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true, // Nếu backend yêu cầu cookie
+        });
+        if (response.data.success) {
+          console.log(response.data.data);
+          handleDialogClose();
+      } else {
+          console.error(response.data.errorMessage);
+      }
+      } catch (error) {
+        console.error("Error adding members:", error);
+      }
+    };
+  
+    const handleDeleteChat = () => {
+      console.log("Xóa cuộc trò chuyện...");
+      handleMenuClose();
+    };
 
     useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatGroupData]);
-
 
     useEffect(() => {
       const fetchData = async () => {
@@ -120,7 +223,11 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
       }
     }, []);
   
-    const handleGroupClick = useCallback((groupId) => {
+    const handleGroupClick = useCallback((groupId, groupName, receiverId, chatGroupType) => {
+      if (receiverId !== 0) setCurrentReceiverId(receiverId)
+      console.log("Selected Group:", groupName);
+      setCurrentChatGroupName(groupName);
+      setCurrentChatGroupType(chatGroupType);
       setCurrentGroupId(groupId);
       fetchMessages(groupId);
       
@@ -175,7 +282,7 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
                 <React.Fragment key={index}>
                   <ListItem
                     button = "true"
-                    onClick={() => handleGroupClick(group.chatGroup.chatGroupId)}
+                    onClick={() => handleGroupClick(group.chatGroup.chatGroupId, group.chatGroup.chatGroupName, group.receiverId, group.chatGroup.type)}
                     sx={{
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -217,17 +324,19 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
           order: { xs: 1, md: 2 },
         }}>
           {/* Chat Header */}
-          <Box sx={{
-            padding: 2,
-            backgroundColor: "#1F2937",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            color: "white",
-          }}>
+        <Box sx={{
+          padding: 2,
+          backgroundColor: "#1F2937",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          color: "white",
+        }}>
             <Box>
-              <Typography variant="h6">{chatData.user}</Typography>
-              <Typography variant="body2">{chatData.status}</Typography>
+              <Typography variant="h6">{currentChatGroupName}</Typography>
+              <Typography variant="body2">
+                Status: {onlineUsers[currentReceiverId] ? 'Online' : 'Offline'}
+              </Typography>
             </Box>
             <Box>
               <IconButton sx={{ color: "white" }}>
@@ -236,6 +345,99 @@ const ScrollableBox = styled(Box)(({ theme }) => ({
               <IconButton sx={{ color: "white" }}>
                 <Videocam />
               </IconButton>
+
+              {/* Nút mở Menu */}
+              <IconButton onClick={handleMenuOpen} sx={{ color: "white" }}>
+                <MoreVert />
+              </IconButton>
+
+              {/* Menu với các tùy chọn */}
+              <Menu
+                anchorEl={anchorEl}
+                open={menuOpen}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              >
+                {currentChatGroupType === "Group" && (
+                  <MenuItem onClick={handleAddMemberClick}>Thêm thành viên</MenuItem>
+                )}
+                <MenuItem onClick={handleDeleteChat}>Xóa cuộc trò chuyện</MenuItem>
+              </Menu>
+              <Dialog open={openDialog} onClose={handleDialogClose} maxWidth="md" fullWidth>
+                <DialogTitle>Thêm Thành Viên</DialogTitle>
+                <DialogContent>
+                  <Autocomplete
+                    freeSolo
+                    options={emailSuggestions}
+                    getOptionLabel={(option) => option.email || ""} // Sử dụng email làm nhãn
+                    onInputChange={(event, newValue) => handleSearchChange({ target: { value: newValue } })} // Gọi hàm khi có thay đổi
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Nhập email"
+                        margin="dense"
+                        autoComplete="off"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingSuggestions ? <CircularProgress size={24} /> : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                    onChange={(event, newValue) => {
+                      if (newValue) {
+                        handleAddEmail(newValue.email);
+                      }
+                    }}
+                    renderOption={(props, option) => (
+                      <ListItem
+                        {...props}
+                        key={option.email}
+                        button = "true"
+                        onClick={() => handleAddEmail(option.email)}
+                      >
+                        <ListItemAvatar>
+                          <Avatar src={option.avatar} alt={option.fullName} />
+                        </ListItemAvatar>
+                        <ListItemText primary={option.fullName} secondary={option.email} />
+                      </ListItem>
+                    )}
+                  />
+
+                  {/* Danh sách các email đã chọn */}
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 1,
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {selectedEmails.map((email, index) => (
+                      <Chip
+                        key={index}
+                        label={email}
+                        onDelete={() => handleRemoveEmail(email)}
+                        color="primary"
+                        sx={{ marginBottom: 1 }}
+                      />
+                    ))}
+                  </Box>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleDialogClose} color="secondary">Hủy</Button>
+                  <Button color="primary" onClick={handleAddMembers} disabled={!selectedEmails.length}>
+                    Thêm
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </Box>
           </Box>
   

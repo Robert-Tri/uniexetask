@@ -20,6 +20,7 @@ import WorkShops from './views/workshop/WorkShops';
 import Timelines from './views/timeline/Timelines';
 import HomeManager from './components/home/HomeManager';
 import { ToastContainer, toast } from 'react-toastify';
+import { OnlineStatusProvider } from './contexts/OnlineStatusContext';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId="84036477180-g8du4c9m1nvh7ducvvj0mkgm3dp9pfjp.apps.googleusercontent.com">
+      <OnlineStatusProvider>
           <Router>
             <Routes>
               <Route path="/" element={<LoginForm />} />
@@ -56,6 +58,7 @@ function App() {
             </Routes>
             <ToastContainer />
           </Router>
+        </OnlineStatusProvider>
     </GoogleOAuthProvider>
   );
 }

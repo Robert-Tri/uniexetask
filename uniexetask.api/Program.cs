@@ -137,5 +137,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
-app.MapHub<UserStatusHub>("/userStatusHub");
 app.Run();

@@ -24,4 +24,6 @@ public partial class ChatGroup
     public virtual User CreatedByNavigation { get; set; } = null!;
 
     public virtual User Owner { get; set; } = null!;
+
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

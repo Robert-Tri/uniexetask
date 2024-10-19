@@ -7,6 +7,5 @@ namespace uniexetask.api.Models.Response
         public required ChatMessage ChatMessage { get; set; }
         public string SenderName { get; set; } = null!;
         public string? Avatar { get; set; }
-
     }
 }

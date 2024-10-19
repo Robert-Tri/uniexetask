@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text.Json;
 using uniexetask.api.Models.Response;
@@ -11,7 +12,7 @@ namespace uniexetask.api.Hubs
     {
         private readonly IChatGroupService _chatGroupService;
         private readonly IUserService _userService;
-
+        private static readonly ConcurrentDictionary<string, string> _userConnections = new ConcurrentDictionary<string, string>();
 
         public ChatHub(IChatGroupService chatGroupService, IUserService userService)
         {
@@ -62,6 +63,49 @@ namespace uniexetask.api.Hubs
             await _chatGroupService.MarkAsReadAsync(chatGroupId, userId, lastReadMessageId);
 
             await Clients.Group(chatGroupId).SendAsync("MessageRead", new { UserId = userId, LastReadMessageId = lastReadMessageId });
+        }
+        public async Task SetUserOnline(string userId)
+        {
+            _userConnections[userId] = Context.ConnectionId;
+            await Clients.All.SendAsync("UserOnline", userId);
+        }
+
+        public async Task SetUserOffline(string userId)
+        {
+            _userConnections.TryRemove(userId, out _);
+            await Clients.All.SendAsync("UserOffline", userId);
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await SetUserOnline(userId);
+
+                // Send the current online users list to the newly connected user
+                var onlineUsers = _userConnections.Keys.ToList();
+                await Clients.Caller.SendAsync("ReceiveOnlineUsers", onlineUsers);
+
+                // Notify all users that this user is now online
+                await Clients.All.SendAsync("UserOnline", userId);
+            }
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            var userId = _userConnections.FirstOrDefault(x => x.Value == Context.ConnectionId).Key;
+            if (userId != null)
+            {
+                await SetUserOffline(userId);
+            }
+            await base.OnDisconnectedAsync(exception);
+        }
+
+        public async Task<List<string>> GetOnlineUsers()
+        {
+            return _userConnections.Keys.ToList();
         }
     }
 }

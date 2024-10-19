@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
@@ -20,6 +21,33 @@ namespace uniexetask.api.Controllers
         {
             _userService = userService;
             _mapper = mapper;
+        }
+
+        [HttpGet("search-email")]
+        public async Task<IActionResult> SearchUserByEmail([FromQuery] string query)
+        {
+            ApiResponse<IEnumerable<UserModel>> response = new ApiResponse<IEnumerable<UserModel>>();
+            List<UserModel> userList = new List<UserModel>();
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query parameter is required.");
+            }
+            
+            var users = await _userService.SearchUsersByEmailAsync(query);
+
+            if (users.Count() == 0)
+            {
+                return NotFound("No matching emails found.");
+            }
+
+            foreach (var use in users)
+            {
+                var userEntity = _mapper.Map<UserModel>(use);
+                userList.Add(userEntity);
+            }
+            response.Data = userList;
+
+            return Ok(response);
         }
 
         /// <summary>
