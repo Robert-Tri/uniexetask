@@ -35,6 +35,15 @@ namespace uniexetask.infrastructure.Repositories
                     .Include(u => u.Role)
                     .FirstOrDefaultAsync(u => u.UserId == id);
         }
+
+        public async Task<User?> GetByIDWithCampusAndRole(int id)
+        {
+            return await dbSet
+                    .Include(u => u.Role)
+                    .Include(u => u.Campus) 
+                    .FirstOrDefaultAsync(u => u.UserId == id);
+        }
+
         public async Task<IEnumerable<User>> GetUsersWithCampusAndRole()
         {
             return await dbSet.Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();

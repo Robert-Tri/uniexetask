@@ -157,7 +157,7 @@ CREATE TABLE PROJECT (
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('In Progress', 'Completed')) NOT NULL,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
 	FOREIGN KEY (topic_id) REFERENCES TOPIC(topic_id),
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
@@ -171,7 +171,7 @@ CREATE TABLE TASK (
 	description NVARCHAR(250) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Not Started', 'In Progress', 'Completed')) NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
@@ -180,7 +180,7 @@ CREATE TABLE TASK_ASSIGN (
     task_assign_id INT PRIMARY KEY IDENTITY(1,1),
     task_id INT NOT NULL,
     student_id INT NOT NULL,
-	completion_date DATETIME NOT NULL,
+	asigned_date DATETIME NOT NULL,
 	FOREIGN KEY (task_id) REFERENCES TASK(task_id),
 	FOREIGN KEY (student_id) REFERENCES STUDENT(student_id)
 );
@@ -289,11 +289,11 @@ CREATE TABLE GROUP_INVITE (
 CREATE TABLE WORKSHOP (
     workshop_id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(50) NOT NULL,
-    description NVARCHAR(250) NOT NULL,
+    description NVARCHAR(MAX) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
-	location NVARCHAR(250) NOT NULL,
-	reg_url NVARCHAR(250) NOT NULL,
+	location NVARCHAR(MAX) NOT NULL,
+	reg_url NVARCHAR(MAX) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Status 1', 'Status 2')) NOT NULL
 );
 
@@ -325,7 +325,7 @@ CREATE TABLE SCORE_CRITERIA (
 CREATE TABLE REFRESH_TOKEN (
     token_id INT PRIMARY KEY IDENTITY(1,1),
 	user_id INT NOT NULL,
-    token NVARCHAR(50) NOT NULL,
+    token NVARCHAR(MAX) NOT NULL,
     expires DATETIME NOT NULL,
 	created  DATETIME DEFAULT GETDATE() NOT NULL,
 	revoked  DATETIME NOT NULL,
@@ -426,13 +426,56 @@ VALUES
 (N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', '0867892130', 1, 3),
 (N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', '0837250452', 1, 3),
 (N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', '0913926749', 1, 3),
-(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3);
+(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', '0374312384', 1, 3),
+-- 5 Mentors (role_id = 4)
+('Mentor User 4', 'hashed_password', 'mentor4@uniexetask.com', '0901000012', 1, 4),
+('Mentor User 5', 'hashed_password', 'mentor5@uniexetask.com', '0901000013', 2, 4),
+('Mentor User 6', 'hashed_password', 'mentor6@uniexetask.com', '0901000014', 3, 4),
+('Mentor User 7', 'hashed_password', 'mentor7@uniexetask.com', '0901000015', 1, 4),
+('Mentor User 8', 'hashed_password', 'mentor8@uniexetask.com', '0901000016', 2, 4),
+-- 30 Students (role_id = 3)
+('Student User 4', 'hashed_password', 'student4@uniexetask.com', '0901000017', 1, 3),
+('Student User 5', 'hashed_password', 'student5@uniexetask.com', '0901000018', 2, 3),
+('Student User 6', 'hashed_password', 'student6@uniexetask.com', '0901000019', 3, 3),
+('Student User 7', 'hashed_password', 'student7@uniexetask.com', '0901000020', 1, 3),
+('Student User 8', 'hashed_password', 'student8@uniexetask.com', '0901000021', 2, 3),
+('Student User 9', 'hashed_password', 'student9@uniexetask.com', '0901000022', 3, 3),
+('Student User 10', 'hashed_password', 'student10@uniexetask.com', '0901000023', 1, 3),
+('Student User 11', 'hashed_password', 'student11@uniexetask.com', '0901000024', 2, 3),
+('Student User 12', 'hashed_password', 'student12@uniexetask.com', '0901000025', 3, 3),
+('Student User 13', 'hashed_password', 'student13@uniexetask.com', '0901000026', 1, 3),
+('Student User 14', 'hashed_password', 'student14@uniexetask.com', '0901000027', 2, 3),
+('Student User 15', 'hashed_password', 'student15@uniexetask.com', '0901000028', 3, 3),
+('Student User 16', 'hashed_password', 'student16@uniexetask.com', '0901000029', 1, 3),
+('Student User 17', 'hashed_password', 'student17@uniexetask.com', '0901000030', 2, 3),
+('Student User 18', 'hashed_password', 'student18@uniexetask.com', '0901000031', 3, 3),
+('Student User 19', 'hashed_password', 'student19@uniexetask.com', '0901000032', 1, 3),
+('Student User 20', 'hashed_password', 'student20@uniexetask.com', '0901000033', 2, 3),
+('Student User 21', 'hashed_password', 'student21@uniexetask.com', '0901000034', 3, 3),
+('Student User 22', 'hashed_password', 'student22@uniexetask.com', '0901000035', 1, 3),
+('Student User 23', 'hashed_password', 'student23@uniexetask.com', '0901000036', 2, 3),
+('Student User 24', 'hashed_password', 'student24@uniexetask.com', '0901000037', 3, 3),
+('Student User 25', 'hashed_password', 'student25@uniexetask.com', '0901000038', 1, 3),
+('Student User 26', 'hashed_password', 'student26@uniexetask.com', '0901000039', 2, 3),
+('Student User 27', 'hashed_password', 'student27@uniexetask.com', '0901000040', 3, 3),
+('Student User 28', 'hashed_password', 'student28@uniexetask.com', '0901000041', 1, 3),
+('Student User 29', 'hashed_password', 'student29@uniexetask.com', '0901000042', 2, 3),
+('Student User 30', 'hashed_password', 'student30@uniexetask.com', '0901000043', 3, 3),
+('Student User 31', 'hashed_password', 'student31@uniexetask.com', '0901000044', 1, 3),
+('Student User 32', 'hashed_password', 'student32@uniexetask.com', '0901000045', 2, 3),
+('Student User 33', 'hashed_password', 'student33@uniexetask.com', '0901000046', 3, 3);
 
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
 VALUES 
 (4, 'Renewable Energy'),
-(7, 'Urban Planning');
+(7, 'Urban Planning'),
+(10, 'Data Science'),
+(16, 'Artificial Intelligence'),
+(17, 'Blockchain Technology'),
+(18, 'Internet of Things'),
+(19, 'Cybersecurity'),
+(20, 'Renewable Energy');
 
 -- Thêm dữ liệu mẫu cho bảng STUDENT
 INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, is_eligible)
@@ -443,7 +486,39 @@ VALUES
 (12, 2,'SE162014', 'Software Engineering', 1),
 (13, 1,'SE162032', 'Software Engineering', 1),
 (14, 1,'SE162087', 'Software Engineering', 1),
-(15, 2,'SE162056', 'Software Engineering', 1);
+(15, 2,'SE162056', 'Software Engineering', 1),
+
+(21, 3,'ST100004', 'Software Engineering', 1),
+(22, 4,'ST100005', 'Software Engineering', 1),
+(23, 5,'ST100006', 'Software Engineering', 1),
+(24, 6,'ST100007', 'Software Engineering', 1),
+(25, 7,'ST100008', 'Software Engineering', 1),
+(26, 8,'ST100009', 'Software Engineering', 1),
+(27, 8,'ST100010', 'Software Engineering', 0),
+(28, 8,'ST100011', 'Software Engineering', 1),
+(29, 1,'ST100012', 'Software Engineering', 1),
+(30, 1,'ST100013', 'Software Engineering', 1),
+(31, 1,'ST100014', 'Software Engineering', 1),
+(32, 2,'ST100015', 'Software Engineering', 1),
+(33, 2,'ST100016', 'Software Engineering', 1),
+(34, 2,'ST100017', 'Software Engineering', 1),
+(35, 3,'ST100018', 'Software Engineering', 1),
+(36, 3,'ST100019', 'Software Engineering', 1),
+(37, 3,'ST100020', 'Software Engineering', 0),
+(38, 4,'ST100021', 'Software Engineering', 1),
+(39, 4,'ST100022', 'Software Engineering', 1),
+(40, 4,'ST100023', 'Software Engineering', 1),
+(41, 5,'ST100024', 'Software Engineering', 1),
+(42, 5,'ST100025', 'Software Engineering', 1),
+(43, 5,'ST100026', 'Software Engineering', 1),
+(44, 6,'ST100027', 'Software Engineering', 1),
+(45, 6,'ST100028', 'Software Engineering', 1),
+(46, 6,'ST100029', 'Software Engineering', 1),
+(47, 7,'ST100030', 'Software Engineering', 0),
+(48, 7,'ST100031', 'Software Engineering', 1),
+(49, 7,'ST100032', 'Software Engineering', 1),
+(50, 8,'ST100033', 'Software Engineering', 1);
+
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -486,9 +561,16 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng GROUP
 INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status)
 VALUES 
-('Green Energy Team', 1, 1, 'Initialized'),
+('Green Energy Team', 1, 0, 'Initialized'),
 ('Smart City Team', 2, 1, 'Approved'),
-('UniEXETask', 1, 1, 'Overdue');
+('UniEXETask', 1, 1, 'Approved'),
+('AI Innovation Team', 1, 0, 'Approved'),
+('Blockchain Pioneers', 2, 1, 'Initialized'),
+('IoT Solutions', 1, 1, 'Initialized'),
+('Cybersecurity Guardians', 1, 1, 'Approved'),
+('Data Science Explorers', 1, 1, 'Overdue'),
+('Cloud Computing Experts', 2, 1, 'Initialized'),
+('ML Research Group', 1, 1, 'Initialized');
 
 -- Thêm dữ liệu mẫu cho bảng TOPIC
 INSERT INTO TOPIC (topic_code, topic_name, description)
@@ -499,20 +581,50 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status)
 VALUES 
-(1, 1, '2024-09-01', '2025-01-01', 1, 'Status 1'),
-(2, 2, '2024-09-01', '2025-01-01', 2, 'Status 2');
+(3, 1, '2024-09-01', '2025-01-01', 1, 'In Progress'),
+(4, 2, '2024-09-01', '2025-02-01', 2, 'In Progress');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
 VALUES 
-(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Status 1'),
-(2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Status 2');
-
+(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Not Started'),
+(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-01', '2024-09-15', 'Completed'),
+(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-16', '2024-10-15', 'Completed'),
+(1, 'System Design', 'Create system architecture and design documents', '2024-10-08', '2024-10-29', 'In Progress'),
+(1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In Progress'),
+(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In Progress'),
+(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not Started'),
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not Started'),
+(2, 'Integration and Testing', 'Integrate components and perform system testing', '2024-10-09', '2024-11-02', 'In Progress'),
+(2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not Started'),
+(2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not Started'),
+(2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
 -- Thêm dữ liệu mẫu cho bảng TASK
-INSERT INTO TASK_ASSIGN(task_id, student_id, completion_date)
+INSERT INTO TASK_ASSIGN(task_id, student_id, asigned_date)
 VALUES 
-(1, 1, '2024-11-01'),
-(2, 1, '2024-12-01');
+(1, 4, '2024-11-01'),
+(1, 5, '2024-11-01'),
+(2, 5, '2024-12-01'),
+(3, 4, '2024-11-01'),
+(3, 6, '2024-11-01'),
+(3, 7, '2024-11-01'),
+(4, 5, '2024-11-01'),
+(4, 7, '2024-11-01'),
+(5, 4, '2024-11-01'),
+(5, 6, '2024-11-01'),
+(6, 5, '2024-11-01'),
+(6, 6, '2024-11-01'),
+(6, 7, '2024-11-01'),
+(7, 6, '2024-11-01'),
+(8, 4, '2024-11-01'),
+(8, 7, '2024-11-01'),
+(9, 8, '2024-11-01'),
+(10, 9, '2024-11-01'),
+(11, 8, '2024-11-01'),
+(11, 10, '2024-11-01'),
+(11, 11, '2024-11-01'),
+(12, 9, '2024-11-01'),
+(12, 11, '2024-11-01');
 
 -- Thêm dữ liệu mẫu cho bảng LABEL
 INSERT INTO LABEL (label_name)
@@ -535,8 +647,14 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
 INSERT INTO MENTOR_GROUP (group_id, mentor_id)
 VALUES 
-(1, 1), 
-(2, 2);
+(2, 1), 
+(3, 2),
+(5, 3), 
+(6, 4), 
+(7, 1), 
+(8, 1), 
+(9, 5),
+(10, 1);
 
 -- Thêm dữ liệu mẫu cho bảng MEETING_SCHEDULE
 INSERT INTO MEETING_SCHEDULE (group_id, mentor_id, location, meeting_date, duration, type, content, status)
@@ -550,10 +668,34 @@ VALUES
 (1, 1, 'Leader'), 
 (1, 2, 'Member'),
 (2, 3, 'Leader'), 
-(2, 4, 'Member'),
-(3, 5, 'Leader'),
-(3, 6, 'Member'),
-(3, 7, 'Member');
+(3, 12, 'Leader'),
+(3, 13, 'Member'),
+(3, 14, 'Member'),
+(3, 15, 'Member'),
+(4, 8, 'Leader'),
+(4, 9, 'Member'),
+(4, 10, 'Member'),
+(4, 11, 'Member'),
+(5, 7, 'Leader'),
+(5, 4, 'Member'),
+(5, 18, 'Member'),
+(5, 19, 'Member'),
+(6, 5, 'Leader'),
+(6, 6, 'Member'),
+(6, 16, 'Member'),
+(7, 20, 'Leader'),
+(7, 28, 'Member'),
+(7, 31, 'Member'),
+(7, 25, 'Member'),
+(8, 22, 'Leader'),
+(8, 21, 'Member'),
+(8, 23, 'Member'),
+(9, 27, 'Leader'),
+(9, 26, 'Member'),
+(9, 29, 'Member'),
+(9, 30, 'Member'),
+(10, 17, 'Leader'),
+(10, 24, 'Member');
 
 -- Thêm dữ liệu mẫu cho bảng NOFITICATION
 INSERT INTO NOFITICATION (sender_id, receiver_id, message, type, created_at, status)

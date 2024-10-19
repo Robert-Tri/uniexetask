@@ -20,7 +20,7 @@ namespace uniexetask.infrastructure.Repositories
             return await dbSet.ToListAsync();
         }
 
-        public async Task<Project?> GetProjectByGroupId(int groupId)
+        public async Task<Project?> GetProjectByGroupId(int? groupId)
         {
             return await dbSet.FirstOrDefaultAsync(p => p.GroupId == groupId);
         }

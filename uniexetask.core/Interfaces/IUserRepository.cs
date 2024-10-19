@@ -11,6 +11,7 @@ namespace uniexetask.core.Interfaces
     {
         Task<User?> AuthenticateAsync(string email, string password);
         Task<User?> GetByIDAsync(int id);
+        Task<User?> GetByIDWithCampusAndRole(int id);
         Task<User?> GetUserByEmailAsync(string email);
         Task<IEnumerable<User>> GetUsersWithCampusAndRole();
         Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId);
