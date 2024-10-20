@@ -96,7 +96,7 @@ namespace uniexetask.api.Controllers
                         var leaderMember = new GroupMemberModel
                         {
                             GroupId = createdGroupId,
-                            StudentId = student.StudentId, 
+                            StudentId = student.StudentId,
                             Role = "Leader"
                         };
 
