@@ -26,7 +26,7 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetChatGroupByUser()
+        public async Task<IActionResult> GetChatGroupByUser(int chatGroupIndex = 0, int limit = 5)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<ChatGroupResponse>> response = new ApiResponse<IEnumerable<ChatGroupResponse>>();
@@ -37,37 +37,20 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = "User Id not found";
                 return NotFound(response);
             }
-            var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId);
+            var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId, chatGroupIndex, limit);
             if (chatgroups == null) 
             {
                 response.Success = false;
                 response.ErrorMessage = "Chat group not found";
                 return NotFound(response);
             }
-            int recceiverId = 0;
             foreach (var chatgroup in chatgroups) 
             {
-                if (chatgroup.Type.Equals("Personal") && recceiverId == 0)
-                {
-                    var messages = await _chatGroupService.GetMessagesInChatGroup(chatgroup.ChatGroupId);
-                    foreach (var message in messages)
-                    {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        if (message.UserId != userId) 
-                        {
-                            recceiverId = message.UserId;
-                            break;
-                        }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                    }
-                }
                 var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
-                if (latestMessage == null) continue;
                 list.Add(new ChatGroupResponse
                 {
                     ChatGroup = chatgroup,
-                    LatestMessage = latestMessage.MessageContent,
-                    ReceiverId = recceiverId
+                    LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]"
                 });
             }
             response.Data = list;
@@ -75,7 +58,7 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("{chatGroupIdStr}/messages")]
-        public async Task<IActionResult> GetMessagesChatGroup(string chatGroupIdStr)
+        public async Task<IActionResult> GetMessagesChatGroup(string chatGroupIdStr, int messageIndex = 0, int limit = 5)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<ChatMessageResponse>> response = new ApiResponse<IEnumerable<ChatMessageResponse>>();
@@ -86,7 +69,7 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = "User Id not found";
                 return NotFound(response);
             }
-            var chatmessages = await _chatGroupService.GetMessagesInChatGroup(chatGroupId);
+            var chatmessages = await _chatGroupService.GetMessagesInChatGroup(chatGroupId, messageIndex, limit);
             if (chatmessages == null)
             {
                 response.Success = false;

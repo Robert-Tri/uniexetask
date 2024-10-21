@@ -38,6 +38,7 @@ namespace uniexetask.api.Hubs
             }
 
             var newMessage = await _chatGroupService.SaveMessageAsync(chatGroupId, userId, message);
+            if (newMessage == null) throw new HubException("Message cannot be saved");
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             var user = await _userService.GetUserById(newMessage.UserId);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.

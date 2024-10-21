@@ -10,6 +10,6 @@ namespace uniexetask.core.Interfaces
     public interface IChatMessageRepository : IGenericRepository<ChatMessage>
     {
         Task<ChatMessage?> GetLatestMessageInChatGroup(int chatGroupId);
-        Task<IEnumerable<ChatMessage?>> GetMessagesInChatGroup(int chatGroupId);
+        Task<IEnumerable<ChatMessage?>> GetMessagesInChatGroup(int chatGroupId, int chatGroupIndex, int limit);
     }
 }

@@ -117,6 +117,10 @@ public partial class UniExetaskContext : DbContext
             entity.Property(e => e.Type)
                 .HasMaxLength(20)
                 .HasColumnName("type");
+            entity.Property(e => e.LatestActivity)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("latest_activity");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ChatGroupCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)

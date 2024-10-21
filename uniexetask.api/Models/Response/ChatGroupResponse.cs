@@ -6,8 +6,7 @@ namespace uniexetask.api.Models.Response
     {
         public required ChatGroup ChatGroup { get; set; }
 
-        public string LatestMessage { get; set; } = null!;
-        public int ReceiverId { get; set; }
+        public required string LatestMessage { get; set; }
 
     }
 }
