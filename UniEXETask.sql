@@ -97,6 +97,7 @@ CREATE TABLE CHAT_GROUP (
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
 	created_by INT NOT NULL,
 	owner_id INT NOT NULL,
+	latest_activity DATETIME DEFAULT GETDATE() NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
@@ -534,7 +535,22 @@ INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id
 VALUES 
 ('Admin Group', null, 1, 1, 'Group'),
 ('Project Chat', null, 2, 2, 'Group'),
-('Admin User', null, 2, 2, 'Personal');
+('Admin User', null, 2, 2, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal'),
+('Admin User', null, 1, 1, 'Personal');
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
@@ -542,7 +558,36 @@ VALUES
 (1, 1),
 (2, 2),
 (2, 3),
-(1, 3);
+(1, 4),
+(3, 4),
+(1, 5),
+(4, 5),
+(1, 6),
+(5, 6),
+(1, 7),
+(6, 7),
+(1, 8),
+(7, 8),
+(1, 9),
+(8, 9),
+(1, 10),
+(9, 10),
+(1, 11),
+(10, 11),
+(1, 12),
+(11, 12),
+(1, 13),
+(12, 13),
+(1, 14),
+(13, 14),
+(1, 15),
+(14, 15),
+(1, 16),
+(15, 16),
+(1, 17),
+(16, 17),
+(1, 18),
+(17, 18);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
