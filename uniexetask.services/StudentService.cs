@@ -20,10 +20,12 @@ namespace uniexetask.services
         {
             if (studentId > 0)
             {
-                var users = await _unitOfWork.Students.GetByIDAsync(studentId);
-                if (users != null)
+                var student = await _unitOfWork.Students.GetByIDAsync(studentId);
+                if (student != null)
                 {
-                    return users;
+                    var user = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+                    student.User = user;
+                    return student;
                 }
             }
             return null;
@@ -52,8 +54,6 @@ namespace uniexetask.services
 
             return null;
         }
-
-
 
         public async Task<IEnumerable<Student>> GetEligibleStudentsWithUser()
         {

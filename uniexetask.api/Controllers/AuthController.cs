@@ -190,7 +190,7 @@ namespace uniexetask.api.Controllers
                 response.Data = token;
 
                 // Set cookies
-/*                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
+                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
@@ -201,7 +201,7 @@ namespace uniexetask.api.Controllers
                     HttpOnly = true,
                     Secure = true,
                     Expires = DateTime.UtcNow.AddDays(30)
-                });*/
+                });
 
                 return Ok(response);
             }
