@@ -60,5 +60,24 @@ namespace uniexetask.api.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetStudentById(int id)
+        {
+            var student = await _studentsService.GetStudentById(id);
+
+            if (student != null)
+            {
+                ApiResponse<Student> response = new ApiResponse<Student>
+                {
+                    Data = student
+                };
+                return Ok(response);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
