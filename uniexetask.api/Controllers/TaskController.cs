@@ -12,12 +12,14 @@ namespace uniexetask.api.Controllers
     {
         public ITaskService _taskService;
         public ITaskAssignService _taskAssignService;
+        public IStudentService _studentsService;
 
 
-        public TaskController(ITaskService taskService, ITaskAssignService taskAssignService)
+        public TaskController(ITaskService taskService, ITaskAssignService taskAssignService, IStudentService studentsService)
         {
             _taskService = taskService;
             _taskAssignService = taskAssignService;
+            _studentsService = studentsService;
         }
 
         [HttpGet("byProject/{projectId}")]
@@ -41,6 +43,7 @@ namespace uniexetask.api.Controllers
             {
                 return NotFound();
             }
+
             ApiResponse<IEnumerable<core.Models.Task>> response = new ApiResponse<IEnumerable<core.Models.Task>>();
             response.Data = tasksList;
             return Ok(response);
