@@ -36,13 +36,15 @@ namespace uniexetask.infrastructure.Repositories
                     .FirstOrDefaultAsync(u => u.UserId == id);
         }
 
-        public async Task<User?> GetByIDWithCampusAndRole(int id)
+        public async Task<User?> GetByIDWithCampusAndRoleAndStudents(int id)
         {
             return await dbSet
-                    .Include(u => u.Role)
-                    .Include(u => u.Campus) 
-                    .FirstOrDefaultAsync(u => u.UserId == id);
+       .Include(u => u.Role)                 // Bao gồm bảng Role
+       .Include(u => u.Campus)               // Bao gồm bảng Campus
+       .Include(u => u.Students)             // Bao gồm bảng Student
+       .FirstOrDefaultAsync(u => u.UserId == id); // Điều kiện truy vấn dựa trên UserId
         }
+
 
         public async Task<IEnumerable<User>> GetUsersWithCampusAndRole()
         {

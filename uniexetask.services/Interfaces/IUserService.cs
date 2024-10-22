@@ -14,7 +14,7 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<User>> GetAllUsers();
 
         Task<User?> GetUserById(int userId);
-        Task<User?> GetUserByIdWithCampusAndRole(int userId);
+        Task<User?> GetUserByIdWithCampusAndRoleAndStudents(int userId);
 
         Task<bool> UpdateUser(User userDetails);
 

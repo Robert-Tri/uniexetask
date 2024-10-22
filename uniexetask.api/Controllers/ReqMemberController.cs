@@ -33,9 +33,14 @@ namespace uniexetask.api.Controllers
                 reqMember.Description,
                 reqMember.Status,
                 GroupName = reqMember.Group.GroupName,
+                GroupId = reqMember.Group.GroupId,
                 LeaderName = reqMember.Group.GroupMembers
                     .Where(gm => gm.Role == "Leader") 
                     .Select(gm => gm.Student.User.FullName)
+                    .FirstOrDefault(),
+                LeaderAvata = reqMember.Group.GroupMembers
+                    .Where(gm => gm.Role == "Leader")
+                    .Select(gm => gm.Student.User.Avatar)
                     .FirstOrDefault(),
                 SubjectCode = reqMember.Group.Subject.SubjectCode,
                 MemberCount = reqMember.Group.GroupMembers.Count() 
