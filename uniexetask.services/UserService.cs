@@ -73,11 +73,11 @@ namespace uniexetask.services
             return await _unitOfWork.Users.SearchUsersByEmailAsync(query);
         }
         
-        public async Task<User?> GetUserByIdWithCampusAndRole(int userId)
+        public async Task<User?> GetUserByIdWithCampusAndRoleAndStudents(int userId)
         {
             if (userId > 0)
             {
-                var users = await _unitOfWork.Users.GetByIDWithCampusAndRole(userId);
+                var users = await _unitOfWork.Users.GetByIDWithCampusAndRoleAndStudents(userId);
                 if (users != null)
                 {
                     return users;
