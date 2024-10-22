@@ -54,5 +54,11 @@ namespace uniexetask.services
             var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
             return await _unitOfWork.Projects.GetProjectByGroupId((int)groupId);
         }
+
+        public async Task<Project?> GetProjectByUserId(int userId) =>
+    await _unitOfWork.Students.GetAsync(filter: s => s.UserId == userId)
+        .ContinueWith(async studentTask => studentTask.Result.FirstOrDefault() is var student && student != null
+            ? await _unitOfWork.Projects.GetProjectByGroupId((int)await _unitOfWork.GroupMembers.GetGroupIdByStudentId(student.StudentId))
+            : null).Unwrap();
     }
 }

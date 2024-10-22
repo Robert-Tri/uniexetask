@@ -21,27 +21,70 @@ namespace uniexetask.api.Controllers
             _projectService = projectService;
             _documentService = documentService;
         }
-        [HttpGet("documents/{studentId}")]
-        public async Task<IActionResult> GetDocuments(int studentId)
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetDocuments(int userId)
         {
-            var project = await _projectService.GetProjectByStudentId(studentId);
+            var project = await _projectService.GetProjectByUserId(userId);
             if (project == null)
             {
                 return NotFound("Project not found for the given student.");
             }
+
             var documents = await _documentService.GetDocumentsByProjectId(project.ProjectId);
-            ApiResponse<IEnumerable<Document>> respone = new ApiResponse<IEnumerable<Document>>();
-            respone.Data = documents;
-            return Ok(respone);
+            var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
+
+            // Function to convert MIME type to file extension
+            string GetFileExtension(string mimeType)
+            {
+                return mimeType switch
+                {
+                    "application/pdf" => "pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
+                    "application/msword" => "doc",
+                    "image/jpeg" => "jpg",
+                    "image/png" => "png",
+                    // Add more mappings as needed
+                    _ => "unknown"
+                };
+            }
+
+            // Map documents and storage objects to DocumentRespone
+            var documentResponses = documents.Select(doc =>
+            {
+                var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
+
+                return new DocumentRespone
+                {
+                    DocumentId = doc.DocumentId,
+                    ProjectId = doc.ProjectId,
+                    Name = doc.Name,
+                    Type = doc.Type,
+                    Url = doc.Url,
+                    UploadBy = doc.UploadBy,
+                    IsFinancialReport = doc.IsFinancialReport,
+                    TypeFile = storageObject != null ? GetFileExtension(storageObject.ContentType) : "unknown",
+                    Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
+                };
+            }).ToList();
+
+            ApiResponse<IEnumerable<DocumentRespone>> response = new ApiResponse<IEnumerable<DocumentRespone>>
+            {
+                Data = documentResponses
+            };
+
+            return Ok(response);
         }
 
+
+
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadDocument(IFormFile file, int studentId)
+        public async Task<IActionResult> UploadDocument(IFormFile file, int userId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var project = await _projectService.GetProjectByStudentId(studentId);
+            var project = await _projectService.GetProjectByUserId(userId);
             if (project == null)
                 return NotFound("Project not found for the given student.");
 
@@ -49,13 +92,13 @@ namespace uniexetask.api.Controllers
             if(existedDocument != null)
                 return Conflict(new { Message = "Document with the same name already exists." });
 
-            var document = await _documentService.UploadDocument(new core.Models.Document
+            var document = await _documentService.UploadDocument(new Document
             {
                 Name = file.FileName,
                 ProjectId = project.ProjectId,
                 Type = "Status 1",
                 Url = $"Project{project.ProjectId}/{file.FileName}",
-                UploadBy = studentId,
+                UploadBy = userId,
                 IsFinancialReport = false,
             });
 
@@ -71,6 +114,7 @@ namespace uniexetask.api.Controllers
 
             return Ok(respone);
         }
+
         [HttpGet("download")]
         public async Task<IActionResult> DownloadDocument(int documentId)
         {
