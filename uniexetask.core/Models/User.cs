@@ -19,9 +19,9 @@ public partial class User
 
     public int CampusId { get; set; }
 
-    public bool Status { get; set; }
-
     public int RoleId { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     public virtual Campus Campus { get; set; } = null!;
 
@@ -41,7 +41,7 @@ public partial class User
 
     public virtual Role Role { get; set; } = null!;
 
-    public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
+    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 

@@ -11,11 +11,11 @@ public partial class Subject
 
     public string SubjectName { get; set; } = null!;
 
-    public string Description { get; set; } = null!;
-
-    public string Status { get; set; } = null!;
+    public bool IsDeleted { get; set; }
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
+
+    public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }

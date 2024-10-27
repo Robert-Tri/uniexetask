@@ -20,4 +20,6 @@ public partial class Workshop
     public string RegUrl { get; set; } = null!;
 
     public string Status { get; set; } = null!;
+
+    public bool IsDeleted { get; set; }
 }

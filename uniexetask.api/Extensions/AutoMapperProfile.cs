@@ -15,6 +15,8 @@ namespace Unitask.Api.Extensions
             CreateMap<SubjectModel, Subject>().ReverseMap();
             CreateMap<FeatureModel, Feature>().ReverseMap();
             CreateMap<PermissionModel, Permission>().ReverseMap();
+            CreateMap<CreateTaskModel, uniexetask.core.Models.Task>().ReverseMap();
+
         }
     }
 }

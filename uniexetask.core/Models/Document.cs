@@ -17,7 +17,9 @@ public partial class Document
 
     public int UploadBy { get; set; }
 
-    public bool IsFinancialReport { get; set; }
+    public bool IsDeleted { get; set; }
+
+    public virtual ICollection<Funding> Fundings { get; set; } = new List<Funding>();
 
     public virtual Project Project { get; set; } = null!;
 }

@@ -21,7 +21,7 @@ public partial class MeetingSchedule
 
     public string Content { get; set; } = null!;
 
-    public string Status { get; set; } = null!;
+    public bool IsDeleted { get; set; }
 
     public virtual Group Group { get; set; } = null!;
 
