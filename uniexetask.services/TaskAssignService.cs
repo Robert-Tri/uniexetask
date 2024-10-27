@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
+using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -28,5 +29,66 @@ namespace uniexetask.services
             }
             return null;
         }
+
+        public async Task<bool> CreateTaskAssign(TaskAssign taskAssign)
+        {
+            if (taskAssign != null)
+            {
+                await _unitOfWork.TaskAssigns.InsertAsync(taskAssign);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateTaskAssign(TaskAssign taskAssign)
+        {
+            if (taskAssign != null)
+            {
+                var obj = await _unitOfWork.TaskAssigns.GetByIDAsync(taskAssign.TaskAssignId);
+
+                if (obj != null)
+                {
+                    obj.TaskId = taskAssign.TaskId;
+                    obj.StudentId = taskAssign.StudentId;
+                    obj.AsignedDate = DateTime.Now;
+
+                    _unitOfWork.TaskAssigns.Update(obj);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            return false;
+        }
+
+        public async Task<bool> DeleteTaskAssign(int taskAssignId)
+        {
+            if (taskAssignId > 0)
+            {
+                var task = await _unitOfWork.TaskAssigns.GetByIDAsync(taskAssignId);
+                if (task != null)
+                {
+                    _unitOfWork.Tasks.Delete(task);
+                    var result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            return false;
+        }
+
     }
 }

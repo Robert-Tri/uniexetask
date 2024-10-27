@@ -13,13 +13,13 @@ public partial class ScoreCriterion
 
     public double Score { get; set; }
 
-    public string ScoredBy { get; set; } = null!;
+    public int ScoredBy { get; set; }
 
     public string Comment { get; set; } = null!;
-
-    public bool RatingStatus { get; set; }
 
     public virtual Criterion Criteria { get; set; } = null!;
 
     public virtual Project Project { get; set; } = null!;
+
+    public virtual User ScoredByNavigation { get; set; } = null!;
 }

@@ -13,11 +13,13 @@ public partial class Criterion
 
     public double Percentage { get; set; }
 
-    public string MilestoneName { get; set; } = null!;
+    public int MilestoneId { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
     public DateTime UpdatedDate { get; set; }
+
+    public virtual Milestone Milestone { get; set; } = null!;
 
     public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 }

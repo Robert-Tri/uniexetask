@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
@@ -13,13 +15,19 @@ namespace uniexetask.api.Controllers
         public ITaskService _taskService;
         public ITaskAssignService _taskAssignService;
         public IStudentService _studentsService;
+        private readonly IMapper _mapper;
 
 
-        public TaskController(ITaskService taskService, ITaskAssignService taskAssignService, IStudentService studentsService)
+        public TaskController(ITaskService taskService, 
+                            ITaskAssignService taskAssignService, 
+                            IStudentService studentsService, 
+                            IMapper mapper)
         {
             _taskService = taskService;
             _taskAssignService = taskAssignService;
             _studentsService = studentsService;
+            _mapper = mapper;
+
         }
 
         [HttpGet("byProject/{projectId}")]
@@ -47,6 +55,25 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<core.Models.Task>> response = new ApiResponse<IEnumerable<core.Models.Task>>();
             response.Data = tasksList;
             return Ok(response);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateTask([FromBody] CreateTaskModel task)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var obj = _mapper.Map<core.Models.Task>(task);
+
+            var createdTask = await _taskService.CreateTask(obj);
+            if (!createdTask)
+            {
+                return StatusCode(500, "Error creating task");
+            }
+
+            return Ok(obj);
         }
     }
 }

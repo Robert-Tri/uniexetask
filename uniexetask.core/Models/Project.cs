@@ -21,11 +21,15 @@ public partial class Project
 
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
 
+    public virtual ICollection<Funding> Fundings { get; set; } = new List<Funding>();
+
     public virtual Group Group { get; set; } = null!;
 
-    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
+    public virtual ICollection<MemberScore> MemberScores { get; set; } = new List<MemberScore>();
 
-    public virtual ICollection<Sponsorship> Sponsorships { get; set; } = new List<Sponsorship>();
+    public virtual ICollection<ProjectProgress> ProjectProgresses { get; set; } = new List<ProjectProgress>();
+
+    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 
     public virtual Subject Subject { get; set; } = null!;
 

@@ -19,7 +19,11 @@ public partial class Task
 
     public string Status { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual Project Project { get; set; } = null!;
 
     public virtual ICollection<TaskAssign> TaskAssigns { get; set; } = new List<TaskAssign>();
+
+    public virtual ICollection<TaskProgress> TaskProgresses { get; set; } = new List<TaskProgress>();
 }

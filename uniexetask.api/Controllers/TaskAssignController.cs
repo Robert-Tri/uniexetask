@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
@@ -30,6 +32,25 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<TaskAssign>> response = new ApiResponse<IEnumerable<TaskAssign>>();
             response.Data = tasksList;
             return Ok(response);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateTaskAssign([FromBody] CreateTaskAssignModel taskAssignModel)
+        {
+            foreach (var studentId in taskAssignModel.StudentsId)
+            {
+                var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                {
+                    TaskId = taskAssignModel.TaskId,
+                    StudentId = studentId,
+                    AsignedDate = DateTime.Now
+                });
+                if (createdTaskAssign == null)
+                {
+                    return StatusCode(500, "Error creating task");
+                }
+            }
+            return Ok();
         }
     }
 }
