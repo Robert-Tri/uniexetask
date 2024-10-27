@@ -52,10 +52,30 @@ namespace uniexetask.services
         public async Task<List<User>> GetUsersByGroupId(int groupId)
         {
             var groupMembers = await _unitOfWork.GroupMembers.GetAsync(gm => gm.GroupId == groupId, includeProperties: "Student.User");
+            var users = groupMembers.Select(gm => gm.Student.User).ToList();
+            return users; 
+        }
+
+        public async Task<List<User>> GetUsersByUserId(int userId)
+        {
+            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId, includeProperties: "GroupMembers.Group");
+
+            var singleStudent = student.FirstOrDefault();
+
+            if (singleStudent == null || singleStudent.GroupMembers == null || !singleStudent.GroupMembers.Any())
+            {
+                return new List<User>();
+            }
+
+            var groupId = singleStudent.GroupMembers.Select(gm => gm.GroupId).FirstOrDefault();
+
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync(gm => gm.GroupId == groupId, includeProperties: "Student.User");
 
             var users = groupMembers.Select(gm => gm.Student.User).ToList();
 
             return users;
         }
+
+
     }
 }
