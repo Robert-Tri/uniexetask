@@ -5,7 +5,7 @@ namespace uniexetask.core.Models;
 
 public partial class ProjectProgress
 {
-    public int ProgressId { get; set; }
+    public int ProjectProgressId { get; set; }
 
     public int ProjectId { get; set; }
 

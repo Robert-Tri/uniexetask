@@ -19,7 +19,9 @@ public partial class Criterion
 
     public DateTime UpdatedDate { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Milestone Milestone { get; set; } = null!;
 
-    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
+    public virtual ICollection<ProjectScore> ProjectScores { get; set; } = new List<ProjectScore>();
 }

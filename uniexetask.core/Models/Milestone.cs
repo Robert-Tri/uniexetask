@@ -19,6 +19,8 @@ public partial class Milestone
 
     public DateTime? UpdatedDate { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<Criterion> Criteria { get; set; } = new List<Criterion>();
 
     public virtual ICollection<MemberScore> MemberScores { get; set; } = new List<MemberScore>();
