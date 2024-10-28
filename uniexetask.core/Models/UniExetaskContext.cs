@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using uniexetask.core.Models;
 
-namespace uniexetask.infrastructure;
+namespace uniexetask.core.Models;
 
 public partial class UniExetaskContext : DbContext
 {
@@ -70,7 +69,7 @@ public partial class UniExetaskContext : DbContext
 
     public virtual DbSet<Subject> Subjects { get; set; }
 
-    public virtual DbSet<core.Models.Task> Tasks { get; set; }
+    public virtual DbSet<Task> Tasks { get; set; }
 
     public virtual DbSet<TaskAssign> TaskAssigns { get; set; }
 
@@ -85,6 +84,10 @@ public partial class UniExetaskContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Workshop> Workshops { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=LAPTOP-ON15BE8F\\MSSQLSERVER1;Database=UniEXETask;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -848,7 +851,7 @@ public partial class UniExetaskContext : DbContext
                 .HasColumnName("subject_name");
         });
 
-        modelBuilder.Entity<core.Models.Task>(entity =>
+        modelBuilder.Entity<Task>(entity =>
         {
             entity.HasKey(e => e.TaskId).HasName("PK__TASK__0492148D97099677");
 
