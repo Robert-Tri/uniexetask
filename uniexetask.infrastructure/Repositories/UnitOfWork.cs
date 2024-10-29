@@ -30,6 +30,11 @@ namespace uniexetask.infrastructure.Repositories
         public ITaskAssignRepository TaskAssigns { get; }
         public IReqMemberRepository ReqMembers { get; }
         public IDocumentRepository Documents { get; }
+        public IProjectProgressRepository ProjectProgresses { get; }
+        public ITaskProgressRepository TaskProgresses { get; }
+        public IUsagePlanRepository UsagePlans { get; }
+        public IMemberScoreRepository MemberScores { get; }
+        public IMilestoneRepository Milestones { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -51,7 +56,12 @@ namespace uniexetask.infrastructure.Repositories
                             ITaskRepository tasks,
                             IReqMemberRepository reqMembers,
                             ITaskAssignRepository taskAssigns,
-                            IDocumentRepository documents)
+                            IDocumentRepository documents,
+                            IProjectProgressRepository projectProgresses,
+                            ITaskProgressRepository taskProgresses,
+                            IUsagePlanRepository usagePlans,
+                            IMemberScoreRepository memberScores,
+                            IMilestoneRepository milestones)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -74,6 +84,11 @@ namespace uniexetask.infrastructure.Repositories
             TaskAssigns = taskAssigns;
             ReqMembers = reqMembers;
             Documents = documents;
+            ProjectProgresses = projectProgresses;
+            TaskProgresses = taskProgresses;
+            UsagePlans = usagePlans;
+            MemberScores = memberScores;
+            Milestones = milestones;
         }
 
         public int Save()

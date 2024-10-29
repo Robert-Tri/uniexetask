@@ -738,6 +738,31 @@ VALUES
 (2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not Started'),
 (2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not Started'),
 (2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
+INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note)
+VALUES 
+(1, 20.00, '2024-09-15', 'Project scope defined'),
+(1, 40.00, '2024-10-15', 'Requirements collected and documented'),
+(1, 50.00, '2024-10-23', 'System design initiated'),
+(1, 60.00, '2024-11-01', 'Research phase started'),
+(2, 30.00, '2024-10-02', 'Initial components integrated'),
+(2, 50.00, '2024-10-09', 'System testing in progress');
+
+-- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
+INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
+VALUES 
+(1, 0.00, '2024-10-30', 'Not started yet'),
+(2, 100.00, '2024-09-15', 'Project initiation completed successfully'),
+(3, 100.00, '2024-10-15', 'Requirements gathering completed'),
+(4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
+(5, 25.00, '2024-11-01', 'Initial database schema designed'),
+(6, 30.00, '2024-11-03', 'UI mockups under review'),
+(9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
+(10, 0.00, '2024-11-05', 'Not started yet'),
+(11, 0.00, '2024-12-01', 'Not started yet'),
+(12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully');
+
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK_ASSIGN(task_id, student_id, asigned_date)
 VALUES 
