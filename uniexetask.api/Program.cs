@@ -11,6 +11,7 @@ using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using uniexetask.api.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
 builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddHostedService<TimelineBackgroundService>();
 
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
