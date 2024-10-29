@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -84,20 +85,33 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [HttpGet("ProfileUser/{userId}")]
-        public async Task<IActionResult> ProfileUser(int userId)
+        [Authorize]
+        [HttpGet("ProfileUser")]
+        public async Task<IActionResult> ProfileUser()
         {
-            var users = await _userService.GetUserByIdWithCampusAndRole(userId);
+            // Lấy userId từ claim trong JWT token
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            if (users != null)
+            if (int.TryParse(userIdString, out int userId)) // Chuyển userIdString thành int
             {
-                return Ok(users);
+                // Gọi service để lấy thông tin user dựa trên userId
+                var users = await _userService.GetUserByIdWithCampusAndRoleAndStudents(userId);
+
+                if (users != null)
+                {
+                    return Ok(users); // Trả về thông tin user nếu tìm thấy
+                }
+                else
+                {
+                    return BadRequest("User not found"); // Trả về lỗi nếu không tìm thấy user
+                }
             }
             else
             {
-                return BadRequest();
+                return BadRequest("Invalid userId"); // Trả về lỗi nếu không lấy được userId
             }
         }
+
 
         [HttpPost]
         [Route("upload-excel")]

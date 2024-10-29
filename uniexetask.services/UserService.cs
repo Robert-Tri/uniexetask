@@ -36,7 +36,7 @@ namespace uniexetask.services
                 var users = await _unitOfWork.Users.GetByIDAsync(userId);
                 if (users != null)
                 {
-                    users.Status = false; 
+                    users.IsDeleted = true; 
                     var result = _unitOfWork.Save();
 
                     if (result > 0)
@@ -73,11 +73,11 @@ namespace uniexetask.services
             return await _unitOfWork.Users.SearchUsersByEmailAsync(query);
         }
         
-        public async Task<User?> GetUserByIdWithCampusAndRole(int userId)
+        public async Task<User?> GetUserByIdWithCampusAndRoleAndStudents(int userId)
         {
             if (userId > 0)
             {
-                var users = await _unitOfWork.Users.GetByIDWithCampusAndRole(userId);
+                var users = await _unitOfWork.Users.GetByIDWithCampusAndRoleAndStudents(userId);
                 if (users != null)
                 {
                     return users;
@@ -98,7 +98,7 @@ namespace uniexetask.services
                     user.Password = users.Password;
                     user.CampusId = users.CampusId;
                     user.Phone = users.Phone;
-                    user.Status = users.Status;
+                    user.IsDeleted = users.IsDeleted;
                     user.RoleId = users.RoleId;
 
 

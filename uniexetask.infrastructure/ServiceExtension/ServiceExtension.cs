@@ -41,7 +41,11 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<ITaskAssignRepository, TaskAssignRepository>();
             services.AddScoped<IReqMemberRepository, ReqMemberRepsitory>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
-
+            services.AddScoped<IProjectProgressRepository, ProjectProgressRepository>();
+            services.AddScoped<ITaskProgressRepository, TaskProgressRepository>();
+            services.AddScoped<IUsagePlanRepository, UsagePlanRepository>();
+            services.AddScoped<IMemberScoreRepository, MemberScoreRepository>();
+            services.AddScoped<IMilestoneRepository, MilestoneRepository>();
 
             return services;
         }

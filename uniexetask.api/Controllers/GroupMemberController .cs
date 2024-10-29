@@ -42,15 +42,18 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMemberToGroup([FromBody] GroupMemberModel member)
+        public async Task<IActionResult> AddMemberToGroup([FromBody] AddGroupMemberModel member)
         {
+            var student = await _studentService.GetStudentByCode(member.StudentCode);
             // Kiểm tra nếu Role trống hoặc null thì gán giá trị mặc định là "Member"
-            if (string.IsNullOrEmpty(member.Role) || member.Role != "Member")
+            var newMember = new GroupMemberModel
             {
-                member.Role = "Member";
-            }
+                GroupId = member.GroupId,
+                StudentId = student.StudentId,
+                Role = "Member"
+            };
 
-            var obj = _mapper.Map<GroupMember>(member);
+            var obj = _mapper.Map<GroupMember>(newMember);
             var isUserCreated = await _groupMemberService.AddMember(obj);
 
             if (isUserCreated)
@@ -187,6 +190,53 @@ namespace uniexetask.api.Controllers
                 return NotFound("No members found in this group.");
             }
         }
+
+        [Authorize(Roles = "Student")]
+        [HttpGet("GetUsersByUserId")]
+        public async Task<IActionResult> GetUsersByUserId()
+        {
+            // Lấy user ID từ claims
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            // Kiểm tra xem user ID có tồn tại trong claims không
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return BadRequest("User ID not found.");
+            }
+
+            // Chuyển đổi user ID từ string sang integer
+            if (!int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("Invalid User ID format.");
+            }
+
+            // Lấy danh sách người dùng liên kết với nhóm của sinh viên
+            var users = await _groupMemberService.GetUsersByUserId(userId);
+
+            // Kiểm tra xem có người dùng nào được tìm thấy không
+            if (users == null || !users.Any())
+            {
+                return NotFound("No members found in this group.");
+            }
+
+            // Duyệt qua danh sách và lấy userId, fullName của từng người dùng
+            var userDetails = users.Select(u => new
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                Major = u.Students.FirstOrDefault()?.Major,         // Lấy Major từ đối tượng Student
+                StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
+                Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
+                GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId // Lấy Role từ GroupMembers
+            }).ToList();
+
+            // Trả về danh sách người dùng trong nhóm
+            return Ok(userDetails);
+        }
+
+
+
 
     }
 }
