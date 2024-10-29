@@ -13,6 +13,8 @@ public partial class Mentor
 
     public virtual ICollection<MeetingSchedule> MeetingSchedules { get; set; } = new List<MeetingSchedule>();
 
+    public virtual ICollection<MemberScore> MemberScores { get; set; } = new List<MemberScore>();
+
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
     public virtual User User { get; set; } = null!;

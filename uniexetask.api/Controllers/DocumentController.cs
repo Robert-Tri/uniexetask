@@ -62,7 +62,6 @@ namespace uniexetask.api.Controllers
                     Type = doc.Type,
                     Url = doc.Url,
                     UploadBy = doc.UploadBy,
-                    IsFinancialReport = doc.IsFinancialReport,
                     TypeFile = storageObject != null ? GetFileExtension(storageObject.ContentType) : "unknown",
                     Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
                 };
@@ -98,8 +97,7 @@ namespace uniexetask.api.Controllers
                 ProjectId = project.ProjectId,
                 Type = "Status 1",
                 Url = $"Project{project.ProjectId}/{file.FileName}",
-                UploadBy = userId,
-                IsFinancialReport = false,
+                UploadBy = userId
             });
 
             var fileName = file.FileName;

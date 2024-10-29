@@ -63,5 +63,92 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<bool> CreateTask(core.Models.Task task)
+        {
+            if (task != null)
+            {
+                var project = await _unitOfWork.Projects.GetByIDAsync(task.ProjectId);
+                if(project == null)
+                {
+                    return false;
+                }
+                DateTime dateee = DateTime.Now;
+                if (task.StartDate.Date < DateTime.Now.Date || task.StartDate.Date > task.EndDate.Date)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (task.StartDate.Date > DateTime.Now.Date)
+                    {
+                        task.Status = "Not Started";
+                    }
+                    else if (task.EndDate.Date > DateTime.Now.Date)
+                    {
+                        task.Status = "In Progress";
+                    }
+                    else
+                    {
+                        task.Status = "Overdue";
+                    }
+                    await _unitOfWork.Tasks.InsertAsync(task);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateTask(core.Models.Task task)
+        {
+            if (task != null)
+            {
+                var obj = await _unitOfWork.Tasks.GetByIDAsync(task.TaskId);
+
+                if (obj != null)
+                {
+                    obj.TaskName = task.TaskName;
+                    obj.Description = task.Description;
+                    obj.StartDate = task.StartDate;
+                    obj.EndDate = task.EndDate;
+                    obj.Status = task.Status;
+
+                    _unitOfWork.Tasks.Update(obj);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            return false;
+        }
+
+        public async Task<bool> DeleteTask(int taskId)
+        {
+            if (taskId > 0)
+            {
+                var task = await _unitOfWork.Tasks.GetByIDAsync(taskId);
+                if (task != null)
+                {
+                    _unitOfWork.Tasks.Delete(task);
+                    var result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            return false;
+        }
+
     }
 }

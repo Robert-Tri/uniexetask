@@ -15,11 +15,13 @@ public partial class Student
 
     public string Major { get; set; } = null!;
 
-    public bool IsEligible { get; set; }
+    public bool IsCurrentPeriod { get; set; }
 
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
 
     public virtual Mentor Lecturer { get; set; } = null!;
+
+    public virtual ICollection<MemberScore> MemberScores { get; set; } = new List<MemberScore>();
 
     public virtual ICollection<TaskAssign> TaskAssigns { get; set; } = new List<TaskAssign>();
 

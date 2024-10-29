@@ -10,6 +10,9 @@ namespace uniexetask.services.Interfaces
     public interface ITaskAssignService
     {
         Task<IEnumerable<TaskAssign?>> GetTaskAssignsByStudent(int studentId);
+        Task<bool> CreateTaskAssign(TaskAssign taskAssign);
+        Task<bool> UpdateTaskAssign(TaskAssign taskAssign);
+        Task<bool> DeleteTaskAssign(int taskAssignId);
 
     }
 }
