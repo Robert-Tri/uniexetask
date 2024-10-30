@@ -6,6 +6,7 @@ using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using static System.Runtime.InteropServices.JavaScript.JSType;

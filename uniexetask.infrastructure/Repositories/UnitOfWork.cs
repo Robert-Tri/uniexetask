@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace uniexetask.infrastructure.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly UniExetaskContext _dbContext;
+        private IDbContextTransaction _transaction;
         public IUserRepository Users { get; }
         public IRefreshTokenRepository RefreshTokens { get; }
         public IRoleRepository Roles { get; }
@@ -30,6 +32,8 @@ namespace uniexetask.infrastructure.Repositories
         public ITaskAssignRepository TaskAssigns { get; }
         public IReqMemberRepository ReqMembers { get; }
         public IDocumentRepository Documents { get; }
+        public IGroupInviteRepository GroupInvites { get; }
+        public INotificationRepository Notifications { get; }
         public IProjectProgressRepository ProjectProgresses { get; }
         public ITaskProgressRepository TaskProgresses { get; }
         public IUsagePlanRepository UsagePlans { get; }
@@ -57,6 +61,8 @@ namespace uniexetask.infrastructure.Repositories
                             IReqMemberRepository reqMembers,
                             ITaskAssignRepository taskAssigns,
                             IDocumentRepository documents,
+                            IGroupInviteRepository groupInvites,
+                            INotificationRepository notifications,
                             IProjectProgressRepository projectProgresses,
                             ITaskProgressRepository taskProgresses,
                             IUsagePlanRepository usagePlans,
@@ -84,11 +90,30 @@ namespace uniexetask.infrastructure.Repositories
             TaskAssigns = taskAssigns;
             ReqMembers = reqMembers;
             Documents = documents;
+            GroupInvites = groupInvites;
+            Notifications = notifications;
             ProjectProgresses = projectProgresses;
             TaskProgresses = taskProgresses;
             UsagePlans = usagePlans;
             MemberScores = memberScores;
             Milestones = milestones;
+        }
+
+        public void BeginTransaction()
+        {
+            _transaction = _dbContext.Database.BeginTransaction();
+        }
+
+        public void Commit()
+        {
+            _transaction.Commit();
+            _transaction.Dispose();
+        }
+
+        public void Rollback()
+        {
+            _transaction.Rollback();
+            _transaction.Dispose();
         }
 
         public int Save()

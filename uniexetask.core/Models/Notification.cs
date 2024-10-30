@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace uniexetask.core.Models;
 
-public partial class Nofitication
+public partial class Notification
 {
     public int NotificationId { get; set; }
 
