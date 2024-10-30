@@ -19,6 +19,8 @@ public partial class Project
 
     public string Status { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
 
     public virtual ICollection<Funding> Fundings { get; set; } = new List<Funding>();
@@ -29,7 +31,7 @@ public partial class Project
 
     public virtual ICollection<ProjectProgress> ProjectProgresses { get; set; } = new List<ProjectProgress>();
 
-    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
+    public virtual ICollection<ProjectScore> ProjectScores { get; set; } = new List<ProjectScore>();
 
     public virtual Subject Subject { get; set; } = null!;
 

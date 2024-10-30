@@ -5,21 +5,13 @@ GO
 USE UniEXETask
 GO
 
--- Tạo bảng TIMELINE
-CREATE TABLE TIMELINE (
-    timeline_id INT PRIMARY KEY IDENTITY(1,1),
-    timeline_name NVARCHAR(100) NOT NULL,
-    description NVARCHAR(250) NOT NULL,
-	start_date DATETIME NOT NULL,
-	end_date DATETIME NOT NULL
-);
-
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
     campus_code NVARCHAR(50) NOT NULL,
     campus_name NVARCHAR(100) NOT NULL,
-    location NVARCHAR(100) NOT NULL
+    location NVARCHAR(100) NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0
 );
 
 -- Tạo bảng Role
@@ -131,6 +123,17 @@ CREATE TABLE SUBJECT (
 	isDeleted BIT NOT NULL DEFAULT 0
 );
 
+-- Tạo bảng TIMELINE
+CREATE TABLE TIMELINE (
+    timeline_id INT PRIMARY KEY IDENTITY(1,1),
+    timeline_name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(250) NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL,
+	subject_id INT NOT NULL,
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
+);
+
 -- Tạo bảng TOPIC
 CREATE TABLE TOPIC (
     topic_id INT PRIMARY KEY IDENTITY(1,1),
@@ -158,6 +161,7 @@ CREATE TABLE PROJECT (
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('In Progress', 'Completed')) NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
 	FOREIGN KEY (topic_id) REFERENCES TOPIC(topic_id),
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
@@ -165,7 +169,7 @@ CREATE TABLE PROJECT (
 
 -- Tạo bảng PROJECT_PROGRESS
 CREATE TABLE PROJECT_PROGRESS (
-    progress_id INT PRIMARY KEY IDENTITY(1,1),
+    project_progress_id INT PRIMARY KEY IDENTITY(1,1),
     project_id INT NOT NULL,
     progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
     updated_date DATETIME NOT NULL,
@@ -351,7 +355,7 @@ CREATE TABLE WORKSHOP (
 	location NVARCHAR(MAX) NOT NULL,
 	reg_url NVARCHAR(MAX) NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Not Started', 'In Progress', 'Completed')) NOT NULL,
-	isDeleted BIT NOT NULL DEFAULT 1
+	isDeleted BIT NOT NULL DEFAULT 0
 );
 
 -- Tạo bảng MILESTONE để định nghĩa các mốc đánh giá
@@ -363,10 +367,11 @@ CREATE TABLE MILESTONE (
 	subject_id INT NOT NULL,
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
     updated_date DATETIME,
+	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
--- Tạo bảng SCORE_COMPONENT
+-- Tạo bảng CRITERIA
 CREATE TABLE CRITERIA (
     criteria_id INT PRIMARY KEY IDENTITY(1,1),
     criteria_name NVARCHAR(250) NOT NULL,
@@ -375,20 +380,23 @@ CREATE TABLE CRITERIA (
 	milestone_id INT NOT NULL,
 	created_date DATETIME DEFAULT GETDATE() NOT NULL,
     updated_date DATETIME NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (milestone_id) REFERENCES MILESTONE(milestone_id)
 );
 
--- Tạo bảng SCORE
-CREATE TABLE SCORE_CRITERIA (
-    score_id INT PRIMARY KEY IDENTITY(1,1),
+-- Tạo bảng PROJECT_SCORE
+CREATE TABLE PROJECT_SCORE (
+    project_score_id INT PRIMARY KEY IDENTITY(1,1),
     criteria_id INT NOT NULL,
 	project_id INT NOT NULL,
     score FLOAT NOT NULL,
-    scored_by INT NOT NULL, -- ID của người chấm điểm (mentor)
 	comment NVARCHAR(250) NOT NULL,
+    scored_by INT NOT NULL, -- ID của người chấm điểm (mentor)
+    scoring_date DATETIME DEFAULT GETDATE() NOT NULL,
 	FOREIGN KEY (criteria_id) REFERENCES CRITERIA(criteria_id),
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-	FOREIGN KEY (scored_by) REFERENCES [USER](user_id)
+	FOREIGN KEY (scored_by) REFERENCES [USER](user_id),
+	CONSTRAINT CHK_ProjectScore CHECK (score >= 0 AND score <= 10)
 );
 
 -- Tạo bảng MEMBER_SCORE để lưu điểm của từng thành viên theo milestone
@@ -730,6 +738,31 @@ VALUES
 (2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not Started'),
 (2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not Started'),
 (2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
+INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note)
+VALUES 
+(1, 20.00, '2024-09-15', 'Project scope defined'),
+(1, 40.00, '2024-10-15', 'Requirements collected and documented'),
+(1, 50.00, '2024-10-23', 'System design initiated'),
+(1, 60.00, '2024-11-01', 'Research phase started'),
+(2, 30.00, '2024-10-02', 'Initial components integrated'),
+(2, 50.00, '2024-10-09', 'System testing in progress');
+
+-- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
+INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
+VALUES 
+(1, 0.00, '2024-10-30', 'Not started yet'),
+(2, 100.00, '2024-09-15', 'Project initiation completed successfully'),
+(3, 100.00, '2024-10-15', 'Requirements gathering completed'),
+(4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
+(5, 25.00, '2024-11-01', 'Initial database schema designed'),
+(6, 30.00, '2024-11-03', 'UI mockups under review'),
+(9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
+(10, 0.00, '2024-11-05', 'Not started yet'),
+(11, 0.00, '2024-12-01', 'Not started yet'),
+(12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully');
+
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK_ASSIGN(task_id, student_id, asigned_date)
 VALUES 

@@ -14,4 +14,8 @@ public partial class Timeline
     public DateTime StartDate { get; set; }
 
     public DateTime EndDate { get; set; }
+
+    public int SubjectId { get; set; }
+
+    public virtual Subject Subject { get; set; } = null!;
 }

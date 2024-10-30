@@ -37,11 +37,11 @@ public partial class User
 
     public virtual ICollection<Nofitication> NofiticationSenders { get; set; } = new List<Nofitication>();
 
+    public virtual ICollection<ProjectScore> ProjectScores { get; set; } = new List<ProjectScore>();
+
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual Role Role { get; set; } = null!;
-
-    public virtual ICollection<ScoreCriterion> ScoreCriteria { get; set; } = new List<ScoreCriterion>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
