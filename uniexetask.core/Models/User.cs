@@ -33,9 +33,9 @@ public partial class User
 
     public virtual ICollection<Mentor> Mentors { get; set; } = new List<Mentor>();
 
-    public virtual ICollection<Nofitication> NofiticationReceivers { get; set; } = new List<Nofitication>();
+    public virtual ICollection<Notification> NotificationReceivers { get; set; } = new List<Notification>();
 
-    public virtual ICollection<Nofitication> NofiticationSenders { get; set; } = new List<Nofitication>();
+    public virtual ICollection<Notification> NotificationSenders { get; set; } = new List<Notification>();
 
     public virtual ICollection<ProjectScore> ProjectScores { get; set; } = new List<ProjectScore>();
 

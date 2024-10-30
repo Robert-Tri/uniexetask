@@ -160,7 +160,7 @@ CREATE TABLE PROJECT (
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('In Progress', 'Completed')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('In_Progress', 'Completed')) NOT NULL,
 	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
 	FOREIGN KEY (topic_id) REFERENCES TOPIC(topic_id),
@@ -185,7 +185,7 @@ CREATE TABLE TASK (
 	description NVARCHAR(250) NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Not Started', 'In Progress', 'Completed', 'Overdue')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Not_Started', 'In_Progress', 'Completed', 'Overdue')) NOT NULL,
 	FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
 	isDeleted BIT NOT NULL DEFAULT 0
 );
@@ -268,7 +268,7 @@ CREATE TABLE USAGE_PLAN (
     title NVARCHAR(255) NOT NULL,
     amount FLOAT NOT NULL,
     description NVARCHAR(MAX) NOT NULL,
-    status NVARCHAR(20) CHECK (status IN ('Planned', 'Spent', 'NotAchieved')) NOT NULL,
+    status NVARCHAR(20) CHECK (status IN ('Planned', 'Spent', 'Not_Achieved')) NOT NULL,
     FOREIGN KEY (funding_id) REFERENCES FUNDING(funding_id)
 );
 
@@ -318,13 +318,13 @@ CREATE TABLE GROUP_MEMBER (
     FOREIGN KEY (student_id) REFERENCES STUDENT(student_id)
 );
 
--- Tạo bảng NOFITICATION
-CREATE TABLE NOFITICATION (
+-- Tạo bảng NOTIFICATION
+CREATE TABLE NOTIFICATION (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
 	message NVARCHAR(250) NOT NULL,
-	type NVARCHAR(20) CHECK (type IN ('Info', 'Group Request')) NOT NULL,
+	type NVARCHAR(20) CHECK (type IN ('Info', 'Group_Request')) NOT NULL,
 	created_at DATETIME NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Sent', 'Read')) NOT NULL,
 	FOREIGN KEY (sender_id) REFERENCES [USER](user_id),
@@ -342,7 +342,7 @@ CREATE TABLE GROUP_INVITE (
 	status NVARCHAR(20) CHECK (status IN ('Pending', 'Accepted', 'Rejected')) NOT NULL,
     PRIMARY KEY (group_id, notification_id),
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
-    FOREIGN KEY (notification_id) REFERENCES NOFITICATION(notification_id)
+    FOREIGN KEY (notification_id) REFERENCES NOTIFICATION(notification_id)
 );
 
 -- Tạo bảng EVENT
@@ -354,7 +354,7 @@ CREATE TABLE WORKSHOP (
 	end_date DATETIME NOT NULL,
 	location NVARCHAR(MAX) NOT NULL,
 	reg_url NVARCHAR(MAX) NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Not Started', 'In Progress', 'Completed')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Not_Started', 'In_Progress', 'Completed')) NOT NULL,
 	isDeleted BIT NOT NULL DEFAULT 0
 );
 
@@ -582,7 +582,6 @@ VALUES
 (13, 1,'SE162032', 'Software Engineering', 1),
 (14, 1,'SE162087', 'Software Engineering', 1),
 (15, 2,'SE162056', 'Software Engineering', 1),
-
 (21, 3,'ST100004', 'Software Engineering', 1),
 (22, 4,'ST100005', 'Software Engineering', 1),
 (23, 5,'ST100006', 'Software Engineering', 1),
@@ -613,7 +612,6 @@ VALUES
 (48, 7,'ST100031', 'Software Engineering', 1),
 (49, 7,'ST100032', 'Software Engineering', 1),
 (50, 8,'ST100033', 'Software Engineering', 1);
-
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -720,23 +718,23 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status)
 VALUES 
-(3, 1, '2024-09-01', '2025-01-01', 1, 'In Progress'),
-(4, 2, '2024-09-01', '2025-02-01', 2, 'In Progress');
+(3, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress'),
+(4, 2, '2024-09-01', '2025-02-01', 2, 'In_Progress');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
 VALUES 
-(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Not Started'),
+(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Not_Started'),
 (1, 'Project Initiation', 'Define project scope and objectives', '2024-09-01', '2024-09-15', 'Completed'),
 (1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-16', '2024-10-15', 'Completed'),
 (1, 'System Design', 'Create system architecture and design documents', '2024-10-08', '2024-10-23', 'Overdue'),
-(1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In Progress'),
-(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In Progress'),
-(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not Started'),
-(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not Started'),
-(2, 'Integration and Testing', 'Integrate components and perform system testing', '2024-10-09', '2024-11-02', 'In Progress'),
-(2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not Started'),
-(2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not Started'),
+(1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In_Progress'),
+(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In_Progress'),
+(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not_Started'),
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not_Started'),
+(2, 'Integration and Testing', 'Integrate components and perform system testing', '2024-10-09', '2024-11-02', 'In_Progress'),
+(2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not_Started'),
+(2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not_Started'),
 (2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
@@ -861,11 +859,11 @@ VALUES
 (10, 17, 'Leader'),
 (10, 24, 'Member');
 
--- Thêm dữ liệu mẫu cho bảng NOFITICATION
-INSERT INTO NOFITICATION (sender_id, receiver_id, message, type, created_at, status)
+-- Thêm dữ liệu mẫu cho bảng NOTIFICATION
+INSERT INTO NOTIFICATION (sender_id, receiver_id, message, type, created_at, status)
 VALUES 
-(1, 2, 'Project update required', 'Group Request', GETDATE(), 'Sent'),
-(2, 3, 'Meeting reminder', 'Group Request', GETDATE(), 'Read');
+(1, 2, 'Project update required', 'Group_Request', GETDATE(), 'Sent'),
+(2, 3, 'Meeting reminder', 'Group_Request', GETDATE(), 'Read');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP_INVITE
 INSERT INTO GROUP_INVITE (group_id, notification_id, inviter_id, invitee_id, created_date, updated_date, status)
@@ -877,4 +875,4 @@ VALUES
 INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Completed'),
-('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not Started');
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not_Started');

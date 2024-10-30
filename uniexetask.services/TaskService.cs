@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -84,15 +85,15 @@ namespace uniexetask.services
                 {
                     if (task.StartDate.Date > DateTime.Now.Date)
                     {
-                        task.Status = "Not Started";
+                        task.Status = nameof(TasksStatus.Not_Started);
                     }
                     else if (task.EndDate.Date > DateTime.Now.Date)
                     {
-                        task.Status = "In Progress";
+                        task.Status = nameof(TasksStatus.In_Progress);
                     }
                     else
                     {
-                        task.Status = "Overdue";
+                        task.Status = nameof(TasksStatus.Overdue);
                     }
                     await _unitOfWork.Tasks.InsertAsync(task);
 

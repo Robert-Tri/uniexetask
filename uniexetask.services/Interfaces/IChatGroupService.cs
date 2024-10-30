@@ -10,7 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IChatGroupService
     {
         Task<bool> AddMembersToChatGroupAsync(int groupId, List<string> emails);
-        Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId, int chatGroupIndex, int limit);
+        Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId, int chatGroupIndex, int limit, string keyword);
         Task<ChatGroup?> GetChatGroupWithUsersByChatGroupId(int chatGroupId);
         Task<ChatMessage?> GetLatestMessageInChatGroup(int chatGroupId);
         Task<IEnumerable<ChatMessage?>> GetMessagesInChatGroup(int chatGroupId, int messageIndex, int limit);

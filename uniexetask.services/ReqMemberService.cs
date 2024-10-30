@@ -18,5 +18,21 @@ namespace uniexetask.services
             return reqMemberList;
         }
 
+        public async Task<bool> CreateReqMember(RegMemberForm reqMember)
+        {
+            if (reqMember != null)
+            {
+                await _unitOfWork.ReqMembers.InsertAsync(reqMember);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
     }
 }

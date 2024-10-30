@@ -26,7 +26,7 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<IActionResult> GetChatGroupByUser(int chatGroupIndex = 0, int limit = 5)
+        public async Task<IActionResult> GetChatGroupByUser(int chatGroupIndex = 0, int limit = 5, string keyword = "")
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<ChatGroupResponse>> response = new ApiResponse<IEnumerable<ChatGroupResponse>>();
@@ -37,7 +37,7 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = "User Id not found";
                 return NotFound(response);
             }
-            var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId, chatGroupIndex, limit);
+            var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId, chatGroupIndex, limit, keyword);
             if (chatgroups == null) 
             {
                 response.Success = false;

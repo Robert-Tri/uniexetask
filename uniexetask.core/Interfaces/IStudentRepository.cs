@@ -10,5 +10,6 @@ namespace uniexetask.core.Interfaces
     public interface IStudentRepository : IGenericRepository<Student>
     {
         Task<IEnumerable<Student>> GetEligibleStudentsWithUser();
+        Task<Student?> GetStudentByUserId(int inviteeId);
     }
 }

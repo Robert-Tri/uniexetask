@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 
@@ -28,6 +30,8 @@ namespace uniexetask.api.Controllers
             _mapper = mapper;
         }
 
+
+
         [HttpGet]
         public async Task<IActionResult> GetGroupMemberList()
         {
@@ -41,7 +45,7 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpPost("AddMemberToGroup")]
         public async Task<IActionResult> AddMemberToGroup([FromBody] AddGroupMemberModel member)
         {
             var student = await _studentService.GetStudentByCode(member.StudentCode);
@@ -50,7 +54,7 @@ namespace uniexetask.api.Controllers
             {
                 GroupId = member.GroupId,
                 StudentId = student.StudentId,
-                Role = "Member"
+                Role = nameof(GroupMemberRole.Member)
             };
 
             var obj = _mapper.Map<GroupMember>(newMember);
@@ -66,7 +70,58 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [Authorize(Roles = "Student")]
+        [HttpPost]
+        public async Task<IActionResult> CreateGroupMember([FromBody] GroupMemberModel groupMember)
+        {
+
+            var obj = _mapper.Map<GroupMember>(groupMember);
+            var isGroupCreated = await _groupMemberService.CreateGroupMember(obj);
+
+            if (isGroupCreated)
+            {
+                return Ok(isGroupCreated);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpGet("GetGroupMemberByUserID")]
+        public async Task<IActionResult> GetGroupMemberByUserID()
+        {
+            // Retrieve user ID from the claims
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            // Validate and parse user ID
+            if (int.TryParse(userIdString, out int userId))
+            {
+                // Fetch GroupMember by userId
+                var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
+
+                if (groupMember != null)
+                {
+                    // Prepare successful response
+                    var response = new ApiResponse<GroupMember>
+                    {
+                        Data = groupMember
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound("Không tìm thấy group với ID đã cho.");
+                }
+            }
+            else
+            {
+                return BadRequest("ID người dùng không hợp lệ.");
+            }
+        }
+
+
+        [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
@@ -75,7 +130,7 @@ namespace uniexetask.api.Controllers
 
             // Đặt mặc định HasMentor là false và Status là "Initialized"
             request.Group.HasMentor = false;
-            request.Group.Status = "Initialized";
+            request.Group.Status = nameof(GroupStatus.Initialized);
 
             // Tạo nhóm
             var objGroup = _mapper.Map<Group>(request.Group);
@@ -100,7 +155,7 @@ namespace uniexetask.api.Controllers
                         {
                             GroupId = createdGroupId,
                             StudentId = student.StudentId,
-                            Role = "Leader"
+                            Role = nameof(GroupMemberRole.Leader)
                         };
 
                         var objLeader = _mapper.Map<GroupMember>(leaderMember);
@@ -158,7 +213,7 @@ namespace uniexetask.api.Controllers
                 {
                     GroupId = createdGroupId,
                     StudentId = student.StudentId,
-                    Role = "Member"
+                    Role = nameof(GroupMemberRole.Member)
                 };
 
                 var objMember = _mapper.Map<GroupMember>(member);
@@ -191,7 +246,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpGet("GetUsersByUserId")]
         public async Task<IActionResult> GetUsersByUserId()
         {

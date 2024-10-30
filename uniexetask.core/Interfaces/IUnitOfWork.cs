@@ -28,6 +28,8 @@ namespace uniexetask.core.Interfaces
         ITaskAssignRepository TaskAssigns { get; }
         IReqMemberRepository ReqMembers { get; }
         IDocumentRepository Documents { get; }
+        IGroupInviteRepository GroupInvites { get; }
+        INotificationRepository Notifications { get; }
         IProjectProgressRepository ProjectProgresses { get; }
         ITaskProgressRepository TaskProgresses { get; }
         IUsagePlanRepository UsagePlans { get; }
@@ -38,5 +40,9 @@ namespace uniexetask.core.Interfaces
         int Save();
 
         Task<int> SaveAsync();
+
+        void BeginTransaction();
+        void Commit();
+        void Rollback();
     }
 }
