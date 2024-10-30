@@ -34,6 +34,11 @@ namespace uniexetask.infrastructure.Repositories
         public IDocumentRepository Documents { get; }
         public IGroupInviteRepository GroupInvites { get; }
         public INotificationRepository Notifications { get; }
+        public IProjectProgressRepository ProjectProgresses { get; }
+        public ITaskProgressRepository TaskProgresses { get; }
+        public IUsagePlanRepository UsagePlans { get; }
+        public IMemberScoreRepository MemberScores { get; }
+        public IMilestoneRepository Milestones { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -57,7 +62,12 @@ namespace uniexetask.infrastructure.Repositories
                             ITaskAssignRepository taskAssigns,
                             IDocumentRepository documents,
                             IGroupInviteRepository groupInvites,
-                            INotificationRepository notifications)
+                            INotificationRepository notifications,
+                            IProjectProgressRepository projectProgresses,
+                            ITaskProgressRepository taskProgresses,
+                            IUsagePlanRepository usagePlans,
+                            IMemberScoreRepository memberScores,
+                            IMilestoneRepository milestones)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -82,6 +92,11 @@ namespace uniexetask.infrastructure.Repositories
             Documents = documents;
             GroupInvites = groupInvites;
             Notifications = notifications;
+            ProjectProgresses = projectProgresses;
+            TaskProgresses = taskProgresses;
+            UsagePlans = usagePlans;
+            MemberScores = memberScores;
+            Milestones = milestones;
         }
 
         public void BeginTransaction()

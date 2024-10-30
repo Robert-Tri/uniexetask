@@ -17,12 +17,45 @@ namespace uniexetask.services
             return groupList;
         }
 
+        public async Task<bool> CreateGroupMember(GroupMember groupMember)
+        {
+            if (groupMember != null)
+            {
+                await _unitOfWork.GroupMembers.InsertAsync(groupMember);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         public async Task<GroupMember?> GetGroupByStudentId(int studentId)
         {
             var groupMember = (await _unitOfWork.GroupMembers.GetAsync(
                 gm => gm.StudentId == studentId,
                 includeProperties: "Group")) 
                 .FirstOrDefault();
+
+            return groupMember;
+        }
+
+        public async Task<GroupMember?> GetGroupMemberByUserId(int userId)
+        {
+            
+            var student = (await _unitOfWork.Students.GetAsync(s => s.UserId == userId)).FirstOrDefault();
+
+            if (student == null)
+            {
+                return null; 
+            }
+
+            var groupMember = (await _unitOfWork.GroupMembers.GetAsync(
+                gm => gm.StudentId == student.StudentId,
+                includeProperties: "Group")).FirstOrDefault();
 
             return groupMember;
         }

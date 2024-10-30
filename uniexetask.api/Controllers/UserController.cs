@@ -237,7 +237,7 @@ namespace uniexetask.api.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] UserModel users)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel users)
         {
             var obj = _mapper.Map<User>(users);
             var isUserCreated = await _userService.CreateUser(obj);

@@ -15,17 +15,20 @@ namespace uniexetask.api.Controllers
         public ITaskService _taskService;
         public ITaskAssignService _taskAssignService;
         public IStudentService _studentsService;
+        public ITaskProgressService _taskProgressService;
         private readonly IMapper _mapper;
 
 
         public TaskController(ITaskService taskService, 
                             ITaskAssignService taskAssignService, 
-                            IStudentService studentsService, 
+                            IStudentService studentsService,
+                            ITaskProgressService taskProgressService,
                             IMapper mapper)
         {
             _taskService = taskService;
             _taskAssignService = taskAssignService;
             _studentsService = studentsService;
+            _taskProgressService = taskProgressService;
             _mapper = mapper;
 
         }

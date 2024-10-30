@@ -13,9 +13,12 @@ namespace uniexetask.services
     public class TaskService : ITaskService
     {
         public IUnitOfWork _unitOfWork;
-        public TaskService(IUnitOfWork unitOfWork)
+        private readonly ITaskProgressService _taskProgressService;
+
+        public TaskService(IUnitOfWork unitOfWork, ITaskProgressService taskProgressService)
         {
             _unitOfWork = unitOfWork;
+            _taskProgressService = taskProgressService;
         }
 
         public async Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId)
@@ -97,9 +100,10 @@ namespace uniexetask.services
                     var result = _unitOfWork.Save();
 
                     if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    {
+                        var progressCreated = await _taskProgressService.CreateTaskProgressByTaskId(task.TaskId);
+                        return progressCreated;
+                    }
                 }
             }
             return false;

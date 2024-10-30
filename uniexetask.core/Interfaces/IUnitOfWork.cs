@@ -30,6 +30,11 @@ namespace uniexetask.core.Interfaces
         IDocumentRepository Documents { get; }
         IGroupInviteRepository GroupInvites { get; }
         INotificationRepository Notifications { get; }
+        IProjectProgressRepository ProjectProgresses { get; }
+        ITaskProgressRepository TaskProgresses { get; }
+        IUsagePlanRepository UsagePlans { get; }
+        IMemberScoreRepository MemberScores { get; }
+        IMilestoneRepository Milestones { get; }
 
 
         int Save();
