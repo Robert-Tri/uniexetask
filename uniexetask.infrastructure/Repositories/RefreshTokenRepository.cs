@@ -15,12 +15,12 @@ namespace uniexetask.infrastructure.Repositories
         {
         }
 
-        public async Task<List<RefreshToken>> GetRefreshTokensByUserId(int id)
+        public async Task<List<RefreshToken>> GetRefreshTokensByUserId(int userId)
         {
-            return await dbSet.Where(u => u.UserId == id && u.Status == true).ToListAsync();
+            return await dbSet.Where(u => u.UserId == userId && u.Status == true).ToListAsync();
         }
 
-        public async Task<RefreshToken?> GetUserByRefreshTokenAsync(string refreshToken)
+        public async Task<RefreshToken?> CheckRefreshTokenAsync(string refreshToken)
         {
             return await dbSet.FirstOrDefaultAsync(u =>
                 u.Token.Equals(refreshToken) && u.Expires > DateTime.Now && u.Status == true);

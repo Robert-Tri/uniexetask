@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.infrastructure.Repositories
 {
@@ -34,7 +35,7 @@ namespace uniexetask.infrastructure.Repositories
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == "Approved").AsNoTracking().ToListAsync();
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == nameof(GroupStatus.Approved)).AsNoTracking().ToListAsync();
         }
     }
 }

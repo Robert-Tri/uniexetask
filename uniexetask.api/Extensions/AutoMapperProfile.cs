@@ -18,6 +18,8 @@ namespace Unitask.Api.Extensions
             CreateMap<FeatureModel, Feature>().ReverseMap();
             CreateMap<PermissionModel, Permission>().ReverseMap();
             CreateMap<CreateTaskModel, uniexetask.core.Models.Task>().ReverseMap();
+            CreateMap<GroupInviteModel, GroupInvite>().ReverseMap();
+            CreateMap<NotificationModel, Notification>().ReverseMap();
 
         }
     }

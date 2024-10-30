@@ -11,6 +11,7 @@ using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using uniexetask.api.BackgroundServices;
 using uniexetask.core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://localhost:3000")
+        builder.WithOrigins("https://localhost:3000", "https://localhost:7289")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
@@ -59,12 +60,13 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
 builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddScoped<IProjectProgressService, ProjectProgressService>();
 builder.Services.AddScoped<ITaskProgressService, TaskProgressService>();
 builder.Services.AddScoped<IUsagePlanService, UsagePlanService>();
 builder.Services.AddScoped<IMemberScoreService, MemberScoreService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
-
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -86,6 +88,19 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ClockSkew = TimeSpan.Zero
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken) &&
+                context.HttpContext.WebSockets.IsWebSocketRequest)
+            {
+                context.Token = accessToken;
+            }
+            return System.Threading.Tasks.Task.CompletedTask;
+        }
     };
 })
 .AddGoogle(options =>
@@ -143,4 +158,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();
