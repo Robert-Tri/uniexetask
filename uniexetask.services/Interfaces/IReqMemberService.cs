@@ -10,6 +10,6 @@ namespace uniexetask.services.Interfaces
     public interface IReqMemberService
     {
         Task<IEnumerable<RegMemberForm>> GetAllReqMember();
-        
+        Task<bool> CreateReqMember(RegMemberForm reqMember);
     }
 }
