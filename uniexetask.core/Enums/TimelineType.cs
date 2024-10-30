@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace uniexetask.core.Enums
+{
+    public enum TimelineType
+    {
+        SelectGroup = 1,
+        AssignMentor = 2,
+        SelectTopic = 3,
+    }
+}

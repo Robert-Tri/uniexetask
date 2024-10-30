@@ -1,8 +1,8 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using uniexetask.core.Interfaces;
 using uniexetask.services.Interfaces;
+using uniexetask.core.Enums;
 
 namespace uniexetask.api.BackgroundServices
 {
@@ -40,26 +40,15 @@ namespace uniexetask.api.BackgroundServices
                             case TimelineType.AssignMentor:
                                 await groupService.AddMentorToGroupAutomatically();
                                 break;
-                            case TimelineType.SomeOtherTask:
+                            case TimelineType.SelectTopic:
                                 // Logic for task 2
                                 break;
-                            case TimelineType.AnotherTask:
-                                // Logic for task 3
-                                break;
-                            case TimelineType.YetAnotherTask:
-                                // Logic for task 4
+                            default:
                                 break;
                         }
                     }
                 }
             }
-        }
-        private enum TimelineType
-        {
-            AssignMentor = 1,
-            SomeOtherTask = 2,
-            AnotherTask = 3,
-            YetAnotherTask = 4
         }
     }
 }
