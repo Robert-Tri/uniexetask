@@ -3,13 +3,18 @@ using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace uniexetask.api.Controllers
 {
@@ -18,16 +23,20 @@ namespace uniexetask.api.Controllers
     public class GroupMemberController : ControllerBase
     {
         private readonly IGroupService _groupService;
+        private readonly INotificationService _notificationService;
         private readonly IStudentService _studentService;
         private readonly IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public GroupMemberController(IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper)
+        public GroupMemberController(INotificationService notificationService, IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
+            _notificationService = notificationService;
             _studentService = studentService;
             _groupService = groupService;
             _groupMemberService = groupMemberService;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
 
@@ -132,8 +141,21 @@ namespace uniexetask.api.Controllers
             request.Group.HasMentor = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
 
+            // Kiểm tra xem userId có hợp lệ không
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("ID người dùng không hợp lệ.");
+            }
+
+            // Kiểm tra nếu leader đã có nhóm
+            bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(userId);
+            if (isLeaderInGroup)
+            {
+                return BadRequest("Leader đã có nhóm, không thể tạo nhóm mới.");
+            }
+
             // Tạo nhóm
-            var objGroup = _mapper.Map<Group>(request.Group);
+            var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);
 
             if (!isGroupCreated)
@@ -142,50 +164,34 @@ namespace uniexetask.api.Controllers
             }
 
             var createdGroupId = objGroup.GroupId;
+            var student = await _studentService.GetStudentByUserId(userId);
 
-            if (!string.IsNullOrEmpty(userIdString))
+            if (student != null)
             {
-                if (int.TryParse(userIdString, out int userId))
+                var leaderMember = new GroupMemberModel
                 {
-                    var student = await _studentService.GetStudentByUserId(userId);
+                    GroupId = createdGroupId,
+                    StudentId = student.StudentId,
+                    Role = nameof(GroupMemberRole.Leader)
+                };
 
-                    if (student != null)
-                    {
-                        var leaderMember = new GroupMemberModel
-                        {
-                            GroupId = createdGroupId,
-                            StudentId = student.StudentId,
-                            Role = nameof(GroupMemberRole.Leader)
-                        };
+                var objLeader = _mapper.Map<GroupMember>(leaderMember);
+                var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
 
-                        var objLeader = _mapper.Map<GroupMember>(leaderMember);
-                        var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
-
-                        if (!isLeaderCreated)
-                        {
-                            return BadRequest("Không thể thêm Leader vào nhóm");
-                        }
-                    }
-                    else
-                    {
-                        return BadRequest("Không tìm thấy sinh viên với ID đã cho");
-                    }
-                }
-                else
+                if (!isLeaderCreated)
                 {
-                    return BadRequest("ID người dùng không hợp lệ.");
+                    return BadRequest("Không thể thêm Leader vào nhóm");
                 }
             }
             else
             {
-                return BadRequest("ID người dùng không được để trống.");
+                return BadRequest("Không tìm thấy sinh viên với ID đã cho");
             }
 
             // Kiểm tra mã sinh viên trùng lặp
             var studentCodesHashSet = new HashSet<string>();
             var memberCreationResults = new List<object>(); // Để lưu kết quả tạo thành viên
 
-            // Thêm các sinh viên vào nhóm
             foreach (var studentCode in request.StudentCodes)
             {
                 if (!studentCodesHashSet.Add(studentCode))
@@ -194,41 +200,30 @@ namespace uniexetask.api.Controllers
                     continue;
                 }
 
-                var student = await _studentService.GetStudentByCode(studentCode);
-                if (student == null)
+                var foundStudent = await _studentService.GetStudentByCode(studentCode);
+                if (foundStudent == null)
                 {
                     memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Không tìm thấy sinh viên" });
                     continue;
                 }
 
                 // Kiểm tra xem sinh viên đã có trong nhóm chưa
-                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(foundStudent.StudentId);
                 if (studentExistsInGroup)
                 {
                     memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Sinh viên đã có nhóm" });
                     continue;
                 }
 
-                var member = new GroupMemberModel
-                {
-                    GroupId = createdGroupId,
-                    StudentId = student.StudentId,
-                    Role = nameof(GroupMemberRole.Member)
-                };
-
-                var objMember = _mapper.Map<GroupMember>(member);
-                var isUserCreated = await _groupMemberService.AddMember(objMember);
-
-                memberCreationResults.Add(new
-                {
-                    StudentCode = studentCode,
-                    Success = isUserCreated,
-                    Message = isUserCreated ? "Thành viên đã được thêm thành công" : "Thêm thành viên thất bại"
-                });
+                var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: foundStudent.UserId, groupId: createdGroupId, groupName: request.Group.GroupName);
+                await _hubContext.Clients.User(foundStudent.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = "Đã gửi lời mời tham gia nhóm" });
             }
 
             return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
         }
+
+
 
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
