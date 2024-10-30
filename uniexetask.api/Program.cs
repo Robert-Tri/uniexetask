@@ -11,6 +11,7 @@ using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using uniexetask.api.BackgroundServices;
 using uniexetask.core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,7 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
 builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddScoped<IProjectProgressService, ProjectProgressService>();
 builder.Services.AddScoped<ITaskProgressService, TaskProgressService>();
 builder.Services.AddScoped<IUsagePlanService, UsagePlanService>();
