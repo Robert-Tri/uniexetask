@@ -46,6 +46,8 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IUsagePlanRepository, UsagePlanRepository>();
             services.AddScoped<IMemberScoreRepository, MemberScoreRepository>();
             services.AddScoped<IMilestoneRepository, MilestoneRepository>();
+            services.AddScoped<IGroupInviteRepository, GroupInviteRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             return services;
         }

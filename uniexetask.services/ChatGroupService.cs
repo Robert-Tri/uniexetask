@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -22,7 +23,7 @@ namespace uniexetask.services
         {
             var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
 
-            if (chatGroup == null || !chatGroup.Type.Equals("Group"))
+            if (chatGroup == null || chatGroup.Type != nameof(ChatGroupType.Group))
                 return false;
             foreach (var email in emails) 
             {
@@ -41,7 +42,7 @@ namespace uniexetask.services
             var chatGroups = userWithChatGroups.ChatGroups;
             foreach (var chatgroup in chatGroups)
             {
-                if (chatgroup.Type.Equals("Personal"))
+                if (chatgroup.Type == nameof(ChatGroupType.Personal))
                 {
                     var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatgroup.ChatGroupId);
                     if (chatGroupWithUsers == null || chatGroupWithUsers.Users == null) continue;

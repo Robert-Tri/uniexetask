@@ -10,6 +10,6 @@ namespace uniexetask.core.Interfaces
     public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
     {
         Task<List<RefreshToken>> GetRefreshTokensByUserId(int id);
-        Task<RefreshToken?> GetUserByRefreshTokenAsync(string refreshToken);
+        Task<RefreshToken?> CheckRefreshTokenAsync(string refreshToken);
     }
 }

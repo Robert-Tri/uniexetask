@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 
@@ -35,11 +36,11 @@ namespace uniexetask.api.Controllers
                 GroupName = reqMember.Group.GroupName,
                 GroupId = reqMember.Group.GroupId,
                 LeaderName = reqMember.Group.GroupMembers
-                    .Where(gm => gm.Role == "Leader") 
+                    .Where(gm => gm.Role == nameof(GroupMemberRole.Leader)) 
                     .Select(gm => gm.Student.User.FullName)
                     .FirstOrDefault(),
                 LeaderAvata = reqMember.Group.GroupMembers
-                    .Where(gm => gm.Role == "Leader")
+                    .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                     .Select(gm => gm.Student.User.Avatar)
                     .FirstOrDefault(),
                 SubjectCode = reqMember.Group.Subject.SubjectCode,
