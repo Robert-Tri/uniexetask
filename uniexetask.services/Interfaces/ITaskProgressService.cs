@@ -8,5 +8,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface ITaskProgressService
     {
+        Task<bool> CreateTaskProgressByTaskId(int taskId);
+
     }
 }

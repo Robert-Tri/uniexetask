@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -22,7 +23,7 @@ namespace uniexetask.services
         {
             var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
 
-            if (chatGroup == null || !chatGroup.Type.Equals("Group"))
+            if (chatGroup == null || chatGroup.Type != nameof(ChatGroupType.Group))
                 return false;
             foreach (var email in emails) 
             {
@@ -34,18 +35,14 @@ namespace uniexetask.services
             return true;
         }
 
-        public async Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId, int chatGroupIndex, int limit)
+        public async Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId, int chatGroupIndex, int limit, string keyword)
         {
             var userWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(userId);
             if (userWithChatGroups == null || userWithChatGroups.ChatGroups == null) return null;
-            var chatGroups = userWithChatGroups.ChatGroups
-                .Skip(chatGroupIndex * limit)
-                .Take(limit)
-                .OrderByDescending(e => e.LatestActivity)
-                .ToList();
+            var chatGroups = userWithChatGroups.ChatGroups;
             foreach (var chatgroup in chatGroups)
             {
-                if (chatgroup.Type.Equals("Personal"))
+                if (chatgroup.Type == nameof(ChatGroupType.Personal))
                 {
                     var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatgroup.ChatGroupId);
                     if (chatGroupWithUsers == null || chatGroupWithUsers.Users == null) continue;
@@ -58,7 +55,13 @@ namespace uniexetask.services
                     }
                 }
             }
-            return chatGroups;
+            var chatGroupsAfterPaging = chatGroups
+                .Where(c => c.ChatGroupName.Contains(keyword))
+                .Skip(chatGroupIndex * limit)
+                .Take(limit)
+                .OrderByDescending(e => e.LatestActivity)
+                .ToList();
+            return chatGroupsAfterPaging;
         }
 
         public async Task<ChatGroup?> GetChatGroupWithUsersByChatGroupId(int chatGroupId)

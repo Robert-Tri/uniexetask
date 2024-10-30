@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -12,9 +13,12 @@ namespace uniexetask.services
     public class TaskService : ITaskService
     {
         public IUnitOfWork _unitOfWork;
-        public TaskService(IUnitOfWork unitOfWork)
+        private readonly ITaskProgressService _taskProgressService;
+
+        public TaskService(IUnitOfWork unitOfWork, ITaskProgressService taskProgressService)
         {
             _unitOfWork = unitOfWork;
+            _taskProgressService = taskProgressService;
         }
 
         public async Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId)
@@ -81,24 +85,25 @@ namespace uniexetask.services
                 {
                     if (task.StartDate.Date > DateTime.Now.Date)
                     {
-                        task.Status = "Not Started";
+                        task.Status = nameof(TasksStatus.Not_Started);
                     }
                     else if (task.EndDate.Date > DateTime.Now.Date)
                     {
-                        task.Status = "In Progress";
+                        task.Status = nameof(TasksStatus.In_Progress);
                     }
                     else
                     {
-                        task.Status = "Overdue";
+                        task.Status = nameof(TasksStatus.Overdue);
                     }
                     await _unitOfWork.Tasks.InsertAsync(task);
 
                     var result = _unitOfWork.Save();
 
                     if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    {
+                        var progressCreated = await _taskProgressService.CreateTaskProgressByTaskId(task.TaskId);
+                        return progressCreated;
+                    }
                 }
             }
             return false;

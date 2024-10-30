@@ -21,5 +21,5 @@ public partial class GroupInvite
 
     public virtual Group Group { get; set; } = null!;
 
-    public virtual Nofitication Notification { get; set; } = null!;
+    public virtual Notification Notification { get; set; } = null!;
 }

@@ -18,9 +18,9 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<User?> GetUserByRefreshToken(string? refreshToken)
+        public async Task<User?> GetUserByRefreshToken(string refreshToken = "")
         {
-            var rt = await _unitOfWork.RefreshTokens.GetUserByRefreshTokenAsync(refreshToken);
+            var rt = await _unitOfWork.RefreshTokens.CheckRefreshTokenAsync(refreshToken);
             if (rt == null)
             {
                 return null;

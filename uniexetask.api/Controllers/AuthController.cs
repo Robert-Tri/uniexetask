@@ -16,6 +16,7 @@ using Google.Apis.Auth;
 
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.Extensions.Primitives;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 
 namespace uniexetask.api.Controllers
 {
@@ -55,7 +56,7 @@ namespace uniexetask.api.Controllers
                 {
                     HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(1)
+                    Expires = DateTime.UtcNow.AddMinutes(30)
                 });
                 Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
                 {
@@ -109,8 +110,7 @@ namespace uniexetask.api.Controllers
             {
                 HttpOnly = true,
                 Secure = true,
-                Expires = DateTime.UtcNow.AddMinutes(1),
-                SameSite = SameSiteMode.None
+                Expires = DateTime.UtcNow.AddMinutes(1)
             });
             return Ok(newAccessToken);
         }
