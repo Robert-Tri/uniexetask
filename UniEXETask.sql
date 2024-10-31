@@ -448,6 +448,8 @@ CREATE TABLE REG_MEMBER_FORM (
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
+
+
 -- Thêm dữ liệu mẫu cho bảng Campus
 INSERT INTO CAMPUS (campus_code, campus_name, location)
 VALUES 
@@ -507,58 +509,58 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng User
 INSERT INTO [USER] (full_name, [password], email, avatar, phone, campus_id, role_id)
 VALUES 
-('Admin User', 'hashed_password', 'admin@uniexetask.com', 'static/1.jpg', '0901000001', 1, 1),
-('Manager User', 'hashed_password', 'manager@uniexetask.com', 'static/2.jpg', '0901000002', 2, 2),
-('Student User 1', 'hashed_password', 'student1@uniexetask.com', 'static/3.jpg', '0901000003', 3, 3),
-('Mentor User 1', 'hashed_password', 'mentor1@uniexetask.com', 'static/4.jpg', '0901000004', 1, 4),
-('Sponsor User 1', 'hashed_password', 'sponsor1@uniexetask.com', 'static/5.jpg', '0901000005', 2, 5),
-('Student User 2', 'hashed_password', 'student2@uniexetask.com', 'static/6.jpg', '0901000006', 1, 3),
-('Mentor User 2', 'hashed_password', 'mentor2@uniexetask.com', 'static/7.jpg', '0901000007', 2, 4),
-('Sponsor User 2', 'hashed_password', 'sponsor2@uniexetask.com', 'static/8.jpg', '0901000008', 1, 5),
-('Student User 3', 'hashed_password', 'student3@uniexetask.com', 'static/9.jpg', '0901000009', 2, 3),
-('Mentor User 3', 'hashed_password', 'mentor3@uniexetask.com', 'static/10.jpg', '0901000010', 3, 4),
-('Sponsor User 3', 'hashed_password', 'sponsor3@uniexetask.com', 'static/11.jpg', '0901000011', 3, 5),
-(N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', 'static/12.jpg', '0867892130', 1, 3),
-(N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', 'static/13.jpg', '0837250452', 1, 3),
-(N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', 'static/14.jpg', '0913926749', 1, 3),
-(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', 'static/15.jpg', '0374312384', 1, 3),
+('Admin User', 'hashed_password', 'admin@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
+('Manager User', 'hashed_password', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
+('Student User 1', 'hashed_password', 'student1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722518062/b64wegkr4dxiysm6tudd.gif', '0901000003', 3, 3),
+('Mentor User 1', 'hashed_password', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000004', 1, 4),
+('Sponsor User 1', 'hashed_password', 'sponsor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000005', 2, 5),
+('Student User 2', 'hashed_password', 'student2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000006', 1, 3),
+('Mentor User 2', 'hashed_password', 'mentor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000007', 2, 4),
+('Sponsor User 2', 'hashed_password', 'sponsor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000008', 1, 5),
+('Student User 3', 'hashed_password', 'student3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000009', 2, 3),
+('Mentor User 3', 'hashed_password', 'mentor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000010', 3, 4),
+('Sponsor User 3', 'hashed_password', 'sponsor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000011', 3, 5),
+(N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0867892130', 1, 3),
+(N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0837250452', 1, 3),
+(N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0913926749', 1, 3),
+(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0374312384', 1, 3),
 -- 5 Mentors (role_id = 4)
-('Mentor User 4', 'hashed_password', 'mentor4@uniexetask.com', 'static/16.jpg', '0901000012', 1, 4),
-('Mentor User 5', 'hashed_password', 'mentor5@uniexetask.com', 'static/17.jpg', '0901000013', 2, 4),
-('Mentor User 6', 'hashed_password', 'mentor6@uniexetask.com', 'static/18.jpg', '0901000014', 3, 4),
-('Mentor User 7', 'hashed_password', 'mentor7@uniexetask.com', 'static/19.jpg', '0901000015', 1, 4),
-('Mentor User 8', 'hashed_password', 'mentor8@uniexetask.com', 'static/20.jpg', '0901000016', 2, 4),
+('Mentor User 4', 'hashed_password', 'mentor4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
+('Mentor User 5', 'hashed_password', 'mentor5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000013', 2, 4),
+('Mentor User 6', 'hashed_password', 'mentor6@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000014', 3, 4),
+('Mentor User 7', 'hashed_password', 'mentor7@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000015', 1, 4),
+('Mentor User 8', 'hashed_password', 'mentor8@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000016', 2, 4),
 -- 30 Students (role_id = 3)
-('Student User 4', 'hashed_password', 'student4@uniexetask.com', 'static/21.jpg', '0901000017', 1, 3),
-('Student User 5', 'hashed_password', 'student5@uniexetask.com', 'static/22.jpg', '0901000018', 2, 3),
-('Student User 6', 'hashed_password', 'student6@uniexetask.com', 'static/23.jpg', '0901000019', 3, 3),
-('Student User 7', 'hashed_password', 'student7@uniexetask.com', 'static/24.jpg', '0901000020', 1, 3),
-('Student User 8', 'hashed_password', 'student8@uniexetask.com', 'static/25.jpg', '0901000021', 2, 3),
-('Student User 9', 'hashed_password', 'student9@uniexetask.com', 'static/26.jpg', '0901000022', 3, 3),
-('Student User 10', 'hashed_password', 'student10@uniexetask.com', 'static/27.jpg', '0901000023', 1, 3),
-('Student User 11', 'hashed_password', 'student11@uniexetask.com', 'static/28.jpg', '0901000024', 2, 3),
-('Student User 12', 'hashed_password', 'student12@uniexetask.com', 'static/29.jpg', '0901000025', 3, 3),
-('Student User 13', 'hashed_password', 'student13@uniexetask.com', 'static/30.jpg', '0901000026', 1, 3),
-('Student User 14', 'hashed_password', 'student14@uniexetask.com', 'static/31.jpg', '0901000027', 2, 3),
-('Student User 15', 'hashed_password', 'student15@uniexetask.com', 'static/32.jpg', '0901000028', 3, 3),
-('Student User 16', 'hashed_password', 'student16@uniexetask.com', 'static/33.jpg', '0901000029', 1, 3),
-('Student User 17', 'hashed_password', 'student17@uniexetask.com', 'static/34.jpg', '0901000030', 2, 3),
-('Student User 18', 'hashed_password', 'student18@uniexetask.com', 'static/35.jpg', '0901000031', 3, 3),
-('Student User 19', 'hashed_password', 'student19@uniexetask.com', 'static/36.jpg', '0901000032', 1, 3),
-('Student User 20', 'hashed_password', 'student20@uniexetask.com', 'static/37.jpg', '0901000033', 2, 3),
-('Student User 21', 'hashed_password', 'student21@uniexetask.com', 'static/38.jpg', '0901000034', 3, 3),
-('Student User 22', 'hashed_password', 'student22@uniexetask.com', 'static/39.jpg', '0901000035', 1, 3),
-('Student User 23', 'hashed_password', 'student23@uniexetask.com', 'static/40.jpg', '0901000036', 2, 3),
-('Student User 24', 'hashed_password', 'student24@uniexetask.com', 'static/41.jpg', '0901000037', 3, 3),
-('Student User 25', 'hashed_password', 'student25@uniexetask.com', 'static/42.jpg', '0901000038', 1, 3),
-('Student User 26', 'hashed_password', 'student26@uniexetask.com', 'static/43.jpg', '0901000039', 2, 3),
-('Student User 27', 'hashed_password', 'student27@uniexetask.com', 'static/44.jpg', '0901000040', 3, 3),
-('Student User 28', 'hashed_password', 'student28@uniexetask.com', 'static/45.jpg', '0901000041', 1, 3),
-('Student User 29', 'hashed_password', 'student29@uniexetask.com', 'static/46.jpg', '0901000042', 2, 3),
-('Student User 30', 'hashed_password', 'student30@uniexetask.com', 'static/47.jpg', '0901000043', 3, 3),
-('Student User 31', 'hashed_password', 'student31@uniexetask.com', 'static/48.jpg', '0901000044', 1, 3),
-('Student User 32', 'hashed_password', 'student32@uniexetask.com', 'static/49.jpg', '0901000045', 2, 3),
-('Student User 33', 'hashed_password', 'student33@uniexetask.com', 'static/50.jpg', '0901000046', 3, 3);
+('Student User 4', 'hashed_password', 'student4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000017', 1, 3),
+('Student User 5', 'hashed_password', 'student5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000018', 2, 3),
+('Student User 6', 'hashed_password', 'student6@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000019', 3, 3),
+('Student User 7', 'hashed_password', 'student7@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000020', 1, 3),
+('Student User 8', 'hashed_password', 'student8@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000021', 2, 3),
+('Student User 9', 'hashed_password', 'student9@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000022', 3, 3),
+('Student User 10', 'hashed_password', 'student10@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000023', 1, 3),
+('Student User 11', 'hashed_password', 'student11@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000024', 2, 3),
+('Student User 12', 'hashed_password', 'student12@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000025', 3, 3),
+('Student User 13', 'hashed_password', 'student13@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000026', 1, 3),
+('Student User 14', 'hashed_password', 'student14@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000027', 2, 3),
+('Student User 15', 'hashed_password', 'student15@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000028', 3, 3),
+('Student User 16', 'hashed_password', 'student16@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000029', 1, 3),
+('Student User 17', 'hashed_password', 'student17@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000030', 2, 3),
+('Student User 18', 'hashed_password', 'student18@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000031', 3, 3),
+('Student User 19', 'hashed_password', 'student19@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000032', 1, 3),
+('Student User 20', 'hashed_password', 'student20@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000033', 2, 3),
+('Student User 21', 'hashed_password', 'student21@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000034', 3, 3),
+('Student User 22', 'hashed_password', 'student22@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000035', 1, 3),
+('Student User 23', 'hashed_password', 'student23@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000036', 2, 3),
+('Student User 24', 'hashed_password', 'student24@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000037', 3, 3),
+('Student User 25', 'hashed_password', 'student25@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000038', 1, 3),
+('Student User 26', 'hashed_password', 'student26@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000039', 2, 3),
+('Student User 27', 'hashed_password', 'student27@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000040', 3, 3),
+('Student User 28', 'hashed_password', 'student28@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000041', 1, 3),
+('Student User 29', 'hashed_password', 'student29@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000042', 2, 3),
+('Student User 30', 'hashed_password', 'student30@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000043', 3, 3),
+('Student User 31', 'hashed_password', 'student31@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000044', 1, 3),
+('Student User 32', 'hashed_password', 'student32@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000045', 2, 3),
+('Student User 33', 'hashed_password', 'student33@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000046', 3, 3);
 
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
@@ -875,4 +877,17 @@ VALUES
 INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Completed'),
-('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not_Started');
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not Started');
+
+INSERT INTO REG_MEMBER_FORM (group_id, description, status)
+VALUES 
+    (1, N'Tôi cần tìm 1 FE có đủ kỹ năng để làm việc nhóm', 1),
+    (2, N'Cần tìm 1 FE và 1 BE có thể làm việc từ xa', 1),
+    (3, N'Nhóm muốn bổ sung 1 bạn BE và 1 bạn FE cho dự án mới', 1),
+    (4, N'Nhóm đang cần thêm 1 FE với kinh nghiệm 2 năm', 1),
+    (5, N'Chúng tôi tìm kiếm 1 BE giỏi về Node.js', 1),
+    (6, N'Nhóm cần bổ sung thêm 2 người: 1 FE và 1 BE', 1),
+    (7, N'Tìm 1 bạn FE biết sử dụng React', 1),
+    (8, N'Tìm kiếm 1 BE có kinh nghiệm với Python', 1),
+    (9, N'Nhóm cần thêm 1 FE để hoàn thành dự án', 1),
+    (10, N'Chúng tôi tìm kiếm 1 bạn BE để hỗ trợ phần backend', 1);
