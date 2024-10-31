@@ -7,8 +7,8 @@ using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
-    public interface IMemberScoreService
+    public interface IProjectScoreService
     {
-        System.Threading.Tasks.Task<bool> AddMemberScore(MemberScore memberScore);
+        System.Threading.Tasks.Task<bool> AddProjecScore(ProjectScore projecScore);
     }
 }
