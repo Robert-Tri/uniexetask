@@ -20,6 +20,8 @@ namespace Unitask.Api.Extensions
             CreateMap<CreateTaskModel, uniexetask.core.Models.Task>().ReverseMap();
             CreateMap<GroupInviteModel, GroupInvite>().ReverseMap();
             CreateMap<NotificationModel, Notification>().ReverseMap();
+            CreateMap<AddMemberScoreModel, MemberScore>().ReverseMap();
+            CreateMap<AddProjectScoreModel, ProjectScore>().ReverseMap();
 
         }
     }

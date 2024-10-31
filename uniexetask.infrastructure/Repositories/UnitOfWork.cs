@@ -39,6 +39,7 @@ namespace uniexetask.infrastructure.Repositories
         public IUsagePlanRepository UsagePlans { get; }
         public IMemberScoreRepository MemberScores { get; }
         public IMilestoneRepository Milestones { get; }
+        public IProjectScoreRepository ProjectScores { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -67,7 +68,8 @@ namespace uniexetask.infrastructure.Repositories
                             ITaskProgressRepository taskProgresses,
                             IUsagePlanRepository usagePlans,
                             IMemberScoreRepository memberScores,
-                            IMilestoneRepository milestones)
+                            IMilestoneRepository milestones,
+                            IProjectScoreRepository projectScores)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -97,6 +99,7 @@ namespace uniexetask.infrastructure.Repositories
             UsagePlans = usagePlans;
             MemberScores = memberScores;
             Milestones = milestones;
+            ProjectScores = projectScores;
         }
 
         public void BeginTransaction()

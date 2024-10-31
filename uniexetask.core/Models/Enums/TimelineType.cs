@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace uniexetask.core.Enums
+namespace uniexetask.core.Models.Enums
 {
     public enum TimelineType
     {
