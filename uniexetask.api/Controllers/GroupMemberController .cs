@@ -129,6 +129,30 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("GetTeammateByUserID/{userId}")]
+        public async Task<IActionResult> GetTeammateByUserID(int userId)
+        {
+            var student = await _studentService.GetStudentByUserId(userId);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            var groupMember = await _groupMemberService.GetUsersByUserId(userId);
+
+            if (groupMember != null)
+            {
+                // Prepare successful response
+                var response = new ApiResponse<List<User>>
+                {
+                    Data = groupMember
+                };
+                return Ok(response);
+            }
+            else
+            {
+                return NotFound("Không tìm thấy group với ID đã cho.");
+            }
+        }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost("CreateGroupWithMember")]
@@ -276,6 +300,7 @@ namespace uniexetask.api.Controllers
                 FullName = u.FullName,
                 Email = u.Email,
                 Major = u.Students.FirstOrDefault()?.Major,         // Lấy Major từ đối tượng Student
+                StudentId = u.Students.FirstOrDefault()?.StudentId, // Lấy StudentId từ đối tượng Student
                 StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
                 Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
                 GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId // Lấy Role từ GroupMembers
