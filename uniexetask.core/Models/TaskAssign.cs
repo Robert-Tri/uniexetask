@@ -11,7 +11,7 @@ public partial class TaskAssign
 
     public int StudentId { get; set; }
 
-    public DateTime AsignedDate { get; set; }
+    public DateTime AssignedDate { get; set; }
 
     public virtual Student Student { get; set; } = null!;
 

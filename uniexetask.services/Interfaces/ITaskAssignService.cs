@@ -12,7 +12,8 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<TaskAssign?>> GetTaskAssignsByStudent(int studentId);
         Task<bool> CreateTaskAssign(TaskAssign taskAssign);
         Task<bool> UpdateTaskAssign(TaskAssign taskAssign);
-        Task<bool> DeleteTaskAssign(int taskAssignId);
+        Task<bool> DeleteTaskAssignByTaskId(int taskId);
+        Task<IEnumerable<TaskAssign?>> GetTaskAssignsByTaskId(int taskId);
 
     }
 }

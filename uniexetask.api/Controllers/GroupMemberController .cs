@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -54,30 +55,40 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost("AddMemberToGroup")]
         public async Task<IActionResult> AddMemberToGroup([FromBody] AddGroupMemberModel member)
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("ID người dùng không hợp lệ.");
+            }
+
             var student = await _studentService.GetStudentByCode(member.StudentCode);
-            // Kiểm tra nếu Role trống hoặc null thì gán giá trị mặc định là "Member"
-            var newMember = new GroupMemberModel
+            if (student == null)
             {
-                GroupId = member.GroupId,
-                StudentId = student.StudentId,
-                Role = nameof(GroupMemberRole.Member)
-            };
-
-            var obj = _mapper.Map<GroupMember>(newMember);
-            var isUserCreated = await _groupMemberService.AddMember(obj);
-
-            if (isUserCreated)
-            {
-                return Ok(isUserCreated);
+                return BadRequest(new { StudentCode = member.StudentCode, Success = false, Message = "Không tìm thấy sinh viên" });
             }
-            else
+
+            bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+            if (studentExistsInGroup)
             {
-                return BadRequest();
+                return BadRequest(new { StudentCode = member.StudentCode, Success = false, Message = "Sinh viên đã có nhóm" });
             }
+
+            var group = await _groupService.GetGroupById(member.GroupId);
+            if (group == null)
+            {
+                return BadRequest("Không tìm thấy nhóm.");
+            }
+
+            var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: student.UserId, groupId: member.GroupId, groupName: group.GroupName);
+            await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+
+            return Ok(new { Success = true, Message = "Đã gửi lời mời tham gia nhóm" });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateGroupMember([FromBody] GroupMemberModel groupMember)
@@ -129,26 +140,48 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("GetTeammateByUserID/{userId}")]
+        public async Task<IActionResult> GetTeammateByUserID(int userId)
+        {
+            var student = await _studentService.GetStudentByUserId(userId);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            var groupMember = await _groupMemberService.GetUsersByUserId(userId);
+
+            if (groupMember != null)
+            {
+                // Prepare successful response
+                var response = new ApiResponse<List<User>>
+                {
+                    Data = groupMember
+                };
+                return Ok(response);
+            }
+            else
+            {
+                return NotFound("Không tìm thấy group với ID đã cho.");
+            }
+        }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost("CreateGroupWithMember")]
         public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
         {
-            // Lấy userId từ claim
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Đặt mặc định HasMentor là false và Status là "Initialized"
             request.Group.HasMentor = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
+            
 
-            // Kiểm tra xem userId có hợp lệ không
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
                 return BadRequest("ID người dùng không hợp lệ.");
             }
 
-            // Kiểm tra nếu leader đã có nhóm
-            bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(userId);
+            var studentLeader = await _studentService.GetStudentByUserId(userId);
+            bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
             if (isLeaderInGroup)
             {
                 return BadRequest("Leader đã có nhóm, không thể tạo nhóm mới.");
@@ -207,7 +240,6 @@ namespace uniexetask.api.Controllers
                     continue;
                 }
 
-                // Kiểm tra xem sinh viên đã có trong nhóm chưa
                 bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(foundStudent.StudentId);
                 if (studentExistsInGroup)
                 {
@@ -233,7 +265,7 @@ namespace uniexetask.api.Controllers
 
             if (users != null && users.Any())
             {
-                return Ok(users); // Trả về danh sách đầy đủ thông tin User
+                return Ok(users); 
             }
             else
             {
@@ -276,6 +308,7 @@ namespace uniexetask.api.Controllers
                 FullName = u.FullName,
                 Email = u.Email,
                 Major = u.Students.FirstOrDefault()?.Major,         // Lấy Major từ đối tượng Student
+                StudentId = u.Students.FirstOrDefault()?.StudentId, // Lấy StudentId từ đối tượng Student
                 StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
                 Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
                 GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId // Lấy Role từ GroupMembers

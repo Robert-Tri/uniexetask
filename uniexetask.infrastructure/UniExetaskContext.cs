@@ -886,9 +886,9 @@ public partial class UniExetaskContext : DbContext
             entity.ToTable("TASK_ASSIGN");
 
             entity.Property(e => e.TaskAssignId).HasColumnName("task_assign_id");
-            entity.Property(e => e.AsignedDate)
+            entity.Property(e => e.AssignedDate)
                 .HasColumnType("datetime")
-                .HasColumnName("asigned_date");
+                .HasColumnName("assigned_date");
             entity.Property(e => e.StudentId).HasColumnName("student_id");
             entity.Property(e => e.TaskId).HasColumnName("task_id");
 

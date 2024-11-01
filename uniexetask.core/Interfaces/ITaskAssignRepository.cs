@@ -10,6 +10,7 @@ namespace uniexetask.core.Interfaces
     public interface ITaskAssignRepository : IGenericRepository<TaskAssign>
     {
         Task<IEnumerable<TaskAssign>> GetTaskAssignsByStudentAsync(int studentId);
+        Task<IEnumerable<TaskAssign>> GetTaskAssignsByTaskIdAsync(int taskId);
 
     }
 }
