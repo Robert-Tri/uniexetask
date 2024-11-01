@@ -5,10 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Models;
 
-namespace uniexetask.services.Interfaces
+namespace uniexetask.core.Interfaces
 {
-    public interface IMemberScoreService
+    public interface IProjectScoreRepository : IGenericRepository<ProjectScore>
     {
-        System.Threading.Tasks.Task<bool> AddMemberScore(MemberScore memberScore);
     }
 }

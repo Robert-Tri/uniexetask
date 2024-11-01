@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using uniexetask.core.Interfaces;
 using uniexetask.services.Interfaces;
-using uniexetask.core.Enums;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.api.BackgroundServices
 {

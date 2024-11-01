@@ -9,20 +9,19 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
 {
-    public class MemberScoreService : IMemberScoreService
+    public class ProjectScoreService : IProjectScoreService
     {
-        public IUnitOfWork _unitOfWork;
-
-        public MemberScoreService(IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        public ProjectScoreService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async System.Threading.Tasks.Task<bool> AddMemberScore(MemberScore memberScore)
+        public async Task<bool> AddProjecScore(ProjectScore projecScore)
         {
-            await _unitOfWork.MemberScores.InsertAsync(memberScore);
+            await _unitOfWork.ProjectScores.InsertAsync(projecScore);
             var result = _unitOfWork.Save();
-            if(result > 0)
+            if (result > 0)
                 return true;
             return false;
         }
