@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using uniexetask.core.Enums;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services

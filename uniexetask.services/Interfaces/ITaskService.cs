@@ -10,7 +10,9 @@ namespace uniexetask.services.Interfaces
     public interface ITaskService
     {
         Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId);
-        Task<IEnumerable<core.Models.Task?>> GetTasksByStudent(int studentId);
+        Task<IEnumerable<core.Models.Task?>> GetTasksByUserId(int userId);
+        Task<core.Models.Task?> GetTaskById(int taskId);
+
         Task<bool> CreateTask(core.Models.Task task);
         Task<bool> UpdateTask(core.Models.Task task);
         Task<bool> DeleteTask(int taskId);

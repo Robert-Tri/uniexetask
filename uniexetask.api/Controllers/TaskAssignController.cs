@@ -43,7 +43,7 @@ namespace uniexetask.api.Controllers
                 {
                     TaskId = taskAssignModel.TaskId,
                     StudentId = studentId,
-                    AsignedDate = DateTime.Now
+                    AssignedDate = DateTime.Now
                 });
                 if (createdTaskAssign == null)
                 {

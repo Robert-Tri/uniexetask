@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿    using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,6 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Where(t => t.ProjectId == projectId)
-                .Include(t => t.TaskAssigns)
                 .ToListAsync();
         }
 

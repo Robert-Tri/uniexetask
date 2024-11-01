@@ -1,7 +1,8 @@
 ﻿namespace uniexetask.api.Models.Request
 {
-    public class CreateTaskModel
+    public class UpdateTaskModel
     {
+        public int TaskId { get; set; }
         public int ProjectId { get; set; }
 
         public string TaskName { get; set; } = null!;

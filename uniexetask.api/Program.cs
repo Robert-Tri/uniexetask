@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
-using uniexetask.api.Hubs;
+using uniexetask.api.BackgroundServices;
 using uniexetask.api.Extensions;
+using uniexetask.api.Hubs;
 using uniexetask.api.Middleware;
 using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Storage.V1;
-using uniexetask.api.BackgroundServices;
-using uniexetask.core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +66,7 @@ builder.Services.AddScoped<IUsagePlanService, UsagePlanService>();
 builder.Services.AddScoped<IMemberScoreService, MemberScoreService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IProjectScoreService, ProjectScoreService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
