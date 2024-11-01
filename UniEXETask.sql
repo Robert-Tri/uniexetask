@@ -205,7 +205,7 @@ CREATE TABLE TASK_ASSIGN (
     task_assign_id INT PRIMARY KEY IDENTITY(1,1),
     task_id INT NOT NULL,
     student_id INT NOT NULL,
-	asigned_date DATETIME NOT NULL,
+	assigned_date DATETIME NOT NULL,
 	FOREIGN KEY (task_id) REFERENCES TASK(task_id),
 	FOREIGN KEY (student_id) REFERENCES STUDENT(student_id)
 );
@@ -764,7 +764,7 @@ VALUES
 (12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
-INSERT INTO TASK_ASSIGN(task_id, student_id, asigned_date)
+INSERT INTO TASK_ASSIGN(task_id, student_id, assigned_date)
 VALUES 
 (1, 4, '2024-11-01'),
 (1, 5, '2024-11-01'),
@@ -832,20 +832,20 @@ VALUES
 (1, 1, 'Leader'), 
 (1, 2, 'Member'),
 (2, 3, 'Leader'), 
-(3, 12, 'Leader'),
-(3, 13, 'Member'),
-(3, 14, 'Member'),
-(3, 15, 'Member'),
+(3, 4, 'Leader'),
+(3, 5, 'Member'),
+(3, 6, 'Member'),
+(3, 7, 'Member'),
 (4, 8, 'Leader'),
 (4, 9, 'Member'),
 (4, 10, 'Member'),
 (4, 11, 'Member'),
-(5, 7, 'Leader'),
-(5, 4, 'Member'),
+(5, 13, 'Leader'),
+(5, 12, 'Member'),
 (5, 18, 'Member'),
 (5, 19, 'Member'),
-(6, 5, 'Leader'),
-(6, 6, 'Member'),
+(6, 14, 'Leader'),
+(6, 15, 'Member'),
 (6, 16, 'Member'),
 (7, 20, 'Leader'),
 (7, 28, 'Member'),
@@ -877,7 +877,7 @@ VALUES
 INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
 VALUES 
 ('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Completed'),
-('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not Started');
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not_Started');
 
 INSERT INTO REG_MEMBER_FORM (group_id, description, status)
 VALUES 

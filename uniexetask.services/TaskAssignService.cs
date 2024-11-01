@@ -56,7 +56,7 @@ namespace uniexetask.services
                 {
                     obj.TaskId = taskAssign.TaskId;
                     obj.StudentId = taskAssign.StudentId;
-                    obj.AsignedDate = DateTime.Now;
+                    obj.AssignedDate = DateTime.Now;
 
                     _unitOfWork.TaskAssigns.Update(obj);
 
@@ -71,14 +71,17 @@ namespace uniexetask.services
             return false;
         }
 
-        public async Task<bool> DeleteTaskAssign(int taskAssignId)
+        public async Task<bool> DeleteTaskAssignByTaskId(int taskId)
         {
-            if (taskAssignId > 0)
+            if (taskId > 0)
             {
-                var task = await _unitOfWork.TaskAssigns.GetByIDAsync(taskAssignId);
-                if (task != null)
+                var tasks = await _unitOfWork.TaskAssigns.GetTaskAssignsByTaskIdAsync(taskId);
+                if (tasks != null)
                 {
-                    _unitOfWork.Tasks.Delete(task);
+                    foreach (var task in tasks)
+                    {
+                        _unitOfWork.Tasks.Delete(task);
+                    }
                     var result = await _unitOfWork.SaveAsync();
 
                     if (result > 0)
@@ -90,5 +93,17 @@ namespace uniexetask.services
             return false;
         }
 
+        public async Task<IEnumerable<TaskAssign?>> GetTaskAssignsByTaskId(int taskId)
+        {
+            if (taskId > 0)
+            {
+                var tasks = await _unitOfWork.TaskAssigns.GetTaskAssignsByTaskIdAsync(taskId);
+                if (tasks != null)
+                {
+                    return tasks;
+                }
+            }
+            return null;
+        }
     }
 }

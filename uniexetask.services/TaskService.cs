@@ -21,6 +21,18 @@ namespace uniexetask.services
             _taskProgressService = taskProgressService;
         }
 
+        public async Task<core.Models.Task?> GetTaskById(int taskId)
+        {
+            if (taskId > 0)
+            {
+                var task = await _unitOfWork.Tasks.GetByIDAsync(taskId);
+                if (task != null) {
+                    return task;
+                }
+            }
+            return null;
+        }
+
         public async Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId)
         {
             if (projectId > 0)
@@ -34,10 +46,16 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<IEnumerable<core.Models.Task?>> GetTasksByStudent(int studentId)
+        public async Task<IEnumerable<core.Models.Task?>> GetTasksByUserId(int userId)
         {
-            if (studentId > 0)
+            if (userId > 0)
             {
+                var student = await _unitOfWork.Students.GetStudentByUserId(userId);
+                if (student == null)
+                {
+                    return null;
+                }
+                var studentId = student.StudentId;
                 var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
 
                 if (groupId == null)
@@ -53,7 +71,6 @@ namespace uniexetask.services
                 }
 
                 var tasks = await _unitOfWork.Tasks.GetTasksByProjectAsync(project.ProjectId);
-
                 if (tasks != null)
                 {
                     foreach (var task in tasks)
