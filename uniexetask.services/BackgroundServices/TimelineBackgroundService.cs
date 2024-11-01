@@ -18,9 +18,7 @@ namespace uniexetask.api.BackgroundServices
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 CheckTimelines();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             }
         }
@@ -28,9 +26,9 @@ namespace uniexetask.api.BackgroundServices
         {
             using(var scope = _scopeFactory.CreateScope())
             {
-                var timeLineService = scope.ServiceProvider.GetRequiredService<ITimeLineRepository>();
+                var timeLineService = scope.ServiceProvider.GetRequiredService<ITimeLineService>();
                 var groupService = scope.ServiceProvider.GetRequiredService<IGroupService>();
-                var timelines = await timeLineService.GetAsync();
+                var timelines = await timeLineService.GetTimeLines();
                 foreach (var timeline in timelines) 
                 {
                     if(timeline.EndDate == DateTime.Today)
