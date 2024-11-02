@@ -31,30 +31,36 @@ namespace uniexetask.api.Controllers
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<ChatGroupResponse>> response = new ApiResponse<IEnumerable<ChatGroupResponse>>();
             List<ChatGroupResponse> list = new List<ChatGroupResponse>();
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            try
             {
-                response.Success = false;
-                response.ErrorMessage = "User Id not found";
-                return NotFound(response);
-            }
-            var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId, chatGroupIndex, limit, keyword);
-            if (chatgroups == null) 
-            {
-                response.Success = false;
-                response.ErrorMessage = "Chat group not found";
-                return NotFound(response);
-            }
-            foreach (var chatgroup in chatgroups) 
-            {
-                var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
-                list.Add(new ChatGroupResponse
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    ChatGroup = chatgroup,
-                    LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]"
-                });
+                    throw new Exception("Invalid User Id");
+                }
+                var chatgroups = await _chatGroupService.GetChatGroupByUserId(userId, chatGroupIndex, limit, keyword);
+                if (chatgroups == null)
+                {
+                    throw new Exception("Chat group not found");
+                }
+                foreach (var chatgroup in chatgroups)
+                {
+                    var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
+                    list.Add(new ChatGroupResponse
+                    {
+                        ChatGroup = chatgroup,
+                        LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]",
+                        SendDatetime = latestMessage != null ? latestMessage.SendDatetime : null
+                    });
+                }
+                response.Data = list;
+                return Ok(response);
             }
-            response.Data = list;
-            return Ok(response);
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpGet("{chatGroupIdStr}/messages")]
@@ -63,35 +69,40 @@ namespace uniexetask.api.Controllers
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<ChatMessageResponse>> response = new ApiResponse<IEnumerable<ChatMessageResponse>>();
             List<ChatMessageResponse> list = new List<ChatMessageResponse>();
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
+            try
             {
-                response.Success = false;
-                response.ErrorMessage = "User Id not found";
-                return NotFound(response);
-            }
-            var chatmessages = await _chatGroupService.GetMessagesInChatGroup(chatGroupId, messageIndex, limit);
-            if (chatmessages == null)
-            {
-                response.Success = false;
-                response.ErrorMessage = "Chat message not found";
-                return NotFound(response);
-            }
-            foreach (var chatmessage in chatmessages)
-            {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                var user = await _userService.GetUserById(chatmessage.UserId);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                if (user == null) continue;
-
-                list.Add(new ChatMessageResponse
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
                 {
-                    ChatMessage = chatmessage,
-                    Avatar = user.Avatar,
-                    SenderName = user.UserId == userId ? "You" : user.FullName
-                });
+                    throw new Exception("Invalid User Id");
+                }
+                var chatmessages = await _chatGroupService.GetMessagesInChatGroup(chatGroupId, messageIndex, limit);
+                if (chatmessages == null)
+                {
+                    throw new Exception("Chat message not found");
+                }
+                foreach (var chatmessage in chatmessages)
+                {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    var user = await _userService.GetUserById(chatmessage.UserId);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    if (user == null) continue;
+
+                    list.Add(new ChatMessageResponse
+                    {
+                        ChatMessage = chatmessage,
+                        Avatar = user.Avatar,
+                        SenderName = user.UserId == userId ? "You" : user.FullName
+                    });
+                }
+                response.Data = list;
+                return Ok(response);
             }
-            response.Data = list;
-            return Ok(response);
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpGet("{chatGroupIdStr}/members")]
@@ -99,33 +110,38 @@ namespace uniexetask.api.Controllers
         {
             ApiResponse<IEnumerable<MemberInChatGroupResponse>> response = new ApiResponse<IEnumerable<MemberInChatGroupResponse>>();
             List<MemberInChatGroupResponse> list = new List<MemberInChatGroupResponse>();
-            if (string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
+            try
             {
-                response.Success = false;
-                response.ErrorMessage = "Chat group id not found";
-                return NotFound(response);
-            }
-            var chatGroup = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatGroupId);
-            if (chatGroup == null)
-            {
-                response.Success = false;
-                response.ErrorMessage = "Chat group not found";
-                return NotFound(response);
-            }
-            foreach (var user in chatGroup.Users)
-            {
-                if (user == null) continue;
-
-                list.Add(new MemberInChatGroupResponse
+                if (string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
                 {
-                    UserId = user.UserId,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    IsOwner = (user.UserId == chatGroup.OwnerId) ? true : false,
-                });
+                    throw new Exception("Invalid Chat Group Id");
+                }
+                var chatGroup = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatGroupId);
+                if (chatGroup == null)
+                {
+                    throw new Exception("Chat group not found");
+                }
+                foreach (var user in chatGroup.Users)
+                {
+                    if (user == null) continue;
+
+                    list.Add(new MemberInChatGroupResponse
+                    {
+                        UserId = user.UserId,
+                        FullName = user.FullName,
+                        Email = user.Email,
+                        IsOwner = (user.UserId == chatGroup.OwnerId) ? true : false,
+                    });
+                }
+                response.Data = list;
+                return Ok(response);
             }
-            response.Data = list;
-            return Ok(response);
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpPost("add-members")]
