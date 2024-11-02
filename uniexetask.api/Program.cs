@@ -95,19 +95,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ClockSkew = TimeSpan.Zero
     };
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-            if (!string.IsNullOrEmpty(accessToken) &&
-                context.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                context.Token = accessToken;
-            }
-            return System.Threading.Tasks.Task.CompletedTask;
-        }
-    };
 })
 .AddGoogle(options =>
 {
