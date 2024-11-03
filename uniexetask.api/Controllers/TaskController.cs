@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using uniexetask.api.Models.Request;
@@ -9,6 +10,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/task")]
     [ApiController]
     public class TaskController : ControllerBase
@@ -95,85 +97,147 @@ namespace uniexetask.api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskModel task)
         {
-            if (!ModelState.IsValid)
+            ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            var obj = _mapper.Map<core.Models.Task>(task);
-
-            var createdTask = await _taskService.CreateTask(obj);
-            if (!createdTask)
-            {
-                return StatusCode(500, "Error creating task");
-            }
-            var taskId = obj.TaskId;
-            foreach (var studentId in task.AssignedMembers)
-            {
-                var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                if (!ModelState.IsValid)
                 {
-                    TaskId = taskId,
-                    StudentId = studentId,
-                    AssignedDate = DateTime.Now
-                });
-                if (createdTaskAssign == null)
-                {
-                    return StatusCode(500, "Error creating task");
+                    throw new Exception("ModelState not found");
                 }
+
+                var obj = _mapper.Map<core.Models.Task>(task);
+
+                var createdTask = await _taskService.CreateTask(obj);
+                if (!createdTask)
+                {
+                    throw new Exception("Error creating task");
+                }
+                var taskId = obj.TaskId;
+                foreach (var studentId in task.AssignedMembers)
+                {
+                    var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                    {
+                        TaskId = taskId,
+                        StudentId = studentId,
+                        AssignedDate = DateTime.Now
+                    });
+                    if (createdTaskAssign == null)
+                    {
+                        throw new Exception("Error creating task");
+                    }
+                }
+
+                response.Data = obj;
+                return Ok(response);
             }
-            return Ok(obj);
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskModel task)
         {
-            if (!ModelState.IsValid)
+            ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            // Tìm Task hiện tại theo TaskId
-            var existingTask = await _taskService.GetTaskById(task.TaskId);
-            if (existingTask == null)
-            {
-                return NotFound("Task not found");
-            }
-
-            // Cập nhật thông tin task từ UpdateTaskModel
-            _mapper.Map(task, existingTask);
-
-            var updatedTask = await _taskService.UpdateTask(existingTask);
-            if (!updatedTask)
-            {
-                return StatusCode(500, "Error updating task");
-            }
-
-            var taskId = task.TaskId;  // Lấy TaskId từ task đã cập nhật
-
-            // Xóa các TaskAssign hiện tại để thêm mới các thành viên được giao nhiệm vụ
-            var deletedTaskAssigns = await _taskAssignService.DeleteTaskAssignByTaskId(taskId);
-            if (!deletedTaskAssigns)
-            {
-                return StatusCode(500, "Error updating task assigns");
-            }
-
-            // Tạo lại TaskAssign cho các thành viên được chỉ định
-            foreach (var studentId in task.AssignedMembers)
-            {
-                var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                if (!ModelState.IsValid)
                 {
-                    TaskId = taskId,
-                    StudentId = studentId,
-                    AssignedDate = DateTime.Now
-                });
+                    throw new Exception("ModelState not found");
+                }
 
-                if (createdTaskAssign == null)
+                // Tìm Task hiện tại theo TaskId
+                var existingTask = await _taskService.GetTaskById(task.TaskId);
+                if (existingTask == null)
                 {
-                    return StatusCode(500, "Error updating task assigns");
+                    throw new Exception("Task not found");
+                }
+
+                existingTask.TaskName = task.TaskName;
+                existingTask.Description = task.Description;
+                existingTask.StartDate = task.StartDate;
+                existingTask.EndDate = task.EndDate;
+
+                var updatedTask = await _taskService.UpdateTask(existingTask);
+                if (!updatedTask)
+                {
+                    throw new Exception("Error updating task");
+                }
+
+                var taskId = task.TaskId;  // Lấy TaskId từ task đã cập nhật
+
+                // Xóa các TaskAssign hiện tại để thêm mới các thành viên được giao nhiệm vụ
+                var deletedTaskAssigns = await _taskAssignService.DeleteTaskAssignByTaskId(taskId);
+                if (!deletedTaskAssigns)
+                {
+                    throw new Exception("Error updating task assigns");
+                }
+
+                // Tạo lại TaskAssign cho các thành viên được chỉ định
+                foreach (var studentId in task.AssignedMembers)
+                {
+                    var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                    {
+                        TaskId = taskId,
+                        StudentId = studentId,
+                        AssignedDate = DateTime.Now
+                    });
+
+                    if (createdTaskAssign == null)
+                    {
+                        throw new Exception("Error updating task assigns");
+                    }
+                }
+
+                response.Data = existingTask;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete("{taskId}")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                // Kiểm tra giá trị taskId hợp lệ
+                if (taskId <= 0)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Invalid task ID.";
+                    return BadRequest(response);
+                }
+
+                // Gọi phương thức DeleteTask từ TaskService
+                var result = await _taskService.DeleteTask(taskId);
+                if (result)
+                {
+                    response.Success = true;
+                    response.Data = "Task deleted successfully.";
+                    return Ok(response);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Task not found.";
+                    return NotFound(response);
                 }
             }
-
-            return Ok(existingTask);
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
     }

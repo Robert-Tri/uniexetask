@@ -138,16 +138,11 @@ namespace uniexetask.services
                     obj.Description = task.Description;
                     obj.StartDate = task.StartDate;
                     obj.EndDate = task.EndDate;
-                    obj.Status = task.Status;
 
                     _unitOfWork.Tasks.Update(obj);
 
                     var result = _unitOfWork.Save();
-
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    return result > 0;
                 }
             }
             return false;
