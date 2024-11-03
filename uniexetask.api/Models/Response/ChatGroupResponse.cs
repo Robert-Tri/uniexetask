@@ -7,6 +7,7 @@ namespace uniexetask.api.Models.Response
         public required ChatGroup ChatGroup { get; set; }
 
         public required string LatestMessage { get; set; }
+        public DateTime? SendDatetime { get; set; }
 
     }
 }

@@ -39,18 +39,35 @@ namespace uniexetask.api.Hubs
 
             var newMessage = await _chatGroupService.SaveMessageAsync(chatGroupId, userId, message);
             if (newMessage == null) throw new HubException("Message cannot be saved");
+            var chatgroup = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatGroupId);
+            if (chatgroup == null) throw new HubException();
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             var user = await _userService.GetUserById(newMessage.UserId);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (user == null) throw new HubException("User not found");
 
-            ChatMessageResponse response = new ChatMessageResponse
+            ChatGroupResponse chatGroupResponse = new ChatGroupResponse
+            {
+                ChatGroup = chatgroup,
+                LatestMessage = newMessage.MessageContent,
+                SendDatetime = newMessage.SendDatetime
+            };
+
+            ChatMessageResponse messageResponse = new ChatMessageResponse
             {
                 ChatMessage = newMessage,
                 Avatar = user.Avatar,
                 SenderName = user.FullName
             };
-            await Clients.Group(chatGroupIdStr).SendAsync("ReceiveMessages", response);
+
+            List<int> userIds = new List<int>();
+            foreach (var userr in chatgroup.Users)
+            {
+                userIds.Add(userr.UserId);
+            }
+            await Clients.Group(chatGroupIdStr).SendAsync("ReceiveMessages", messageResponse);
+            await Clients.All.SendAsync("UpdateChatGroupWhenReceiveMessages", chatGroupResponse, userIds);
         }
 
         public async Task MarkAsRead(string chatGroupId, int lastReadMessageId)
