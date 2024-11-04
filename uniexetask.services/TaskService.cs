@@ -86,45 +86,50 @@ namespace uniexetask.services
 
         public async Task<bool> CreateTask(core.Models.Task task)
         {
-            if (task != null)
+            if (task == null || task.StartDate == null || task.EndDate == null)
             {
-                var project = await _unitOfWork.Projects.GetByIDAsync(task.ProjectId);
-                if(project == null)
-                {
-                    return false;
-                }
-                DateTime dateee = DateTime.Now;
-                if (task.StartDate.Date < DateTime.Now.Date || task.StartDate.Date > task.EndDate.Date)
-                {
-                    return false;
-                }
-                else
-                {
-                    if (task.StartDate.Date > DateTime.Now.Date)
-                    {
-                        task.Status = nameof(TasksStatus.Not_Started);
-                    }
-                    else if (task.EndDate.Date > DateTime.Now.Date)
-                    {
-                        task.Status = nameof(TasksStatus.In_Progress);
-                    }
-                    else
-                    {
-                        task.Status = nameof(TasksStatus.Overdue);
-                    }
-                    await _unitOfWork.Tasks.InsertAsync(task);
-
-                    var result = _unitOfWork.Save();
-
-                    if (result > 0)
-                    {
-                        var progressCreated = await _taskProgressService.CreateTaskProgressByTaskId(task.TaskId);
-                        return progressCreated;
-                    }
-                }
+                return false; // Hoặc throw exception nếu cần
             }
+
+            var project = await _unitOfWork.Projects.GetByIDAsync(task.ProjectId);
+            if (project == null)
+            {
+                return false;
+            }
+
+            // Kiểm tra điều kiện ngày
+            if (task.EndDate.Date < DateTime.Now.Date || task.StartDate.Date > task.EndDate.Date)
+            {
+                return false;
+            }
+
+            // Xác định trạng thái của task dựa trên ngày
+            if (task.StartDate.Date > DateTime.Now.Date)
+            {
+                task.Status = nameof(TasksStatus.Not_Started);
+            }
+            else if (task.EndDate.Date > DateTime.Now.Date)
+            {
+                task.Status = nameof(TasksStatus.In_Progress);
+            }
+            else
+            {
+                task.Status = nameof(TasksStatus.Overdue);
+            }
+
+            // Thêm task vào database
+            await _unitOfWork.Tasks.InsertAsync(task);
+            var result = _unitOfWork.Save();
+
+            if (result > 0)
+            {
+                var progressCreated = await _taskProgressService.CreateTaskProgressByTaskId(task.TaskId);
+                return progressCreated;
+            }
+
             return false;
         }
+
 
         public async Task<bool> UpdateTask(core.Models.Task task)
         {
@@ -138,16 +143,11 @@ namespace uniexetask.services
                     obj.Description = task.Description;
                     obj.StartDate = task.StartDate;
                     obj.EndDate = task.EndDate;
-                    obj.Status = task.Status;
 
                     _unitOfWork.Tasks.Update(obj);
 
                     var result = _unitOfWork.Save();
-
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    return result > 0;
                 }
             }
             return false;
