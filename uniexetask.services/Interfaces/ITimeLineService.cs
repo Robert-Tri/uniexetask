@@ -13,7 +13,8 @@ namespace uniexetask.services.Interfaces
 
         System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine);
 
-        System.Threading.Tasks.Task UpdateTimeLine(DateTime startDate, int subjectId);
+        System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId);
+        Task<bool> UpdateSpecificTimeLine(int timeLineId, DateTime startDate, DateTime endDate, int subjectId);
 
         void DeleteTimeLine(int timeLineId);
     }

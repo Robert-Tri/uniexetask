@@ -20,8 +20,5 @@ public class UserUpdateModel
     public int CampusId { get; set; }
 
     [Required]
-    public bool Status { get; set; }
-
-    [Required]
     public int RoleId { get; set; }
 }
