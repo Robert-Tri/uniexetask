@@ -36,6 +36,7 @@ namespace uniexetask.core.Interfaces
         IMemberScoreRepository MemberScores { get; }
         IMilestoneRepository Milestones { get; }
         IProjectScoreRepository ProjectScores { get; }
+        ISubjectRepository Subjects { get; }
 
 
         int Save();

@@ -68,6 +68,7 @@ builder.Services.AddScoped<IMemberScoreService, MemberScoreService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IProjectScoreService, ProjectScoreService>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddHostedService<TaskBackgroundService>();

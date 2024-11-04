@@ -25,10 +25,10 @@ namespace uniexetask.services
             _unitOfWork.Save();
         }
 
-        public async System.Threading.Tasks.Task UpdateTimeLine(DateTime startDate, int subjectId)
+        public async System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId)
         {
             var timeLines = await _unitOfWork.TimeLines.GetAsync(filter: t => t.SubjectId == subjectId);
-            foreach (var timeLine in timeLines) 
+            foreach (var timeLine in timeLines)
             {
                 switch (timeLine.TimelineId)
                 {
@@ -45,6 +45,27 @@ namespace uniexetask.services
             }
             _unitOfWork.Save();
         }
+        public async Task<bool> UpdateSpecificTimeLine(int timeLineId, DateTime startDate, DateTime endDate, int subjectId)
+        {
+            var specificTimeline = await _unitOfWork.TimeLines.GetByIDAsync(timeLineId);
+            if (specificTimeline == null)
+                return false;
+
+            var timelines = (await _unitOfWork.TimeLines.GetAsync(filter: t => t.TimelineId < timeLineId && t.SubjectId == subjectId)).ToList();
+
+            foreach (var timeline in timelines)
+            {
+                if (startDate < timeline.StartDate || endDate < timeline.EndDate)
+                    return false;
+            }
+
+            specificTimeline.StartDate = startDate;
+            specificTimeline.EndDate = endDate;
+            _unitOfWork.TimeLines.Update(specificTimeline);
+
+            return _unitOfWork.Save() > 0;
+        }
+
 
         public void DeleteTimeLine(int timeLineId)
         {
