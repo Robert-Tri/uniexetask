@@ -10,10 +10,12 @@ using uniexetask.api.Hubs;
 using uniexetask.api.Middleware;
 using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
+using uniexetask.services.BackgroundServices;
 using uniexetask.services.Interfaces;
 using Unitask.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -59,7 +61,6 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskAssignService, TaskAssignService>();
 builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
-builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddScoped<IProjectProgressService, ProjectProgressService>();
 builder.Services.AddScoped<ITaskProgressService, TaskProgressService>();
 builder.Services.AddScoped<IUsagePlanService, UsagePlanService>();
@@ -67,6 +68,11 @@ builder.Services.AddScoped<IMemberScoreService, MemberScoreService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IProjectScoreService, ProjectScoreService>();
+
+builder.Services.AddHostedService<TimelineBackgroundService>();
+builder.Services.AddHostedService<TaskBackgroundService>();
+
+
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -88,19 +94,6 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ClockSkew = TimeSpan.Zero
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-            if (!string.IsNullOrEmpty(accessToken) &&
-                context.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                context.Token = accessToken;
-            }
-            return System.Threading.Tasks.Task.CompletedTask;
-        }
     };
 })
 .AddGoogle(options =>

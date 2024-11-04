@@ -75,23 +75,21 @@ namespace uniexetask.services
         {
             if (taskId > 0)
             {
-                var tasks = await _unitOfWork.TaskAssigns.GetTaskAssignsByTaskIdAsync(taskId);
-                if (tasks != null)
+                var taskAssigns = await _unitOfWork.TaskAssigns.GetTaskAssignsByTaskIdAsync(taskId);
+                if (taskAssigns != null && taskAssigns.Any())
                 {
-                    foreach (var task in tasks)
+                    foreach (var taskAss in taskAssigns)
                     {
-                        _unitOfWork.Tasks.Delete(task);
+                        _unitOfWork.TaskAssigns.Delete(taskAss);
                     }
                     var result = await _unitOfWork.SaveAsync();
 
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    return result > 0;
                 }
             }
             return false;
         }
+
 
         public async Task<IEnumerable<TaskAssign?>> GetTaskAssignsByTaskId(int taskId)
         {

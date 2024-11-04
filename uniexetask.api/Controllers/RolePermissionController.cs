@@ -26,60 +26,82 @@ namespace uniexetask.api.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _rolePermissionService.GetRoles();
-            if (roles != null)
+            ApiResponse<IEnumerable<string>> response = new ApiResponse<IEnumerable<string>>();
+            try
             {
-                return Ok(roles);
+                var roles = await _rolePermissionService.GetRoles();
+
+                if (roles == null) throw new Exception("Roles not found");
+
+                response.Data = roles;
+                return Ok(response);
             }
-            else return NotFound();
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
         [HttpGet("permissions")]
         public async Task<IActionResult> GetPermissionsByRole(string role)
         {
             ApiResponse<RolePermissionModel> response = new ApiResponse<RolePermissionModel>();
-            var features = await _rolePermissionService.GetFeatures();
-            if (features == null) return NotFound();
-            
-
-            var permissions = await _rolePermissionService.GetPermissions();
-            if (permissions == null) return NotFound();
-
-            var rolePermissions = await _rolePermissionService.GetRolePermissionsByRole(role);
-            if (rolePermissions == null) return NotFound();
-            RolePermissionModel model = new RolePermissionModel
+            try
             {
-                Features = features,
-                Permissions = permissions,
-                PermissionsWithRole = rolePermissions
-            };
-            response.Data = model;
-            return Ok(response);
+                var features = await _rolePermissionService.GetFeatures();
+                if (features == null) throw new Exception("Feature not found.");
+
+                var permissions = await _rolePermissionService.GetPermissions();
+                if (permissions == null) throw new Exception("Permission not found.");
+
+                var rolePermissions = await _rolePermissionService.GetRolePermissionsByRole(role);
+                if (rolePermissions == null) throw new Exception("Role Permission not found.");
+                RolePermissionModel model = new RolePermissionModel
+                {
+                    Features = features,
+                    Permissions = permissions,
+                    PermissionsWithRole = rolePermissions
+                };
+                response.Data = model;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpPost("update")]
         public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsModel request)
         {
-            if (request == null || string.IsNullOrEmpty(request.RoleName) || request.Permissions == null)
-            {
-                return BadRequest(new { success = false, message = "Invalid request data." });
-            }
-
+            ApiResponse<string> response = new ApiResponse<string>();
             try
             {
+                if (request == null || string.IsNullOrEmpty(request.RoleName) || request.Permissions == null)
+                {
+                    throw new Exception("Invalid request data.");
+                }
+
                 var result = await _rolePermissionService.UpdateRolePermissionsAsync(request.RoleName, request.Permissions);
 
                 if (result)
                 {
-                    return Ok(new { success = true, message = "Permissions updated successfully." });
+                    response.Data = "Permissions updated successfully.";
+                    return Ok(response);
                 }
                 else
                 {
-                    return StatusCode(500, new { success = false, message = "Failed to update permissions." });
+                    throw new Exception("Failed to update permissions.");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = $"An error occurred: {ex.Message}" });
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
         }
     }

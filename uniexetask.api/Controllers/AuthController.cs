@@ -41,9 +41,10 @@ namespace uniexetask.api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             ApiResponse<TokenModel> response = new ApiResponse<TokenModel>();
-            var user = await _authService.LoginAsync(model.Email, model.Password);
-            if (user != null)
+            try
             {
+                var user = await _authService.LoginAsync(model.Email, model.Password);
+                if (user == null) throw new Exception("Email or password is not correct.");
                 TokenModel token = new TokenModel
                 {
                     AccessToken = await GenerateAccessToken(user),
@@ -65,36 +66,42 @@ namespace uniexetask.api.Controllers
                     Expires = DateTime.UtcNow.AddDays(30)
                 });
 
-                return Ok(response);
+                    return Ok(response);
             }
-            response.Success = false;
-            response.ErrorMessage = "Authentication failed!";
-            return Unauthorized(response);
+            catch (Exception ex) 
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Unauthorized(response);
+            }
         }
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null)
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
             {
-                return Unauthorized(new ApiResponse<string>
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null)
                 {
-                    Success = false,
-                    ErrorMessage = "User not authenticated."
-                });
+                    throw new Exception("User not authenticated.");
+                }
+
+                var userId = int.Parse(userIdClaim);
+                await _authService.RevokeRefreshToken(userId);
+                Response.Cookies.Delete("AccessToken");
+                Response.Cookies.Delete("RefreshToken");
+
+                response.Data = "Logout successful.";
+                return Ok(response);
             }
-
-            var userId = int.Parse(userIdClaim);
-            await _authService.RevokeRefreshToken(userId);
-            Response.Cookies.Delete("AccessToken");
-            Response.Cookies.Delete("RefreshToken");
-
-            return Ok(new ApiResponse<string>
+            catch (Exception ex)
             {
-                Success = true,
-                Data = "Logout successful."
-            });
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpPost("refresh-token")]
