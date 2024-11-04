@@ -62,32 +62,48 @@ namespace uniexetask.api.Controllers
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                return BadRequest("ID người dùng không hợp lệ.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "ID người dùng không hợp lệ." });
             }
 
             var student = await _studentService.GetStudentByCode(member.StudentCode);
             if (student == null)
             {
-                return BadRequest(new { StudentCode = member.StudentCode, Success = false, Message = "Không tìm thấy sinh viên" });
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Data = new { StudentCode = member.StudentCode },
+                    ErrorMessage = $"Không tìm thấy sinh viên có mã {member.StudentCode}"
+                });
             }
 
             bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
             if (studentExistsInGroup)
             {
-                return BadRequest(new { StudentCode = member.StudentCode, Success = false, Message = "Sinh viên đã có nhóm" });
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Data = new { StudentCode = member.StudentCode },
+                    ErrorMessage = $"Sinh viên có mã {member.StudentCode} đã có nhóm"
+                });
             }
 
             var group = await _groupService.GetGroupById(member.GroupId);
             if (group == null)
             {
-                return BadRequest("Không tìm thấy nhóm.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Không tìm thấy nhóm với ID {member.GroupId}." });
             }
 
             var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: student.UserId, groupId: member.GroupId, groupName: group.GroupName);
             await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
-            return Ok(new { Success = true, Message = "Đã gửi lời mời tham gia nhóm" });
+            var response = new ApiResponse<object>
+            {
+                Data = new { Message = $"Đã gửi lời mời tham gia nhóm cho sinh viên có mã {member.StudentCode}" }
+            };
+            return Ok(response);
         }
+
+
 
 
         [HttpPost]
@@ -173,18 +189,17 @@ namespace uniexetask.api.Controllers
 
             request.Group.HasMentor = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
-            
 
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                return BadRequest("ID người dùng không hợp lệ.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "ID người dùng không hợp lệ." });
             }
 
             var studentLeader = await _studentService.GetStudentByUserId(userId);
             bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
             if (isLeaderInGroup)
             {
-                return BadRequest("Leader đã có nhóm, không thể tạo nhóm mới.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Leader đã có nhóm, không thể tạo nhóm mới." });
             }
 
             // Tạo nhóm
@@ -193,7 +208,7 @@ namespace uniexetask.api.Controllers
 
             if (!isGroupCreated)
             {
-                return BadRequest("Tạo nhóm thất bại");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Tạo nhóm thất bại" });
             }
 
             var createdGroupId = objGroup.GroupId;
@@ -213,12 +228,12 @@ namespace uniexetask.api.Controllers
 
                 if (!isLeaderCreated)
                 {
-                    return BadRequest("Không thể thêm Leader vào nhóm");
+                    return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không thể thêm Leader vào nhóm" });
                 }
             }
             else
             {
-                return BadRequest("Không tìm thấy sinh viên với ID đã cho");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy sinh viên với ID đã cho" });
             }
 
             // Kiểm tra mã sinh viên trùng lặp
@@ -229,34 +244,40 @@ namespace uniexetask.api.Controllers
             {
                 if (!studentCodesHashSet.Add(studentCode))
                 {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Mã sinh viên trùng, đã bỏ qua" });
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Mã sinh viên {studentCode} trùng, đã bỏ qua" });
                     continue;
                 }
 
                 var foundStudent = await _studentService.GetStudentByCode(studentCode);
                 if (foundStudent == null)
                 {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Không tìm thấy sinh viên" });
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Không tìm thấy sinh viên có mã {studentCode}" });
                     continue;
                 }
 
                 bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(foundStudent.StudentId);
                 if (studentExistsInGroup)
                 {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = "Sinh viên đã có nhóm" });
+                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Sinh viên có mã {studentCode} đã có nhóm" });
                     continue;
                 }
 
                 var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: foundStudent.UserId, groupId: createdGroupId, groupName: request.Group.GroupName);
                 await _hubContext.Clients.User(foundStudent.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = "Đã gửi lời mời tham gia nhóm" });
+                memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = $"Đã gửi lời mời tham gia nhóm cho sinh viên có mã {studentCode}" });
             }
 
-            return Ok(new { GroupId = createdGroupId, MemberResults = memberCreationResults });
+            var response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    GroupId = createdGroupId,
+                    MemberResults = memberCreationResults
+                }
+            };
+            return Ok(response);
+
         }
-
-
-
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
