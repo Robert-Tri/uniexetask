@@ -35,6 +35,11 @@ namespace uniexetask.services
             return true;
         }
 
+        public async Task<ChatGroup?> GetChatGroupByChatGroupId(int chatGroupId)
+        {
+            return await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
+        }
+
         public async Task<IEnumerable<ChatGroup>?> GetChatGroupByUserId(int userId, int chatGroupIndex, int limit, string keyword)
         {
             var userWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(userId);
