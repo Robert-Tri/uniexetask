@@ -23,6 +23,7 @@ namespace Unitask.Api.Extensions
             CreateMap<NotificationModel, Notification>().ReverseMap();
             CreateMap<AddMemberScoreModel, MemberScore>().ReverseMap();
             CreateMap<AddProjectScoreModel, ProjectScore>().ReverseMap();
+            CreateMap<SubjectModel, Subject>().ReverseMap();
 
         }
     }

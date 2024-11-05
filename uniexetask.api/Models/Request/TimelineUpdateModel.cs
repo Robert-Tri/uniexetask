@@ -1,6 +1,6 @@
 ﻿namespace uniexetask.api.Models.Request
 {
-    public class TimelineUpdateModel
+    public class MainTimelineUpdateModel
     {
         public int SubjectId {  get; set; }
         public DateTime StartDate { get; set; }

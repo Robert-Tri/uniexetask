@@ -2,26 +2,38 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using OfficeOpenXml;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly Cloudinary _cloudinary;
         public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
+
+            var cloudinaryAccount = new Account(
+               "dan0stbfi",   // Cloud Name
+               "687237422157452",      // API Key
+               "XQbEo1IhkXxbC24rHvpdNJ5BHNw"    // API Secret
+           );
+            _cloudinary = new Cloudinary(cloudinaryAccount);
+
         }
 
         [HttpGet("search-email")]
@@ -89,26 +101,24 @@ namespace uniexetask.api.Controllers
         [HttpGet("ProfileUser")]
         public async Task<IActionResult> ProfileUser()
         {
-            // Lấy userId từ claim trong JWT token
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            if (int.TryParse(userIdString, out int userId)) // Chuyển userIdString thành int
+            if (int.TryParse(userIdString, out int userId)) 
             {
-                // Gọi service để lấy thông tin user dựa trên userId
                 var users = await _userService.GetUserByIdWithCampusAndRoleAndStudents(userId);
 
                 if (users != null)
                 {
-                    return Ok(users); // Trả về thông tin user nếu tìm thấy
+                    return Ok(users); 
                 }
                 else
                 {
-                    return BadRequest("User not found"); // Trả về lỗi nếu không tìm thấy user
+                    return BadRequest("User not found"); 
                 }
             }
             else
             {
-                return BadRequest("Invalid userId"); // Trả về lỗi nếu không lấy được userId
+                return BadRequest("Invalid userId"); 
             }
         }
 
@@ -273,6 +283,148 @@ namespace uniexetask.api.Controllers
                 return BadRequest();
             }
         }
+
+        [Authorize]
+        [HttpPut("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileModel userProfile)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return Unauthorized();
+            }
+            var user = await _userService.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            user.FullName = userProfile.FullName;
+            user.Phone = userProfile.Phone;
+            var isUserUpdated = await _userService.UpdateUser(user);
+            ApiResponse<object> response = new ApiResponse<object> { Data = new
+            {
+                FullName = user.FullName,
+                Phone = user.Phone
+            }
+            };
+            if (isUserUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Failed to update password.");
+            }
+        }
+
+        [Authorize]
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (user.Password != oldPassword)
+            {
+                return BadRequest("Old password is incorrect.");
+            }
+
+            user.Password = newPassword;
+            var isUserUpdated = await _userService.UpdateUser(user);
+
+            ApiResponse<object> response = new ApiResponse<object> { Data = new
+            {
+                Password = user.Password
+            }
+            };
+            if (isUserUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Failed to update password.");
+            }
+        }
+
+        [Authorize]
+        [HttpPut("UploadProfileAvatar")]
+        public async Task<IActionResult> UploadProfileAvatar(IFormFile file)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return Unauthorized(new ApiResponse<bool> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var user = await _userService.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound(new ApiResponse<bool> { Success = false, ErrorMessage = "User not found." });
+            }
+
+            if (file != null && file.Length > 0)
+            {
+                // Xử lý upload ảnh mới nếu file được chọn
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream())
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                {
+                    return BadRequest(new ApiResponse<bool> { Success = false, ErrorMessage = uploadResult.Error.Message });
+                }
+
+                // Lưu ảnh mới và xóa ảnh cũ nếu có
+                string oldAvatar = user.Avatar;
+                user.Avatar = uploadResult.SecureUri.ToString();
+
+                if (!string.IsNullOrEmpty(oldAvatar) && !oldAvatar.Contains("https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"))
+                {
+                    string publicId = GetPublicIdFromUrl(oldAvatar);
+                    var deletionParams = new DeletionParams(publicId);
+                    var deletionResult = await _cloudinary.DestroyAsync(deletionParams);
+
+                    if (deletionResult.Error != null)
+                    {
+                        return BadRequest(new ApiResponse<bool> { Success = false, ErrorMessage = deletionResult.Error.Message });
+                    }
+                }
+            }
+
+            var isUserUpdated = await _userService.UpdateUser(user);
+            if (!isUserUpdated)
+            {
+                return BadRequest(new ApiResponse<bool> { Success = false, ErrorMessage = "Failed to update user information." });
+            }
+
+            ApiResponse<string> response = new ApiResponse<string> { Data = user.Avatar };
+            return Ok(response);
+        }
+
+        private string GetPublicIdFromUrl(string cloudinaryUrl)
+        {
+            var uri = new Uri(cloudinaryUrl);
+            var parts = uri.Segments;
+            var publicIdWithExtension = parts[parts.Length - 1].Split('.')[0];
+            return publicIdWithExtension;
+        }
+
+
+
 
         /// <summary>
         /// Delete product by id

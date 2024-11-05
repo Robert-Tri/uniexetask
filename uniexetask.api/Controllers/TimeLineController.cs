@@ -36,12 +36,30 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateTimeLine(TimelineUpdateModel timeLine)
+        [HttpPut("updatemaintimeline")]
+        public async Task<IActionResult> UpdateMainTimeLine(MainTimelineUpdateModel timeLine)
         {
-            await _timeLineService.UpdateTimeLine(timeLine.StartDate, timeLine.SubjectId);
+            await _timeLineService.UpdateMainTimeLine(timeLine.StartDate, timeLine.SubjectId);
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             return Ok();
+        }
+        [HttpPut("updatespecifictimeline")]
+        public async Task<IActionResult> UpdateSpecificTimeline(SpecificTimelineUpdateModel timeline)
+        {
+            bool result = await _timeLineService.UpdateSpecificTimeLine(timeline.TimelineId, timeline.StartDate, timeline.EndDate, timeline.SubjectId);
+            ApiResponse<SpecificTimelineUpdateModel> response = new ApiResponse<SpecificTimelineUpdateModel>();
+            if (result)
+            {
+                response.Data = timeline;
+                return Ok();
+            }  
+            else
+            {
+                response.Success = false;
+                response.Data = timeline;
+                response.ErrorMessage = "The specified timeline update is invalid due to date constraints.";
+                return BadRequest(response);
+            }
         }
 
         [HttpDelete("{timeLineId}")]
@@ -51,5 +69,4 @@ namespace uniexetask.api.Controllers
             return NoContent();
         }
     }
-
 }
