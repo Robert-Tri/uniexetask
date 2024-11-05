@@ -160,13 +160,12 @@ namespace uniexetask.services
                 var task = await _unitOfWork.Tasks.GetByIDAsync(taskId);
                 if (task != null)
                 {
-                    _unitOfWork.Tasks.Delete(task);
-                    var result = await _unitOfWork.SaveAsync();
+                    task.IsDeleted = true;
+                    _unitOfWork.Tasks.Update(task);
 
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
+                    var result = _unitOfWork.Save();
+
+                    return result > 0;
                 }
             }
             return false;

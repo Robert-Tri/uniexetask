@@ -15,5 +15,7 @@ public partial class ProjectProgress
 
     public string? Note { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Project Project { get; set; } = null!;
 }

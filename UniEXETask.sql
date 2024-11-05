@@ -174,6 +174,7 @@ CREATE TABLE PROJECT_PROGRESS (
     progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
     updated_date DATETIME NOT NULL,
     note NVARCHAR(250),
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
@@ -197,6 +198,7 @@ CREATE TABLE TASK_PROGRESS (
     progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
     updated_date DATETIME NOT NULL,
     note NVARCHAR(250),
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (task_id) REFERENCES TASK(task_id)
 );
 
@@ -758,6 +760,8 @@ VALUES
 (4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
 (5, 25.00, '2024-11-01', 'Initial database schema designed'),
 (6, 30.00, '2024-11-03', 'UI mockups under review'),
+(7, 0.00, '2024-10-30', 'Not started yet'),
+(8, 0.00, '2024-10-30', 'Not started yet'),
 (9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
 (10, 0.00, '2024-11-05', 'Not started yet'),
 (11, 0.00, '2024-12-01', 'Not started yet'),
