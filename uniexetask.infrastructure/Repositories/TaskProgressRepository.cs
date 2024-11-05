@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,13 @@ namespace uniexetask.infrastructure.Repositories
     {
         public TaskProgressRepository(UniExetaskContext dbContext) : base(dbContext)
         {
-
         }
+
+        public async Task<TaskProgress> GetTaskProgressByTaskIdAsync(int taskId)
+        {
+            return await dbSet
+                .FirstOrDefaultAsync(t => t.TaskId == taskId && t.IsDeleted == false);
+        }
+
     }
 }

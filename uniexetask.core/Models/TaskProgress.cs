@@ -15,5 +15,7 @@ public partial class TaskProgress
 
     public string? Note { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Task Task { get; set; } = null!;
 }

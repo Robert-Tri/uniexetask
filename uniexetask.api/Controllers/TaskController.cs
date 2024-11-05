@@ -65,27 +65,32 @@ namespace uniexetask.api.Controllers
             List<TaskModel> tasks = new List<TaskModel>();
             foreach (var task in tasksList)
             {
-                var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
-                var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
+                if(task.IsDeleted == false)
                 {
-                    TaskAssignId = assign.TaskAssignId,
-                    TaskId = assign.TaskId,
-                    StudentId = assign.StudentId,
-                    AssignedDate = assign.AssignedDate,
-                }).ToList();
+                    var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
+                    var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
+                    {
+                        TaskAssignId = assign.TaskAssignId,
+                        TaskId = assign.TaskId,
+                        StudentId = assign.StudentId,
+                        AssignedDate = assign.AssignedDate,
+                    }).ToList();
+                    var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
 
-                tasks.Add(new TaskModel
-                {
-                    TaskId = task.TaskId,
-                    ProjectId = task.ProjectId,
-                    TaskName = task.TaskName,
-                    Description = task.Description,
-                    StartDate = task.StartDate,
-                    EndDate = task.EndDate,
-                    Status = task.Status,
-                    IsDeleted = task.IsDeleted,
-                    TaskAssigns = taskAssignModels 
-                });
+                    tasks.Add(new TaskModel
+                    {
+                        TaskId = task.TaskId,
+                        ProjectId = task.ProjectId,
+                        TaskName = task.TaskName,
+                        Description = task.Description,
+                        StartDate = task.StartDate,
+                        EndDate = task.EndDate,
+                        ProgressPercentage = taskProgress.ProgressPercentage,
+                        Status = task.Status,
+                        IsDeleted = task.IsDeleted,
+                        TaskAssigns = taskAssignModels
+                    });
+                }
             }
 
             ApiResponse<IEnumerable<TaskModel>> response = new ApiResponse<IEnumerable<TaskModel>>();

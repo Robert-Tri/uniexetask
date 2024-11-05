@@ -18,6 +18,21 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<TaskProgress> GetTaskProgressByTaskId(int taskId)
+        {
+            if (taskId > 0)
+            {
+                var progress = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(taskId);
+
+                if (progress != null)
+                {
+                    return progress;
+                }
+            }
+
+            return null;
+        }
+
         public async Task<bool> CreateTaskProgressByTaskId(int taskId)
         {
             if (taskId > 0)

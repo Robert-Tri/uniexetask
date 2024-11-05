@@ -9,5 +9,7 @@ namespace uniexetask.core.Interfaces
 {
     public interface ITaskProgressRepository : IGenericRepository<TaskProgress>
     {
+        Task<TaskProgress> GetTaskProgressByTaskIdAsync(int taskId);
+
     }
 }
