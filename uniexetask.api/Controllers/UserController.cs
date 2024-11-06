@@ -286,7 +286,7 @@ namespace uniexetask.api.Controllers
 
         [Authorize]
         [HttpPut("UpdateProfile")]
-        public async Task<IActionResult> UpdateProfile(UpdateProfileModel userProfile)
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileModel userProfile)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
@@ -320,8 +320,9 @@ namespace uniexetask.api.Controllers
 
         [Authorize]
         [HttpPut("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel passwordModel)
         {
+
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
@@ -334,28 +335,33 @@ namespace uniexetask.api.Controllers
                 return NotFound("User not found.");
             }
 
-            if (user.Password != oldPassword)
+            if (user.Password != passwordModel.oldPassword)
             {
                 return BadRequest("Old password is incorrect.");
             }
 
-            user.Password = newPassword;
+            user.Password = passwordModel.newPassword;
             var isUserUpdated = await _userService.UpdateUser(user);
 
-            ApiResponse<object> response = new ApiResponse<object> { Data = new
+            ApiResponse<object> response = new ApiResponse<object>
             {
-                Password = user.Password
-            }
+                Data = new
+                {
+                    Password = user.Password
+                }
             };
+
             if (isUserUpdated)
             {
                 return Ok(response);
             }
             else
             {
-                return BadRequest("Failed to update password.");
+                return BadRequest("Không thể cập nhật mật khẩu.");
             }
         }
+
+
 
         [Authorize]
         [HttpPut("UploadProfileAvatar")]
