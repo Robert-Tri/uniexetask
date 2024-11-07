@@ -51,7 +51,7 @@ namespace uniexetask.api.Controllers
                         .Where(gm => gm.Role == "Leader")
                         .Select(gm => gm.Student.User.FullName)
                         .FirstOrDefault(),
-                    LeaderAvata = reqMember.Group.GroupMembers
+                    LeaderAvatar = reqMember.Group.GroupMembers
                         .Where(gm => gm.Role == "Leader")
                         .Select(gm => gm.Student.User.Avatar)
                         .FirstOrDefault(),
@@ -63,6 +63,58 @@ namespace uniexetask.api.Controllers
             {
                 Data = responseData
             };
+            return Ok(response);
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpGet("MyFindGroup")]
+        public async Task<IActionResult> GetMyReqMembers()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var myReqMembers = await _groupMemberService.GetGroupMemberByUserId(userId);
+            if (myReqMembers == null || myReqMembers.GroupId == 0)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "User does not belong to any group." });
+            }
+
+            var reqMembersList = await _reqMemberService.GetAllReqMember();
+            if (reqMembersList == null || !reqMembersList.Any())
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "No member requests available." });
+            }
+
+            var responseData = reqMembersList
+                .Where(reqMember => reqMember.Status == true && reqMember.GroupId == myReqMembers.GroupId)
+                .Select(reqMember => new
+                {
+                    reqMember.RegMemberId,
+                    reqMember.Description,
+                    reqMember.Status,
+                    GroupName = reqMember.Group.GroupName,
+                    GroupId = reqMember.Group.GroupId,
+                    LeaderName = reqMember.Group.GroupMembers
+                        .Where(gm => gm.Role == "Leader")
+                        .Select(gm => gm.Student.User.FullName)
+                        .FirstOrDefault(),
+                    LeaderAvatar = reqMember.Group.GroupMembers
+                        .Where(gm => gm.Role == "Leader")
+                        .Select(gm => gm.Student.User.Avatar)
+                        .FirstOrDefault(),
+                    SubjectCode = reqMember.Group.Subject.SubjectCode,
+                    MemberCount = reqMember.Group.GroupMembers.Count()
+                });
+
+            var response = new ApiResponse<IEnumerable<object>>
+            {
+                Success = true,
+                Data = responseData
+            };
+
             return Ok(response);
         }
 
