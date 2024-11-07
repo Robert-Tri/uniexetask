@@ -42,13 +42,44 @@ namespace uniexetask.services
                 {
                     return false;
                 }
-
                 // Tạo TaskProgress
                 TaskProgress progress = new TaskProgress
                 {
                     TaskId = taskId,
                     ProgressPercentage = 0,
-                    UpdatedDate = DateTime.Now
+                    UpdatedDate = DateTime.Now,
+                    IsDeleted = false
+                };
+
+                await _unitOfWork.TaskProgresses.InsertAsync(progress);
+                var result = _unitOfWork.Save();
+
+                return result > 0;
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateTaskProgressByTaskId(TaskProgress taskProgress)
+        {
+            if (taskProgress != null)
+            {
+                var taskProgressPresent = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(taskProgress.TaskId);
+                if (taskProgressPresent != null)
+                {
+                    taskProgressPresent.IsDeleted = true;
+
+                    _unitOfWork.TaskProgresses.Update(taskProgress);
+
+                    _unitOfWork.Save();
+                }
+                // Tạo TaskProgress
+                TaskProgress progress = new TaskProgress
+                {
+                    TaskId = taskProgress.TaskProgressId,
+                    ProgressPercentage = taskProgress.ProgressPercentage,
+                    UpdatedDate = DateTime.Now,
+                    Note = taskProgress.Note,
+                    IsDeleted = false
                 };
 
                 await _unitOfWork.TaskProgresses.InsertAsync(progress);
