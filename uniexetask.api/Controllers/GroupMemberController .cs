@@ -192,7 +192,7 @@ namespace uniexetask.api.Controllers
 
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "ID người dùng không hợp lệ." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
             var studentLeader = await _studentService.GetStudentByUserId(userId);
