@@ -25,5 +25,7 @@ public partial class Task
 
     public virtual ICollection<TaskAssign> TaskAssigns { get; set; } = new List<TaskAssign>();
 
+    public virtual ICollection<TaskDetail> TaskDetails { get; set; } = new List<TaskDetail>();
+
     public virtual ICollection<TaskProgress> TaskProgresses { get; set; } = new List<TaskProgress>();
 }

@@ -38,6 +38,7 @@ namespace uniexetask.core.Interfaces
         IProjectScoreRepository ProjectScores { get; }
         ISubjectRepository Subjects { get; }
 
+        ITaskDetailRepository TaskDetails { get; }
 
         int Save();
 
