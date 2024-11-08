@@ -160,5 +160,55 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Roles = "Student")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateReqMember([FromBody] UpdateRegMemberModel reqMember)
+        {
+            var reqNew = await _reqMemberService.GetReqMemberById(reqMember.RegMemberId);
+            reqNew.Description = reqMember.Description;
+            var isReqUpdated = await _reqMemberService.UpdateReqMember(reqNew);
+            ApiResponse<object> response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    Description = reqNew.Description
+                }
+            };
+
+            if (isReqUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Không thể cập nhật Description.");
+            }
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpPut("DeleteReq")]
+        public async Task<IActionResult> DeleteReqMember([FromBody] int reqMemberId)
+        {
+            var reqNew = await _reqMemberService.GetReqMemberById(reqMemberId);
+            reqNew.Status = false;
+            var isReqUpdated = await _reqMemberService.UpdateReqMember(reqNew);
+            ApiResponse<object> response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    Description = reqNew.Description
+                }
+            };
+
+            if (isReqUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Không thể cập nhật Description.");
+            }
+        }
+
     }
 }
