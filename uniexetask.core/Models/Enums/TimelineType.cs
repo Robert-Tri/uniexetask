@@ -8,7 +8,7 @@ namespace uniexetask.core.Models.Enums
 {
     public enum TimelineType
     {
-        SelectGroup = 1,
+        ConfirmGroup = 1,
         AssignMentor = 2,
         SelectTopic = 3,
     }

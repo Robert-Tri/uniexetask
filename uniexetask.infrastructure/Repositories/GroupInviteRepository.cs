@@ -11,6 +11,15 @@ namespace uniexetask.infrastructure.Repositories
         {
         }
 
+        public async System.Threading.Tasks.Task DeleteGroupInvites(int groupId)
+        {
+            var groupInvites = await dbSet.Where(gi => gi.GroupId == groupId).ToListAsync();
+            foreach(var groupInvite in groupInvites)
+            {
+                dbSet.Remove(groupInvite);
+            }
+        }
+
         public async Task<GroupInvite?> GetGroupInviteByNotificationId(int notificationId)
         {
             return await dbSet
