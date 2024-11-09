@@ -14,9 +14,12 @@ namespace uniexetask.services
         public async Task<IEnumerable<RegMemberForm>> GetAllReqMember()
         {
             var reqMemberList = await _unitOfWork.ReqMembers.GetAsync(
-                includeProperties: "Group,Group.GroupMembers,Group.Subject,Group.GroupMembers.Student.User");
+                filter: rm => rm.Status == true, 
+                includeProperties: "Group,Group.GroupMembers,Group.Subject,Group.GroupMembers.Student.User"
+            );
             return reqMemberList;
         }
+
 
         public async Task<bool> CreateReqMember(RegMemberForm reqMember)
         {
@@ -30,6 +33,44 @@ namespace uniexetask.services
                     return true;
                 else
                     return false;
+            }
+            return false;
+        }
+
+        public async Task<RegMemberForm?> GetReqMemberById(int id)
+        {
+            if (id > 0)
+            {
+                var RegMember = await _unitOfWork.ReqMembers.GetByIDAsync(id);
+                if (RegMember != null)
+                {
+                    return RegMember;
+                }
+            }
+            return null;
+        }
+
+        public async Task<bool> UpdateReqMember(RegMemberForm ReqMembers)
+        {
+            if (ReqMembers != null)
+            {
+                var RegMember = await _unitOfWork.ReqMembers.GetByIDAsync(ReqMembers.RegMemberId);
+                if (RegMember != null)
+                {
+                    RegMember.GroupId = ReqMembers.GroupId;
+                    RegMember.Description = ReqMembers.Description;
+                    RegMember.Status = ReqMembers.Status;
+
+
+                    _unitOfWork.ReqMembers.Update(RegMember);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
             }
             return false;
         }

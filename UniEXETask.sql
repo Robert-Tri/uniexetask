@@ -174,6 +174,7 @@ CREATE TABLE PROJECT_PROGRESS (
     progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
     updated_date DATETIME NOT NULL,
     note NVARCHAR(250),
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id)
 );
 
@@ -197,6 +198,7 @@ CREATE TABLE TASK_PROGRESS (
     progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
     updated_date DATETIME NOT NULL,
     note NVARCHAR(250),
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (task_id) REFERENCES TASK(task_id)
 );
 
@@ -208,6 +210,17 @@ CREATE TABLE TASK_ASSIGN (
 	assigned_date DATETIME NOT NULL,
 	FOREIGN KEY (task_id) REFERENCES TASK(task_id),
 	FOREIGN KEY (student_id) REFERENCES STUDENT(student_id)
+);
+
+-- Tạo bảng TASK_DETAIL
+CREATE TABLE TASK_DETAIL (
+    task_detail_id INT PRIMARY KEY IDENTITY(1,1),
+    task_id INT NOT NULL,
+    task_detail_name NVARCHAR(250) NOT NULL, -- Mô tả công việc cụ thể trong task
+	progress_percentage DECIMAL(5,2) CHECK (progress_percentage >= 0 AND progress_percentage <= 100) NOT NULL DEFAULT 0,
+	isCompleted BIT NOT NULL DEFAULT 0,
+	isDeleted BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (task_id) REFERENCES TASK(task_id)
 );
 
 -- Tạo bảng LABEL
@@ -758,6 +771,8 @@ VALUES
 (4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
 (5, 25.00, '2024-11-01', 'Initial database schema designed'),
 (6, 30.00, '2024-11-03', 'UI mockups under review'),
+(7, 0.00, '2024-10-30', 'Not started yet'),
+(8, 0.00, '2024-10-30', 'Not started yet'),
 (9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
 (10, 0.00, '2024-11-05', 'Not started yet'),
 (11, 0.00, '2024-12-01', 'Not started yet'),
@@ -789,6 +804,59 @@ VALUES
 (11, 11, '2024-11-01'),
 (12, 9, '2024-11-01'),
 (12, 11, '2024-11-01');
+
+-- Thêm dữ liệu mẫu cho bảng TASK_DETAIL
+INSERT INTO TASK_DETAIL (task_id, task_detail_name, progress_percentage, isCompleted, isDeleted)
+VALUES 
+-- Task 1: 'Research Phase'
+(1, N'Nghiên cứu tài liệu và công nghệ liên quan', 80.00, 1, 0),
+(1, N'Phân tích yêu cầu về nghiên cứu', 20.00, 0, 0),
+
+-- Task 2: 'Project Initiation'
+(2, N'Xác định phạm vi dự án', 40.00, 1, 0),
+(2, N'Phân bổ nguồn lực và lập kế hoạch', 30.00, 1, 0),
+(2, N'Báo cáo', 30.00, 0, 0),
+
+-- Task 3: 'Requirements Gathering'
+(3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 1, 0),
+(3, N'Phân tích và tài liệu hóa yêu cầu', 40.00, 1, 0),
+
+-- Task 4: 'System Design'
+(4, N'Thiết kế giao diện người dùng (UI)', 45.00, 1, 0),
+(4, N'Thiết kế kiến trúc hệ thống', 35.00, 0, 0),
+(4, N'Báo cáo 4', 20.00, 0, 0),
+
+-- Task 5: 'Database Design'
+(5, N'Thiết kế cơ sở dữ liệu ban đầu', 40.00, 0, 0),
+(5, N'Tối ưu hóa cơ sở dữ liệu', 60.00, 0, 0),
+
+-- Task 6: 'UI/UX Design'
+(6, N'Tạo mockups cho trang chủ', 30.00, 0, 0),
+(6, N'Review và phản hồi từ đội ngũ thiết kế', 70.00, 1, 0),
+
+-- Task 7: 'Backend Development'
+(7, N'Phát triển API cho người dùng', 55.00, 0, 0),
+(7, N'Phát triển API cho quản lý dự án', 45.00, 1, 0),
+
+-- Task 8: 'Frontend Development'
+(8, N'Phát triển giao diện cho đăng nhập', 38.00, 1, 0),
+(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 1, 0),
+
+-- Task 9: 'Integration and Testing'
+(9, N'Tích hợp các thành phần hệ thống', 50.00, 1, 0),
+(9, N'Kiểm thử hệ thống tổng thể', 50.00, 1, 0),
+
+-- Task 10: 'User Acceptance Testing'
+(10, N'Chuẩn bị môi trường kiểm thử UAT', 67.00, 1, 0),
+(10, N'Thực hiện kiểm thử UAT', 33.00, 0, 0),
+
+-- Task 11: 'Prototype'
+(11, N'Xây dựng nguyên mẫu ban đầu', 70.00, 0, 0),
+(11, N'Kiểm thử và hoàn thiện nguyên mẫu', 30.00, 0, 0),
+
+-- Task 12: 'Deployment and Documentation'
+(12, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 0, 0),
+(12, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 0, 0);
 
 -- Thêm dữ liệu mẫu cho bảng LABEL
 INSERT INTO LABEL (label_name)

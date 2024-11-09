@@ -50,6 +50,7 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IProjectScoreRepository, ProjectScoreRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<ITaskDetailRepository, TaskDetailRepository>();
 
             return services;
         }

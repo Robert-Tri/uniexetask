@@ -7,10 +7,8 @@ using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
-    public interface ITaskProgressService
+    public interface ITaskDetailService
     {
-        Task<TaskProgress> GetTaskProgressByTaskId(int taskId);
-        Task<bool> CreateTaskProgressByTaskId(int taskId);
-
+        Task<IEnumerable<TaskDetail?>> GetTaskDetailListByTaskId(int taskId);
     }
 }

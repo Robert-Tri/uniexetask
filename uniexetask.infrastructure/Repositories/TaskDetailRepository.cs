@@ -9,17 +9,16 @@ using uniexetask.core.Models;
 
 namespace uniexetask.infrastructure.Repositories
 {
-    class TaskProgressRepository : GenericRepository<TaskProgress>, ITaskProgressRepository
+    class TaskDetailRepository : GenericRepository<TaskDetail>, ITaskDetailRepository
     {
-        public TaskProgressRepository(UniExetaskContext dbContext) : base(dbContext)
+        public TaskDetailRepository(UniExetaskContext dbContext) : base(dbContext)
         {
         }
-
-        public async Task<TaskProgress> GetTaskProgressByTaskIdAsync(int taskId)
+        public async Task<IEnumerable<TaskDetail>> GetTaskDetailListByTaskIdAsync(int taskId)
         {
             return await dbSet
-                .FirstOrDefaultAsync(t => t.TaskId == taskId && t.IsDeleted == false);
+                .Where(t => t.TaskId == taskId)
+                .ToListAsync();
         }
-
     }
 }

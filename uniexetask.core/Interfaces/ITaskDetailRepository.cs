@@ -7,9 +7,9 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface ITaskProgressRepository : IGenericRepository<TaskProgress>
+    public interface ITaskDetailRepository : IGenericRepository<TaskDetail>
     {
-        Task<TaskProgress> GetTaskProgressByTaskIdAsync(int taskId);
+        Task<IEnumerable<TaskDetail>> GetTaskDetailListByTaskIdAsync(int taskId);
 
     }
 }
