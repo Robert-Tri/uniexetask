@@ -11,6 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.infrastructure",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.services", "uniexetask.services\uniexetask.services.csproj", "{3325C623-DDEB-44DC-A229-FFFD1D8F807C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8C79112E-F75B-415B-A186-855A5F5A1195}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.api.tests", "uniexetask.api.tests\uniexetask.api.tests.csproj", "{DFE7CBB8-4A34-4388-88A9-E2511902096A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.infrastructure.tests", "uniexetask.infrastructure.tests\uniexetask.infrastructure.tests.csproj", "{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.services.tests", "uniexetask.services.tests\uniexetask.services.tests.csproj", "{8E3AA290-20D4-472B-852D-176CF14DC6F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,9 +41,26 @@ Global
 		{3325C623-DDEB-44DC-A229-FFFD1D8F807C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3325C623-DDEB-44DC-A229-FFFD1D8F807C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3325C623-DDEB-44DC-A229-FFFD1D8F807C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFE7CBB8-4A34-4388-88A9-E2511902096A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFE7CBB8-4A34-4388-88A9-E2511902096A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFE7CBB8-4A34-4388-88A9-E2511902096A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFE7CBB8-4A34-4388-88A9-E2511902096A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DFE7CBB8-4A34-4388-88A9-E2511902096A} = {8C79112E-F75B-415B-A186-855A5F5A1195}
+		{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5} = {8C79112E-F75B-415B-A186-855A5F5A1195}
+		{8E3AA290-20D4-472B-852D-176CF14DC6F6} = {8C79112E-F75B-415B-A186-855A5F5A1195}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0BB6E78-2166-4377-BC90-FB37033EA9D5}
