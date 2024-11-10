@@ -23,7 +23,7 @@ namespace uniexetask.infrastructure.Repositories
                     .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<ChatMessage?>> GetMessagesInChatGroup(int chatGroupId, int chatGroupIndex, int limit)
+        public async Task<IEnumerable<ChatMessage>?> GetMessagesInChatGroup(int chatGroupId, int chatGroupIndex, int limit)
         {
             return await dbSet.Where(c => c.ChatGroupId == chatGroupId)
                 .OrderByDescending(m => m.SendDatetime)
