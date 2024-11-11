@@ -9,6 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/projects")]
     [ApiController]
     public class ProjectController : ControllerBase
@@ -103,38 +104,52 @@ namespace uniexetask.api.Controllers
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetProjectByUserId(int userId)
         {
-            var student = await _studentService.GetStudentByUserId(userId);
+            ApiResponse<ProjectListModel> response = new ApiResponse<ProjectListModel>();
 
-            if (student == null)
+            try
             {
-                return NotFound(); 
+                var student = await _studentService.GetStudentByUserId(userId);
+
+                if (student == null)
+                {
+                    throw new Exception("Student not found");
+                }
+
+                var project = await _projectService.GetProjectByStudentId(student.StudentId);
+                if (project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                ProjectListModel projectData = new ProjectListModel();
+
+                projectData = (new ProjectListModel
+                {
+                    ProjectId = project.ProjectId,
+                    TopicCode = project.Topic.TopicCode,
+                    TopicName = project.Topic.TopicName,
+                    Description = project.Topic.Description,
+                    SubjectName = project.Subject.SubjectName,
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Status = project.Status,
+                });
+                foreach (var item in project.ProjectProgresses)
+                {
+                    if (!item.IsDeleted)
+                    {
+                        projectData.ProgressPercentage = item.ProgressPercentage; // Thêm item vào danh sách
+                    }
+                }
+                // Trả về dữ liệu project
+                response.Data = projectData;
+                return Ok(response);
             }
-
-            // Gọi phương thức service để lấy project của user
-            var project = await _projectService.GetProjectByStudentId(student.StudentId);
-
-            if (project == null)
+            catch (Exception ex)
             {
-                return NotFound(); // Trả về 404 nếu không tìm thấy project
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
-
-            // Chuyển đổi đối tượng project sang ProjectListModel
-            var projectModel = new Project
-            {
-                ProjectId = project.ProjectId,
-                GroupId = project.GroupId,
-                TopicId = project.TopicId,
-                StartDate = project.StartDate,
-                EndDate = project.EndDate,
-                SubjectId = project.SubjectId,
-                Status = project.Status,
-                IsDeleted = project.IsDeleted
-            };
-
-            // Trả về dữ liệu project
-            ApiResponse<Project> response = new ApiResponse<Project>();
-            response.Data = projectModel;
-            return Ok(response);
         }
 
         [HttpGet("getProjectId/{userId}")]

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
@@ -6,6 +7,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/task-detail")]
     [ApiController]
     public class TaskDetailController : ControllerBase
@@ -20,14 +22,24 @@ namespace uniexetask.api.Controllers
         [HttpGet("byTask/{taskId}")]
         public async Task<IActionResult> GetTaskDetailListByTaskId(int taskId)
         {
-            var taskDetailList = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
-            if (taskDetailList == null)
-            {
-                return NotFound();
-            }
             ApiResponse<IEnumerable<TaskDetail>> response = new ApiResponse<IEnumerable<TaskDetail>>();
-            response.Data = taskDetailList;
-            return Ok(response);
+            try
+            {
+                var taskDetailList = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
+                if (taskDetailList == null)
+                {
+                    throw new Exception("TaskDetailList not found");
+                }
+                response.Data = taskDetailList;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+
         }
     }
 }
