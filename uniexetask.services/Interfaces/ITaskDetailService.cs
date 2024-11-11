@@ -10,5 +10,9 @@ namespace uniexetask.services.Interfaces
     public interface ITaskDetailService
     {
         Task<IEnumerable<TaskDetail?>> GetTaskDetailListByTaskId(int taskId);
+        Task<bool> CreateTaskDetails(TaskDetail taskDetail);
+        Task<bool> UpdateTaskDetails(TaskDetail taskDetail);
+        Task<bool> DeleteTaskDetailsByTaskId(int taskId);
+
     }
 }

@@ -22,7 +22,11 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<Project?> GetProjectByGroupId(int? groupId)
         {
-            return await dbSet.FirstOrDefaultAsync(p => p.GroupId == groupId);
+            return await dbSet
+                .Include(p => p.ProjectProgresses)
+                .Include(p => p.Subject)
+                .Include(p => p.Topic)
+                .FirstOrDefaultAsync(p => p.GroupId == groupId);
         }
 
         public async Task<Project?> GetProjectPendingByGroupId(int groupId)

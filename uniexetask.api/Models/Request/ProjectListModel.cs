@@ -14,5 +14,7 @@ namespace uniexetask.api.Models.Request
 
         public string Status { get; set; }
 
+        public decimal? ProgressPercentage { get; set; }
+
     }
 }

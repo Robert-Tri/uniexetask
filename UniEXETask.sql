@@ -524,7 +524,7 @@ INSERT INTO [USER] (full_name, [password], email, avatar, phone, campus_id, role
 VALUES 
 ('Admin User', 'hashed_password', 'admin@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
 ('Manager User', 'hashed_password', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
-('Student User 1', 'hashed_password', 'student1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722518062/b64wegkr4dxiysm6tudd.gif', '0901000003', 3, 3),
+('Student User 1', 'hashed_password', 'student1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000003', 3, 3),
 ('Mentor User 1', 'hashed_password', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000004', 1, 4),
 ('Sponsor User 1', 'hashed_password', 'sponsor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000005', 2, 5),
 ('Student User 2', 'hashed_password', 'student2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000006', 1, 3),
@@ -753,14 +753,14 @@ VALUES
 (2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
-INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note)
+INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
 VALUES 
-(1, 20.00, '2024-09-15', 'Project scope defined'),
-(1, 40.00, '2024-10-15', 'Requirements collected and documented'),
-(1, 50.00, '2024-10-23', 'System design initiated'),
-(1, 60.00, '2024-11-01', 'Research phase started'),
-(2, 30.00, '2024-10-02', 'Initial components integrated'),
-(2, 50.00, '2024-10-09', 'System testing in progress');
+(1, 20.00, '2024-09-15', 'Project scope defined', 1),
+(1, 40.00, '2024-10-15', 'Requirements collected and documented', 1),
+(1, 50.00, '2024-10-23', 'System design initiated', 1),
+(1, 60.00, '2024-11-01', 'Research phase started', 0),
+(2, 30.00, '2024-10-02', 'Initial components integrated', 1),
+(2, 50.00, '2024-10-09', 'System testing in progress', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
