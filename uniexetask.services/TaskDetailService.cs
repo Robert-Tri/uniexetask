@@ -29,6 +29,19 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<TaskDetail?> GetTaskDetailById(int taskDetailId)
+        {
+            if (taskDetailId > 0)
+            {
+                var taskDetail = await _unitOfWork.TaskDetails.GetByIDAsync(taskDetailId);
+                if (taskDetail != null)
+                {
+                    return taskDetail;
+                }
+            }
+            return null;
+        }
+
         public async Task<bool> CreateTaskDetails(TaskDetail taskDetail)
         {
             if (taskDetail != null)
@@ -56,8 +69,8 @@ namespace uniexetask.services
                     obj.TaskId = taskDetail.TaskId;
                     obj.TaskDetailName = taskDetail.TaskDetailName;
                     obj.ProgressPercentage = taskDetail.ProgressPercentage;
-                    obj.IsCompleted = false;
-                    obj.IsDeleted = false;
+                    obj.IsCompleted = taskDetail.IsCompleted ? taskDetail.IsCompleted : obj.IsCompleted;
+                    obj.IsDeleted = taskDetail.IsDeleted ? taskDetail.IsDeleted : obj.IsDeleted;
 
                     _unitOfWork.TaskDetails.Update(obj);
 
@@ -84,6 +97,23 @@ namespace uniexetask.services
                         _unitOfWork.TaskDetails.Delete(taskDetail);
                     }
                     var result = await _unitOfWork.SaveAsync();
+
+                    return result > 0;
+                }
+            }
+            return false;
+        }
+        public async Task<bool> DeleteTaskDetail(int taskDetailId)
+        {
+            if (taskDetailId > 0)
+            {
+                var taskDetail = await _unitOfWork.TaskDetails.GetByIDAsync(taskDetailId);
+                if (taskDetail != null)
+                {
+                    taskDetail.IsDeleted = true;
+                    _unitOfWork.TaskDetails.Update(taskDetail);
+
+                    var result = _unitOfWork.Save();
 
                     return result > 0;
                 }
