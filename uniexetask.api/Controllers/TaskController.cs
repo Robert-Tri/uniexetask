@@ -88,6 +88,18 @@ namespace uniexetask.api.Controllers
                             StudentId = assign.StudentId,
                             AssignedDate = assign.AssignedDate,
                         }).ToList();
+
+                        var taskDetails = await _taskDetailService.GetTaskDetailListByTaskId(task.TaskId);
+                        var taskDetailsModels = taskDetails.Select(detail => new TaskDetailsModel
+                        {
+                            TaskDetailId = detail.TaskDetailId,
+                            TaskId = detail.TaskId,
+                            TaskDetailName = detail.TaskDetailName,
+                            ProgressPercentage = detail.ProgressPercentage,
+                            IsCompleted = detail.IsCompleted,
+                            IsDeleted = detail.IsDeleted,
+                        }).ToList();
+
                         var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
 
                         tasks.Add(new TaskModel
@@ -101,7 +113,8 @@ namespace uniexetask.api.Controllers
                             ProgressPercentage = taskProgress.ProgressPercentage,
                             Status = task.Status,
                             IsDeleted = task.IsDeleted,
-                            TaskAssigns = taskAssignModels
+                            TaskAssigns = taskAssignModels,
+                            TaskDetails = taskDetailsModels,
                         });
                     }
                 }

@@ -2,6 +2,7 @@
 {
     public class TaskDetailsModel
     {
+        public int? TaskDetailId { get; set; }
         public int? TaskId { get; set; }
 
         public string TaskDetailName { get; set; } = null!;

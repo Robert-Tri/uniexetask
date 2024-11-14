@@ -139,10 +139,33 @@ namespace uniexetask.services
 
                 if (obj != null)
                 {
+                    // Kiểm tra điều kiện ngày
+                    if (task.StartDate.Date > task.EndDate.Date)
+                    {
+                        return false;
+                    }
+                    if(task.Status == null)
+                    {
+                        // Xác định trạng thái của task dựa trên ngày
+                        if (task.StartDate.Date > DateTime.Now.Date)
+                        {
+                            task.Status = nameof(TasksStatus.Not_Started);
+                        }
+                        else if (task.EndDate.Date > DateTime.Now.Date)
+                        {
+                            task.Status = nameof(TasksStatus.In_Progress);
+                        }
+                        else
+                        {
+                            task.Status = nameof(TasksStatus.Overdue);
+                        }
+                    }
+                    
                     obj.TaskName = task.TaskName;
                     obj.Description = task.Description;
                     obj.StartDate = task.StartDate;
                     obj.EndDate = task.EndDate;
+                    obj.Status = task.Status;
 
                     _unitOfWork.Tasks.Update(obj);
 

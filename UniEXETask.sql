@@ -149,7 +149,8 @@ CREATE TABLE [GROUP] (
 	subject_id INT NOT NULL,
 	hasMentor BIT NOT NULL,
 	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
-	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	isDeleted BIT NOT NULL DEFAULT 0,
 );
 
 -- Tạo bảng PROJECT
