@@ -49,7 +49,8 @@ namespace uniexetask.api.Controllers
                     SubjectName = project.Subject.SubjectName,
                     StartDate = project.StartDate,
                     EndDate = project.EndDate,
-                    Status = project.Status
+                    Status = project.Status,
+                    IsDeleted = project.IsDeleted
                 });
             }
             ApiResponse<IEnumerable<ProjectListModel>> response = new ApiResponse<IEnumerable<ProjectListModel>>();
