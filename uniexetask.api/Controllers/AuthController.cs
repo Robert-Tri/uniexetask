@@ -55,11 +55,10 @@ namespace uniexetask.api.Controllers
 
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
-                    HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.UtcNow.AddMinutes(5)
+                    Expires = DateTime.UtcNow.AddDays(7)
                 });
 
                 Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions

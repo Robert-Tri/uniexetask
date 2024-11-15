@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://localhost:3000", "https://localhost:7289", "https://visionary-melomakarona-558966.netlify.app")
+        builder.WithOrigins("https://localhost:3000", "https://localhost:7289", "https://meek-crisp-fd584b.netlify.app")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
