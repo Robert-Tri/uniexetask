@@ -30,9 +30,14 @@ namespace uniexetask.api.Middleware
             var at = context.Request.Cookies["AccessToken"];
             var rt = context.Request.Cookies["RefreshToken"];
 
-            if (string.IsNullOrEmpty(at))
+            if (string.IsNullOrWhiteSpace(at) || string.IsNullOrWhiteSpace(rt))
             {
-                at = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    at = authHeader.Split(" ").Last();
+                }
+                rt = context.Request.Headers["x-refresh-token"].FirstOrDefault();
             }
 
             if (at != null)
@@ -47,7 +52,14 @@ namespace uniexetask.api.Middleware
                     var newAccessToken = await RefreshAccessToken(rt);
                     if (newAccessToken != null)
                     {
-                        context.Response.Cookies.Append("AccessToken", newAccessToken);
+                        context.Response.Cookies.Append("AccessToken", newAccessToken, new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.None,
+                            Path = "/",
+                            Expires = DateTime.UtcNow.AddMinutes(5)
+                        });
                         context.User = ValidateToken(newAccessToken);
                     }
                     else
@@ -112,7 +124,7 @@ namespace uniexetask.api.Middleware
         {
             using (var httpClient = new HttpClient())
             {
-                var response = await httpClient.PostAsJsonAsync("https://localhost:7289/api/auth/refresh-token", new { RefreshToken = refreshToken });
+                var response = await httpClient.PostAsJsonAsync("https://uniexetask-api-fvene7e9cjf2gdbn.southeastasia-01.azurewebsites.net/api/auth/refresh-token", new { RefreshToken = refreshToken });
 
                 if (response.IsSuccessStatusCode)
                 {

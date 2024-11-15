@@ -53,20 +53,25 @@ namespace uniexetask.api.Controllers
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
                 response.Data = token;
 
-                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
+                Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(30)
-                });
-                Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    Expires = DateTime.UtcNow.AddDays(30)
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTime.UtcNow.AddMinutes(5)
                 });
 
-                    return Ok(response);
+                Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTime.UtcNow.AddDays(7)
+                });
+
+                return Ok(response);
             }
             catch (Exception ex) 
             {
@@ -113,12 +118,13 @@ namespace uniexetask.api.Controllers
             if (user == null)
                 return Unauthorized("Your session has expired. Please log in again.");
             var newAccessToken = await GenerateAccessToken(user);
-            Response.Cookies.Append("AccessToken", newAccessToken ?? "", new CookieOptions
+/*            Response.Cookies.Append("AccessToken", newAccessToken ?? "", new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 Secure = true,
+                SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(1)
-            });
+            });*/
             return Ok(newAccessToken);
         }
 
