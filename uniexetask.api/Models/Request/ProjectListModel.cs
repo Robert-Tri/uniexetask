@@ -13,6 +13,10 @@ namespace uniexetask.api.Models.Request
         public DateTime EndDate { get; set; }
 
         public string Status { get; set; }
+        public bool? IsDeleted { get; set; }
+
+
+        public decimal? ProgressPercentage { get; set; }
 
     }
 }

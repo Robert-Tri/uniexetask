@@ -12,5 +12,7 @@
 
         public DateTime EndDate { get; set; }
         public List<int> AssignedMembers { get; set; }
+        public List<TaskDetailsModel>? TaskDetailsModel { get; set; }
+
     }
 }

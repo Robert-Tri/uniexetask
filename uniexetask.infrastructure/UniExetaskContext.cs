@@ -303,6 +303,7 @@ public partial class UniExetaskContext : DbContext
             entity.ToTable("GROUP");
 
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.GroupName)
                 .HasMaxLength(250)
                 .HasColumnName("group_name");
