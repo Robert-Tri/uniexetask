@@ -134,5 +134,60 @@ namespace uniexetask.services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<bool> SendMessageToGroupLeader(int leaderId, int userId, string message)
+        {
+            var leaderExists = await _unitOfWork.Users.GetByIDAsync(leaderId);
+            var userExists = await _unitOfWork.Users.GetByIDAsync(userId);
+
+            if (leaderExists == null || userExists == null)
+            {
+                throw new Exception("One or more users do not exist.");
+            }
+
+            var userWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(userId);
+            var leaderWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(leaderId);
+
+            var personalChatGroup = userWithChatGroups.ChatGroups
+                    .FirstOrDefault(userGroup => leaderWithChatGroups.ChatGroups
+                        .Any(leaderGroup => leaderGroup.ChatGroupId == userGroup.ChatGroupId && leaderGroup.Type == nameof(ChatGroupType.Personal)));
+
+            if (personalChatGroup != null)
+            {
+                await SaveMessageAsync(personalChatGroup.ChatGroupId, userId, message);
+                return true;
+            }
+            else 
+            {
+                try
+                {
+                    _unitOfWork.BeginTransaction();
+                    var chatGroup = new ChatGroup
+                    {
+                        ChatGroupName = userExists.FullName,
+                        CreatedDate = DateTime.UtcNow,
+                        CreatedBy = userId,
+                        OwnerId = userId,
+                        LatestActivity = DateTime.UtcNow,
+                        Type = nameof(ChatGroupType.Personal),
+                    };
+                    await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
+                    _unitOfWork.Save();
+
+                    chatGroup.Users.Add(userExists);
+                    chatGroup.Users.Add(leaderExists);
+                    _unitOfWork.ChatGroups.Update(chatGroup);
+                    _unitOfWork.Save();
+                    _unitOfWork.Commit();
+                    await SaveMessageAsync(chatGroup.ChatGroupId, userId, message);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _unitOfWork.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            }
+        }
     }
 }
