@@ -12,5 +12,7 @@
         public decimal ProgressPercentage { get; set; }
         public Boolean IsDeleted { get; set; }
         public IEnumerable<TaskAssignModel> TaskAssigns { get; set; }
+        public IEnumerable<TaskDetailsModel> TaskDetails { get; set; }
+
     }
 }

@@ -15,6 +15,8 @@ public partial class Student
 
     public string Major { get; set; } = null!;
 
+    public int SubjectId { get; set; }
+
     public bool IsCurrentPeriod { get; set; }
 
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
@@ -22,6 +24,8 @@ public partial class Student
     public virtual Mentor Lecturer { get; set; } = null!;
 
     public virtual ICollection<MemberScore> MemberScores { get; set; } = new List<MemberScore>();
+
+    public virtual Subject Subject { get; set; } = null!;
 
     public virtual ICollection<TaskAssign> TaskAssigns { get; set; } = new List<TaskAssign>();
 

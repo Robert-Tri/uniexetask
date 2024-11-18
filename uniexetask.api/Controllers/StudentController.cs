@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/students")]
     [ApiController]
     public class StudentController : ControllerBase
@@ -21,14 +24,27 @@ namespace uniexetask.api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStudentList()
         {
-            var studentList = await _studentsService.GetAllStudent();
-            if (studentList == null)
-            {
-                return NotFound();
-            }
             ApiResponse<IEnumerable<Student>> response = new ApiResponse<IEnumerable<Student>>();
-            response.Data = studentList;
-            return Ok(response);
+            try
+            {
+                var studentList = await _studentsService.GetAllStudent();
+                if (studentList == null)
+                {
+                    response.Data = studentList;
+                    response.Success = true;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Student not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
         [HttpGet("bystudentcode")]
@@ -44,40 +60,63 @@ namespace uniexetask.api.Controllers
             {
                 return BadRequest();
             }
+
         }
 
         [HttpGet("byuserid")]
         public async Task<IActionResult> GetStudentByUserId(int userId)
         {
-            var student = await _studentsService.GetStudentByUserId(userId);
+            ApiResponse<Student> response = new ApiResponse<Student>();
+            try
+            {
+                var student = await _studentsService.GetStudentByUserId(userId);
 
-            if (student != null)
-            {
-                return Ok(student);
+                if (student != null)
+                {
+                    response.Data = student;
+                    response.Success = true;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Student not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
+
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStudentById(int id)
         {
-            var student = await _studentsService.GetStudentById(id);
+            ApiResponse<Student> response = new ApiResponse<Student>();
+            try
+            {
+                var student = await _studentsService.GetStudentById(id);
 
-            if (student != null)
-            {
-                ApiResponse<Student> response = new ApiResponse<Student>
+                if (student != null)
                 {
-                    Data = student
-                };
-                return Ok(response);
+                    response.Data = student;
+                    response.Success = true;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Student not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound();
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
         }
+
     }
 }

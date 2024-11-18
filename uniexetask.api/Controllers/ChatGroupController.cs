@@ -168,6 +168,42 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpPost("personal/contact")]
+        public async Task<IActionResult> SendMessageToGroupLeader([FromBody] CreatePersonalChatGroupModal request)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                if (string.IsNullOrEmpty(request.LeaderId) || !int.TryParse(request.LeaderId, out int leaderId) ||
+                    string.IsNullOrEmpty(request.UserId) || !int.TryParse(request.UserId, out int userId) ||
+                    string.IsNullOrEmpty(request.Message))
+                {
+                    throw new Exception("Invalid data.");
+                }
+
+                var result = await _chatGroupService.SendMessageToGroupLeader(leaderId, userId, request.Message);
+
+                if (result)
+                {
+                    response.Data = "Chatbox has been created. Please wait for response from group leader.";
+                    return Ok(response);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Failed to add members.";
+                    return BadRequest(response);
+                    throw new Exception("Failed to send message.");
+                }
+            }
+            catch (Exception ex) 
+            {
+                    response.Success = false;
+                    response.ErrorMessage = ex.Message;
+                    return BadRequest(response);
+            }
+        }
+
 
         [HttpDelete("remove")]
         public async Task<IActionResult> RemoveMemberOutOfGroupChat([FromBody] RemoveMemberOutOfChatGroupModel request)

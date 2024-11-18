@@ -31,10 +31,14 @@ namespace uniexetask.api.BackgroundServices
                 var timelines = await timeLineService.GetTimeLines();
                 foreach (var timeline in timelines) 
                 {
-                    if(timeline.EndDate == DateTime.Today)
+                    if(timeline.EndDate == DateTime.Today.Date)
                     {
                         switch ((TimelineType)timeline.TimelineId)
                         {
+                            case TimelineType.ConfirmGroup:
+                                await groupService.UpdateAndAssignStudentsToGroups();
+                                break;
+
                             case TimelineType.AssignMentor:
                                 await groupService.AddMentorToGroupAutomatically();
                                 break;

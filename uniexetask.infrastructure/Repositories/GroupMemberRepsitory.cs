@@ -15,9 +15,18 @@ namespace uniexetask.infrastructure.Repositories
         {
         }
 
-        public async Task<int?> GetGroupIdByStudentId(int studentId)
+        public async System.Threading.Tasks.Task DeleteGroupMembers(int groupId)
         {
-            return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId))?.GroupId;
+            var groupMembers = await dbSet.Where(gm => gm.GroupId == gm.GroupId).ToListAsync();
+            foreach (var groupMember in groupMembers) 
+            {
+                dbSet.Remove(groupMember);
+            }
+        }
+
+        public async Task<int> GetGroupIdByStudentId(int studentId)
+        {
+            return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId)).GroupId;
         }
     }
 }

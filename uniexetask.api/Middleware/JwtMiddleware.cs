@@ -30,9 +30,13 @@ namespace uniexetask.api.Middleware
             var at = context.Request.Cookies["AccessToken"];
             var rt = context.Request.Cookies["RefreshToken"];
 
-            if (string.IsNullOrEmpty(at))
+            if (string.IsNullOrWhiteSpace(at))
             {
-                at = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    at = authHeader.Split(" ").Last();
+                }
             }
 
             if (at != null)
@@ -47,7 +51,13 @@ namespace uniexetask.api.Middleware
                     var newAccessToken = await RefreshAccessToken(rt);
                     if (newAccessToken != null)
                     {
-                        context.Response.Cookies.Append("AccessToken", newAccessToken);
+                        context.Response.Cookies.Append("AccessToken", newAccessToken, new CookieOptions
+                        {
+                            Secure = true,
+                            SameSite = SameSiteMode.None,
+                            Path = "/",
+                            Expires = DateTime.UtcNow.AddDays(7)
+                        });
                         context.User = ValidateToken(newAccessToken);
                     }
                     else
@@ -112,7 +122,7 @@ namespace uniexetask.api.Middleware
         {
             using (var httpClient = new HttpClient())
             {
-                var response = await httpClient.PostAsJsonAsync("https://localhost:7289/api/auth/refresh-token", new { RefreshToken = refreshToken });
+                var response = await httpClient.PostAsJsonAsync($"{_configuration["ApiUrl"]}/api/auth/refresh-token", new { RefreshToken = refreshToken });
 
                 if (response.IsSuccessStatusCode)
                 {

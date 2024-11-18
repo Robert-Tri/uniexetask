@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace uniexetask.api.Controllers
         private readonly IStudentService _studentsService;
         private readonly ITaskProgressService _taskProgressService;
         private readonly IStudentService _studentService;
+        private readonly ITaskDetailService _taskDetailService;
         private readonly IMapper _mapper;
 
 
@@ -28,6 +30,7 @@ namespace uniexetask.api.Controllers
                             IStudentService studentsService,
                             ITaskProgressService taskProgressService,
                             IStudentService studentService,
+                            ITaskDetailService taskDetailService,
                             IMapper mapper)
         {
             _taskService = taskService;
@@ -35,67 +38,164 @@ namespace uniexetask.api.Controllers
             _studentsService = studentsService;
             _taskProgressService = taskProgressService;
             _studentService = studentService;
+            _taskDetailService = taskDetailService;
             _mapper = mapper;
 
         }
 
-        [HttpGet("byProject/{projectId}")]
-        public async Task<IActionResult> GetTasksByProject(string projectId)
+        [HttpGet("{taskId}")]
+        public async Task<IActionResult> GetTasksById(int taskId)
         {
-            var tasksList = await _taskService.GetTasksByProject(int.Parse(projectId));
-            if (tasksList == null)
+            var task = await _taskService.GetTaskById(taskId);
+            if (task == null)
             {
                 return NotFound();
             }
-            ApiResponse<IEnumerable<core.Models.Task>> response = new ApiResponse<IEnumerable<core.Models.Task>>();
-            response.Data = tasksList;
+            var taskAssign = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
+            var taskDetail = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
+            var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(taskId);
+
+            task.TaskAssigns = taskAssign.ToList();
+            task.TaskDetails = taskDetail.ToList();
+
+            ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
+            response.Data = task;
             return Ok(response);
         }
 
+        [HttpGet("byProject/{projectId}")]
+        public async Task<IActionResult> GetTasksByProjectId(int projectId)
+        {
+            ApiResponse<IEnumerable<TaskModel>> response = new ApiResponse<IEnumerable<TaskModel>>();
+            try
+            {
+                var tasksList = await _taskService.GetTasksByProjectId(projectId);
+                if (tasksList == null)
+                {
+                    throw new Exception("TasksList not found");
+                }
+
+                List<TaskModel> tasks = new List<TaskModel>();
+                foreach (var task in tasksList)
+                {
+                    if (task.IsDeleted == false)
+                    {
+                        var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
+                        var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
+                        {
+                            TaskAssignId = assign.TaskAssignId,
+                            TaskId = assign.TaskId,
+                            StudentId = assign.StudentId,
+                            AssignedDate = assign.AssignedDate,
+                        }).ToList();
+
+                        var taskDetails = await _taskDetailService.GetTaskDetailListByTaskId(task.TaskId);
+                        var taskDetailsModels = taskDetails.Select(detail => new TaskDetailsModel
+                        {
+                            TaskDetailId = detail.TaskDetailId,
+                            TaskId = detail.TaskId,
+                            TaskDetailName = detail.TaskDetailName,
+                            ProgressPercentage = detail.ProgressPercentage,
+                            IsCompleted = detail.IsCompleted,
+                            IsDeleted = detail.IsDeleted,
+                        }).ToList();
+
+                        var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
+
+                        tasks.Add(new TaskModel
+                        {
+                            TaskId = task.TaskId,
+                            ProjectId = task.ProjectId,
+                            TaskName = task.TaskName,
+                            Description = task.Description,
+                            StartDate = task.StartDate,
+                            EndDate = task.EndDate,
+                            ProgressPercentage = taskProgress.ProgressPercentage,
+                            Status = task.Status,
+                            IsDeleted = task.IsDeleted,
+                            TaskAssigns = taskAssignModels,
+                            TaskDetails = taskDetailsModels,
+                        });
+                    }
+                }
+
+                response.Data = tasks;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
 
         [HttpGet("byUser/{userId}")]
         public async Task<IActionResult> GetTasksByUserId(int userId)
         {
-            var tasksList = await _taskService.GetTasksByUserId(userId);
-            if (tasksList == null)
-            {
-                return NotFound();
-            }
-
-            List<TaskModel> tasks = new List<TaskModel>();
-            foreach (var task in tasksList)
-            {
-                if(task.IsDeleted == false)
-                {
-                    var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
-                    var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
-                    {
-                        TaskAssignId = assign.TaskAssignId,
-                        TaskId = assign.TaskId,
-                        StudentId = assign.StudentId,
-                        AssignedDate = assign.AssignedDate,
-                    }).ToList();
-                    var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
-
-                    tasks.Add(new TaskModel
-                    {
-                        TaskId = task.TaskId,
-                        ProjectId = task.ProjectId,
-                        TaskName = task.TaskName,
-                        Description = task.Description,
-                        StartDate = task.StartDate,
-                        EndDate = task.EndDate,
-                        ProgressPercentage = taskProgress.ProgressPercentage,
-                        Status = task.Status,
-                        IsDeleted = task.IsDeleted,
-                        TaskAssigns = taskAssignModels
-                    });
-                }
-            }
-
             ApiResponse<IEnumerable<TaskModel>> response = new ApiResponse<IEnumerable<TaskModel>>();
-            response.Data = tasks;
-            return Ok(response);
+            try
+            {
+                var tasksList = await _taskService.GetTasksByUserId(userId);
+                if (tasksList == null)
+                {
+                    throw new Exception("TasksList not found");
+                }
+
+                List<TaskModel> tasks = new List<TaskModel>();
+                foreach (var task in tasksList)
+                {
+                    if (!task.IsDeleted)
+                    {
+                        var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
+
+                        var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
+                        {
+                            TaskAssignId = assign.TaskAssignId,
+                            TaskId = assign.TaskId,
+                            StudentId = assign.StudentId,
+                            AssignedDate = assign.AssignedDate,
+                        }).ToList();
+
+                        var taskDetails = await _taskDetailService.GetTaskDetailListByTaskId(task.TaskId);
+                        var taskDetailsModels = taskDetails.Select(detail => new TaskDetailsModel
+                        {
+                            TaskDetailId = detail.TaskDetailId,
+                            TaskId = detail.TaskId,
+                            TaskDetailName = detail.TaskDetailName,
+                            ProgressPercentage = detail.ProgressPercentage,
+                            IsCompleted = detail.IsCompleted,
+                            IsDeleted = detail.IsDeleted,
+                        }).ToList();
+
+                        var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
+
+                        tasks.Add(new TaskModel
+                        {
+                            TaskId = task.TaskId,
+                            ProjectId = task.ProjectId,
+                            TaskName = task.TaskName,
+                            Description = task.Description,
+                            StartDate = task.StartDate,
+                            EndDate = task.EndDate,
+                            ProgressPercentage = taskProgress.ProgressPercentage,
+                            Status = task.Status,
+                            IsDeleted = task.IsDeleted,
+                            TaskAssigns = taskAssignModels,
+                            TaskDetails = taskDetailsModels,
+                        });
+                    }
+                }
+
+                response.Data = tasks;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
         }
 
 
@@ -108,6 +208,22 @@ namespace uniexetask.api.Controllers
                 if (!ModelState.IsValid)
                 {
                     throw new Exception("ModelState not found");
+                }
+
+                if (task.TaskDetailsModel == null || !task.TaskDetailsModel.Any())
+                {
+                    throw new Exception("Error: TaskDetailsModel is empty or null.");
+                }
+
+                decimal totalProgressPercentage = 0;
+                foreach (var taskDetailModel in task.TaskDetailsModel)
+                {
+                    totalProgressPercentage += taskDetailModel.ProgressPercentage;
+                }
+
+                if (Math.Round(totalProgressPercentage, 2) != 100)
+                {
+                    throw new Exception("Error: Total ProgressPercentage is NOT equal to 100");
                 }
 
                 var obj = _mapper.Map<core.Models.Task>(task);
@@ -131,7 +247,22 @@ namespace uniexetask.api.Controllers
                         throw new Exception("Error creating task");
                     }
                 }
-
+              
+                foreach (var taskDetailModel in task.TaskDetailsModel)
+                {
+                    var createdTaskDetails = await _taskDetailService.CreateTaskDetails(new TaskDetail
+                    {
+                        TaskId = taskId,
+                        TaskDetailName = taskDetailModel.TaskDetailName,
+                        ProgressPercentage = taskDetailModel.ProgressPercentage,
+                        IsCompleted = false,
+                        IsDeleted = false,
+                    });
+                    if (createdTaskDetails == null)
+                    {
+                        throw new Exception("Error creating task");
+                    }
+                }
                 response.Data = obj;
                 return Ok(response);
             }
@@ -152,6 +283,17 @@ namespace uniexetask.api.Controllers
                 if (!ModelState.IsValid)
                 {
                     throw new Exception("ModelState not found");
+                }
+
+                decimal totalProgressPercentage = 0;
+                foreach (var taskDetailModel in task.TaskDetailsModel)
+                {
+                    totalProgressPercentage += taskDetailModel.ProgressPercentage;
+                }
+
+                if (Math.Round(totalProgressPercentage, 2) != 100)
+                {
+                    throw new Exception("Error: Total ProgressPercentage is NOT equal to 100");
                 }
 
                 // Tìm Task hiện tại theo TaskId
@@ -197,6 +339,27 @@ namespace uniexetask.api.Controllers
                     }
                 }
 
+                var deletedTaskDetails = await _taskDetailService.DeleteTaskDetailsByTaskId(taskId);
+                if (!deletedTaskAssigns)
+                {
+                    throw new Exception("Error updating task assigns");
+                }
+                foreach (var taskDetailModel in task.TaskDetailsModel)
+                {
+                    var createdTaskDetails = await _taskDetailService.CreateTaskDetails(new TaskDetail
+                    {
+                        TaskId = taskId,
+                        TaskDetailName = taskDetailModel.TaskDetailName,
+                        ProgressPercentage = taskDetailModel.ProgressPercentage,
+                        IsCompleted = false,
+                        IsDeleted = false,
+                    });
+                    if (createdTaskDetails == null)
+                    {
+                        throw new Exception("Error creating task");
+                    }
+                }
+
                 response.Data = existingTask;
                 return Ok(response);
             }
@@ -236,6 +399,50 @@ namespace uniexetask.api.Controllers
                     response.ErrorMessage = "Task not found.";
                     return NotFound(response);
                 }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut("updateStatus")]
+        public async Task<IActionResult> UpdateStatusTask([FromBody] UpdateStatusTaskModel model)
+        {
+            ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
+            try
+            {
+                // Kiểm tra dữ liệu đầu vào
+                if (!ModelState.IsValid)
+                {
+                    throw new Exception("Invalid request model");
+                }
+
+                // Lấy task từ database theo taskId
+                var existingTask = await _taskService.GetTaskById(model.TaskId);
+                if (existingTask == null)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Task not found.";
+                    return NotFound(response);
+                }
+
+                // Cập nhật trạng thái của task
+                existingTask.Status = model.Status;
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                var updatedTask = await _taskService.UpdateTask(existingTask);
+                if (!updatedTask)
+                {
+                    throw new Exception("Error updating task status");
+                }
+
+                // Trả về task sau khi cập nhật
+                response.Data = existingTask;
+                response.Success = true;
+                return Ok(response);
             }
             catch (Exception ex)
             {
