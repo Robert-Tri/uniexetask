@@ -17,5 +17,7 @@ namespace uniexetask.services.Interfaces
         Task<GroupMember?> GetGroupMemberByUserId(int userId);
         Task<bool> CheckIfStudentInGroup(int studentId);
         Task<List<User>> GetUsersByUserId(int studentId);
+        Task<string?> GetRoleByUserId(int userId);
+        Task<bool> DeleteMember(int groupId, int studentId);
     }
 }

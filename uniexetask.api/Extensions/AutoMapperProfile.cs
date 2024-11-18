@@ -13,6 +13,7 @@ namespace Unitask.Api.Extensions
             CreateMap<UserUpdateModel, User>().ReverseMap();
             CreateMap<GroupMemberModel, GroupMember>().ReverseMap();
             CreateMap<RegMemberFormModel, RegMemberForm>().ReverseMap();
+            CreateMap<ReqTopicModel, RegTopicForm>().ReverseMap();
             CreateMap<GroupModel, Group>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
             CreateMap<FeatureModel, Feature>().ReverseMap();
