@@ -13,5 +13,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> CreateReqMember(RegMemberForm reqMember);
         Task<RegMemberForm?> GetReqMemberById(int id);
         Task<bool> UpdateReqMember(RegMemberForm ReqMembers);
+        Task<IEnumerable<RegMemberForm>?> GetReqMembersByGroupId(int groupId);
     }
 }

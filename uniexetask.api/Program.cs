@@ -70,6 +70,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IProjectScoreService, ProjectScoreService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ITaskDetailService, TaskDetailService>();
+builder.Services.AddScoped<IReqTopicService, ReqTopicService>();
 
 builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddHostedService<TaskBackgroundService>();

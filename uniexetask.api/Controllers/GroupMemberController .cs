@@ -62,7 +62,14 @@ namespace uniexetask.api.Controllers
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "ID người dùng không hợp lệ." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
             }
 
             var student = await _studentService.GetStudentByCode(member.StudentCode);
@@ -155,6 +162,39 @@ namespace uniexetask.api.Controllers
                 return BadRequest("ID người dùng không hợp lệ.");
             }
         }
+
+        [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpGet("GetRoleByUserId")]
+        public async Task<IActionResult> GetRoleByUserId()
+        {
+            // Lấy userId từ claims
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            // Kiểm tra và chuyển userId sang kiểu int
+            if (int.TryParse(userIdString, out int userId))
+            {
+                var role = await _groupMemberService.GetRoleByUserId(userId);
+
+                if (role != null)
+                {
+                    // Chuẩn bị phản hồi thành công với Role
+                    var response = new ApiResponse<string>
+                    {
+                        Data = role
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound("Không tìm thấy vai trò của thành viên với userId đã cho.");
+                }
+            }
+            else
+            {
+                return BadRequest("ID người dùng không hợp lệ.");
+            }
+        }
+
 
         [HttpGet("GetTeammateByUserID/{userId}")]
         public async Task<IActionResult> GetTeammateByUserID(int userId)
@@ -298,31 +338,25 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetUsersByUserId")]
         public async Task<IActionResult> GetUsersByUserId()
         {
-            // Lấy user ID từ claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Kiểm tra xem user ID có tồn tại trong claims không
             if (string.IsNullOrEmpty(userIdString))
             {
                 return BadRequest("User ID not found.");
             }
 
-            // Chuyển đổi user ID từ string sang integer
             if (!int.TryParse(userIdString, out int userId))
             {
                 return BadRequest("Invalid User ID format.");
             }
 
-            // Lấy danh sách người dùng liên kết với nhóm của sinh viên
-            var users = await _groupMemberService.GetUsersByUserId(userId);
+            var users = await _groupMemberService.GetUsersByUserId(userId);          
 
-            // Kiểm tra xem có người dùng nào được tìm thấy không
             if (users == null || !users.Any())
             {
                 return NotFound("No members found in this group.");
             }
 
-            // Duyệt qua danh sách và lấy userId, fullName của từng người dùng
             var userDetails = users.Select(u => new
             {
                 UserId = u.UserId,
@@ -332,15 +366,58 @@ namespace uniexetask.api.Controllers
                 StudentId = u.Students.FirstOrDefault()?.StudentId, // Lấy StudentId từ đối tượng Student
                 StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
                 Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
-                GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId // Lấy Role từ GroupMembers
+                GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, // Lấy Role từ GroupMembers
+                GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
             }).ToList();
 
-            // Trả về danh sách người dùng trong nhóm
             return Ok(userDetails);
         }
 
+        [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpDelete("DeleteMember")]
+        public async Task<IActionResult> DeleteMember([FromBody] DeleteGroupMemberModel model)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
 
+            var role = await _groupMemberService.GetRoleByUserId(userId);
 
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
 
+            var checkLeader = await _groupMemberService.GetGroupByStudentId(model.StudentId);
+            if (checkLeader.Role == "Leader") 
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "You can not delete yourself ."
+                });
+            }
+
+            bool isDeleted = await _groupMemberService.DeleteMember(model.GroupId, model.StudentId);
+
+            if (isDeleted)
+            {
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Data = new { Message = "Member successfully deleted." }
+                });
+            }
+            else
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Member not found in the group."
+                });
+            }
+        }
     }
 }
