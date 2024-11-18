@@ -1,12 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Interfaces;
+﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -227,15 +219,22 @@ namespace uniexetask.services
                 foreach (var group in initializedGroup)
                 {
                     var memberNumbers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
-                    foreach (var member in memberNumbers)
-                    {
-                        studentIdSet.Add(member.StudentId);
-                    }
 
                     if (memberNumbers.Count() >= 4)
                     {
+                        foreach (var member in memberNumbers)
+                        {
+                            studentIdSet.Add(member.StudentId);
+                        }
                         group.Status = "Eligible";
                         _unitOfWork.Groups.Update(group);
+                    }
+                    else
+                    {
+                        await _unitOfWork.GroupInvites.DeleteGroupInvites(group.GroupId);
+                        await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
+                        await _unitOfWork.ReqMembers.DeleteReqMemberForm(group.GroupId);
+                        _unitOfWork.Groups.Delete(group);
                     }
                 }
                 await _unitOfWork.SaveAsync();
@@ -243,115 +242,74 @@ namespace uniexetask.services
             return studentIdSet;
         }
 
-        private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet) 
+        private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet)
         {
-            var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s => !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod == true)).ToList();
-            var initializedGroup = (await _unitOfWork.Groups.GetAsync(filter: g => g.Status == "Initialized", includeProperties: "GroupMembers")).ToList();
-            List<int> studentsInEachGroup = new List<int>();
-            foreach (var group in initializedGroup)
+            var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s => !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod)).ToList();
+            var userIds = studentsWithoutGroup.Select(s => s.UserId).ToHashSet();
+            var users = (await _unitOfWork.Users.GetAsync(filter: u => userIds.Contains(u.UserId))).ToList();
+
+            var userCampusMap = users.ToDictionary(u => u.UserId, u => u.CampusId);
+
+            var campusStudents = new Dictionary<int, List<Student>>()
+    {
+        { 1, new List<Student>() }, 
+        { 2, new List<Student>() }, 
+        { 3, new List<Student>() }  
+    };
+
+            foreach (var student in studentsWithoutGroup)
             {
-                var members = group.GroupMembers.Count();
-                studentsInEachGroup.Add(members);
+                if (userCampusMap.TryGetValue(student.UserId, out var campusId) && campusStudents.ContainsKey(campusId))
+                {
+                    campusStudents[campusId].Add(student);
+                }
             }
-            int totalStudent = studentsWithoutGroup.Count() + studentsInEachGroup.Sum();
-            var distributedGroup = DistributeStudents(totalStudent);
 
-            Dictionary<Group, int> groupDictionary = new Dictionary<Group, int>();
-
-            foreach (var (group, index) in distributedGroup.Select((value, i) => (value, i)))
+            foreach (var campus in campusStudents)
             {
-                if (initializedGroup.Any())
+                await AssignToGroupsByCampus(campus.Key, campus.Value);
+            }
+        }
+
+        private async System.Threading.Tasks.Task AssignToGroupsByCampus(int campusId, List<Student> students)
+        {
+            if (!students.Any()) return;
+
+            var distributedGroups = DistributeStudents(students.Count);
+
+            var groupDictionary = new Dictionary<Group, int>();
+            foreach (var (groupSize, index) in distributedGroups.Select((value, i) => (value, i)))
+            {
+                var groupToAdd = new Group
                 {
-                    for (int i = 0; i < group - studentsInEachGroup[0]; i++)
-                    {
-                        var groupMember = new GroupMember
-                        {
-                            GroupId = initializedGroup[0].GroupId,
-                            StudentId = studentsWithoutGroup[0].StudentId,
-                            Role = "Member",
-                        };
-                        await _unitOfWork.GroupMembers.InsertAsync(groupMember);
-                        initializedGroup[0].Status = "Eligible";
-                        _unitOfWork.Groups.Update(initializedGroup[0]);
-                        studentsWithoutGroup.RemoveAt(0);
-                    }
-                    initializedGroup.RemoveAt(0);
-                }
-                else
-                {
-                    var groupToAdd = new Group
-                    {
-                        GroupName = "Group " + (index + 1).ToString(),
-                        SubjectId = 1,
-                        HasMentor = false,
-                        Status = "Eligible",
-                    };
-                    await _unitOfWork.Groups.InsertAsync(groupToAdd);
-                    groupDictionary.Add(groupToAdd, group);
-                }
+                    GroupName = $"Group {campusId}-{index + 1}",
+                    SubjectId = 1,
+                    HasMentor = false,
+                    Status = "Eligible"
+                };
+                await _unitOfWork.Groups.InsertAsync(groupToAdd);
+                groupDictionary.Add(groupToAdd, groupSize);
             }
             await _unitOfWork.SaveAsync();
 
-            foreach(var group in groupDictionary)
+            foreach (var group in groupDictionary)
             {
-                for(int i = 0; i < group.Value; i++)
+                for (int i = 0; i < group.Value; i++)
                 {
+                    var student = students[0];
                     var groupMember = new GroupMember
                     {
                         GroupId = (await _unitOfWork.Groups.GetAsync(filter: g => g.GroupName == group.Key.GroupName)).FirstOrDefault().GroupId,
-                        StudentId = studentsWithoutGroup[0].StudentId,
-                        Role = i == 0 ? "Leader" : "Member",
+                        StudentId = student.StudentId,
+                        Role = i == 0 ? "Leader" : "Member"
                     };
+                    students.RemoveAt(0);
                     await _unitOfWork.GroupMembers.InsertAsync(groupMember);
                 }
             }
             await _unitOfWork.SaveAsync();
-
-            /*foreach (var group in distributedGroup)
-            {
-                if (initializedGroup.Any())
-                {
-                    for (int i = 0; i < group - studentsInEachGroup[0]; i++)
-                    {
-                        var groupMember = new GroupMember
-                        {
-                            GroupId = initializedGroup[0].GroupId,
-                            StudentId = studentsWithoutGroup[0].StudentId,
-                            Role = "Member",
-                        };
-                        await _unitOfWork.GroupMembers.InsertAsync(groupMember);
-                        initializedGroup[0].Status = "Eligible";
-                        _unitOfWork.Groups.Update(initializedGroup[0]);
-                        studentsWithoutGroup.RemoveAt(0);
-                    }
-                    initializedGroup.RemoveAt(0);
-                }
-                else
-                {
-                    var groupToAdd = new Group
-                    {
-                        GroupName = "Group " + group.ToString(),
-                        SubjectId = 1,
-                        HasMentor = false,
-                        Status = "Eligible",
-                    };
-                    await _unitOfWork.Groups.InsertAsync(groupToAdd);
-                    await _unitOfWork.SaveAsync();
-                    for (int i = 0; i < group; i++)
-                    {
-                        var groupMember = new GroupMember
-                        {
-                            GroupId = (await _unitOfWork.Groups.GetAsync(filter: g => g.GroupName == groupToAdd.GroupName)).FirstOrDefault().GroupId,
-                            StudentId = studentsWithoutGroup[0].StudentId,
-                            Role = i == 0 ? "Leader" : "Member"
-                        };
-                        await _unitOfWork.GroupMembers.InsertAsync(groupMember);
-                        studentsWithoutGroup.RemoveAt(0);
-                    }
-                }
-            }
-            await _unitOfWork.SaveAsync();*/
         }
+
 
         public async System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups()
         {

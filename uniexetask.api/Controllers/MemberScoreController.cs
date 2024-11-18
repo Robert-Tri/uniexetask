@@ -23,6 +23,20 @@ namespace uniexetask.api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMemberScore(AddMemberScoreModel memberScore)
         {
+            List<MemberScore> memberScoreToAdd = new List<MemberScore>();
+            foreach (var studentScore in memberScore.StudentScores) 
+            {
+                memberScoreToAdd.Add(new MemberScore
+                {
+                    ProjectId = memberScore.ProjectId,
+                    MilestoneId = memberScore.MilestoneId,
+                    ScoredBy = memberScore.ScoredBy,
+                    ScoringDate = DateTime.Today,
+                    StudentId = studentScore.StudentId,
+                    Score = studentScore.Score,
+                    Comment = studentScore.Comment,
+                });
+            }
             bool result = await _memberScoreService.AddMemberScore(_mapper.Map<MemberScore>(memberScore));
             ApiResponse<AddMemberScoreModel> respone = new ApiResponse<AddMemberScoreModel>();
             respone.Success = result;
