@@ -33,7 +33,7 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId)
+        public async Task<IEnumerable<core.Models.Task?>> GetTasksByProjectId(int projectId)
         {
             if (projectId > 0)
             {
@@ -48,40 +48,35 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<core.Models.Task?>> GetTasksByUserId(int userId)
         {
-            if (userId > 0)
+            if (userId <= 0) return null;
+
+            var studentId = await _unitOfWork.Students.GetStudentIdByUserId(userId);
+            if (studentId <= 0) return null;
+
+            var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
+            if (groupId <= 0) return null;
+
+            var projectId = await _unitOfWork.Projects.GetProjectIdByGroupId(groupId);
+            if (projectId <= 0) return null;
+
+            var tasks = await _unitOfWork.Tasks.GetTasksByProjectAsync(projectId);
+            if (tasks == null) return null;
+
+            var taskAssigns = await _unitOfWork.TaskAssigns.GetTaskAssignsByStudentAsync(studentId);
+            var result = new List<core.Models.Task?>();
+
+            foreach (var task in tasks)
             {
-                var student = await _unitOfWork.Students.GetStudentByUserId(userId);
-                if (student == null)
+                foreach (var taskAss in taskAssigns)
                 {
-                    return null;
-                }
-                var studentId = student.StudentId;
-                var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
-
-                if (groupId == null)
-                {
-                    return null;
-                }
-
-                var project = await _unitOfWork.Projects.GetProjectByGroupId(groupId);
-
-                if (project == null)
-                {
-                    return null;
-                }
-
-                var tasks = await _unitOfWork.Tasks.GetTasksByProjectAsync(project.ProjectId);
-                if (tasks != null)
-                {
-                    foreach (var task in tasks)
+                    if (task.TaskId == taskAss.TaskId)
                     {
-                        task.Project = null;
+                        result.Add(task);
                     }
-                    return tasks;
                 }
             }
 
-            return null;
+            return result;
         }
 
         public async Task<bool> CreateTask(core.Models.Task task)

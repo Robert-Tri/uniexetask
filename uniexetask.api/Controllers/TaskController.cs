@@ -63,6 +63,73 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("byProject/{projectId}")]
+        public async Task<IActionResult> GetTasksByProjectId(int projectId)
+        {
+            ApiResponse<IEnumerable<TaskModel>> response = new ApiResponse<IEnumerable<TaskModel>>();
+            try
+            {
+                var tasksList = await _taskService.GetTasksByProjectId(projectId);
+                if (tasksList == null)
+                {
+                    throw new Exception("TasksList not found");
+                }
+
+                List<TaskModel> tasks = new List<TaskModel>();
+                foreach (var task in tasksList)
+                {
+                    if (task.IsDeleted == false)
+                    {
+                        var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
+                        var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
+                        {
+                            TaskAssignId = assign.TaskAssignId,
+                            TaskId = assign.TaskId,
+                            StudentId = assign.StudentId,
+                            AssignedDate = assign.AssignedDate,
+                        }).ToList();
+
+                        var taskDetails = await _taskDetailService.GetTaskDetailListByTaskId(task.TaskId);
+                        var taskDetailsModels = taskDetails.Select(detail => new TaskDetailsModel
+                        {
+                            TaskDetailId = detail.TaskDetailId,
+                            TaskId = detail.TaskId,
+                            TaskDetailName = detail.TaskDetailName,
+                            ProgressPercentage = detail.ProgressPercentage,
+                            IsCompleted = detail.IsCompleted,
+                            IsDeleted = detail.IsDeleted,
+                        }).ToList();
+
+                        var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
+
+                        tasks.Add(new TaskModel
+                        {
+                            TaskId = task.TaskId,
+                            ProjectId = task.ProjectId,
+                            TaskName = task.TaskName,
+                            Description = task.Description,
+                            StartDate = task.StartDate,
+                            EndDate = task.EndDate,
+                            ProgressPercentage = taskProgress.ProgressPercentage,
+                            Status = task.Status,
+                            IsDeleted = task.IsDeleted,
+                            TaskAssigns = taskAssignModels,
+                            TaskDetails = taskDetailsModels,
+                        });
+                    }
+                }
+
+                response.Data = tasks;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
+
         [HttpGet("byUser/{userId}")]
         public async Task<IActionResult> GetTasksByUserId(int userId)
         {
@@ -78,9 +145,10 @@ namespace uniexetask.api.Controllers
                 List<TaskModel> tasks = new List<TaskModel>();
                 foreach (var task in tasksList)
                 {
-                    if (task.IsDeleted == false)
+                    if (!task.IsDeleted)
                     {
                         var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(task.TaskId);
+
                         var taskAssignModels = taskAssigns.Select(assign => new TaskAssignModel
                         {
                             TaskAssignId = assign.TaskAssignId,

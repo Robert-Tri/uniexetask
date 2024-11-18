@@ -66,16 +66,29 @@ namespace uniexetask.api.Controllers
         [HttpGet("byuserid")]
         public async Task<IActionResult> GetStudentByUserId(int userId)
         {
-            var student = await _studentsService.GetStudentByUserId(userId);
+            ApiResponse<Student> response = new ApiResponse<Student>();
+            try
+            {
+                var student = await _studentsService.GetStudentByUserId(userId);
 
-            if (student != null)
-            {
-                return Ok(student);
+                if (student != null)
+                {
+                    response.Data = student;
+                    response.Success = true;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Student not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
+
         }
 
         [HttpGet("{id}")]

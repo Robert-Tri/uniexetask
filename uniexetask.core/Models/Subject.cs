@@ -19,5 +19,7 @@ public partial class Subject
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
+    public virtual ICollection<Student> Students { get; set; } = new List<Student>();
+
     public virtual ICollection<Timeline> Timelines { get; set; } = new List<Timeline>();
 }

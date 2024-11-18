@@ -156,24 +156,35 @@ namespace uniexetask.api.Controllers
         [HttpGet("getProjectId/{userId}")]
         public async Task<IActionResult> GetProjectIdByUserId(int userId)
         {
-            var student = await _studentService.GetStudentByUserId(userId);
-
-            if (student == null)
-            {
-                return NotFound();
-            }
-
-            // Gọi phương thức service để lấy project của user
-            var project = await _projectService.GetProjectByStudentId(student.StudentId);
-
-            if (project == null)
-            {
-                return NotFound(); // Trả về 404 nếu không tìm thấy project
-            }
-            // Trả về dữ liệu project
             ApiResponse<Int32> response = new ApiResponse<Int32>();
-            response.Data = project.ProjectId;
-            return Ok(response);
+            try
+            {
+                var student = await _studentService.GetStudentByUserId(userId);
+
+                if (student == null)
+                {
+                    throw new Exception("Student not found");
+                }
+
+                // Gọi phương thức service để lấy project của user
+                var project = await _projectService.GetProjectByStudentId(student.StudentId);
+
+                if (project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                // Trả về dữ liệu project
+                response.Data = project.ProjectId;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+
+
         }
     }
 }
