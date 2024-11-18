@@ -13,5 +13,7 @@ namespace uniexetask.core.Interfaces
         Task<Project?> GetProjectPendingByGroupId(int groupId);
         Task<Project?> GetProjectsPendingAsync(int projectId);
         Task<Project?> GetProjectByGroupId(int? groupId);
+        Task<int> GetProjectIdByGroupId(int groupId);
+
     }
 }

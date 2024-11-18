@@ -28,6 +28,10 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(p => p.Topic)
                 .FirstOrDefaultAsync(p => p.GroupId == groupId);
         }
+        public async Task<int> GetProjectIdByGroupId(int groupId)
+        {
+            return (await dbSet.FirstOrDefaultAsync(p => p.GroupId == groupId)).ProjectId;
+        }
 
         public async Task<Project?> GetProjectPendingByGroupId(int groupId)
         {

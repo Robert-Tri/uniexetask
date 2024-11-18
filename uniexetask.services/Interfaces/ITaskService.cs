@@ -9,7 +9,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface ITaskService
     {
-        Task<IEnumerable<core.Models.Task?>> GetTasksByProject(int projectId);
+        Task<IEnumerable<core.Models.Task?>> GetTasksByProjectId(int projectId);
         Task<IEnumerable<core.Models.Task?>> GetTasksByUserId(int userId);
         Task<core.Models.Task?> GetTaskById(int taskId);
 

@@ -14,6 +14,14 @@ CREATE TABLE CAMPUS (
 	isDeleted BIT NOT NULL DEFAULT 0
 );
 
+-- Tạo bảng SUBJECT
+CREATE TABLE SUBJECT (
+    subject_id INT PRIMARY KEY IDENTITY(1,1),
+    subject_code NVARCHAR(50) NOT NULL,
+    subject_name NVARCHAR(50) NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0
+);
+
 -- Tạo bảng Role
 CREATE TABLE ROLE (
     role_id INT PRIMARY KEY IDENTITY(1,1),
@@ -76,9 +84,11 @@ CREATE TABLE STUDENT (
 	lecturer_id INT NOT NULL,
     student_code NVARCHAR(10) NOT NULL UNIQUE,
     major NVARCHAR(250) NOT NULL,
+	subject_id INT NOT NULL,
 	isCurrentPeriod BIT NOT NULL DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES [USER](user_id),
-	FOREIGN KEY (lecturer_id) REFERENCES MENTOR(mentor_id)
+	FOREIGN KEY (lecturer_id) REFERENCES MENTOR(mentor_id),
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
 -- Tạo bảng CHAT_GROUP
@@ -113,14 +123,6 @@ CREATE TABLE USER_CHAT_GROUP (
     PRIMARY KEY (user_id, chat_group_id),
     FOREIGN KEY (user_id) REFERENCES [USER](user_id),
     FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id)
-);
-
--- Tạo bảng SUBJECT
-CREATE TABLE SUBJECT (
-    subject_id INT PRIMARY KEY IDENTITY(1,1),
-    subject_code NVARCHAR(50) NOT NULL,
-    subject_name NVARCHAR(50) NOT NULL,
-	isDeleted BIT NOT NULL DEFAULT 0
 );
 
 -- Tạo bảng TIMELINE
@@ -471,6 +473,12 @@ VALUES
 ('FPT-HCM', 'FPT Hồ Chí Minh', 'Hồ Chí Minh'),
 ('FPT-DN', 'FPT Đà Nẵng', 'Đà Nẵng');
 
+-- Thêm dữ liệu mẫu cho bảng SUBJECT
+INSERT INTO SUBJECT (subject_code, subject_name)
+VALUES 
+('EXE101', 'Entrepreneurship Basics'),
+('EXE102', 'Advanced Entrepreneurship');
+
 -- Thêm dữ liệu mẫu cho bảng Role
 INSERT INTO ROLE (name, description)
 VALUES 
@@ -589,45 +597,45 @@ VALUES
 (20, 'Renewable Energy');
 
 -- Thêm dữ liệu mẫu cho bảng STUDENT
-INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, isCurrentPeriod)
+INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, subject_id, isCurrentPeriod)
 VALUES 
-(3, 1,'ST12345', 'Computer Science', 1),
-(6, 1,'ST67890', 'Information Technology', 1),
-(9, 2,'SS162981', 'Financial Economics', 1),
-(12, 2,'SE162014', 'Software Engineering', 1),
-(13, 1,'SE162032', 'Software Engineering', 1),
-(14, 1,'SE162087', 'Software Engineering', 1),
-(15, 2,'SE162056', 'Software Engineering', 1),
-(21, 3,'ST100004', 'Software Engineering', 1),
-(22, 4,'ST100005', 'Software Engineering', 1),
-(23, 5,'ST100006', 'Software Engineering', 1),
-(24, 6,'ST100007', 'Software Engineering', 1),
-(25, 7,'ST100008', 'Software Engineering', 1),
-(26, 8,'ST100009', 'Software Engineering', 1),
-(27, 8,'ST100010', 'Software Engineering', 1),
-(28, 8,'ST100011', 'Software Engineering', 1),
-(29, 1,'ST100012', 'Software Engineering', 1),
-(30, 1,'ST100013', 'Software Engineering', 1),
-(31, 1,'ST100014', 'Software Engineering', 1),
-(32, 2,'ST100015', 'Software Engineering', 1),
-(33, 2,'ST100016', 'Software Engineering', 1),
-(34, 2,'ST100017', 'Software Engineering', 1),
-(35, 3,'ST100018', 'Software Engineering', 1),
-(36, 3,'ST100019', 'Software Engineering', 1),
-(37, 3,'ST100020', 'Software Engineering', 1),
-(38, 4,'ST100021', 'Software Engineering', 1),
-(39, 4,'ST100022', 'Software Engineering', 1),
-(40, 4,'ST100023', 'Software Engineering', 1),
-(41, 5,'ST100024', 'Software Engineering', 1),
-(42, 5,'ST100025', 'Software Engineering', 1),
-(43, 5,'ST100026', 'Software Engineering', 1),
-(44, 6,'ST100027', 'Software Engineering', 1),
-(45, 6,'ST100028', 'Software Engineering', 1),
-(46, 6,'ST100029', 'Software Engineering', 1),
-(47, 7,'ST100030', 'Software Engineering', 1),
-(48, 7,'ST100031', 'Software Engineering', 1),
-(49, 7,'ST100032', 'Software Engineering', 1),
-(50, 8,'ST100033', 'Software Engineering', 1);
+(3, 1,'ST12345', 'Computer Science', 1, 1),
+(6, 1,'ST67890', 'Information Technology', 1, 1),
+(9, 2,'SS162981', 'Financial Economics', 1, 1),
+(12, 2,'SE162014', 'Software Engineering', 1, 1),
+(13, 1,'SE162032', 'Software Engineering', 1, 1),
+(14, 1,'SE162087', 'Software Engineering', 1, 1),
+(15, 2,'SE162056', 'Software Engineering', 1, 1),
+(21, 3,'ST100004', 'Software Engineering', 1, 1),
+(22, 4,'ST100005', 'Software Engineering', 1, 1),
+(23, 5,'ST100006', 'Software Engineering', 1, 1),
+(24, 6,'ST100007', 'Software Engineering', 1, 1),
+(25, 7,'ST100008', 'Software Engineering', 1, 1),
+(26, 8,'ST100009', 'Software Engineering', 1, 1),
+(27, 8,'ST100010', 'Software Engineering', 1, 1),
+(28, 8,'ST100011', 'Software Engineering', 1, 1),
+(29, 1,'ST100012', 'Software Engineering', 1, 1),
+(30, 1,'ST100013', 'Software Engineering', 1, 1),
+(31, 1,'ST100014', 'Software Engineering', 1, 1),
+(32, 2,'ST100015', 'Software Engineering', 1, 1),
+(33, 2,'ST100016', 'Software Engineering', 1, 1),
+(34, 2,'ST100017', 'Software Engineering', 2, 1),
+(35, 3,'ST100018', 'Software Engineering', 2, 1),
+(36, 3,'ST100019', 'Software Engineering', 2, 1),
+(37, 3,'ST100020', 'Software Engineering', 2, 1),
+(38, 4,'ST100021', 'Software Engineering', 2, 1),
+(39, 4,'ST100022', 'Software Engineering', 2, 1),
+(40, 4,'ST100023', 'Software Engineering', 2, 1),
+(41, 5,'ST100024', 'Software Engineering', 2, 1),
+(42, 5,'ST100025', 'Software Engineering', 2, 1),
+(43, 5,'ST100026', 'Software Engineering', 2, 1),
+(44, 6,'ST100027', 'Software Engineering', 2, 1),
+(45, 6,'ST100028', 'Software Engineering', 2, 1),
+(46, 6,'ST100029', 'Software Engineering', 2, 1),
+(47, 7,'ST100030', 'Software Engineering', 2, 1),
+(48, 7,'ST100031', 'Software Engineering', 2, 1),
+(49, 7,'ST100032', 'Software Engineering', 2, 1),
+(50, 8,'ST100033', 'Software Engineering', 2, 1);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -704,12 +712,6 @@ VALUES
 (2, 2, 'Project discussions start here.'),
 (3, 1, 'Hello guy.'),
 (3, 2, 'Hello admin.');
-
--- Thêm dữ liệu mẫu cho bảng SUBJECT
-INSERT INTO SUBJECT (subject_code, subject_name)
-VALUES 
-('EXE101', 'Entrepreneurship Basics'),
-('EXE102', 'Advanced Entrepreneurship');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP
 INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status)
