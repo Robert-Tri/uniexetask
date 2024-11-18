@@ -26,5 +26,11 @@ namespace uniexetask.infrastructure.Repositories
                 .Where(s => s.UserId == inviteeId)
                 .FirstOrDefaultAsync();
         }
+        public async Task<int> GetStudentIdByUserId(int inviteeId)
+        {
+            return (await dbSet
+                .Where(s => s.UserId == inviteeId)
+                .FirstOrDefaultAsync()).StudentId;
+        }
     }
 }

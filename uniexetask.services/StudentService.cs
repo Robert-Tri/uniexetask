@@ -54,7 +54,18 @@ namespace uniexetask.services
 
             return null;
         }
+        public async Task<int?> GetStudentIdByUserId(int userId)
+        {
+            if (userId > 0)
+            {
+                var students = await _unitOfWork.Students.GetAsync();
 
+                var student = students.FirstOrDefault(s => s.UserId == userId);
+                return student.StudentId;
+            }
+
+            return null;
+        }
 
         public async Task<IEnumerable<Student>> GetEligibleStudentsWithUser()
         {

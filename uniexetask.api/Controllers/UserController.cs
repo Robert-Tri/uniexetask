@@ -85,15 +85,26 @@ namespace uniexetask.api.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
-            var users = await _userService.GetUserById(userId);
+            ApiResponse<User> response = new ApiResponse<User>();
 
-            if (users != null)
+            var user = await _userService.GetUserById(userId);
+            try
             {
-                return Ok(users);
+                if (user != null)
+                {
+                    response.Data = user;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("User can not find.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
         }
 

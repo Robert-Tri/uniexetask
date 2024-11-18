@@ -48,11 +48,15 @@ namespace uniexetask.api.Controllers
                     GroupName = reqMember.Group.GroupName,
                     GroupId = reqMember.Group.GroupId,
                     LeaderName = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == "Leader")
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                         .Select(gm => gm.Student.User.FullName)
                         .FirstOrDefault(),
+                    LeaderId = reqMember.Group.GroupMembers
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
+                        .Select(gm => gm.Student.User.UserId)
+                        .FirstOrDefault(),
                     LeaderAvatar = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == "Leader")
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                         .Select(gm => gm.Student.User.Avatar)
                         .FirstOrDefault(),
                     SubjectCode = reqMember.Group.Subject.SubjectCode,
@@ -98,11 +102,11 @@ namespace uniexetask.api.Controllers
                     GroupName = reqMember.Group.GroupName,
                     GroupId = reqMember.Group.GroupId,
                     LeaderName = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == "Leader")
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader)  )
                         .Select(gm => gm.Student.User.FullName)
                         .FirstOrDefault(),
                     LeaderAvatar = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == "Leader")
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                         .Select(gm => gm.Student.User.Avatar)
                         .FirstOrDefault(),
                     SubjectCode = reqMember.Group.Subject.SubjectCode,
