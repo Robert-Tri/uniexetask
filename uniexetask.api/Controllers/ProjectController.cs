@@ -40,7 +40,7 @@ namespace uniexetask.api.Controllers
             List<ProjectListModel> projects = new List<ProjectListModel>();
             foreach (var project in projectsList)
             {
-                if (project != null) projects.Add(new ProjectListModel
+                if (project != null && project.IsCurrentPeriod) projects.Add(new ProjectListModel
                 {
                     ProjectId = project.ProjectId,
                     TopicCode = project.Topic.TopicCode,

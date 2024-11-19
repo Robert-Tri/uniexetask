@@ -42,7 +42,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<Project?> GetProjectsPendingAsync(int projectId)
         {
-            return await dbSet.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.Status.Equals("Status 1"));
+            return await dbSet.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.Status.Equals("Status 1") && x.IsCurrentPeriod);
         }
     }
 }

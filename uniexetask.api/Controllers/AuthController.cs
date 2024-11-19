@@ -202,17 +202,21 @@ namespace uniexetask.api.Controllers
                 response.Data = token;
 
                 // Set cookies
-                Response.Cookies.Append("AccessToken", token.AccessToken ?? "", new CookieOptions
+                Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
-                    HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddMinutes(1)
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTime.UtcNow.AddDays(7)
                 });
-                Response.Cookies.Append("RefreshToken", token.RefreshToken ?? "", new CookieOptions
+
+                Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddDays(30)
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTime.UtcNow.AddDays(7)
                 });
 
                 return Ok(response);
