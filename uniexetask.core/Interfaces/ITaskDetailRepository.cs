@@ -9,7 +9,6 @@ namespace uniexetask.core.Interfaces
 {
     public interface ITaskDetailRepository : IGenericRepository<TaskDetail>
     {
-        Task<IEnumerable<TaskDetail>> GetTaskDetailListByTaskIdAsync(int taskId);
         Task<IEnumerable<TaskDetail>> GetTaskDetailsByTaskIdAsync(int taskId);
 
 

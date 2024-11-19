@@ -16,5 +16,7 @@ namespace uniexetask.services.Interfaces
         Task<bool> CreateTask(core.Models.Task task);
         Task<bool> UpdateTask(core.Models.Task task);
         Task<bool> DeleteTask(int taskId);
+        Task<bool> LoadStatusCompletedTaskByTaskId(int taskId);
+
     }
 }
