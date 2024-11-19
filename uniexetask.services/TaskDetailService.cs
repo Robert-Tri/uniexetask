@@ -20,7 +20,7 @@ namespace uniexetask.services
         {
             if (taskId > 0)
             {
-                var taskDetailList = await _unitOfWork.TaskDetails.GetTaskDetailListByTaskIdAsync(taskId);
+                var taskDetailList = await _unitOfWork.TaskDetails.GetTaskDetailsByTaskIdAsync(taskId);
                 if (taskDetailList != null)
                 {
                     return taskDetailList;

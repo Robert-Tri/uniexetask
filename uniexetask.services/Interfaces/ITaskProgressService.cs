@@ -11,6 +11,8 @@ namespace uniexetask.services.Interfaces
     {
         Task<TaskProgress> GetTaskProgressByTaskId(int taskId);
         Task<bool> CreateTaskProgressByTaskId(int taskId);
+        Task<bool> LoadProgressUpdateTaskProgressByTaskId(int taskId);
+        Task<bool> UpdateTaskProgressByTaskId(TaskProgress taskProgress);
 
     }
 }
