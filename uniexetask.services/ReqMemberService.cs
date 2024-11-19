@@ -50,6 +50,22 @@ namespace uniexetask.services
             return null;
         }
 
+        public async Task<IEnumerable<RegMemberForm>?> GetReqMembersByGroupId(int groupId)
+        {
+            if (groupId > 0)
+            {
+                var reqMemberList = await _unitOfWork.ReqMembers.GetAsync(filter: rm => rm.GroupId == groupId && rm.Status == true,
+                includeProperties: "Group,Group.GroupMembers,Group.Subject,Group.GroupMembers.Student.User");
+                if (reqMemberList != null && reqMemberList.Any())
+                {
+                    return reqMemberList;
+                }
+            }
+            return null;
+        }
+
+
+
         public async Task<bool> UpdateReqMember(RegMemberForm ReqMembers)
         {
             if (ReqMembers != null)
