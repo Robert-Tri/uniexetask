@@ -13,7 +13,10 @@ public partial class Group
 
     public bool HasMentor { get; set; }
 
+    public bool IsCurrentPeriod { get; set; }
+
     public string Status { get; set; } = null!;
+
     public bool IsDeleted { get; set; }
 
     public virtual ICollection<GroupInvite> GroupInvites { get; set; } = new List<GroupInvite>();
