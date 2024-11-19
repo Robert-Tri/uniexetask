@@ -13,7 +13,9 @@ namespace uniexetask.services
         }
         public async Task<IEnumerable<RegTopicForm>> GetAllReqTopic()
         {
-            var reqTopicList = await _unitOfWork.ReqTopic.GetAsync();
+            var reqTopicList = await _unitOfWork.ReqTopic.GetAsync(
+                 filter: rm => rm.Status == true,
+                 includeProperties: "Group,Group.Subject");
             return reqTopicList;
         }
 
