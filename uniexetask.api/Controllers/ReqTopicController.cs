@@ -52,36 +52,93 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
-            var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
+            var role = await _groupMemberService.GetRoleByUserId(userId);
 
-            int nextCodeNumber = 1; 
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
+
+            var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
+            int nextCodeNumber = 1;
             if (!string.IsNullOrEmpty(topicCodeMax) && topicCodeMax.Length > 2)
             {
-                var numericPart = topicCodeMax.Substring(2); 
+                var numericPart = topicCodeMax.Substring(2);
                 if (int.TryParse(numericPart, out int currentMax))
                 {
                     nextCodeNumber = currentMax + 1;
                 }
             }
 
-            reqTopic.TopicCode = $"TP{nextCodeNumber:D3}"; 
+            reqTopic.TopicCode = $"TP{nextCodeNumber:D3}";
 
             var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
             reqTopic.GroupId = groupMember.GroupId;
             reqTopic.Status = true;
 
             var obj = _mapper.Map<RegTopicForm>(reqTopic);
-            var isGroupCreated = await _reqTopicService.CreateReqTopic(obj);
+            var isTopicCreated = await _reqTopicService.CreateReqTopic(obj);
 
-            if (isGroupCreated)
+            if (isTopicCreated)
             {
-                return Ok(isGroupCreated);
+                var response = new ApiResponse<object>
+                {
+                    Data = new { Message = "Topic created successfully!" }
+                };
+                return Ok(response);
             }
             else
             {
-                return BadRequest();
+                return BadRequest("Lỗi Tạo.");
             }
         }
+
+
+        [Authorize(Roles = "Student")]
+        [HttpGet("MyTopic")]
+        public async Task<IActionResult> GetMyReqTopics()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
+            if (groupMember == null || groupMember.GroupId == 0)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "User does not belong to any group." });
+            }
+
+            var reqTopicList = await _reqTopicService.GetAllReqTopic();
+            if (reqTopicList == null || !reqTopicList.Any())
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "No topics available." });
+            }
+
+            var responseData = reqTopicList
+                .Where(reqTopic => reqTopic.Status == true && reqTopic.GroupId == groupMember.GroupId)
+                .Select(reqTopic => new
+                {
+                    reqTopic.RegTopicId,
+                    reqTopic.GroupId,
+                    reqTopic.TopicCode,
+                    reqTopic.TopicName,
+                    reqTopic.Description,
+                    reqTopic.Status,
+                    GroupName = reqTopic.Group.GroupName,
+                    SubjectCode = reqTopic.Group.Subject.SubjectCode
+                });
+
+            var response = new ApiResponse<IEnumerable<object>>
+            {
+                Success = true,
+                Data = responseData
+            };
+
+            return Ok(response);
+        }
+
 
     }
 }

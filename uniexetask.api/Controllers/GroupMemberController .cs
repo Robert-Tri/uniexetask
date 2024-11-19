@@ -239,7 +239,7 @@ namespace uniexetask.api.Controllers
             bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
             if (isLeaderInGroup)
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Leader đã có nhóm, không thể tạo nhóm mới." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã có nhóm, không thể tạo nhóm mới." });
             }
 
             // Tạo nhóm
