@@ -301,7 +301,6 @@ CREATE TABLE EXPENSE_REPORT (
     FOREIGN KEY (usage_plan_id) REFERENCES USAGE_PLAN(usage_plan_id)
 );
 
-
 -- Tạo bảng MENTOR_GROUP
 CREATE TABLE MENTOR_GROUP (
     group_id INT NOT NULL,
@@ -381,8 +380,10 @@ CREATE TABLE MILESTONE (
     milestone_id INT PRIMARY KEY IDENTITY(1,1),
     milestone_name NVARCHAR(100) NOT NULL,
     description NVARCHAR(250),
-	percentage FLOAT NOT NULL,
+	pagercente FLOAT NOT NULL,
 	subject_id INT NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL,
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
     updated_date DATETIME,
 	isDeleted BIT NOT NULL DEFAULT 0,
