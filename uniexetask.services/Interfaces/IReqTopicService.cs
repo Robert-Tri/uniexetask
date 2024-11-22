@@ -12,5 +12,11 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<RegTopicForm>> GetAllReqTopic();
         Task<bool> CreateReqTopic(RegTopicForm reqTopic);
         Task<string> GetMaxTopicCode();
+        Task<RegTopicForm?> GetReqTopicById(int id);
+        Task<bool> UpdateReqTopic(RegTopicForm ReqTopics);
+        Task<IEnumerable<int>> GetGroupByReqTopic();
+        Task<List<RegTopicForm>> GetReqTopicByGroupId(int groupId);
+        Task<bool> UpdateApproveTopic(int groupId);
+        Task<Mentor> GetMentorGroupByUserId(int userId);
     }
 }
