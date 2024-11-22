@@ -14,5 +14,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> UpdateProjectStatus(int projectId, string action);
         Task<Project?> GetProjectByStudentId(int studentId);
         Task<Project?> GetProjectByUserId(int userId);
+        Task<bool> CreateProject(Project project);
     }
 }

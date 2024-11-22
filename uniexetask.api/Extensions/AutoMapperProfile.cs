@@ -14,6 +14,7 @@ namespace Unitask.Api.Extensions
             CreateMap<GroupMemberModel, GroupMember>().ReverseMap();
             CreateMap<RegMemberFormModel, RegMemberForm>().ReverseMap();
             CreateMap<ReqTopicModel, RegTopicForm>().ReverseMap();
+            CreateMap<TopicModel, Topic>().ReverseMap();
             CreateMap<GroupModel, Group>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
             CreateMap<FeatureModel, Feature>().ReverseMap();
@@ -25,6 +26,7 @@ namespace Unitask.Api.Extensions
             CreateMap<AddMemberScoreModel, MemberScore>().ReverseMap();
             CreateMap<AddProjectScoreModel, ProjectScore>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
+            CreateMap<ProjectModel, Project>().ReverseMap();
 
         }
     }
