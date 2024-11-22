@@ -523,6 +523,12 @@ public partial class UniExetaskContext : DbContext
             entity.Property(e => e.UpdatedDate)
                 .HasColumnType("datetime")
                 .HasColumnName("updated_date");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("start_date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("end_date");
 
             entity.HasOne(d => d.Subject).WithMany(p => p.Milestones)
                 .HasForeignKey(d => d.SubjectId)
