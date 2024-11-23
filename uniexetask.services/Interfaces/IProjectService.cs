@@ -15,5 +15,6 @@ namespace uniexetask.services.Interfaces
         Task<Project?> GetProjectByStudentId(int studentId);
         Task<Project?> GetProjectByUserId(int userId);
         Task<bool> CreateProject(Project project);
+        Task<IEnumerable<Project>> GetAllProjectsByGroupId(int groupId);
     }
 }
