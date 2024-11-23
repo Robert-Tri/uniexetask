@@ -59,6 +59,69 @@ namespace uniexetask.api.Controllers
         }
 
         [Authorize(Roles = "Mentor")]
+        [HttpGet("GetProjectByMentor")]
+        public async Task<IActionResult> GetProjectByMentor()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(userRole) || !userRole.Equals("Mentor"))
+            {
+                return NotFound();
+            }
+
+            var mentor = await _mentorService.GetMentorWithGroupAsync(userId);
+
+            if (mentor == null || !mentor.Groups.Any())
+            {
+                return NotFound("No groups found.");
+            }
+
+            var groupIds = mentor.Groups.Select(g => g.GroupId).ToList();
+
+            var projects = new List<object>();
+
+            foreach (var groupId in groupIds)
+            {
+                var projectList = await _projectService.GetAllProjectsByGroupId(groupId);
+                if (projectList != null && projectList.Any())
+                {
+                    foreach (var project in projectList)
+                    {
+                        var projectData = new
+                        {
+                            ProjectId = project.ProjectId,
+                            GroupName = project.Group.GroupName,
+                            TopicCode = project.Topic?.TopicCode,
+                            TopicName = project.Topic?.TopicName,
+                            Description = project.Topic?.Description,
+                            SubjectName = project.Subject?.SubjectName,
+                            StartDate = project.StartDate,
+                            EndDate = project.EndDate,
+                            Status = project.Status,
+                            IsDeleted = project.IsDeleted
+                        };
+
+                        projects.Add(projectData); // Thêm dự án vào danh sách
+                    }
+                }
+            }
+
+            if (!projects.Any())
+            {
+                return NotFound("No projects found.");
+            }
+
+            var response = new ApiResponse<IEnumerable<object>>()
+            {
+                Data = projects
+            };
+
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Mentor")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetProjectsPendingWithMentor()
         {

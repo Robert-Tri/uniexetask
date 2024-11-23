@@ -66,6 +66,8 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
+            var studentLeader = await _studentService.GetStudentByUserId(userId);
+
             var role = await _groupMemberService.GetRoleByUserId(userId);
 
             if (role != "Leader")
@@ -85,6 +87,15 @@ namespace uniexetask.api.Controllers
             }
 
             bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+
+            var users = await _groupMemberService.GetUsersByUserId(userId);
+            var subject = await _studentService.GetStudentById(studentLeader.StudentId);
+
+            if (subject.SubjectId == 1 && users.Count >= 5)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã đủ người." });
+            }
+
             if (studentExistsInGroup)
             {
                 return BadRequest(new ApiResponse<object>
@@ -238,6 +249,7 @@ namespace uniexetask.api.Controllers
 
             var studentLeader = await _studentService.GetStudentByUserId(userId);
             bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
+
             if (isLeaderInGroup)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã có nhóm, không thể tạo nhóm mới." });
@@ -317,8 +329,8 @@ namespace uniexetask.api.Controllers
                 }
             };
             return Ok(response);
-
         }
+
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
@@ -336,7 +348,7 @@ namespace uniexetask.api.Controllers
         }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
-        [HttpGet("GetUsersByUserId")]
+        [HttpGet("MyGroup")]
         public async Task<IActionResult> GetUsersByUserId()
         {
             ApiResponse<IEnumerable<TeammateModel>> response = new ApiResponse<IEnumerable<TeammateModel>>();
@@ -366,11 +378,12 @@ namespace uniexetask.api.Controllers
                     UserId = u.UserId,
                     FullName = u.FullName,
                     Email = u.Email,
-                    Major = u.Students.FirstOrDefault()?.Major,         // Lấy Major từ đối tượng Student
-                    StudentId = u.Students.FirstOrDefault()?.StudentId, // Lấy StudentId từ đối tượng Student
-                    StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
-                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
-                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, // Lấy Role từ GroupMembers
+                    Major = u.Students.FirstOrDefault()?.Major,         
+                    StudentId = u.Students.FirstOrDefault()?.StudentId, 
+                    StudentCode = u.Students.FirstOrDefault()?.StudentCode, 
+                    SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName,
+                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, 
+                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, 
                     GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
                 }).ToList();
 
@@ -384,6 +397,7 @@ namespace uniexetask.api.Controllers
                 return BadRequest(response);
             }
         }
+
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpDelete("DeleteMember")]
