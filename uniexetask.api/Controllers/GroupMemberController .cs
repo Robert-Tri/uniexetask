@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
@@ -350,40 +351,51 @@ namespace uniexetask.api.Controllers
         [HttpGet("MyGroup")]
         public async Task<IActionResult> GetUsersByUserId()
         {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString))
+            ApiResponse<IEnumerable<TeammateModel>> response = new ApiResponse<IEnumerable<TeammateModel>>();
+            try
             {
-                return BadRequest("User ID not found.");
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdString))
+                {
+                    return BadRequest("User ID not found.");
+                }
+
+                if (!int.TryParse(userIdString, out int userId))
+                {
+                    return BadRequest("Invalid User ID format.");
+                }
+
+                var users = await _groupMemberService.GetUsersByUserId(userId);
+
+                if (users == null || !users.Any())
+                {
+                    return NotFound("No members found in this group.");
+                }
+
+                var userDetails = users.Select(u => new TeammateModel
+                {
+                    UserId = u.UserId,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    Major = u.Students.FirstOrDefault()?.Major,         
+                    StudentId = u.Students.FirstOrDefault()?.StudentId, 
+                    StudentCode = u.Students.FirstOrDefault()?.StudentCode, 
+                    SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName,
+                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, 
+                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, 
+                    GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
+                }).ToList();
+
+                response.Data = userDetails;
+                return Ok(response);
             }
-
-            if (!int.TryParse(userIdString, out int userId))
+            catch (Exception ex)
             {
-                return BadRequest("Invalid User ID format.");
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
-
-            var users = await _groupMemberService.GetUsersByUserId(userId);
-
-            if (users == null || !users.Any())
-            {
-                return NotFound("No members found in this group.");
-            }
-
-            var userDetails = users.Select(u => new
-            {
-                UserId = u.UserId,
-                FullName = u.FullName,
-                Email = u.Email,
-                Major = u.Students.FirstOrDefault()?.Major,
-                StudentId = u.Students.FirstOrDefault()?.StudentId,
-                StudentCode = u.Students.FirstOrDefault()?.StudentCode,
-                SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName, // Đảm bảo SubjectName được truy cập qua Subject
-                Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
-                GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
-                GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
-            }).ToList();
-
-            return Ok(userDetails);
         }
 
 
