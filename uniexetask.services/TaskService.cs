@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -182,12 +183,29 @@ namespace uniexetask.services
                     _unitOfWork.Tasks.Update(task);
 
                     var result = _unitOfWork.Save();
-
                     return result > 0;
                 }
             }
             return false;
         }
 
+        public async Task<bool> LoadStatusCompletedTaskByTaskId(int taskId)
+        {
+            var taskPresent = await _unitOfWork.Tasks.GetByIDAsync(taskId);
+            if (taskPresent != null)
+            {
+                var taskProgress = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(taskId);
+                if(taskProgress != null && Math.Round(taskProgress.ProgressPercentage, 2) == 100)
+                {
+                    taskPresent.Status = nameof(TasksStatus.Completed);
+
+                    _unitOfWork.Tasks.Update(taskPresent);
+
+                    var result = _unitOfWork.Save();
+                    return result > 0;
+                }
+            }
+            return false;
+        }
     }
 }

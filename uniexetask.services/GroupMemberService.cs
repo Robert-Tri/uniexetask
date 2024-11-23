@@ -60,6 +60,22 @@ namespace uniexetask.services
             return groupMember;
         }
 
+        public async Task<string?> GetRoleByUserId(int userId)
+        {
+            var student = (await _unitOfWork.Students.GetAsync(s => s.UserId == userId)).FirstOrDefault();
+
+            if (student == null)
+            {
+                return null; 
+            }
+
+            var groupMember = (await _unitOfWork.GroupMembers.GetAsync(
+                gm => gm.StudentId == student.StudentId)).FirstOrDefault();
+
+            return groupMember?.Role;
+        }
+
+
         public async Task<bool> CheckIfStudentInGroup(int studentId)
         {
             return await _unitOfWork.GroupMembers.AnyAsync(gm => gm.StudentId == studentId);
@@ -91,7 +107,8 @@ namespace uniexetask.services
 
         public async Task<List<User>> GetUsersByUserId(int userId)
         {
-            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId, includeProperties: "GroupMembers.Group");
+            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId, includeProperties: "GroupMembers.Group,Subject");
+
 
             var singleStudent = student.FirstOrDefault();
 
@@ -108,6 +125,24 @@ namespace uniexetask.services
 
             return users;
         }
+
+        public async Task<bool> DeleteMember(int groupId, int studentId)
+        {
+            var groupMember = (await _unitOfWork.GroupMembers
+                .GetAsync(gm => gm.GroupId == groupId && gm.StudentId == studentId))
+                .FirstOrDefault();
+
+            if (groupMember != null)
+            {
+                _unitOfWork.GroupMembers.Delete(groupMember);
+                _unitOfWork.Save();
+                return true;
+            }
+
+            return false; 
+        }
+
+
 
 
     }

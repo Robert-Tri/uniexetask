@@ -22,5 +22,27 @@ namespace uniexetask.services
             var topic = await _unitOfWork.Topics.GetAllTopics();
             return topic;
         }
+
+        public async Task<int> CreateTopic(Topic topic)
+        {
+            if (topic != null)
+            {
+                // Insert topic vào cơ sở dữ liệu
+                await _unitOfWork.Topics.InsertAsync(topic);
+
+                // Lưu thay đổi
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                {
+                    // Trả về TopicId sau khi tạo thành công
+                    return topic.TopicId;
+                }
+            }
+
+            // Nếu có lỗi hoặc không thành công, trả về 0 (hoặc giá trị khác thể hiện thất bại)
+            return 0;
+        }
+
     }
 }

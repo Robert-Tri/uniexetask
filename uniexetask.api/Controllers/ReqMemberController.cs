@@ -19,12 +19,16 @@ namespace uniexetask.api.Controllers
     {
         private readonly IGroupMemberService _groupMemberService;
         private readonly IReqMemberService _reqMemberService;
+        private readonly IStudentService _studentService;
         private readonly IMapper _mapper;
+        private readonly IMentorService _mentorService;
 
-        public ReqMemberController(IReqMemberService reqMemberService, IMapper mapper, IGroupMemberService groupMemberService)
+        public ReqMemberController(IReqMemberService reqMemberService, IMentorService mentorService, IStudentService studentService, IMapper mapper, IGroupMemberService groupMemberService)
         {
+            _mentorService = mentorService;
             _reqMemberService = reqMemberService;
             _groupMemberService = groupMemberService;
+            _studentService = studentService;
             _mapper = mapper;
         }
    
@@ -102,7 +106,7 @@ namespace uniexetask.api.Controllers
                     GroupName = reqMember.Group.GroupName,
                     GroupId = reqMember.Group.GroupId,
                     LeaderName = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader)  )
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                         .Select(gm => gm.Student.User.FullName)
                         .FirstOrDefault(),
                     LeaderAvatar = reqMember.Group.GroupMembers
@@ -110,7 +114,11 @@ namespace uniexetask.api.Controllers
                         .Select(gm => gm.Student.User.Avatar)
                         .FirstOrDefault(),
                     SubjectCode = reqMember.Group.Subject.SubjectCode,
-                    MemberCount = reqMember.Group.GroupMembers.Count()
+                    MemberCount = reqMember.Group.GroupMembers.Count(),
+                    Role = reqMember.Group.GroupMembers
+                        .Where(gm => gm.Student.UserId == userId) // Lấy role của thành viên hiện tại
+                        .Select(gm => gm.Role)
+                        .FirstOrDefault()
                 });
 
             var response = new ApiResponse<IEnumerable<object>>
@@ -123,6 +131,7 @@ namespace uniexetask.api.Controllers
         }
 
 
+
         [Authorize(Roles = "Student")]
         [HttpPost]
         public async Task<IActionResult> CreateReqMember([FromBody] RegMemberFormModel reqMember)
@@ -130,12 +139,18 @@ namespace uniexetask.api.Controllers
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (int.TryParse(userIdString, out int userId))
             {
+                var role = await _groupMemberService.GetRoleByUserId(userId);
+
+                if (role != "Leader")
+                {
+                    return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+                }
                 var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
 
                 if (groupMember != null)
                 {
                     reqMember.GroupId = groupMember.GroupId;
-                    reqMember.Status = true;
+                    reqMember.Status = true;    
 
                     var obj = _mapper.Map<RegMemberForm>(reqMember);
                     var isRegMemberCreated = await _reqMemberService.CreateReqMember(obj);
@@ -168,9 +183,29 @@ namespace uniexetask.api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateReqMember([FromBody] UpdateRegMemberModel reqMember)
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
+
             var reqNew = await _reqMemberService.GetReqMemberById(reqMember.RegMemberId);
+
+            if (reqNew == null)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy yêu cầu với ID đã cho." });
+            }
+
             reqNew.Description = reqMember.Description;
             var isReqUpdated = await _reqMemberService.UpdateReqMember(reqNew);
+
             ApiResponse<object> response = new ApiResponse<object>
             {
                 Data = new
@@ -189,10 +224,23 @@ namespace uniexetask.api.Controllers
             }
         }
 
+
         [Authorize(Roles = "Student")]
         [HttpPut("DeleteReq")]
         public async Task<IActionResult> DeleteReqMember([FromBody] int reqMemberId)
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
             var reqNew = await _reqMemberService.GetReqMemberById(reqMemberId);
             reqNew.Status = false;
             var isReqUpdated = await _reqMemberService.UpdateReqMember(reqNew);

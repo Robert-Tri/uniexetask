@@ -20,14 +20,14 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Include(r => r.Projects)
-                .FirstOrDefaultAsync(r => r.GroupId == groupId);
+                .FirstOrDefaultAsync(r => r.GroupId == groupId && r.IsCurrentPeriod);
         }
 
         public async Task<Group?> GetGroupWithSubjectAsync(int groupId)
         {
             return await dbSet
                 .Include(r => r.Subject)
-                .FirstOrDefaultAsync(r => r.GroupId == groupId);
+                .FirstOrDefaultAsync(r => r.GroupId == groupId && r.IsCurrentPeriod);
         }
         public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
         {
@@ -36,7 +36,7 @@ namespace uniexetask.infrastructure.Repositories
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == nameof(GroupStatus.Approved)).AsNoTracking().ToListAsync();
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == nameof(GroupStatus.Approved) && g.IsCurrentPeriod).AsNoTracking().ToListAsync();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<int> GetGroupIdByStudentId(int studentId)
         {
-            return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId)).GroupId;
+            return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId && g.Group.IsCurrentPeriod)).GroupId;
         }
     }
 }

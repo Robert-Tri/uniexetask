@@ -150,6 +150,7 @@ CREATE TABLE [GROUP] (
 	group_name NVARCHAR(250) NOT NULL,
 	subject_id INT NOT NULL,
 	hasMentor BIT NOT NULL,
+	isCurrentPeriod BIT NOT NULL DEFAULT 1,
 	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
 	isDeleted BIT NOT NULL DEFAULT 0,
@@ -163,6 +164,7 @@ CREATE TABLE PROJECT (
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
 	subject_id INT NOT NULL,
+	isCurrentPeriod BIT NOT NULL DEFAULT 1,
 	status NVARCHAR(20) CHECK (status IN ('In_Progress', 'Completed')) NOT NULL,
 	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
@@ -299,7 +301,6 @@ CREATE TABLE EXPENSE_REPORT (
     FOREIGN KEY (usage_plan_id) REFERENCES USAGE_PLAN(usage_plan_id)
 );
 
-
 -- Tạo bảng MENTOR_GROUP
 CREATE TABLE MENTOR_GROUP (
     group_id INT NOT NULL,
@@ -379,8 +380,10 @@ CREATE TABLE MILESTONE (
     milestone_id INT PRIMARY KEY IDENTITY(1,1),
     milestone_name NVARCHAR(100) NOT NULL,
     description NVARCHAR(250),
-	percentage FLOAT NOT NULL,
+	pagercente FLOAT NOT NULL,
 	subject_id INT NOT NULL,
+	start_date DATETIME NOT NULL,
+	end_date DATETIME NOT NULL,
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
     updated_date DATETIME,
 	isDeleted BIT NOT NULL DEFAULT 0,
@@ -714,30 +717,33 @@ VALUES
 (3, 2, 'Hello admin.');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP
-INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status)
+INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status, isCurrentPeriod)
 VALUES 
-('Green Energy Team', 1, 0, 'Initialized'),
-('Smart City Team', 2, 1, 'Approved'),
-('UniEXETask', 1, 1, 'Approved'),
-('AI Innovation Team', 1, 0, 'Eligible'),
-('Blockchain Pioneers', 2, 1, 'Initialized'),
-('IoT Solutions', 1, 1, 'Eligible'),
-('Cybersecurity Guardians', 1, 1, 'Approved'),
-('Data Science Explorers', 1, 1, 'Overdue'),
-('Cloud Computing Experts', 2, 1, 'Initialized'),
-('ML Research Group', 1, 1, 'Initialized');
+('Green Energy Team', 1, 0, 'Initialized', 1),
+('Smart City Team', 2, 1, 'Approved', 1),
+('UniEXETask', 1, 1, 'Approved', 1),
+('AI Innovation Team', 1, 0, 'Eligible', 1),
+('Blockchain Pioneers', 2, 1, 'Initialized', 1),
+('IoT Solutions', 1, 1, 'Eligible', 1),
+('Cybersecurity Guardians', 1, 1, 'Approved', 1),
+('Data Science Explorers', 1, 1, 'Overdue', 1),
+('Cloud Computing Experts', 2, 1, 'Initialized', 1),
+('ML Research Group', 1, 1, 'Approved', 0),
+('Group Test', 2, 0, 'Initialized', 1);
 
 -- Thêm dữ liệu mẫu cho bảng TOPIC
 INSERT INTO TOPIC (topic_code, topic_name, description)
 VALUES 
 ('TP001', 'Green Energy', 'Research on renewable energy'),
-('TP002', 'Smart City', 'Building smart city systems');
+('TP002', 'Smart City', 'Building smart city systems'),
+('TP003', 'Smart Home 10', 'Building smart home systems 10');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
-INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status)
+INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
 VALUES 
-(3, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress'),
-(4, 2, '2024-09-01', '2025-02-01', 2, 'In_Progress');
+(3, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
+(4, 2, '2024-09-01', '2025-02-01', 2, 'In_Progress', 1),
+(10, 3, '2024-05-01', '2025-08-01', 2, 'Completed', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
@@ -753,7 +759,11 @@ VALUES
 (2, 'Integration and Testing', 'Integrate components and perform system testing', '2024-10-09', '2024-11-02', 'In_Progress'),
 (2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not_Started'),
 (2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not_Started'),
-(2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed');
+(2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed'),
+(3, 'Integration and Testing 10', 'Integrate components and perform system testing 10', '2024-05-09', '2024-06-02', 'Completed'),
+(3, 'User Acceptance Testing 10', 'Conduct UAT with stakeholders 10', '2024-06-06', '2024-06-28', 'Completed'),
+(3, 'Prototype 10', 'Build a prototype for the smart city project 10', '2024-07-01', '2024-07-15', 'Completed'),
+(3, 'Deployment and Documentation 10', 'Deploy the system and create user documentation 10', '2024-07-01', '2024-07-28', 'Completed');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
 INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
@@ -763,7 +773,8 @@ VALUES
 (1, 50.00, '2024-10-23', 'System design initiated', 1),
 (1, 60.00, '2024-11-01', 'Research phase started', 0),
 (2, 30.00, '2024-10-02', 'Initial components integrated', 1),
-(2, 50.00, '2024-10-09', 'System testing in progress', 0);
+(2, 50.00, '2024-10-09', 'System testing in progress', 0),
+(3, 100.00, '2024-07-28', 'System testing in progress 10', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
@@ -779,7 +790,11 @@ VALUES
 (9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
 (10, 0.00, '2024-11-05', 'Not started yet'),
 (11, 0.00, '2024-12-01', 'Not started yet'),
-(12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully');
+(12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully'),
+(13, 100.00, '2024-06-02', 'Integration in progress, some issues encountered 10'),
+(14, 100.00, '2024-06-28', 'Not started yet 10'),
+(15, 100.00, '2024-07-15', 'Not started yet 10'),
+(16, 100.00, '2024-07-28', 'Deployment and documentation completed successfully 10');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK_ASSIGN(task_id, student_id, assigned_date)
@@ -806,7 +821,16 @@ VALUES
 (11, 10, '2024-11-01'),
 (11, 11, '2024-11-01'),
 (12, 9, '2024-11-01'),
-(12, 11, '2024-11-01');
+(12, 11, '2024-11-01'),
+
+(13, 32, '2024-05-05'),
+(14, 33, '2024-05-05'),
+(14, 33, '2024-05-05'),
+(15, 32, '2024-05-05'),
+(15, 34, '2024-05-05'),
+(15, 35, '2024-05-05'),
+(16, 36, '2024-05-05'),
+(16, 37, '2024-05-05');
 
 -- Thêm dữ liệu mẫu cho bảng TASK_DETAIL
 INSERT INTO TASK_DETAIL (task_id, task_detail_name, progress_percentage, isCompleted, isDeleted)
@@ -859,7 +883,23 @@ VALUES
 
 -- Task 12: 'Deployment and Documentation'
 (12, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 0, 0),
-(12, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 0, 0);
+(12, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 0, 0),
+
+-- Task 13: 'Integration and Testing'
+(13, N'Tích hợp các thành phần hệ thống', 50.00, 1, 0),
+(13, N'Kiểm thử hệ thống tổng thể', 50.00, 1, 0),
+
+-- Task 14: 'User Acceptance Testing'
+(14, N'Chuẩn bị môi trường kiểm thử UAT', 67.00, 1, 0),
+(14, N'Thực hiện kiểm thử UAT', 33.00, 1, 0),
+
+-- Task 15: 'Prototype'
+(15, N'Xây dựng nguyên mẫu ban đầu', 70.00, 1, 0),
+(15, N'Kiểm thử và hoàn thiện nguyên mẫu', 30.00, 1, 0),
+
+-- Task 16: 'Deployment and Documentation'
+(16, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 1, 0),
+(16, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 1, 0);
 
 -- Thêm dữ liệu mẫu cho bảng LABEL
 INSERT INTO LABEL (label_name)
@@ -921,7 +961,6 @@ VALUES
 (6, 16, 'Member'),
 (7, 20, 'Leader'),
 (7, 28, 'Member'),
-(7, 31, 'Member'),
 (7, 25, 'Member'),
 (8, 22, 'Leader'),
 (8, 21, 'Member'),
@@ -929,8 +968,14 @@ VALUES
 (9, 27, 'Leader'),
 (9, 26, 'Member'),
 (9, 29, 'Member'),
-(10, 17, 'Leader'),
-(10, 24, 'Member');
+(10, 32, 'Leader'),
+(10, 33, 'Member'),
+(10, 34, 'Member'),
+(10, 35, 'Member'),
+(10, 36, 'Member'),
+(10, 37, 'Member'),
+(11, 33, 'Leader'),
+(11, 31, 'Member');
 
 -- Thêm dữ liệu mẫu cho bảng NOTIFICATION
 INSERT INTO NOTIFICATION (sender_id, receiver_id, message, type, created_at, status)

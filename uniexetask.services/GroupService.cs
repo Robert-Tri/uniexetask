@@ -19,6 +19,24 @@ namespace uniexetask.services
             return groups;
         }
 
+        public async Task<bool> UpdateGroupApproved(int groupId)
+        {
+                var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+                if (group != null)
+                {
+                group.Status = "Approved";
+                    _unitOfWork.Groups.Update(group);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+            return false;
+        }
+
         public async Task<IEnumerable<object>> GetApprovedGroupsAsync()
         {
             var groups = await _unitOfWork.Groups.GetApprovedGroupsWithGroupMembersAndStudent();
@@ -175,6 +193,16 @@ namespace uniexetask.services
             return groupList;
         }
 
+        public async Task<Group> GetGroupWithTopic(int groupId)
+        {
+            var group = await _unitOfWork.Groups.GetAsync(
+                g => g.GroupId == groupId && g.IsDeleted == false,
+                includeProperties: "Subject,RegTopicForms"
+            );
+            return group.FirstOrDefault();  
+        }
+
+
         public async Task<bool> CreateGroup(Group group)
         {
             if (group != null)
@@ -196,6 +224,7 @@ namespace uniexetask.services
             var group = await _unitOfWork.Groups.GetByIDAsync(id);
             return group;
         }
+
 
         public Task<IEnumerable<Group>> GetGroupsAsync()
         {

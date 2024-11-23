@@ -7,10 +7,7 @@ using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
-    public interface ITaskDetailRepository : IGenericRepository<TaskDetail>
+    public interface IReqTopicRepsitory : IGenericRepository<RegTopicForm>
     {
-        Task<IEnumerable<TaskDetail>> GetTaskDetailsByTaskIdAsync(int taskId);
-
-
     }
 }

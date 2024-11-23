@@ -39,6 +39,7 @@ namespace uniexetask.core.Interfaces
         ISubjectRepository Subjects { get; }
 
         ITaskDetailRepository TaskDetails { get; }
+        IReqTopicRepsitory ReqTopic { get; }
 
         int Save();
 

@@ -24,6 +24,32 @@ namespace uniexetask.services
             return project;
         }
 
+        public async Task<IEnumerable<Project>> GetAllProjectsByGroupId(int groupId)
+        {
+            var projects = await _unitOfWork.Projects.GetAsync(
+                includeProperties: "Topic,Subject,Group",
+                filter: rm => rm.GroupId == groupId && rm.IsDeleted == false && rm.IsCurrentPeriod == true);
+            return projects;
+        }
+
+
+
+        public async Task<bool> CreateProject(Project project)
+        {
+            if (project != null)
+            {
+                await _unitOfWork.Projects.InsertAsync(project);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         public async Task<Project?> GetProjectPendingByGroupAsync(Group group)
         {
             var project = await _unitOfWork.Projects.GetProjectPendingByGroupId(group.GroupId);

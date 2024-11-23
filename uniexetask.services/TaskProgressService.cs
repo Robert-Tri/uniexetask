@@ -68,7 +68,7 @@ namespace uniexetask.services
                 {
                     taskProgressPresent.IsDeleted = true;
 
-                    _unitOfWork.TaskProgresses.Update(taskProgress);
+                    _unitOfWork.TaskProgresses.Update(taskProgressPresent);
 
                     _unitOfWork.Save();
                 }
@@ -89,5 +89,42 @@ namespace uniexetask.services
             }
             return false;
         }
+
+        public async Task<bool> LoadProgressUpdateTaskProgressByTaskId(int taskId)
+        {
+            var taskProgressPresent = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(taskId);
+            if (taskProgressPresent != null)
+            {
+                taskProgressPresent.IsDeleted = true;
+
+                _unitOfWork.TaskProgresses.Update(taskProgressPresent);
+
+                _unitOfWork.Save();
+            }
+            decimal totalProgressPercentage = 0;
+            var taskDetails = await _unitOfWork.TaskDetails.GetTaskDetailsByTaskIdAsync(taskId);
+            foreach (var item in taskDetails)
+            {
+                if (item.IsCompleted)
+                {
+                    totalProgressPercentage += item.ProgressPercentage;
+                }
+            }
+            // Tạo TaskProgress
+            TaskProgress progress = new TaskProgress
+            {
+                TaskId = taskId,
+                ProgressPercentage = totalProgressPercentage,
+                UpdatedDate = DateTime.Now,
+                Note = taskProgressPresent != null ? taskProgressPresent.Note : null,
+                IsDeleted = false
+            };
+
+            await _unitOfWork.TaskProgresses.InsertAsync(progress);
+            var result = _unitOfWork.Save();
+
+            return result > 0;
+        }
+
     }
 }
