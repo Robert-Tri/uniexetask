@@ -36,7 +36,7 @@ namespace uniexetask.api.BackgroundServices
                         switch ((TimelineType)timeline.TimelineId)
                         {
                             case TimelineType.ConfirmGroup:
-                                await groupService.UpdateAndAssignStudentsToGroups();
+                                await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
                                 break;
 
                             case TimelineType.AssignMentor:

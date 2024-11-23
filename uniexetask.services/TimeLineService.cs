@@ -19,11 +19,11 @@ namespace uniexetask.services
             return await _unitOfWork.TimeLines.GetAsync();
         }
 
-        public async System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine)
+        /*public async System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine)
         {
             await _unitOfWork.TimeLines.InsertAsync(timeLine);
             _unitOfWork.Save();
-        }
+        }*/
 
         public async System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId)
         {

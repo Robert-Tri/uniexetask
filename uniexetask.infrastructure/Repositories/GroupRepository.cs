@@ -31,7 +31,8 @@ namespace uniexetask.infrastructure.Repositories
         }
         public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.HasMentor == false).AsNoTracking().ToListAsync();
+            var groups = await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false).AsNoTracking().ToListAsync();
+            return groups;
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {

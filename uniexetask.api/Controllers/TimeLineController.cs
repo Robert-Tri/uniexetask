@@ -27,14 +27,14 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<IActionResult> CreateTimeLine(Timeline timeLine)
         {
             await _timeLineService.CreateTimeLine(timeLine);
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             response.Data = timeLine;
             return Ok(response);
-        }
+        }*/
 
         [HttpPut("updatemaintimeline")]
         public async Task<IActionResult> UpdateMainTimeLine(MainTimelineUpdateModel timeLine)

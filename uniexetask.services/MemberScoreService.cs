@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Interfaces;
+﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -18,9 +13,12 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        public async System.Threading.Tasks.Task<bool> AddMemberScore(MemberScore memberScore)
+        public async Task<bool> AddMemberScore(List<MemberScore> memberScores)
         {
-            await _unitOfWork.MemberScores.InsertAsync(memberScore);
+            foreach (var memberScore in memberScores) 
+            {
+                await _unitOfWork.MemberScores.InsertAsync(memberScore);
+            }
             var result = _unitOfWork.Save();
             if(result > 0)
                 return true;

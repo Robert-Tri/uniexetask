@@ -1,5 +1,6 @@
 ﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -48,76 +49,104 @@ namespace uniexetask.services
             // Bước 1: Lấy tất cả các group chưa có mentor
             var groups = await _unitOfWork.Groups.GetHasNoMentorGroupsWithGroupMembersAndStudent();
 
-            // Bước 2: Đếm số lượng group trung bình cho mỗi mentor
-            var mentorGroupCounts = new Dictionary<int, int>(); // Lưu số lượng nhóm đã được gán cho từng mentor
+            // Tạo dictionary để phân chia group theo campus_id
+            var groupsByCampus = new Dictionary<int, List<Group>>();
 
-            var allMentors = await _unitOfWork.Mentors.GetAsync(); // Lấy tất cả các mentor từ cơ sở dữ liệu
-            var totalGroups = groups.Count();
-            var mentorCount = allMentors.Count();
-            var averageGroupsPerMentor = Math.Max(totalGroups / mentorCount, 1); // Số nhóm trung bình mỗi mentor nên có
-
-            foreach (var mentor in allMentors)
-            {
-                mentorGroupCounts[mentor.MentorId] = 0; // Bắt đầu với 0 nhóm cho mỗi mentor
-            }
-
-            // Bước 3: Duyệt qua từng group và tìm lecturerId phổ biến nhất
             foreach (var group in groups)
             {
-                // Tạo dictionary để đếm số lần xuất hiện của mỗi LecturerId trong nhóm
-                var lecturerCount = new Dictionary<int, int>();
+                // Lấy CampusId của user đầu tiên trong GroupMembers của group
+                var campusId = group.GroupMembers.FirstOrDefault()?.Student?.User?.CampusId;
 
-                foreach (var member in group.GroupMembers)
+                if (campusId.HasValue)
                 {
-                    var lecturerId = member.Student.LecturerId;
-
-                    if (lecturerCount.ContainsKey(lecturerId))
+                    if (!groupsByCampus.ContainsKey(campusId.Value))
                     {
-                        lecturerCount[lecturerId]++;
+                        groupsByCampus[campusId.Value] = new List<Group>();
                     }
-                    else
+                    groupsByCampus[campusId.Value].Add(group);
+                }
+            }
+
+            // Bước 2: Duyệt qua từng nhóm được phân chia theo CampusId
+            foreach (var campusGroups in groupsByCampus)
+            {
+                int campusId = campusGroups.Key;
+
+                // Lấy danh sách mentor theo campus_id hiện tại
+                var allMentors = (await _unitOfWork.Mentors.GetMentorsWithCampus())
+                    .Where(m => m.User?.CampusId == campusId)
+                    .ToList();
+
+                if (!allMentors.Any()) continue; // Nếu không có mentor cho campus này, bỏ qua
+
+                // Tạo dictionary lưu số nhóm đã gán cho mỗi mentor
+                var mentorGroupCounts = allMentors.ToDictionary(m => m.MentorId, _ => 0);
+
+                // Số nhóm trung bình mỗi mentor nên có
+                var totalGroups = campusGroups.Value.Count;
+                var mentorCount = allMentors.Count;
+                var averageGroupsPerMentor = Math.Max(totalGroups / mentorCount, 1);
+
+                // Duyệt qua từng group trong campus này
+                foreach (var group in campusGroups.Value)
+                {
+                    // Đếm số lần xuất hiện của mỗi LecturerId
+                    var lecturerCount = new Dictionary<int, int>();
+
+                    foreach (var member in group.GroupMembers)
                     {
-                        lecturerCount[lecturerId] = 1;
+                        var lecturerId = member.Student.LecturerId;
+
+                        if (lecturerCount.ContainsKey(lecturerId))
+                        {
+                            lecturerCount[lecturerId]++;
+                        }
+                        else
+                        {
+                            lecturerCount[lecturerId] = 1;
+                        }
                     }
-                }
 
-                // Sắp xếp các LecturerId theo thứ tự phổ biến giảm dần
-                var sortedLecturerIds = lecturerCount.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+                    // Sắp xếp LecturerId theo thứ tự phổ biến giảm dần
+                    var sortedLecturerIds = lecturerCount
+                        .OrderByDescending(x => x.Value)
+                        .Select(x => x.Key)
+                        .ToList();
 
-                Mentor? mentorToAdd = null;
+                    Mentor? mentorToAdd = null;
 
-                // Bước 4: Chọn mentor phổ biến nhất nhưng không vượt quá số nhóm trung bình
-                foreach (var lecturerId in sortedLecturerIds)
-                {
-                    mentorToAdd = allMentors.FirstOrDefault(m => m.MentorId == lecturerId);
-
-                    if (mentorToAdd != null && mentorGroupCounts[mentorToAdd.MentorId] < averageGroupsPerMentor)
+                    // Chọn mentor phổ biến nhất nhưng không vượt quá số nhóm trung bình
+                    foreach (var lecturerId in sortedLecturerIds)
                     {
-                        // Mentor chưa vượt quá giới hạn trung bình, có thể gán vào group
-                        break;
+                        mentorToAdd = allMentors.FirstOrDefault(m => m.MentorId == lecturerId);
+
+                        if (mentorToAdd != null && mentorGroupCounts[mentorToAdd.MentorId] < averageGroupsPerMentor)
+                        {
+                            break; // Mentor phù hợp
+                        }
+
+                        mentorToAdd = null;
                     }
 
-                    // Nếu mentor phổ biến nhất đã vượt quá số nhóm trung bình, chuyển qua mentor ít phổ biến hơn
-                    mentorToAdd = null;
-                }
+                    // Nếu tất cả mentor phổ biến đều vượt quá số nhóm trung bình, chọn mentor có ít nhóm nhất
+                    if (mentorToAdd == null)
+                    {
+                        mentorToAdd = mentorGroupCounts
+                            .OrderBy(m => m.Value)
+                            .Select(m => allMentors.FirstOrDefault(mentor => mentor.MentorId == m.Key))
+                            .FirstOrDefault();
+                    }
 
-                // Bước 5: Nếu tất cả các mentor phổ biến đều vượt quá số nhóm trung bình, chọn mentor có ít nhóm nhất
-                if (mentorToAdd == null)
-                {
-                    mentorToAdd = mentorGroupCounts
-                        .OrderBy(m => m.Value) // Sắp xếp mentor theo số lượng nhóm đã gán
-                        .Select(m => allMentors.FirstOrDefault(mentor => mentor.MentorId == m.Key))
-                        .FirstOrDefault();
-                }
-
-                // Bước 6: Gán mentor vào group
-                if (mentorToAdd != null)
-                {
-                    await AddMentorToGroup(group.GroupId, mentorToAdd.MentorId);
-                    mentorGroupCounts[mentorToAdd.MentorId]++;
+                    // Gán mentor vào group
+                    if (mentorToAdd != null)
+                    {
+                        await AddMentorToGroup(group.GroupId, mentorToAdd.MentorId);
+                        mentorGroupCounts[mentorToAdd.MentorId]++;
+                    }
                 }
             }
         }
+
         public async System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId)
         {
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
@@ -177,10 +206,21 @@ namespace uniexetask.services
         {
             return await _unitOfWork.Groups.GetGroupWithSubjectAsync(groupId);
         }
-        private List<int> DistributeStudents(int numStudents)
+        private List<int> DistributeStudents(int numStudents, SubjectType subjectType)
         {
-            int minGroupSize = 4;
-            int maxGroupSize = 6;
+            int minGroupSize = 0;
+            int maxGroupSize = 0;
+
+            if(SubjectType.EXE101 == subjectType)
+            {
+                minGroupSize = 4;
+                maxGroupSize = 6;
+            }
+            else if(SubjectType.EXE201 == subjectType)
+            {
+                minGroupSize = 8;
+                maxGroupSize = 10;
+            }
 
             List<int> groups = new List<int>();
 
@@ -210,17 +250,22 @@ namespace uniexetask.services
             return groups;
         }
 
-        private async System.Threading.Tasks.Task<HashSet<int>> UpdateEligibleGroup()
+        private async Task<HashSet<int>> UpdateEligibleGroup(SubjectType subjectType)
         {
+            int minMembers = 0;
+            if (1 == (int)subjectType)
+                minMembers = 4;
+            else if(2 == (int)subjectType)
+               minMembers = 6;
             HashSet<int> studentIdSet = new HashSet<int>();
-            var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.Status == "Initialized");
+            var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())
             {
                 foreach (var group in initializedGroup)
                 {
                     var memberNumbers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
 
-                    if (memberNumbers.Count() >= 4)
+                    if (memberNumbers.Count() >= minMembers)
                     {
                         foreach (var member in memberNumbers)
                         {
@@ -242,48 +287,51 @@ namespace uniexetask.services
             return studentIdSet;
         }
 
-        private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet)
+        private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet, SubjectType subjectType)
         {
-            var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s => !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod)).ToList();
+            var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s =>
+                !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType)).ToList();
             var userIds = studentsWithoutGroup.Select(s => s.UserId).ToHashSet();
             var users = (await _unitOfWork.Users.GetAsync(filter: u => userIds.Contains(u.UserId))).ToList();
 
             var userCampusMap = users.ToDictionary(u => u.UserId, u => u.CampusId);
 
-            var campusStudents = new Dictionary<int, List<Student>>()
-    {
-        { 1, new List<Student>() }, 
-        { 2, new List<Student>() }, 
-        { 3, new List<Student>() }  
-    };
+            var campusSubjectStudents = new Dictionary<(int CampusId, int SubjectId), List<Student>>();
 
             foreach (var student in studentsWithoutGroup)
             {
-                if (userCampusMap.TryGetValue(student.UserId, out var campusId) && campusStudents.ContainsKey(campusId))
+                if (userCampusMap.TryGetValue(student.UserId, out var campusId))
                 {
-                    campusStudents[campusId].Add(student);
+                    var key = (CampusId: campusId, SubjectId: student.SubjectId);
+                    if (!campusSubjectStudents.ContainsKey(key))
+                    {
+                        campusSubjectStudents[key] = new List<Student>();
+                    }
+                    campusSubjectStudents[key].Add(student);
                 }
             }
 
-            foreach (var campus in campusStudents)
+            foreach (var entry in campusSubjectStudents)
             {
-                await AssignToGroupsByCampus(campus.Key, campus.Value);
+                var (campusId, subjectId) = entry.Key;
+                var students = entry.Value;
+                await AssignToGroupsByCampusAndSubject(campusId, subjectId, students, subjectType);
             }
         }
 
-        private async System.Threading.Tasks.Task AssignToGroupsByCampus(int campusId, List<Student> students)
+        private async System.Threading.Tasks.Task AssignToGroupsByCampusAndSubject(int campusId, int subjectId, List<Student> students, SubjectType subjectType)
         {
             if (!students.Any()) return;
 
-            var distributedGroups = DistributeStudents(students.Count);
+            var distributedGroups = DistributeStudents(students.Count, subjectType);
 
             var groupDictionary = new Dictionary<Group, int>();
             foreach (var (groupSize, index) in distributedGroups.Select((value, i) => (value, i)))
             {
                 var groupToAdd = new Group
                 {
-                    GroupName = $"Group {campusId}-{index + 1}",
-                    SubjectId = 1,
+                    GroupName = $"Group {campusId}-{subjectId}-{index + 1}",
+                    SubjectId = subjectId,
                     HasMentor = false,
                     Status = "Eligible"
                 };
@@ -311,10 +359,11 @@ namespace uniexetask.services
         }
 
 
-        public async System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups()
+
+        public async System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups(SubjectType subjectType)
         {
-            var studentIdSet = await UpdateEligibleGroup();
-            await AssignStudentsToGroups(studentIdSet);
+            var studentIdSet = await UpdateEligibleGroup(subjectType);
+            await AssignStudentsToGroups(studentIdSet, subjectType);
         }
     }
 }

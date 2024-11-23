@@ -22,7 +22,7 @@ namespace Unitask.Api.Extensions
             CreateMap<GroupInviteModel, GroupInvite>().ReverseMap();
             CreateMap<NotificationModel, Notification>().ReverseMap();
             CreateMap<AddMemberScoreModel, MemberScore>().ReverseMap();
-            CreateMap<AddProjectScoreModel, ProjectScore>().ReverseMap();
+            CreateMap<AddProjectScoreModel, uniexetask.core.Models.ProjectScore>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
 
         }

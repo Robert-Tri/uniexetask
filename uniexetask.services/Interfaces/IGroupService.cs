@@ -1,4 +1,5 @@
 ﻿using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.services.Interfaces
 {
@@ -13,6 +14,6 @@ namespace uniexetask.services.Interfaces
         System.Threading.Tasks.Task AddMentorToGroup(int groupId, int mentorId);
         System.Threading.Tasks.Task AddMentorToGroupAutomatically();
         Task<Group?> GetGroupWithSubject(int groupId);
-        System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups();
+        System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups(SubjectType subjectType);
     }
 }

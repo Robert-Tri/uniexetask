@@ -37,7 +37,7 @@ namespace uniexetask.api.Controllers
                     Comment = studentScore.Comment,
                 });
             }
-            bool result = await _memberScoreService.AddMemberScore(_mapper.Map<MemberScore>(memberScore));
+            bool result = await _memberScoreService.AddMemberScore(memberScoreToAdd);
             ApiResponse<AddMemberScoreModel> respone = new ApiResponse<AddMemberScoreModel>();
             respone.Success = result;
             respone.Data = memberScore;

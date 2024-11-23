@@ -9,6 +9,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface IProjectScoreService
     {
-        System.Threading.Tasks.Task<bool> AddProjecScore(ProjectScore projecScore);
+        Task<bool> AddProjecScore(List<ProjectScore> projectScores);
+        Task<double> GetMileStoneScore(int projectId, int mileStoneId);
     }
 }
