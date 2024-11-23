@@ -8,6 +8,7 @@
         public string Major { get; set; }
         public int? StudentId { get; set; }
         public string StudentCode { get; set; }
+        public string SubjectName { get; set; }
         public string Role { get; set; }
         public int? GroupId { get; set; }
         public string GroupName { get; set; }
