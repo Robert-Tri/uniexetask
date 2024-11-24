@@ -1,19 +1,21 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using OfficeOpenXml;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 using uniexetask.api.Extensions;
 
 namespace uniexetask.api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
@@ -243,7 +245,7 @@ namespace uniexetask.api.Controllers
                         var user = new UserModel
                         {
                             FullName = fullname,
-                            Password = password, // Lưu mật khẩu gốc để gửi email
+                            Password = password,
                             Email = emailUser,
                             Phone = phoneUser,
                             CampusId = campusId,
@@ -258,10 +260,8 @@ namespace uniexetask.api.Controllers
 
             foreach (var userModel in usersList)
             {
-                // Lưu mật khẩu gốc để gửi qua email
                 string rawPassword = userModel.Password;
 
-                // Hash mật khẩu trước khi lưu vào cơ sở dữ liệu
                 userModel.Password = PasswordHasher.HashPassword(userModel.Password);
 
                 var userEntity = _mapper.Map<User>(userModel);
@@ -278,7 +278,6 @@ namespace uniexetask.api.Controllers
                     return BadRequest(response);
                 }
 
-                // Gửi mật khẩu gốc qua email
                 var userEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -372,27 +371,16 @@ namespace uniexetask.api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel users)
         {
-            try
-            {
-                var obj = _mapper.Map<User>(users);
-                var isUserCreated = await _userService.CreateUser(obj);
+            var obj = _mapper.Map<User>(users);
+            var isUserCreated = await _userService.CreateUser(obj);
 
-                if (isUserCreated)
-                {
-                    return Ok(isUserCreated);
-                }
-                else
-                {
-                    return BadRequest("Failed to create user.");
-                }
-            }
-            catch (Exception ex)
+            if (isUserCreated)
             {
-                if (ex.Message == "Email or phone number already exists.")
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
+                return Ok(isUserCreated);
+            }
+            else
+            {
+                return BadRequest();
             }
         }
 
@@ -405,29 +393,17 @@ namespace uniexetask.api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
-            try
+            ApiResponse<bool> respone = new ApiResponse<bool>();
+            var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
+            if (isUserUpdated)
             {
-                ApiResponse<bool> respone = new ApiResponse<bool>();
-                var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
-                if (isUserUpdated)
-                {
-                    respone.Data = isUserUpdated;
-                    return Ok(respone);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                respone.Data = isUserUpdated;
+                return Ok(respone);
             }
-            catch (Exception ex)
+            else
             {
-                if (ex.Message == "Email or phone number already exists.")
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
+                return BadRequest();
             }
-
         }
 
         [Authorize]
