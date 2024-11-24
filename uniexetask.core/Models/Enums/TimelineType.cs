@@ -8,8 +8,11 @@ namespace uniexetask.core.Models.Enums
 {
     public enum TimelineType
     {
-        ConfirmGroup = 1,
-        AssignMentor = 2,
-        SelectTopic = 3,
+        CurrentTermDurationEXE101 = 1,
+        CurrentTermDurationEXE201 = 2,
+        FinalizeGroupEXE101 = 3,
+        FinalizeGroupEXE201 = 4,
+        FinalizeMentorEXE101 = 5,
+        FinalizeMentorEXE201 = 6,
     }
 }

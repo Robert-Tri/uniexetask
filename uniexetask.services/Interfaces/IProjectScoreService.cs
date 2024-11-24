@@ -9,7 +9,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface IProjectScoreService
     {
-        Task<bool> AddProjecScore(List<ProjectScore> projectScores);
-        Task<double> GetMileStoneScore(int projectId, int mileStoneId);
+        Task<bool> SubmitProjecScore(List<ProjectScore> projectScores);
+        Task<MilestoneScoreResult> GetMileStoneScore(int projectId, int mileStoneId);
     }
 }

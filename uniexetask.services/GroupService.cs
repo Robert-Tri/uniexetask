@@ -64,15 +64,12 @@ namespace uniexetask.services
 
         public async System.Threading.Tasks.Task AddMentorToGroupAutomatically()
         {
-            // Bước 1: Lấy tất cả các group chưa có mentor
             var groups = await _unitOfWork.Groups.GetHasNoMentorGroupsWithGroupMembersAndStudent();
 
-            // Tạo dictionary để phân chia group theo campus_id
             var groupsByCampus = new Dictionary<int, List<Group>>();
 
             foreach (var group in groups)
             {
-                // Lấy CampusId của user đầu tiên trong GroupMembers của group
                 var campusId = group.GroupMembers.FirstOrDefault()?.Student?.User?.CampusId;
 
                 if (campusId.HasValue)
@@ -85,30 +82,24 @@ namespace uniexetask.services
                 }
             }
 
-            // Bước 2: Duyệt qua từng nhóm được phân chia theo CampusId
             foreach (var campusGroups in groupsByCampus)
             {
                 int campusId = campusGroups.Key;
 
-                // Lấy danh sách mentor theo campus_id hiện tại
                 var allMentors = (await _unitOfWork.Mentors.GetMentorsWithCampus())
                     .Where(m => m.User?.CampusId == campusId)
                     .ToList();
 
-                if (!allMentors.Any()) continue; // Nếu không có mentor cho campus này, bỏ qua
+                if (!allMentors.Any()) continue; 
 
-                // Tạo dictionary lưu số nhóm đã gán cho mỗi mentor
                 var mentorGroupCounts = allMentors.ToDictionary(m => m.MentorId, _ => 0);
 
-                // Số nhóm trung bình mỗi mentor nên có
                 var totalGroups = campusGroups.Value.Count;
                 var mentorCount = allMentors.Count;
                 var averageGroupsPerMentor = Math.Max(totalGroups / mentorCount, 1);
 
-                // Duyệt qua từng group trong campus này
                 foreach (var group in campusGroups.Value)
                 {
-                    // Đếm số lần xuất hiện của mỗi LecturerId
                     var lecturerCount = new Dictionary<int, int>();
 
                     foreach (var member in group.GroupMembers)
@@ -125,7 +116,6 @@ namespace uniexetask.services
                         }
                     }
 
-                    // Sắp xếp LecturerId theo thứ tự phổ biến giảm dần
                     var sortedLecturerIds = lecturerCount
                         .OrderByDescending(x => x.Value)
                         .Select(x => x.Key)
@@ -133,20 +123,18 @@ namespace uniexetask.services
 
                     Mentor? mentorToAdd = null;
 
-                    // Chọn mentor phổ biến nhất nhưng không vượt quá số nhóm trung bình
                     foreach (var lecturerId in sortedLecturerIds)
                     {
                         mentorToAdd = allMentors.FirstOrDefault(m => m.MentorId == lecturerId);
 
                         if (mentorToAdd != null && mentorGroupCounts[mentorToAdd.MentorId] < averageGroupsPerMentor)
                         {
-                            break; // Mentor phù hợp
+                            break;
                         }
 
                         mentorToAdd = null;
                     }
 
-                    // Nếu tất cả mentor phổ biến đều vượt quá số nhóm trung bình, chọn mentor có ít nhóm nhất
                     if (mentorToAdd == null)
                     {
                         mentorToAdd = mentorGroupCounts
@@ -155,7 +143,6 @@ namespace uniexetask.services
                             .FirstOrDefault();
                     }
 
-                    // Gán mentor vào group
                     if (mentorToAdd != null)
                     {
                         await AddMentorToGroup(group.GroupId, mentorToAdd.MentorId);
@@ -287,7 +274,7 @@ namespace uniexetask.services
             else if(2 == (int)subjectType)
                minMembers = 6;
             HashSet<int> studentIdSet = new HashSet<int>();
-            var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.Status == "Initialized" && g.SubjectId == (int)subjectType);
+            var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.IsDeleted == false && g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())
             {
                 foreach (var group in initializedGroup)
@@ -305,10 +292,8 @@ namespace uniexetask.services
                     }
                     else
                     {
-                        await _unitOfWork.GroupInvites.DeleteGroupInvites(group.GroupId);
-                        await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
-                        await _unitOfWork.ReqMembers.DeleteReqMemberForm(group.GroupId);
-                        _unitOfWork.Groups.Delete(group);
+                        group.IsDeleted = true;
+                        _unitOfWork.Groups.Update(group);
                     }
                 }
                 await _unitOfWork.SaveAsync();
