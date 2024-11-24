@@ -107,7 +107,8 @@ namespace uniexetask.services
 
         public async Task<List<User>> GetUsersByUserId(int userId)
         {
-            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId, includeProperties: "GroupMembers.Group");
+            var student = await _unitOfWork.Students.GetAsync(s => s.UserId == userId, includeProperties: "GroupMembers.Group,Subject");
+
 
             var singleStudent = student.FirstOrDefault();
 

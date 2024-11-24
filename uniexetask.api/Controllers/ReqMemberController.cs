@@ -21,9 +21,11 @@ namespace uniexetask.api.Controllers
         private readonly IReqMemberService _reqMemberService;
         private readonly IStudentService _studentService;
         private readonly IMapper _mapper;
+        private readonly IMentorService _mentorService;
 
-        public ReqMemberController(IReqMemberService reqMemberService, IStudentService studentService, IMapper mapper, IGroupMemberService groupMemberService)
+        public ReqMemberController(IReqMemberService reqMemberService, IMentorService mentorService, IStudentService studentService, IMapper mapper, IGroupMemberService groupMemberService)
         {
+            _mentorService = mentorService;
             _reqMemberService = reqMemberService;
             _groupMemberService = groupMemberService;
             _studentService = studentService;
@@ -104,7 +106,7 @@ namespace uniexetask.api.Controllers
                     GroupName = reqMember.Group.GroupName,
                     GroupId = reqMember.Group.GroupId,
                     LeaderName = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader)  )
+                        .Where(gm => gm.Role == nameof(GroupMemberRole.Leader))
                         .Select(gm => gm.Student.User.FullName)
                         .FirstOrDefault(),
                     LeaderAvatar = reqMember.Group.GroupMembers
@@ -112,7 +114,11 @@ namespace uniexetask.api.Controllers
                         .Select(gm => gm.Student.User.Avatar)
                         .FirstOrDefault(),
                     SubjectCode = reqMember.Group.Subject.SubjectCode,
-                    MemberCount = reqMember.Group.GroupMembers.Count()
+                    MemberCount = reqMember.Group.GroupMembers.Count(),
+                    Role = reqMember.Group.GroupMembers
+                        .Where(gm => gm.Student.UserId == userId) // Lấy role của thành viên hiện tại
+                        .Select(gm => gm.Role)
+                        .FirstOrDefault()
                 });
 
             var response = new ApiResponse<IEnumerable<object>>
@@ -123,6 +129,7 @@ namespace uniexetask.api.Controllers
 
             return Ok(response);
         }
+
 
 
         [Authorize(Roles = "Student")]

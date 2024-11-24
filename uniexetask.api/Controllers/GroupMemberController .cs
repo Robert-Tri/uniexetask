@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Azure;
 using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
@@ -65,6 +67,8 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
+            var studentLeader = await _studentService.GetStudentByUserId(userId);
+
             var role = await _groupMemberService.GetRoleByUserId(userId);
 
             if (role != "Leader")
@@ -84,6 +88,25 @@ namespace uniexetask.api.Controllers
             }
 
             bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+
+            var users = await _groupMemberService.GetUsersByUserId(userId);
+            var subject = await _studentService.GetStudentById(studentLeader.StudentId);
+
+            if (subject.SubjectId != student.SubjectId )
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn không thể thêm thành viên khác môn học" });
+            }
+
+            if (subject.SubjectId == 1 && users.Count >= 5)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã đủ người cho EXE101." });
+            }
+
+            if (subject.SubjectId == 2 && users.Count >= 8)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã đủ người cho EXE201." });
+            }
+
             if (studentExistsInGroup)
             {
                 return BadRequest(new ApiResponse<object>
@@ -110,6 +133,135 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpPost("CreateGroupWithMember")]
+        public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var studentLeader = await _studentService.GetStudentByUserId(userId);
+            if (studentLeader == null)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy thông tin sinh viên." });
+            }
+
+            bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
+            if (isLeaderInGroup)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã có nhóm, không thể tạo nhóm mới." });
+            }
+
+            var usersCount = request.StudentCodes.Count;
+
+            if (request.Group.SubjectId == 1 && usersCount >= 5)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Giới hạn là 5 người." });
+            }
+
+            if (request.Group.SubjectId == 2 && usersCount >= 8)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Giới hạn là 8 người." });
+            }
+
+            // Kiểm tra các mã sinh viên
+            var studentCodesHashSet = new HashSet<string>();
+            foreach (var studentCode in request.StudentCodes)
+            {
+                var student = await _studentService.GetStudentByCode(studentCode);
+                if (student == null)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Không tìm thấy sinh viên với mã {studentCode}."
+                    });
+                }
+
+                if (studentLeader.SubjectId != student.SubjectId)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Sinh viên có mã {studentCode} không thuộc cùng môn học."
+                    });
+                }
+
+                if (!studentCodesHashSet.Add(studentCode))
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Mã sinh viên {studentCode} trùng, đã sửa lại."
+                    });
+                }
+
+                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+                if (studentExistsInGroup)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Sinh viên có mã {studentCode} đã có nhóm."
+                    });
+                }
+            }
+
+            // Tất cả điều kiện đã hợp lệ, tiến hành tạo nhóm
+            request.Group.HasMentor = false;
+            request.Group.Status = nameof(GroupStatus.Initialized);
+
+            var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
+            var isGroupCreated = await _groupService.CreateGroup(objGroup);
+
+            if (!isGroupCreated)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Tạo nhóm thất bại." });
+            }
+
+            var createdGroupId = objGroup.GroupId;
+
+            // Thêm leader vào nhóm
+            var leaderMember = new GroupMemberModel
+            {
+                GroupId = createdGroupId,
+                StudentId = studentLeader.StudentId,
+                Role = nameof(GroupMemberRole.Leader)
+            };
+
+            var objLeader = _mapper.Map<GroupMember>(leaderMember);
+            var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
+
+            if (!isLeaderCreated)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không thể thêm Leader vào nhóm." });
+            }
+
+            // Gửi lời mời tham gia nhóm cho các thành viên khác
+            var memberCreationResults = new List<object>();
+            foreach (var studentCode in request.StudentCodes)
+            {
+                var student = await _studentService.GetStudentByCode(studentCode);
+
+                var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: student.UserId, groupId: createdGroupId, groupName: request.Group.GroupName);
+                await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = $"Đã gửi lời mời tham gia nhóm cho sinh viên có mã {studentCode}" });
+            }
+
+            var response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    GroupId = createdGroupId,
+                    MemberResults = memberCreationResults
+                }
+            };
+            return Ok(response);
+        }
 
 
 
@@ -221,103 +373,8 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [Authorize(Roles = nameof(EnumRole.Student))]
-        [HttpPost("CreateGroupWithMember")]
-        public async Task<IActionResult> CreateGroupWithMember([FromBody] CreateGroupWithMemberModel request)
-        {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        
 
-            request.Group.HasMentor = false;
-            request.Group.Status = nameof(GroupStatus.Initialized);
-
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
-            }
-
-            var studentLeader = await _studentService.GetStudentByUserId(userId);
-            bool isLeaderInGroup = await _groupMemberService.CheckIfStudentInGroup(studentLeader.StudentId);
-            if (isLeaderInGroup)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Bạn đã có nhóm, không thể tạo nhóm mới." });
-            }
-
-            // Tạo nhóm
-            var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
-            var isGroupCreated = await _groupService.CreateGroup(objGroup);
-
-            if (!isGroupCreated)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Tạo nhóm thất bại" });
-            }
-
-            var createdGroupId = objGroup.GroupId;
-            var student = await _studentService.GetStudentByUserId(userId);
-
-            if (student != null)
-            {
-                var leaderMember = new GroupMemberModel
-                {
-                    GroupId = createdGroupId,
-                    StudentId = student.StudentId,
-                    Role = nameof(GroupMemberRole.Leader)
-                };
-
-                var objLeader = _mapper.Map<GroupMember>(leaderMember);
-                var isLeaderCreated = await _groupMemberService.AddMember(objLeader);
-
-                if (!isLeaderCreated)
-                {
-                    return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không thể thêm Leader vào nhóm" });
-                }
-            }
-            else
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy sinh viên với ID đã cho" });
-            }
-
-            // Kiểm tra mã sinh viên trùng lặp
-            var studentCodesHashSet = new HashSet<string>();
-            var memberCreationResults = new List<object>(); // Để lưu kết quả tạo thành viên
-
-            foreach (var studentCode in request.StudentCodes)
-            {
-                if (!studentCodesHashSet.Add(studentCode))
-                {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Mã sinh viên {studentCode} trùng, đã bỏ qua" });
-                    continue;
-                }
-
-                var foundStudent = await _studentService.GetStudentByCode(studentCode);
-                if (foundStudent == null)
-                {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Không tìm thấy sinh viên có mã {studentCode}" });
-                    continue;
-                }
-
-                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(foundStudent.StudentId);
-                if (studentExistsInGroup)
-                {
-                    memberCreationResults.Add(new { StudentCode = studentCode, Success = false, Message = $"Sinh viên có mã {studentCode} đã có nhóm" });
-                    continue;
-                }
-
-                var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: foundStudent.UserId, groupId: createdGroupId, groupName: request.Group.GroupName);
-                await _hubContext.Clients.User(foundStudent.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = $"Đã gửi lời mời tham gia nhóm cho sinh viên có mã {studentCode}" });
-            }
-
-            var response = new ApiResponse<object>
-            {
-                Data = new
-                {
-                    GroupId = createdGroupId,
-                    MemberResults = memberCreationResults
-                }
-            };
-            return Ok(response);
-
-        }
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
         public async Task<IActionResult> GetUsersByGroupId(int groupId)
@@ -335,43 +392,56 @@ namespace uniexetask.api.Controllers
         }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
-        [HttpGet("GetUsersByUserId")]
+        [HttpGet("MyGroup")]
         public async Task<IActionResult> GetUsersByUserId()
         {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString))
+            ApiResponse<IEnumerable<TeammateModel>> response = new ApiResponse<IEnumerable<TeammateModel>>();
+            try
             {
-                return BadRequest("User ID not found.");
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdString))
+                {
+                    return BadRequest("User ID not found.");
+                }
+
+                if (!int.TryParse(userIdString, out int userId))
+                {
+                    return BadRequest("Invalid User ID format.");
+                }
+
+                var users = await _groupMemberService.GetUsersByUserId(userId);
+
+                if (users == null || !users.Any())
+                {
+                    return NotFound("No members found in this group.");
+                }
+
+                var userDetails = users.Select(u => new TeammateModel
+                {
+                    UserId = u.UserId,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    Major = u.Students.FirstOrDefault()?.Major,         
+                    StudentId = u.Students.FirstOrDefault()?.StudentId, 
+                    StudentCode = u.Students.FirstOrDefault()?.StudentCode, 
+                    SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName,
+                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, 
+                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, 
+                    GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
+                }).ToList();
+
+                response.Data = userDetails;
+                return Ok(response);
             }
-
-            if (!int.TryParse(userIdString, out int userId))
+            catch (Exception ex)
             {
-                return BadRequest("Invalid User ID format.");
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
-
-            var users = await _groupMemberService.GetUsersByUserId(userId);          
-
-            if (users == null || !users.Any())
-            {
-                return NotFound("No members found in this group.");
-            }
-
-            var userDetails = users.Select(u => new
-            {
-                UserId = u.UserId,
-                FullName = u.FullName,
-                Email = u.Email,
-                Major = u.Students.FirstOrDefault()?.Major,         // Lấy Major từ đối tượng Student
-                StudentId = u.Students.FirstOrDefault()?.StudentId, // Lấy StudentId từ đối tượng Student
-                StudentCode = u.Students.FirstOrDefault()?.StudentCode, // Lấy StudentCode từ đối tượng Student
-                Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, // Lấy Role từ GroupMembers
-                GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, // Lấy Role từ GroupMembers
-                GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
-            }).ToList();
-
-            return Ok(userDetails);
         }
+
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpDelete("DeleteMember")]
