@@ -473,9 +473,9 @@ CREATE TABLE REG_MEMBER_FORM (
 -- Thêm dữ liệu mẫu cho bảng Campus
 INSERT INTO CAMPUS (campus_code, campus_name, location)
 VALUES 
-('FPT-HN', 'FPT Hà Nội', 'Hà Nội'),
-('FPT-HCM', 'FPT Hồ Chí Minh', 'Hồ Chí Minh'),
-('FPT-DN', 'FPT Đà Nẵng', 'Đà Nẵng');
+('FPT-HN', 'FPT Ha Noi', 'Ha Noi'),
+('FPT-HCM', 'FPT Ho Chi Minh', 'Ho Chi Minh'),
+('FPT-DN', 'FPT Da Nang', 'Da Nang');
 
 -- Thêm dữ liệu mẫu cho bảng SUBJECT
 INSERT INTO SUBJECT (subject_code, subject_name)
@@ -1009,3 +1009,74 @@ VALUES
     (8, N'Tìm kiếm 1 BE có kinh nghiệm với Python', 1),
     (9, N'Nhóm cần thêm 1 FE để hoàn thành dự án', 1),
     (10, N'Chúng tôi tìm kiếm 1 bạn BE để hỗ trợ phần backend', 1);
+
+INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 1: Project Initiation Phase
+('Project Initiation', 'Complete an overview plan and define entrepreneurship objectives', 15, 1, '2024-01-01', '2024-01-15', GETDATE(), NULL, 0),
+
+-- Milestone 2: Market Research
+('Market Research', 'Analyze customer needs and conduct market surveys', 20, 1, '2024-01-16', '2024-01-30', GETDATE(), NULL, 0),
+
+-- Milestone 3: Business Plan Development
+('Business Plan Development', 'Complete a detailed business plan', 25, 1, '2024-02-01', '2024-02-15', GETDATE(), NULL, 0),
+
+-- Milestone 4: Prototyping
+('Prototyping', 'Design and test a prototype of the product/service', 20, 1, '2024-02-16', '2024-03-01', GETDATE(), NULL, 0),
+
+-- Milestone 5: Evaluation and Refinement
+('Evaluation and Refinement', 'Collect feedback and improve based on real-world testing', 15, 1, '2024-03-02', '2024-03-15', GETDATE(), NULL, 0),
+
+-- Milestone 6: Final Presentation
+('Final Presentation', 'Prepare and present the project outcomes to a panel', 5, 1, '2024-03-16', '2024-03-20', GETDATE(), NULL, 0);
+INSERT INTO MILESTONE (milestone_name, description, pagercente, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 1: Advanced Market Analysis
+('Advanced Market Analysis', 'Conduct in-depth market research with segmentation and competitive analysis', 15, 2, '2024-04-01', '2024-04-15', GETDATE(), NULL, 0),
+
+-- Milestone 2: Financial Planning and Funding Strategy
+('Financial Planning & Funding Strategy', 'Develop financial projections and identify funding opportunities', 20, 2, '2024-04-16', '2024-04-30', GETDATE(), NULL, 0),
+
+-- Milestone 3: Building a Scalable Model
+('Building a Scalable Model', 'Design scalable processes and identify key resources for growth', 25, 2, '2024-05-01', '2024-05-15', GETDATE(), NULL, 0),
+
+-- Milestone 4: Product Refinement and User Feedback
+('Product Refinement', 'Incorporate user feedback to improve product/service offerings', 15, 2, '2024-05-16', '2024-05-31', GETDATE(), NULL, 0),
+
+-- Milestone 5: Legal and Compliance
+('Legal and Compliance', 'Ensure the business adheres to legal standards and secures necessary certifications', 10, 2, '2024-06-01', '2024-06-10', GETDATE(), NULL, 0),
+
+-- Milestone 6: Strategic Presentation for Investors
+('Investor Pitch', 'Prepare and present a strategic pitch to potential investors', 15, 2, '2024-06-11', '2024-06-20', GETDATE(), NULL, 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Idea Validation', 'Evaluate the feasibility of the business idea based on market trends', 30, 1, GETDATE(), GETDATE(), 0),
+('Market Research Report', 'Provide a detailed report on the target market', 40, 1, GETDATE(), GETDATE(), 0),
+('SWOT Analysis', 'Complete a comprehensive SWOT analysis for the business', 30, 1, GETDATE(), GETDATE(), 0);
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Executive Summary', 'Summarize the core idea of the business in a concise manner', 25, 2, GETDATE(), GETDATE(), 0),
+('Marketing Plan', 'Develop a strategic marketing plan', 35, 2, GETDATE(), GETDATE(), 0),
+('Financial Projection', 'Create accurate financial projections for 1-3 years', 25, 2, GETDATE(), GETDATE(), 0),
+('Risk Management Plan', 'Outline strategies to handle potential risks', 15, 2, GETDATE(), GETDATE(), 0);
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Role Assignment', 'Assign specific roles and responsibilities to team members', 30, 3, GETDATE(), GETDATE(), 0),
+('Team Structure Design', 'Develop an effective team structure for the business', 30, 3, GETDATE(), GETDATE(), 0),
+('Conflict Resolution Strategy', 'Create a strategy for managing team conflicts', 40, 3, GETDATE(), GETDATE(), 0);
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Prototype Design', 'Create a functional prototype of the product/service', 40, 4, GETDATE(), GETDATE(), 0),
+('User Feedback', 'Collect and analyze feedback from initial users', 30, 4, GETDATE(), GETDATE(), 0),
+('Iteration Plan', 'Plan for improving the prototype based on feedback', 30, 4, GETDATE(), GETDATE(), 0);
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Segment Analysis', 'Identify and analyze market segments', 30, 5, GETDATE(), GETDATE(), 0),
+('Competitor Analysis', 'Evaluate competitors to identify unique selling points', 40, 5, GETDATE(), GETDATE(), 0),
+('Trend Projection', 'Analyze market trends and their potential impact', 30, 5, GETDATE(), GETDATE(), 0);
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+('Presentation Quality', 'Deliver a well-structured and engaging presentation', 40, 6, GETDATE(), GETDATE(), 0),
+('Business Model Explanation', 'Clearly articulate the business model and its scalability', 35, 6, GETDATE(), GETDATE(), 0),
+('Investor Q&A', 'Respond effectively to investor questions and concerns', 25, 6, GETDATE(), GETDATE(), 0);
