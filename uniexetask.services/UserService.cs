@@ -1,4 +1,5 @@
-﻿using uniexetask.core.Interfaces;
+﻿using System.Runtime.InteropServices.Marshalling;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -13,11 +14,26 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> CreateUser(User users)
+        private async Task<int> CheckDuplicateUser(string email, string phone)
         {
-            if (users != null)
+            var existedEmailandPhone = (await _unitOfWork.Users.GetAsync(filter: u => u.Email == email && u.Phone == phone)).FirstOrDefault();
+            if (existedEmailandPhone != null)
             {
-                await _unitOfWork.Users.InsertAsync(users);
+                return 1;
+            }
+            return 0;
+        } 
+
+        public async Task<bool> CreateUser(User user)
+        {
+            var existedUser = await CheckDuplicateUser(user.Email, user.Phone);
+            if (existedUser == 1) 
+            {
+                throw new Exception("Email or phone number already exists.");
+            }
+            if (user != null)
+            {
+                await _unitOfWork.Users.InsertAsync(user);
 
                 var result = _unitOfWork.Save();
 
@@ -31,6 +47,7 @@ namespace uniexetask.services
 
         public async Task<bool> DeleteUser(int userId)
         {
+
             if (userId > 0)
             {
                 var users = await _unitOfWork.Users.GetByIDAsync(userId);
@@ -86,23 +103,24 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<bool> UpdateUser(User users)
+        public async Task<bool> UpdateUser(User user)
         {
-            if (users != null)
+
+            if (user != null)
             {
-                var user = await _unitOfWork.Users.GetByIDAsync(users.UserId);
+                var updatedUser = await _unitOfWork.Users.GetByIDAsync(user.UserId);
                 if (user != null)
                 {
-                    user.FullName = users.FullName;
-                    user.Email = users.Email;
-                    user.Password = users.Password;
-                    user.CampusId = users.CampusId;
-                    user.Phone = users.Phone;
-                    user.IsDeleted = users.IsDeleted;
-                    user.RoleId = users.RoleId;
+                    updatedUser.FullName = user.FullName;
+                    updatedUser.Email = user.Email;
+                    updatedUser.Password = user.Password;
+                    updatedUser.CampusId = user.CampusId;
+                    updatedUser.Phone = user.Phone;
+                    updatedUser.IsDeleted = user.IsDeleted;
+                    updatedUser.RoleId = user.RoleId;
 
 
-                    _unitOfWork.Users.Update(user);
+                    _unitOfWork.Users.Update(updatedUser);
 
                     var result = _unitOfWork.Save();
 

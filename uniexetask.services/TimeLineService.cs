@@ -19,11 +19,11 @@ namespace uniexetask.services
             return await _unitOfWork.TimeLines.GetAsync();
         }
 
-        public async System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine)
+        /*public async System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine)
         {
             await _unitOfWork.TimeLines.InsertAsync(timeLine);
             _unitOfWork.Save();
-        }
+        }*/
 
         public async System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId)
         {
@@ -32,10 +32,16 @@ namespace uniexetask.services
             {
                 switch (timeLine.TimelineId)
                 {
-                    case (int)TimelineType.AssignMentor:
+                    case (int)TimelineType.FinalizeGroupEXE101:
                         timeLine.EndDate = startDate.AddDays(7);
                         break;
-                    case (int)TimelineType.SelectTopic:
+                    case (int)TimelineType.FinalizeGroupEXE201:
+                        timeLine.EndDate = startDate.AddDays(7);
+                        break;
+                    case (int)TimelineType.FinalizeMentorEXE101:
+                        timeLine.EndDate = startDate.AddDays(14);
+                        break;
+                    case (int)TimelineType.FinalizeMentorEXE201:
                         timeLine.EndDate = startDate.AddDays(14);
                         break;
                     default:

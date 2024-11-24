@@ -9,6 +9,6 @@ namespace uniexetask.services.Interfaces
 {
     public interface IMemberScoreService
     {
-        System.Threading.Tasks.Task<bool> AddMemberScore(MemberScore memberScore);
+        Task<bool> AddMemberScore(List<MemberScore> memberScores);
     }
 }
