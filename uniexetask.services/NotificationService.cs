@@ -124,7 +124,7 @@ namespace uniexetask.services
                     var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupExists.GroupId);
                     if (chatGroup == null) throw new Exception("Chat group for this group is not exist.");
                     chatGroup.Users.Add(inviteeExists);
-                    await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
+                    _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                     _unitOfWork.Commit();
                     return groupInvite;

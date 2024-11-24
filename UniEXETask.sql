@@ -1029,7 +1029,7 @@ VALUES
 
 -- Milestone 6: Final Presentation
 ('Final Presentation', 'Prepare and present the project outcomes to a panel', 5, 1, '2024-03-16', '2024-03-20', GETDATE(), NULL, 0);
-INSERT INTO MILESTONE (milestone_name, description, pagercente, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
+INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
 VALUES
 -- Milestone 1: Advanced Market Analysis
 ('Advanced Market Analysis', 'Conduct in-depth market research with segmentation and competitive analysis', 15, 2, '2024-04-01', '2024-04-15', GETDATE(), NULL, 0),
@@ -1080,3 +1080,10 @@ VALUES
 ('Presentation Quality', 'Deliver a well-structured and engaging presentation', 40, 6, GETDATE(), GETDATE(), 0),
 ('Business Model Explanation', 'Clearly articulate the business model and its scalability', 35, 6, GETDATE(), GETDATE(), 0),
 ('Investor Q&A', 'Respond effectively to investor questions and concerns', 25, 6, GETDATE(), GETDATE(), 0);
+
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE201', N'Finalize Group EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)

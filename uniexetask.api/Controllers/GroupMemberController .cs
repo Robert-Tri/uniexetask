@@ -223,6 +223,7 @@ namespace uniexetask.api.Controllers
             // Tất cả điều kiện đã hợp lệ, tiến hành tạo nhóm
             request.Group.HasMentor = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
+            request.Group.IsCurrentPeriod = true; 
 
             var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);

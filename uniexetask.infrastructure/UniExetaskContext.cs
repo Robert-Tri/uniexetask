@@ -523,7 +523,7 @@ public partial class UniExetaskContext : DbContext
             entity.Property(e => e.MilestoneName)
                 .HasMaxLength(100)
                 .HasColumnName("milestone_name");
-            entity.Property(e => e.Percentage).HasColumnName("pagercente");
+            entity.Property(e => e.Percentage).HasColumnName("percentage");
             entity.Property(e => e.StartDate)
                 .HasColumnType("datetime")
                 .HasColumnName("start_date");

@@ -40,6 +40,7 @@ namespace uniexetask.services
         {
             try
             {
+                _unitOfWork.BeginTransaction();
                 var chatGroup = new ChatGroup 
                 {
                     ChatGroupName = group.GroupName,
@@ -53,9 +54,16 @@ namespace uniexetask.services
                 };
                 await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
                 _unitOfWork.Save();
+                var user = await _unitOfWork.Users.GetByIDAsync(userId);
+                if (user == null) throw new Exception("User not found");
+                chatGroup.Users.Add(user);
+                _unitOfWork.ChatGroups.Update(chatGroup);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
                 return true;
             }
             catch (Exception ex) {
+                _unitOfWork.Rollback();
                 return false;
             }
 

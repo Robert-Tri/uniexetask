@@ -15,7 +15,7 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject");
+            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject", filter: q => q.IsDeleted == false);
             return groups;
         }
 
@@ -293,6 +293,7 @@ namespace uniexetask.services
                     else
                     {
                         group.IsDeleted = true;
+                        await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
                         _unitOfWork.Groups.Update(group);
                     }
                 }
@@ -303,8 +304,14 @@ namespace uniexetask.services
 
         private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet, SubjectType subjectType)
         {
+            var groupMemberStudentIds = (await _unitOfWork.GroupMembers.GetAsync()).Select(gm => gm.StudentId).ToHashSet();
+
             var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s =>
-                !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType)).ToList();
+                (!studentIdSet.Contains(s.StudentId) && !groupMemberStudentIds.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType))).ToList();
+            if (!studentsWithoutGroup.Any())
+            {
+                return;
+            }
             var userIds = studentsWithoutGroup.Select(s => s.UserId).ToHashSet();
             var users = (await _unitOfWork.Users.GetAsync(filter: u => userIds.Contains(u.UserId))).ToList();
 
@@ -347,6 +354,7 @@ namespace uniexetask.services
                     GroupName = $"Group {campusId}-{subjectId}-{index + 1}",
                     SubjectId = subjectId,
                     HasMentor = false,
+                    IsCurrentPeriod = true,
                     Status = "Eligible"
                 };
                 await _unitOfWork.Groups.InsertAsync(groupToAdd);

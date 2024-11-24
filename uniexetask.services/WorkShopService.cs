@@ -7,6 +7,7 @@ using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using System.Threading.Tasks;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.services
 {
@@ -20,7 +21,7 @@ namespace uniexetask.services
 
         public async System.Threading.Tasks.Task CreateWorkShop(Workshop workShop)
         {
-            workShop.Status = "Status 1";
+            workShop.Status = nameof(WorkshopStatus.Not_Started);
             await _unitOfWork.WorkShops.InsertAsync(workShop);
             _unitOfWork.Save();
             return;
