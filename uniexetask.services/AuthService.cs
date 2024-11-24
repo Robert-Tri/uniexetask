@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirebaseAdmin.Auth.Hash;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,16 +28,6 @@ namespace uniexetask.services
             }
             var user = await _unitOfWork.Users.GetByIDAsync(rt.UserId);
             if (user == null) 
-            {
-                return null;
-            }
-            return user;
-        }
-
-        public async Task<User?> LoginAsync(string email, string password)
-        {
-            var user = await _unitOfWork.Users.AuthenticateAsync(email, password);
-            if (user == null)
             {
                 return null;
             }

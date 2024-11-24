@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
+using uniexetask.services.Interfaces;
 
 namespace uniexetask.services.tests.Services
 {
@@ -337,6 +338,194 @@ namespace uniexetask.services.tests.Services
             act.Should().NotBeNull();
             await act.Should().ThrowAsync<Exception>().WithMessage("Chat Group not found");
             _unitOfWorkMock.Verify(x => x.ChatGroups.GetByIDAsync(chatGroupId), Times.Once());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnTrue_WhenUpdateSuccess_WithChatGroupAlreadyExist()
+        {
+            // Arrange
+            var message = "Sample Message";
+            var userMock = _fixture.Create<User>();
+            var leaderMock = _fixture.Create<User>();
+            var chatGroupMock = _fixture.Create<ChatGroup>();
+            chatGroupMock.Type = nameof(ChatGroupType.Personal);
+            userMock.ChatGroups.Add(chatGroupMock);
+            leaderMock.ChatGroups.Add(chatGroupMock);
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
+                .ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
+                .ReturnsAsync(leaderMock);
+
+            _unitOfWorkMock.Setup(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>()))
+                .ReturnsAsync(chatGroupMock);
+
+            _unitOfWorkMock.Setup(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()))
+                .Returns(System.Threading.Tasks.Task.CompletedTask);
+
+            // Act
+            var result = await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+
+            // Assert
+            result.Should().BeTrue();
+            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(userMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(leaderMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()), Times.Once());
+
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnTrue_WhenUpdateSuccess_WithChatGroupNotExist()
+        {
+            // Arrange
+            var message = "Sample Message";
+            var userMock = _fixture.Create<User>();
+            var leaderMock = _fixture.Create<User>();
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
+                .ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
+                .ReturnsAsync(leaderMock);
+
+
+            _unitOfWorkMock.Setup(x => x.ChatGroups.InsertAsync(It.IsAny<ChatGroup>()))
+                .Returns(System.Threading.Tasks.Task.CompletedTask);
+            _unitOfWorkMock.Setup(x => x.ChatGroups.Update(It.IsAny<ChatGroup>())).Verifiable();
+
+            var chatGroupMock = _fixture.Create<ChatGroup>();
+
+            _unitOfWorkMock.Setup(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>()))
+                .ReturnsAsync(chatGroupMock);
+
+            _unitOfWorkMock.Setup(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()))
+                .Returns(System.Threading.Tasks.Task.CompletedTask);
+
+            // Act
+            var result = await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+
+            // Assert
+            result.Should().BeTrue();
+            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(userMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(leaderMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId), Times.Once());
+            _unitOfWorkMock.Verify(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>()), Times.Once());
+            _unitOfWorkMock.Verify(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()), Times.Once());
+            _unitOfWorkMock.Verify(x => x.ChatGroups.InsertAsync(It.IsAny<ChatGroup>()), Times.Once());
+            _unitOfWorkMock.Verify(x => x.ChatGroups.Update(It.IsAny<ChatGroup>()), Times.Exactly(2));
+
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnException_WhenUserNotExist()
+        {
+            // Arrange
+            User userMock = null;
+            User leaderMock = null;
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(leaderMock);
+
+            // Act
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(It.IsAny<int>(), It.IsAny<int>(), "Sample Message");
+
+            // Assert
+            act.Should().NotBeNull();
+            await act.Should().ThrowAsync<Exception>().WithMessage("One or more users do not exist.");
+            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(It.IsAny<int>()), Times.Exactly(2));
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnException_WhenChatGroupNotCreated()
+        {
+            // Arrange
+            var message = "Sample Message";
+            var userMock = _fixture.Create<User>();
+            var leaderMock = _fixture.Create<User>();
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
+                .ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
+                .ReturnsAsync(leaderMock);
+
+            // Setup để giả lập lỗi khi tạo mới ChatGroup
+            _unitOfWorkMock.Setup(x => x.ChatGroups.InsertAsync(It.IsAny<ChatGroup>()))
+                .ThrowsAsync(new Exception("Failed to create chat group"));
+
+            // Act
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+
+            // Assert
+            await act.Should().ThrowAsync<Exception>().WithMessage("Failed to create chat group");
+            _unitOfWorkMock.Verify(x => x.ChatGroups.InsertAsync(It.IsAny<ChatGroup>()), Times.Once());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnException_WhenSaveMessageFails()
+        {
+            // Arrange
+            var message = "Sample Message";
+            var userMock = _fixture.Create<User>();
+            var leaderMock = _fixture.Create<User>();
+            var chatGroupMock = _fixture.Create<ChatGroup>();
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
+                .ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
+                .ReturnsAsync(leaderMock);
+
+            _unitOfWorkMock.Setup(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(chatGroupMock);
+
+            // Giả lập lỗi khi lưu tin nhắn
+            _unitOfWorkMock.Setup(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()))
+                .ThrowsAsync(new Exception("Failed to save message"));
+
+            // Act
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+
+            // Assert
+            await act.Should().ThrowAsync<Exception>().WithMessage("Failed to save message");
+            _unitOfWorkMock.Verify(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()), Times.Once());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnException_WhenUpdateChatGroupFails()
+        {
+            // Arrange
+            var message = "Sample Message";
+            var userMock = _fixture.Create<User>();
+            var leaderMock = _fixture.Create<User>();
+            var chatGroupMock = _fixture.Create<ChatGroup>();
+
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
+                .ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
+                .ReturnsAsync(leaderMock);
+
+            _unitOfWorkMock.Setup(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(chatGroupMock);
+
+            // Giả lập lỗi khi cập nhật ChatGroup
+            _unitOfWorkMock.Setup(x => x.ChatGroups.Update(It.IsAny<ChatGroup>()))
+                .Throws(new Exception("Failed to update chat group"));
+
+            // Act
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+
+            // Assert
+            await act.Should().ThrowAsync<Exception>().WithMessage("Failed to update chat group");
+            _unitOfWorkMock.Verify(x => x.ChatGroups.Update(It.IsAny<ChatGroup>()), Times.Once());
         }
     }
 }

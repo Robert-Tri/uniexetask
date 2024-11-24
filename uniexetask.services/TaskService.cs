@@ -195,9 +195,18 @@ namespace uniexetask.services
             if (taskPresent != null)
             {
                 var taskProgress = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(taskId);
-                if(taskProgress != null && Math.Round(taskProgress.ProgressPercentage, 2) == 100)
+                if (taskProgress != null && Math.Round(taskProgress.ProgressPercentage, 2) == 100)
                 {
                     taskPresent.Status = nameof(TasksStatus.Completed);
+
+                    _unitOfWork.Tasks.Update(taskPresent);
+
+                    var result = _unitOfWork.Save();
+                    return result > 0;
+                }
+                else
+                {
+                    taskPresent.Status = nameof(TasksStatus.In_Progress);
 
                     _unitOfWork.Tasks.Update(taskPresent);
 
