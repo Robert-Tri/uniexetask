@@ -27,12 +27,20 @@ namespace uniexetask.api.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly INotificationService _notificationService;
+        private readonly IChatGroupService _chatGroupService;
         private readonly IStudentService _studentService;
         private readonly IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public GroupMemberController(INotificationService notificationService, IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public GroupMemberController(
+            INotificationService notificationService, 
+            IStudentService studentService, 
+            IGroupService groupService, 
+            IGroupMemberService groupMemberService, 
+            IMapper mapper, 
+            IHubContext<NotificationHub> hubContext,
+            IChatGroupService chatGroupService)
         {
             _notificationService = notificationService;
             _studentService = studentService;
@@ -40,6 +48,7 @@ namespace uniexetask.api.Controllers
             _groupMemberService = groupMemberService;
             _mapper = mapper;
             _hubContext = hubContext;
+            _chatGroupService = chatGroupService;
         }
 
 
@@ -251,6 +260,9 @@ namespace uniexetask.api.Controllers
                 await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = $"Đã gửi lời mời tham gia nhóm cho sinh viên có mã {studentCode}" });
             }
+
+            var chatGroupCreated = await _chatGroupService.CreateChatGroupForGroup(objGroup, userId);
+            if (!chatGroupCreated) return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Chat group can not created." });
 
             var response = new ApiResponse<object>
             {

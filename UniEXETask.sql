@@ -99,6 +99,7 @@ CREATE TABLE CHAT_GROUP (
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
 	created_by INT NOT NULL,
 	owner_id INT NOT NULL,
+	group_id INT,
 	latest_activity DATETIME DEFAULT GETDATE() NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
@@ -380,7 +381,7 @@ CREATE TABLE MILESTONE (
     milestone_id INT PRIMARY KEY IDENTITY(1,1),
     milestone_name NVARCHAR(100) NOT NULL,
     description NVARCHAR(250),
-	pagercente FLOAT NOT NULL,
+	percentage FLOAT NOT NULL,
 	subject_id INT NOT NULL,
 	start_date DATETIME NOT NULL,
 	end_date DATETIME NOT NULL,
@@ -651,33 +652,33 @@ VALUES
 (5, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
-INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, type)
+INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
 VALUES 
-('Admin Group', null, 1, 1, 'Group'),
-('Project Chat', null, 2, 2, 'Group'),
-('Admin User', null, 2, 2, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal'),
-('Admin User', null, 1, 1, 'Personal');
+('Green Energy Team', null, 1, 1, 1, 'Group'),
+('Smart City Team', null, 2, 2, 2, 'Group'),
+('Admin User', null, 2, 2, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal'),
+('Admin User', null, 1, 1, null, 'Personal');
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
 VALUES 
-(1, 1),
-(2, 2),
-(2, 3),
+(2, 1),
+(30, 1),
+(3, 2),
 (1, 4),
 (3, 4),
 (1, 5),

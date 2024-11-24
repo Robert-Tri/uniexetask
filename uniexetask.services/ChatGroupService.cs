@@ -36,6 +36,48 @@ namespace uniexetask.services
             return true;
         }
 
+        public async Task<bool> CreateChatGroupForGroup(core.Models.Group group, int userId)
+        {
+            try
+            {
+                var chatGroup = new ChatGroup 
+                {
+                    ChatGroupName = group.GroupName,
+                    ChatGroupAvatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg",
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = userId,
+                    OwnerId = userId,
+                    GroupId = group.GroupId,
+                    LatestActivity = DateTime.Now,
+                    Type = nameof(ChatGroupType.Group)
+                };
+                await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex) {
+                return false;
+            }
+
+        }
+        public int ChatGroupId { get; set; }
+
+        public string ChatGroupName { get; set; } = null!;
+
+        public string? ChatGroupAvatar { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public int CreatedBy { get; set; }
+
+        public int OwnerId { get; set; }
+
+        public int? GroupId { get; set; }
+
+        public DateTime LatestActivity { get; set; }
+
+        public string Type { get; set; } = null!;
+
         public async Task<ChatGroup?> GetChatGroupByChatGroupId(int chatGroupId)
         {
             return await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
