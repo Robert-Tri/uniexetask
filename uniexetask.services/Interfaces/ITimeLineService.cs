@@ -11,7 +11,7 @@ namespace uniexetask.services.Interfaces
     {
         Task<IEnumerable<Timeline>> GetTimeLines();
 
-        System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine);
+        //System.Threading.Tasks.Task CreateTimeLine(Timeline timeLine);
 
         System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId);
         Task<bool> UpdateSpecificTimeLine(int timeLineId, DateTime startDate, DateTime endDate, int subjectId);

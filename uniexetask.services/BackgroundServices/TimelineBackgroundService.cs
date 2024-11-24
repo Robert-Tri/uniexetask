@@ -31,19 +31,22 @@ namespace uniexetask.api.BackgroundServices
                 var timelines = await timeLineService.GetTimeLines();
                 foreach (var timeline in timelines) 
                 {
-                    if(timeline.EndDate == DateTime.Today.Date)
+                    if(timeline.EndDate.Date == DateTime.Today.Date)
                     {
                         switch ((TimelineType)timeline.TimelineId)
                         {
-                            case TimelineType.ConfirmGroup:
-                                await groupService.UpdateAndAssignStudentsToGroups();
+                            case TimelineType.FinalizeGroupEXE101:
+                                await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
+                                break;
+                            case TimelineType.FinalizeGroupEXE201:
+                                await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
                                 break;
 
-                            case TimelineType.AssignMentor:
+                            case TimelineType.FinalizeMentorEXE101:
                                 await groupService.AddMentorToGroupAutomatically();
                                 break;
-                            case TimelineType.SelectTopic:
-                                // Logic for task 2
+                            case TimelineType.FinalizeMentorEXE201:
+                                await groupService.AddMentorToGroupAutomatically();
                                 break;
                             default:
                                 break;

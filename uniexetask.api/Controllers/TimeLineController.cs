@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -27,15 +28,15 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<IActionResult> CreateTimeLine(Timeline timeLine)
         {
             await _timeLineService.CreateTimeLine(timeLine);
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             response.Data = timeLine;
             return Ok(response);
-        }
-
+        }*/
+        [Authorize(Roles = nameof(EnumRole.Manager))]
         [HttpPut("updatemaintimeline")]
         public async Task<IActionResult> UpdateMainTimeLine(MainTimelineUpdateModel timeLine)
         {
@@ -43,6 +44,7 @@ namespace uniexetask.api.Controllers
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             return Ok();
         }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
         [HttpPut("updatespecifictimeline")]
         public async Task<IActionResult> UpdateSpecificTimeline(SpecificTimelineUpdateModel timeline)
         {

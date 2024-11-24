@@ -16,7 +16,7 @@ namespace uniexetask.services
         {
             _unitOfWork = unitOfWork;
         }
-
+        
         public async Task<Mentor?> GetMentorWithGroupAsync(int userId)
         {
             var mentor = await _unitOfWork.Mentors.GetMentorByUserId(userId);
@@ -37,6 +37,10 @@ namespace uniexetask.services
         {
             var mentors = await _unitOfWork.Mentors.GetAsync();
             return mentors;
+        }
+        public async Task<Mentor?> GetMentorByUserId(int userId)
+        {
+            return await _unitOfWork.Mentors.GetMentorByUserId(userId);
         }
     }
 }

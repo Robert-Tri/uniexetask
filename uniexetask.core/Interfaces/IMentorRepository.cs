@@ -11,6 +11,6 @@ namespace uniexetask.core.Interfaces
     {
         Task<Mentor?> GetMentorByUserId(int userId);
         Task<Mentor?> GetMentorWithGroupAsync(int mentorId);
-
+        Task<IEnumerable<Mentor>> GetMentorsWithCampus();
     }
 }
