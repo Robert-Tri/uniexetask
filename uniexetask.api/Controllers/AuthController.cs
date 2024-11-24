@@ -40,9 +40,13 @@ namespace uniexetask.api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            ApiResponse<TokenModel> response = new ApiResponse<TokenModel>();
+            ApiResponse<string> response = new ApiResponse<string>();
             try
             {
+                if (!IsPasswordValid(model.Password))
+                {
+                    throw new Exception("Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.");
+                }
                 var user = await _authService.LoginAsync(model.Email, model.Password);
                 if (user == null) throw new Exception("Email or password is not correct.");
                 TokenModel token = new TokenModel
@@ -51,7 +55,7 @@ namespace uniexetask.api.Controllers
                     RefreshToken = await GenerateRefreshToken()
                 };
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
-                response.Data = token;
+                response.Data = "Login successfully!";
 
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
@@ -79,6 +83,22 @@ namespace uniexetask.api.Controllers
                 return Unauthorized(response);
             }
         }
+
+        private bool IsPasswordValid(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password)) return false;
+
+            if (password.Length < 8) return false;
+
+            if (!password.Any(char.IsUpper)) return false;
+
+            if (!password.Any(char.IsLower)) return false;
+
+            if (!password.Any(char.IsDigit)) return false;
+
+            return true;
+        }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
@@ -93,7 +113,8 @@ namespace uniexetask.api.Controllers
                 }
 
                 var userId = int.Parse(userIdClaim);
-                await _authService.RevokeRefreshToken(userId);
+                var result = await _authService.RevokeRefreshToken(userId);
+                if (!result) throw new Exception("Logout failed");
                 Response.Cookies.Delete("AccessToken");
                 Response.Cookies.Delete("RefreshToken");
 
@@ -174,21 +195,21 @@ namespace uniexetask.api.Controllers
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginModel model)
         {
-            ApiResponse<TokenModel> response = new ApiResponse<TokenModel>();
+            ApiResponse<string> response = new ApiResponse<string>();
 
             try
             {
                 // Validate Google Token
                 var payload = await GoogleJsonWebSignature.ValidateAsync(model.Token);
 
+                if (payload == null) throw new Exception("Invalid Google Token");
+
                 // Check if the email exists in the database
                 var user = await _authService.GetUserByEmailAsync(payload.Email);
 
                 if (user == null)
                 {
-                    response.Success = false;
-                    response.ErrorMessage = "Email not registered.";
-                    return Unauthorized(response);
+                    throw new Exception("Email not registered.");
                 }
 
                 // Generate tokens
@@ -199,7 +220,7 @@ namespace uniexetask.api.Controllers
                 };
 
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
-                response.Data = token;
+                response.Data = "Login successfully!";
 
                 // Set cookies
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions

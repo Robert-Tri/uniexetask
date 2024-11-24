@@ -8,6 +8,7 @@ using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using FluentAssertions;
+using uniexetask.api.Models.Request;
 
 namespace uniexetask.api.tests.Controllers
 {
@@ -160,8 +161,53 @@ namespace uniexetask.api.tests.Controllers
             _chatGroupServiceMock.Verify(x => x.GetChatGroupByUserId(userId, 0, 5, keyword), Times.Once());
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("a")]
+        public async System.Threading.Tasks.Task GetChatGroupByUser_ShouldReturnBadRequest_WhenInvalidUserId(string userId)
+        {
+            // Arrange
+            var claims = new List<Claim>();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+            }
+            else
+            {
+                claims.Clear();
+            }
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(claims))
+                }
+            };
+
+            // Act
+            var result = await _controller.GetChatGroupByUser();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+
+            var okResult = result as BadRequestObjectResult;
+            okResult.Should().NotBeNull();
+
+            var response = okResult.Value as ApiResponse<IEnumerable<ChatGroupResponse>>;
+            response.Should().NotBeNull();
+            response.Success.Should().BeFalse();
+            response.Data.Should().BeNull();
+            response.ErrorMessage.Should().NotBeNull();
+            response.ErrorMessage.Should().Be("Invalid User Id");
+            _chatGroupServiceMock.Verify(x => x.GetChatGroupByUserId(It.IsAny<int>(), 0, 5, ""), Times.Never());
+            _chatGroupServiceMock.Verify(x => x.GetLatestMessageInChatGroup(It.IsAny<int>()), Times.Never());
+        }
+
         [Fact]
-        public async System.Threading.Tasks.Task GetMessagesChatGroup_ShouldReturnOkResult_WhenValidChatGroupId()
+        public async System.Threading.Tasks.Task GetMessagesChatGroup_ShouldReturnOkResult_WhenValidData()
         {
             // Arrange
             var chatMessagesMock = _fixture.Create<IEnumerable<ChatMessage>>();
@@ -188,7 +234,7 @@ namespace uniexetask.api.tests.Controllers
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task GetMessagesChatGroup_ShouldReturnBadRequest_WhenInvalidChatGroupId()
+        public async System.Threading.Tasks.Task GetMessagesChatGroup_ShouldReturnBadRequest_WhenMessageNotFound()
         {
             // Arrange
             IEnumerable<ChatMessage>? chatMessagesMock = null;
@@ -216,8 +262,56 @@ namespace uniexetask.api.tests.Controllers
             _chatGroupServiceMock.Verify(x => x.GetMessagesInChatGroup(chatGroupId, 0, 5), Times.Once());
         }
 
+        [Theory]
+        [InlineData(null, null, "Invalid Usser Id")]
+        [InlineData("a", "a", "Invalid Usser Id")]
+        [InlineData("1", null, "Invalid Usser Id")]
+        [InlineData(null, "1", "Invalid Chat Group Id")]
+        [InlineData("a", "1", "Invalid Chat Group Id")]
+        [InlineData("1", "a", "Invalid Usser Id")]
+        public async System.Threading.Tasks.Task GetMessagesChatGroup_ShouldReturnBadRequest_WithAppropriateErrorMessages(string chatGroupId, string userId, string expectedErrorMessage)
+        {
+            // Arrange
+            var claims = new List<Claim>();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+            }
+            else
+            {
+                claims.Clear();
+            }
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(claims))
+                }
+            };
+
+            // Act
+            var result = await _controller.GetMessagesChatGroup(chatGroupId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+
+            var okResult = result as BadRequestObjectResult;
+            okResult.Should().NotBeNull();
+
+            var response = okResult.Value as ApiResponse<IEnumerable<ChatMessageResponse>>;
+            response.Should().NotBeNull();
+            response.Success.Should().BeFalse();
+            response.Data.Should().BeNull();
+            response.ErrorMessage.Should().NotBeNull();
+            response.ErrorMessage.Should().Be(expectedErrorMessage);
+            _chatGroupServiceMock.Verify(x => x.GetMessagesInChatGroup(It.IsAny<int>(), 0, 5), Times.Never());
+        }
+
         [Fact]
-        public async System.Threading.Tasks.Task GetMembersInChatGroup_ShouldReturnOkResult_WhenValidChatGroupId()
+        public async System.Threading.Tasks.Task GetMembersInChatGroup_ShouldReturnOkResult_WhenValidData()
         {
             // Arrange
             var chatGroupsMock = _fixture.Create<ChatGroup>();
@@ -242,11 +336,12 @@ namespace uniexetask.api.tests.Controllers
             _chatGroupServiceMock.Verify(x => x.GetChatGroupWithUsersByChatGroupId(chatGroupsMock.ChatGroupId), Times.Once());
         }
 
-        [Fact]
-        public async System.Threading.Tasks.Task GetMembersInChatGroup_ShouldReturnBadRequest_WhenInvalidChatGroupId()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("a")]
+        public async System.Threading.Tasks.Task GetMembersInChatGroup_ShouldReturnBadRequest_WhenInvalidChatGroupId(string chatGroupId)
         {
             // Arrange
-            string? chatGroupId = null;
 
             // Act
             var result = await _controller.GetMembersInChatGroup(chatGroupId);
@@ -293,6 +388,111 @@ namespace uniexetask.api.tests.Controllers
             response.ErrorMessage.Should().NotBeNull();
             response.ErrorMessage.Should().Be("Chat group not found");
             _chatGroupServiceMock.Verify(x => x.GetChatGroupWithUsersByChatGroupId(chatGroupId), Times.Once());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnOkResult_WhenValidData()
+        {
+            // Arrange
+            var modal = new CreatePersonalChatGroupModal 
+            {
+                LeaderId = "1",
+                UserId = "2",
+                Message = "Sample message"
+            };
+            _chatGroupServiceMock
+                .Setup(s => s.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.SendMessageToGroupLeader(modal);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkObjectResult>();
+
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+
+            var response = okResult.Value as ApiResponse<string>;
+            response.Should().NotBeNull();
+            response.Success.Should().BeTrue();
+            response.Data.Should().NotBeNull();
+            response.Data.Should().Be("Send successfully, please wait for response from group leader.");
+            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message), Times.Once());
+        }
+
+        [Theory]
+        [InlineData(null, "1", "Sample Message")]
+        [InlineData("1", null, "Sample Message")]
+        [InlineData("1", "1", null)]
+        [InlineData("1", "1", "")]
+        [InlineData("a", "1", "Sample Message")]
+        [InlineData("1", "a", "Sample Message")]
+        [InlineData("a", "a", "Sample Message")]
+        [InlineData("a", "a", "")]
+        [InlineData("a", "a", null)]
+        [InlineData(null, null, null)]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnBadRequest_WhenInvalidData(string leaderId, string userId, string message)
+        {
+            // Arrange
+            var modal = new CreatePersonalChatGroupModal
+            {
+                LeaderId = leaderId,
+                UserId = userId,
+                Message = message
+            };
+
+            // Act
+            var result = await _controller.SendMessageToGroupLeader(modal);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+
+            var okResult = result as BadRequestObjectResult;
+            okResult.Should().NotBeNull();
+
+            var response = okResult.Value as ApiResponse<string>;
+            response.Should().NotBeNull();
+            response.Success.Should().BeFalse();
+            response.Data.Should().BeNull();
+            response.ErrorMessage.Should().NotBeNull();
+            response.ErrorMessage.Should().Be("Invalid data.");
+            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnBadRequest_WhenServiceReturnsFalse()
+        {
+            // Arrange
+            var modal = new CreatePersonalChatGroupModal
+            {
+                LeaderId = "1",
+                UserId = "2",
+                Message = "Sample message"
+            };
+            _chatGroupServiceMock
+                .Setup(s => s.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.SendMessageToGroupLeader(modal);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+
+            var okResult = result as BadRequestObjectResult;
+            okResult.Should().NotBeNull();
+
+            var response = okResult.Value as ApiResponse<string>;
+            response.Should().NotBeNull();
+            response.Success.Should().BeFalse();
+            response.Data.Should().BeNull();
+            response.ErrorMessage.Should().NotBeNull();
+            response.ErrorMessage.Should().Be("Failed to send message.");
+            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message), Times.Once());
         }
     }
 }
