@@ -389,7 +389,7 @@ namespace uniexetask.api.Controllers
             var reqTopicList = await _reqTopicService.GetAllReqTopic();
             if (reqTopicList == null || !reqTopicList.Any())
             {
-                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "No topics available." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "No topics available." });
             }
 
             var responseData = reqTopicList

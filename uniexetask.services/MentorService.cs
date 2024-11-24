@@ -42,5 +42,21 @@ namespace uniexetask.services
         {
             return await _unitOfWork.Mentors.GetMentorByUserId(userId);
         }
+
+        public async Task<Mentor?> GetMentorByEmail(string email)
+        {
+            // Tìm kiếm User dựa trên email
+            var user = (await _unitOfWork.Users.GetAsync(
+                filter: u => u.Email == email && u.IsDeleted == false,
+                includeProperties: "Mentors")).FirstOrDefault();
+
+            if (user == null)
+            {
+                return null; // Trả về null nếu không tìm thấy user
+            }
+
+            // Trả về mentor của user, nếu có
+            return user.Mentors.FirstOrDefault(); // Giả sử mỗi user có một mentor
+        }
     }
 }
