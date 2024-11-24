@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using uniexetask.api.Extensions;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -24,7 +25,10 @@ namespace uniexetask.api.Controllers
         private readonly IStudentService _studentService;
         private readonly ITaskDetailService _taskDetailService;
         private readonly IMapper _mapper;
-
+        private readonly IEmailService _emailService;
+        private readonly IProjectService _projectService;
+        private readonly IUserService _userService;
+        private readonly ITopicService _topicService;
 
         public TaskController(ITaskService taskService, 
                             ITaskAssignService taskAssignService, 
@@ -32,7 +36,11 @@ namespace uniexetask.api.Controllers
                             ITaskProgressService taskProgressService,
                             IStudentService studentService,
                             ITaskDetailService taskDetailService,
-                            IMapper mapper)
+                            IMapper mapper,
+                            IEmailService emailService,
+                            IProjectService projectService,
+                            IUserService userService,
+                            ITopicService topicService)
         {
             _taskService = taskService;
             _taskAssignService = taskAssignService;
@@ -41,7 +49,10 @@ namespace uniexetask.api.Controllers
             _studentService = studentService;
             _taskDetailService = taskDetailService;
             _mapper = mapper;
-
+            _emailService = emailService;
+            _projectService = projectService;
+            _userService = userService;
+            _topicService = topicService;
         }
 
         [HttpGet("{taskId}")]
@@ -341,6 +352,61 @@ namespace uniexetask.api.Controllers
                         throw new Exception("Error creating task");
                     }
                 }
+
+                var taskEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>You have been assigned a new task in your project.</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {obj.TaskName}</p>
+    <p><strong>Start Date:</strong> {obj.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {obj.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {obj.Description}</p>
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+                var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
+                List<string> emailList = new List<string>();
+                foreach (var taskAssign in taskAssigns)
+                {
+                    var student = await _studentService.GetStudentById(taskAssign.StudentId);
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _emailService.SendEmailAsync(student.User.Email, "Task of Project", taskEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                }
+
                 response.Data = obj;
                 return Ok(response);
             }
@@ -437,6 +503,101 @@ namespace uniexetask.api.Controllers
                         throw new Exception("Error creating task");
                     }
                 }
+                var taskDeltailList = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
+
+                var taskEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        table, th, td {{
+            border: 1px solid #ddd;
+        }}
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>One of your assigned tasks in the project has been updated by the Leader!</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {existingTask.TaskName}</p>
+    <p><strong>Start Date:</strong> {existingTask.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {existingTask.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {existingTask.Description}</p>
+    
+    <p><strong>Details:</strong></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Task Detail Name</th>
+                <th>Progress Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+";
+                foreach (var item in taskDeltailList)
+                {
+                    taskEmail += $@"
+            <tr>
+                <td>{item.TaskDetailName}</td>
+                <td>{item.ProgressPercentage}%</td>
+            </tr>";
+                }
+
+                taskEmail += @"
+        </tbody>
+    </table>
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
+
+                List<string> emailList = new List<string>();
+                foreach (var taskAssign in taskAssigns)
+                {
+                    var student = await _studentService.GetStudentById(taskAssign.StudentId);
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _emailService.SendEmailAsync(student.User.Email, "Task of Project", taskEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                }
 
                 response.Data = existingTask;
                 return Ok(response);
@@ -462,11 +623,82 @@ namespace uniexetask.api.Controllers
                     response.ErrorMessage = "Invalid task ID.";
                     return BadRequest(response);
                 }
-
+                var task = await _taskService.GetTaskById(taskId);
                 // Gọi phương thức DeleteTask từ TaskService
                 var result = await _taskService.DeleteTask(taskId);
                 if (result)
                 {
+                    var taskEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        table, th, td {{
+            border: 1px solid #ddd;
+        }}
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>A task assigned to you in the project has been DELETED by the Leader!</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {task.TaskName}</p>
+    <p><strong>Start Date:</strong> {task.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {task.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {task.Description}</p>
+    
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                    var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
+                    List<string> emailList = new List<string>();
+                    foreach (var taskAssign in taskAssigns)
+                    {
+                        var student = await _studentService.GetStudentById(taskAssign.StudentId);
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        _emailService.SendEmailAsync(student.User.Email, "Task of Project", taskEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                    }
+
                     response.Success = true;
                     response.Data = "Task deleted successfully.";
                     return Ok(response);
@@ -515,6 +747,77 @@ namespace uniexetask.api.Controllers
                 if (!updatedTask)
                 {
                     throw new Exception("Error updating task status");
+                }
+
+                var taskEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        table, th, td {{
+            border: 1px solid #ddd;
+        }}
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>A task assigned to you in the project has been DELETED by the Leader!</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {existingTask.TaskName}</p>
+    <p><strong>Start Date:</strong> {existingTask.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {existingTask.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {existingTask.Description}</p>
+    
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(existingTask.TaskId);
+                List<string> emailList = new List<string>();
+                foreach (var taskAssign in taskAssigns)
+                {
+                    var student = await _studentService.GetStudentById(taskAssign.StudentId);
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _emailService.SendEmailAsync(student.User.Email, "Task of Project", taskEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
                 }
 
                 // Trả về task sau khi cập nhật
