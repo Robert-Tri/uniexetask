@@ -17,7 +17,7 @@ namespace uniexetask.api.Models.Request
 
         public int CampusId { get; set; }
 
-        public bool Status { get; set; }
+        public bool IsDeleted { get; set; }
 
         public int RoleId { get; set; }
     }

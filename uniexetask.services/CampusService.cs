@@ -16,5 +16,21 @@ namespace uniexetask.services
             var campusesList = await _unitOfWork.Campus.GetAsync();
             return campusesList;
         }
+
+        public async Task<Campus?> GetCampusByStudentCode(string studentCode)
+        {
+            var student = (await _unitOfWork.Students.GetAsync(
+                filter: s => s.StudentCode == studentCode && s.IsCurrentPeriod == true,
+                includeProperties: "User.Campus")).FirstOrDefault(); 
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            return student.User.Campus;
+        }
+
+
     }
 }
