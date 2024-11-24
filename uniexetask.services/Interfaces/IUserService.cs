@@ -10,6 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IUserService
     {
         Task<bool> CreateUser(User userDetails);
+        Task<User> CreateUserExcel(User user);
 
         Task<IEnumerable<User>> GetAllUsers();
 

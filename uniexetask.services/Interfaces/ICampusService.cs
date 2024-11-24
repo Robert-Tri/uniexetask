@@ -10,5 +10,6 @@ namespace uniexetask.services.Interfaces
     public interface ICampusService
     {
         Task<IEnumerable<Campus>> GetAllCampus();
+        Task<Campus?> GetCampusByStudentCode(string studentCode);
     }
 }
