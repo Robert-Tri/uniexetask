@@ -11,6 +11,7 @@ using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
+using uniexetask.api.Extensions;
 
 namespace uniexetask.api.Controllers
 {
@@ -346,7 +347,7 @@ namespace uniexetask.api.Controllers
                 return NotFound("User not found.");
             }
 
-            if (user.Password != passwordModel.oldPassword)
+            if (user.Password != null && !PasswordHasher.VerifyPassword(passwordModel.oldPassword, user.Password))
             {
                 return BadRequest("Old password is incorrect.");
             }
