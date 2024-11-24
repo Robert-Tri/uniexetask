@@ -8,15 +8,10 @@ using System.Text;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
 using uniexetask.services.Interfaces;
-using uniexetask.core.Models;
 using Azure;
 using Google.Apis.Auth;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Microsoft.Extensions.Primitives;
-using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using BCrypt.Net;
 
 namespace uniexetask.api.Controllers
 {
@@ -47,8 +42,10 @@ namespace uniexetask.api.Controllers
                 {
                     throw new Exception("Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.");
                 }
-                var user = await _authService.LoginAsync(model.Email, model.Password);
-                if (user == null) throw new Exception("Email or password is not correct.");
+
+                var user = await _authService.GetUserByEmailAsync(model.Email);
+                if (user == null) throw new Exception("Email is incorrect or not registered.");
+                if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Password)) throw new Exception("Email or password is not correct.");
                 TokenModel token = new TokenModel
                 {
                     AccessToken = await GenerateAccessToken(user),
@@ -82,6 +79,18 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = ex.Message;
                 return Unauthorized(response);
             }
+        }
+
+
+        [HttpPost("hashpassword")]
+        public IActionResult HashPassword([FromBody] string password)
+        {
+            return Ok(HashPasswordd(password));
+        }
+        private string HashPasswordd(string password)
+        {
+            // Mã hóa mật khẩu trước khi lưu vào database
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         private bool IsPasswordValid(string password)
