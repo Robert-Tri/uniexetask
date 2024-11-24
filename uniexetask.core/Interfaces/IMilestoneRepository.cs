@@ -9,5 +9,6 @@ namespace uniexetask.core.Interfaces
 {
     public interface IMilestoneRepository : IGenericRepository<Milestone>
     {
+        Task<Milestone?> GetMileStoneWithCriteria(int id);
     }
 }

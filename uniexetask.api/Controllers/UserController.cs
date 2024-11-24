@@ -1,21 +1,19 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 using uniexetask.api.Extensions;
 
 namespace uniexetask.api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
@@ -374,16 +372,27 @@ namespace uniexetask.api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel users)
         {
-            var obj = _mapper.Map<User>(users);
-            var isUserCreated = await _userService.CreateUser(obj);
+            try
+            {
+                var obj = _mapper.Map<User>(users);
+                var isUserCreated = await _userService.CreateUser(obj);
 
-            if (isUserCreated)
-            {
-                return Ok(isUserCreated);
+                if (isUserCreated)
+                {
+                    return Ok(isUserCreated);
+                }
+                else
+                {
+                    return BadRequest("Failed to create user.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                if (ex.Message == "Email or phone number already exists.")
+                {
+                    return BadRequest(new { error = ex.Message });
+                }
+                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -396,17 +405,29 @@ namespace uniexetask.api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
-            ApiResponse<bool> respone = new ApiResponse<bool>();
-            var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
-            if (isUserUpdated)
+            try
             {
-                respone.Data = isUserUpdated;
-                return Ok(respone);
+                ApiResponse<bool> respone = new ApiResponse<bool>();
+                var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
+                if (isUserUpdated)
+                {
+                    respone.Data = isUserUpdated;
+                    return Ok(respone);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest();
+                if (ex.Message == "Email or phone number already exists.")
+                {
+                    return BadRequest(new { error = ex.Message });
+                }
+                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
             }
+
         }
 
         [Authorize]
