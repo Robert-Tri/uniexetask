@@ -71,9 +71,13 @@ namespace uniexetask.api.Controllers
             List<ChatMessageResponse> list = new List<ChatMessageResponse>();
             try
             {
-                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    throw new Exception("Invalid User Id");
+                    throw new Exception("Invalid Usser Id");
+                }
+                if (string.IsNullOrEmpty(chatGroupIdStr) || !int.TryParse(chatGroupIdStr, out int chatGroupId))
+                {
+                    throw new Exception("Invalid Chat Group Id");
                 }
                 var chatmessages = await _chatGroupService.GetMessagesInChatGroup(chatGroupId, messageIndex, limit);
                 if (chatmessages == null)
@@ -185,14 +189,11 @@ namespace uniexetask.api.Controllers
 
                 if (result)
                 {
-                    response.Data = "Chatbox has been created. Please wait for response from group leader.";
+                    response.Data = "Send successfully, please wait for response from group leader.";
                     return Ok(response);
                 }
                 else
                 {
-                    response.Success = false;
-                    response.ErrorMessage = "Failed to add members.";
-                    return BadRequest(response);
                     throw new Exception("Failed to send message.");
                 }
             }
