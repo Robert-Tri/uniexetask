@@ -137,7 +137,9 @@ namespace uniexetask.api.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, role.Name),
-                new Claim(ClaimTypes.Name, user.FullName)
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Uri, user.Avatar)
+
             };
             var permissions = await _rolePermissionService.GetRolePermissionsByRole(role.Name);
             if (permissions != null)
