@@ -26,5 +26,9 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(r => r.Groups)
                 .FirstOrDefaultAsync(r => r.MentorId == mentorId);
         }
+        public async Task<IEnumerable<Mentor>> GetMentorsWithCampus()
+        {
+            return await dbSet.Include(m => m.User).AsNoTracking().ToListAsync();
+        }
     }
 }

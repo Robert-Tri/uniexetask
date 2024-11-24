@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,18 @@ namespace uniexetask.infrastructure.Repositories
     {
         public ReqMemberRepsitory(UniExetaskContext dbContext) : base(dbContext)
         {
+        }
+
+        public async System.Threading.Tasks.Task DeleteReqMemberForm(int groupId)
+        {
+            var reqMemberForms = await dbSet.Where(r => r.GroupId == groupId).ToListAsync();
+            if (reqMemberForms.Any()) 
+            {
+                foreach (var reqMemberForm in reqMemberForms)
+                {
+                    dbSet.Remove(reqMemberForm);
+                }
+            }
         }
     }
 }

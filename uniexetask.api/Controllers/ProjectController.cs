@@ -96,6 +96,7 @@ namespace uniexetask.api.Controllers
                             TopicName = project.Topic?.TopicName,
                             Description = project.Topic?.Description,
                             SubjectName = project.Subject?.SubjectName,
+                            SubjectId = project.Subject?.SubjectId,
                             StartDate = project.StartDate,
                             EndDate = project.EndDate,
                             Status = project.Status,

@@ -17,7 +17,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async System.Threading.Tasks.Task DeleteGroupMembers(int groupId)
         {
-            var groupMembers = await dbSet.Where(gm => gm.GroupId == gm.GroupId).ToListAsync();
+            var groupMembers = await dbSet.Where(gm => gm.GroupId == groupId).ToListAsync();
             foreach (var groupMember in groupMembers) 
             {
                 dbSet.Remove(groupMember);
