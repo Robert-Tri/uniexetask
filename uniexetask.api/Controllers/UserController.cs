@@ -141,7 +141,12 @@ namespace uniexetask.api.Controllers
         {
             if (excelFile == null || excelFile.Length == 0)
             {
-                return BadRequest("File is not selected or is empty.");
+                var response = new ApiResponse<bool>
+                {
+                    Success = false,
+                    ErrorMessage = "File is not selected or is empty."
+                };
+                return BadRequest(response); // Trả về lỗi với ApiResponse
             }
 
             var usersList = new List<UserModel>();
@@ -153,14 +158,14 @@ namespace uniexetask.api.Controllers
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(stream))
                 {
-                    var worksheet = package.Workbook.Worksheets[0]; 
+                    var worksheet = package.Workbook.Worksheets[0];
                     int rowCount = worksheet.Dimension.Rows;
 
-                    for (int row = 2; row <= rowCount; row++) 
+                    for (int row = 2; row <= rowCount; row++)
                     {
                         var campusName = worksheet.Cells[row, 6].Text;
-                        var roleName = worksheet.Cells[row, 8].Text; 
-                        var khoiText = worksheet.Cells[row, 9].Text; 
+                        var roleName = worksheet.Cells[row, 8].Text;
+                        var khoiText = worksheet.Cells[row, 9].Text;
 
                         int campusId;
                         switch (campusName)
@@ -175,12 +180,12 @@ namespace uniexetask.api.Controllers
                                 campusId = 3;
                                 break;
                             default:
-                                campusId = 0; 
+                                campusId = 0;
                                 break;
                         }
 
                         int roleId;
-                        switch (roleName.ToLower()) 
+                        switch (roleName.ToLower())
                         {
                             case "admin":
                                 roleId = 1;
@@ -202,20 +207,19 @@ namespace uniexetask.api.Controllers
                                 break;
                         }
 
-                        
-                        string password = worksheet.Cells[row, 3].Text; 
-                        int khoiNumber = int.Parse(khoiText.Substring(1)); 
+
+                        string password = worksheet.Cells[row, 3].Text;
+                        int khoiNumber = int.Parse(khoiText.Substring(1));
 
                         if (khoiNumber >= 19)
                         {
-                            
                             password = GenerateRandomPassword(6);
                         }
 
                         var user = new UserModel
                         {
                             FullName = worksheet.Cells[row, 2].Text,
-                            Password = password,                       
+                            Password = password,
                             Email = worksheet.Cells[row, 4].Text,
                             Phone = worksheet.Cells[row, 5].Text,
                             CampusId = campusId,
@@ -234,14 +238,26 @@ namespace uniexetask.api.Controllers
 
                 if (!isUserCreated)
                 {
-                    return BadRequest($"Failed to create user: {userModel.Email}");
+                    var response = new ApiResponse<bool>
+                    {
+                        Success = false,
+                        ErrorMessage = $"Failed to create user: {userModel.Email}"
+                    };
+                    return BadRequest(response); // Trả về lỗi nếu không thể tạo user
                 }
             }
 
-            return Ok("All users were successfully created.");
+            var successResponse = new ApiResponse<string>
+            {
+                Success = true,
+                Data = "All users were successfully created."
+            };
+
+            return Ok(successResponse); // Trả về thông báo thành công
         }
 
-       
+
+
         private string GenerateRandomPassword(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
