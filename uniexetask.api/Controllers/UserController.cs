@@ -20,10 +20,12 @@ namespace uniexetask.api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
         private readonly Cloudinary _cloudinary;
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper, IEmailService emailService)
         {
             _userService = userService;
+            _emailService = emailService;
             _mapper = mapper;
 
             var cloudinaryAccount = new Account(
@@ -144,16 +146,18 @@ namespace uniexetask.api.Controllers
                     Success = false,
                     ErrorMessage = "File is not selected or is empty."
                 };
-                return BadRequest(response); // Trả về lỗi với ApiResponse
+                return BadRequest(response);
             }
 
             var usersList = new List<UserModel>();
+            var emailList = new HashSet<string>();
+            var phoneList = new HashSet<string>();
 
-            // Đọc file Excel
             using (var stream = new MemoryStream())
             {
                 await excelFile.CopyToAsync(stream);
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
                 using (var package = new ExcelPackage(stream))
                 {
                     var worksheet = package.Workbook.Worksheets[0];
@@ -165,65 +169,88 @@ namespace uniexetask.api.Controllers
                         var roleName = worksheet.Cells[row, 8].Text;
                         var khoiText = worksheet.Cells[row, 9].Text;
 
-                        int campusId;
-                        switch (campusName)
+                        int campusId = campusName switch
                         {
-                            case "FPT-HN":
-                                campusId = 1;
-                                break;
-                            case "FPT-HCM":
-                                campusId = 2;
-                                break;
-                            case "FPT-DN":
-                                campusId = 3;
-                                break;
-                            default:
-                                campusId = 0;
-                                break;
-                        }
+                            "FPT-HN" => 1,
+                            "FPT-HCM" => 2,
+                            "FPT-DN" => 3,
+                            _ => 0
+                        };
 
-                        int roleId;
-                        switch (roleName.ToLower())
+                        int roleId = roleName.ToLower() switch
                         {
-                            case "admin":
-                                roleId = 1;
-                                break;
-                            case "manager":
-                                roleId = 2;
-                                break;
-                            case "student":
-                                roleId = 3;
-                                break;
-                            case "mentor":
-                                roleId = 4;
-                                break;
-                            case "sponsor":
-                                roleId = 5;
-                                break;
-                            default:
-                                roleId = 0;
-                                break;
-                        }
-
+                            "admin" => 1,
+                            "manager" => 2,
+                            "student" => 3,
+                            "mentor" => 4,
+                            "sponsor" => 5,
+                            _ => 0
+                        };
 
                         string password = worksheet.Cells[row, 3].Text;
+                        string fullname = worksheet.Cells[row, 2].Text;
+                        string emailUser = worksheet.Cells[row, 4].Text;
+                        string phoneUser = worksheet.Cells[row, 5].Text;
                         int khoiNumber = int.Parse(khoiText.Substring(1));
+
+                        if (emailList.Contains(emailUser))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate email found: {emailUser}"
+                            };
+                            return BadRequest(response);
+                        }
+                        emailList.Add(emailUser);
+
+                        if (!emailUser.Contains("@"))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Invalid email format: {emailUser}. Email must contain '@'."
+                            };
+                            return BadRequest(response);
+                        }
+
+                        if (phoneList.Contains(phoneUser))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate phone number found: {phoneUser}"
+                            };
+                            return BadRequest(response);
+                        }
+                        phoneList.Add(phoneUser);
+
+                        if (!long.TryParse(phoneUser, out _))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Invalid phone number (should be numeric): {phoneUser}"
+                            };
+                            return BadRequest(response);
+                        }
 
                         if (khoiNumber >= 19)
                         {
-                            password = GenerateRandomPassword(6);
+                            password = GenerateRandomPassword(8);
                         }
 
                         var user = new UserModel
                         {
-                            FullName = worksheet.Cells[row, 2].Text,
-                            Password = password,
-                            Email = worksheet.Cells[row, 4].Text,
-                            Phone = worksheet.Cells[row, 5].Text,
+                            FullName = fullname,
+                            Password = password, // Lưu mật khẩu gốc để gửi email
+                            Email = emailUser,
+                            Phone = phoneUser,
                             CampusId = campusId,
                             Status = bool.Parse(worksheet.Cells[row, 7].Text),
                             RoleId = roleId
                         };
+
                         usersList.Add(user);
                     }
                 }
@@ -231,7 +258,14 @@ namespace uniexetask.api.Controllers
 
             foreach (var userModel in usersList)
             {
+                // Lưu mật khẩu gốc để gửi qua email
+                string rawPassword = userModel.Password;
+
+                // Hash mật khẩu trước khi lưu vào cơ sở dữ liệu
+                userModel.Password = PasswordHasher.HashPassword(userModel.Password);
+
                 var userEntity = _mapper.Map<User>(userModel);
+
                 var isUserCreated = await _userService.CreateUser(userEntity);
 
                 if (!isUserCreated)
@@ -241,8 +275,45 @@ namespace uniexetask.api.Controllers
                         Success = false,
                         ErrorMessage = $"Failed to create user: {userModel.Email}"
                     };
-                    return BadRequest(response); // Trả về lỗi nếu không thể tạo user
+                    return BadRequest(response);
                 }
+
+                // Gửi mật khẩu gốc qua email
+                var userEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff;
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear {userModel.FullName},</h2>
+    <p>We sent you the login password: <strong>{rawPassword}</strong>. We recommend that you change your password after logging in for the first time.</p>
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                await _emailService.SendEmailAsync(userModel.Email, "Users Invitation", userEmail);
             }
 
             var successResponse = new ApiResponse<string>
@@ -251,19 +322,45 @@ namespace uniexetask.api.Controllers
                 Data = "All users were successfully created."
             };
 
-            return Ok(successResponse); // Trả về thông báo thành công
+            return Ok(successResponse);
         }
 
 
 
         private string GenerateRandomPassword(int length)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const string upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowerChars = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+
             var random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+
+            var password = new List<char>
+            {
+                upperChars[random.Next(upperChars.Length)], 
+                lowerChars[random.Next(lowerChars.Length)], 
+                digits[random.Next(digits.Length)],
+            };
+
+            const string allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (int i = password.Count; i < length; i++)
+            {
+                password.Add(allChars[random.Next(allChars.Length)]);
+            }
+
+            return new string(password.OrderBy(c => random.Next()).ToArray());
         }
 
+        private bool IsPasswordValid(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password)) return false;
+            if (password.Length < 8) return false;
+            if (!password.Any(char.IsUpper)) return false;
+            if (!password.Any(char.IsLower)) return false;
+            if (!password.Any(char.IsDigit)) return false;
+
+            return true;
+        }
 
 
 
@@ -389,7 +486,7 @@ namespace uniexetask.api.Controllers
                 return BadRequest("Old password is incorrect.");
             }
 
-            user.Password = passwordModel.newPassword;
+            user.Password = PasswordHasher.HashPassword(passwordModel.newPassword);
             var isUserUpdated = await _userService.UpdateUser(user);
 
             ApiResponse<object> response = new ApiResponse<object>

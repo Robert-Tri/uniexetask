@@ -158,9 +158,9 @@ namespace uniexetask.api.Controllers
 
             var usersCount = request.StudentCodes.Count;
 
-            if (request.Group.SubjectId == 1 && usersCount >= 5)
+            if (request.Group.SubjectId == 1 && usersCount >= 6)
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Giới hạn là 5 người." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Giới hạn là 6 người." });
             }
 
             if (request.Group.SubjectId == 2 && usersCount >= 8)
