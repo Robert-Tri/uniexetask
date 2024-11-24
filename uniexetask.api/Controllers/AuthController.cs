@@ -12,6 +12,8 @@ using uniexetask.services.Interfaces;
 using Azure;
 using Google.Apis.Auth;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Identity;
+using uniexetask.api.Extensions;
 
 namespace uniexetask.api.Controllers
 {
@@ -45,7 +47,7 @@ namespace uniexetask.api.Controllers
 
                 var user = await _authService.GetUserByEmailAsync(model.Email);
                 if (user == null) throw new Exception("Email is incorrect or not registered.");
-                if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Password)) throw new Exception("Email or password is not correct.");
+                if (user.Password != null && !PasswordHasher.VerifyPassword(model.Password, user.Password)) throw new Exception("Email or password is not correct.");
                 TokenModel token = new TokenModel
                 {
                     AccessToken = await GenerateAccessToken(user),
@@ -85,12 +87,7 @@ namespace uniexetask.api.Controllers
         [HttpPost("hashpassword")]
         public IActionResult HashPassword([FromBody] string password)
         {
-            return Ok(HashPasswordd(password));
-        }
-        private string HashPasswordd(string password)
-        {
-            // Mã hóa mật khẩu trước khi lưu vào database
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return Ok(PasswordHasher.HashPassword(password));
         }
 
         private bool IsPasswordValid(string password)
