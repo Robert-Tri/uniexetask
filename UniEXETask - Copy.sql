@@ -537,7 +537,51 @@ VALUES
 INSERT INTO [USER] (full_name, [password], email, avatar, phone, campus_id, role_id)
 VALUES 
 ('Admin User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'admin@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
-('Manager User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2);
+('Manager User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
+('Mentor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
+('Mentor User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000013', 2, 4),
+('Mentor User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000014', 2, 4),
+('Mentor User 4', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000015', 3, 4),
+('Mentor User 5', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000016', 3, 4),
+(N'Nguyễn Huỳnh Đức Trí', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'trinhdse162014@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0867892130', 2, 3),
+(N'Phan Song Thảo', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'thaopsse162032@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0837250452', 2, 3),
+(N'Lê Hòa Bình', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'binhlhse162087@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0913926749', 2, 3),
+(N'Trần Hồng Hưng', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'hungthse162056@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0374312384', 2, 3);
+
+-- Thêm dữ liệu mẫu cho bảng MENTOR
+INSERT INTO MENTOR (user_id, specialty)
+VALUES 
+(3, 'Renewable Energy'),
+(4, 'Urban Planning'),
+(5, 'Data Science'),
+(6, 'Artificial Intelligence'),
+(7, 'Blockchain Technology');
+
+-- Thêm dữ liệu mẫu cho bảng STUDENT
+INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, subject_id, isCurrentPeriod)
+VALUES 
+(8, 2,'SE162014', 'Software Engineering', 1, 1),
+(9, 2,'SE162032', 'Software Engineering', 1, 1),
+(10, 3,'SE162087', 'Software Engineering', 1, 1),
+(11, 3,'SE162056', 'Software Engineering', 1, 1);
+
+-- Thêm dữ liệu mẫu cho bảng GROUP
+INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status, isCurrentPeriod)
+VALUES 
+('UniExETask', 1, 1, 'Approved', 1);
+
+-- Thêm dữ liệu mẫu cho bảng GROUP_MEMBER
+INSERT INTO GROUP_MEMBER (group_id, student_id, role)
+VALUES 
+(1, 1, 'Leader'), 
+(1, 2, 'Member'),
+(1, 3, 'Member'), 
+(1, 4, 'Member');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
+INSERT INTO MENTOR_GROUP (group_id, mentor_id)
+VALUES 
+(1, 2);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -547,6 +591,147 @@ VALUES
 (3, 1),
 (4, 1),
 (5, 1);
+
+-- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
+INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
+VALUES 
+('UniExETask', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 8, 8, 1, 'Group');
+
+-- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
+INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
+VALUES 
+(8, 1),
+(9, 1),
+(10, 1),
+(11, 1);
+
+-- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
+INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
+VALUES 
+(1, 8, 'Welcome to the UniExETask Group!');
+
+-- Thêm dữ liệu mẫu cho bảng TOPIC
+INSERT INTO TOPIC (topic_code, topic_name, description)
+VALUES 
+('TP001', 'Uni EXE Task', 'Platform to manage and support the Experiential Entrepreneurship subject of FPT University.');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT
+INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
+VALUES 
+(1, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1);
+
+-- Thêm dữ liệu mẫu cho bảng TASK
+INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
+VALUES 
+(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Not_Started'),
+(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-01', '2024-09-15', 'Completed'),
+(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-16', '2024-10-15', 'Completed'),
+(1, 'System Design', 'Create system architecture and design documents', '2024-10-08', '2024-10-23', 'Overdue'),
+(1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In_Progress'),
+(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In_Progress'),
+(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not_Started'),
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not_Started');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
+INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
+VALUES 
+(1, 20.00, '2024-09-15', 'Project scope defined', 1),
+(1, 40.00, '2024-10-15', 'Requirements collected and documented', 1),
+(1, 50.00, '2024-10-23', 'System design initiated', 1),
+(1, 60.00, '2024-11-01', 'Research phase started', 0);
+
+-- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
+INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
+VALUES 
+(1, 0.00, '2024-10-30', 'Not started yet'),
+(2, 100.00, '2024-09-15', 'Project initiation completed successfully'),
+(3, 100.00, '2024-10-15', 'Requirements gathering completed'),
+(4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
+(5, 25.00, '2024-11-01', 'Initial database schema designed'),
+(6, 30.00, '2024-11-03', 'UI mockups under review'),
+(7, 0.00, '2024-10-30', 'Not started yet'),
+(8, 0.00, '2024-10-30', 'Not started yet');
+
+-- Thêm dữ liệu mẫu cho bảng TASK
+INSERT INTO TASK_ASSIGN(task_id, student_id, assigned_date)
+VALUES 
+(1, 1, '2024-11-01'),
+(1, 2, '2024-11-01'),
+(2, 2, '2024-12-01'),
+(3, 3, '2024-11-01'),
+(3, 4, '2024-11-01'),
+(3, 3, '2024-11-01'),
+(4, 2, '2024-11-01'),
+(4, 1, '2024-11-01'),
+(5, 3, '2024-11-01'),
+(5, 4, '2024-11-01'),
+(6, 3, '2024-11-01'),
+(6, 2, '2024-11-01'),
+(6, 1, '2024-11-01'),
+(7, 4, '2024-11-01'),
+(8, 2, '2024-11-01'),
+(8, 1, '2024-11-01');
+
+-- Thêm dữ liệu mẫu cho bảng TASK_DETAIL
+INSERT INTO TASK_DETAIL (task_id, task_detail_name, progress_percentage, isCompleted, isDeleted)
+VALUES 
+-- Task 1: 'Research Phase'
+(1, N'Nghiên cứu tài liệu và công nghệ liên quan', 80.00, 1, 0),
+(1, N'Phân tích yêu cầu về nghiên cứu', 20.00, 0, 0),
+
+-- Task 2: 'Project Initiation'
+(2, N'Xác định phạm vi dự án', 40.00, 1, 0),
+(2, N'Phân bổ nguồn lực và lập kế hoạch', 30.00, 1, 0),
+(2, N'Báo cáo', 30.00, 0, 0),
+
+-- Task 3: 'Requirements Gathering'
+(3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 1, 0),
+(3, N'Phân tích và tài liệu hóa yêu cầu', 40.00, 1, 0),
+
+-- Task 4: 'System Design'
+(4, N'Thiết kế giao diện người dùng (UI)', 45.00, 1, 0),
+(4, N'Thiết kế kiến trúc hệ thống', 35.00, 0, 0),
+(4, N'Báo cáo 4', 20.00, 0, 0),
+
+-- Task 5: 'Database Design'
+(5, N'Thiết kế cơ sở dữ liệu ban đầu', 40.00, 0, 0),
+(5, N'Tối ưu hóa cơ sở dữ liệu', 60.00, 0, 0),
+
+-- Task 6: 'UI/UX Design'
+(6, N'Tạo mockups cho trang chủ', 30.00, 0, 0),
+(6, N'Review và phản hồi từ đội ngũ thiết kế', 70.00, 1, 0),
+
+-- Task 7: 'Backend Development'
+(7, N'Phát triển API cho người dùng', 55.00, 0, 0),
+(7, N'Phát triển API cho quản lý dự án', 45.00, 1, 0),
+
+-- Task 8: 'Frontend Development'
+(8, N'Phát triển giao diện cho đăng nhập', 38.00, 1, 0),
+(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 1, 0);
+
+-- Thêm dữ liệu mẫu cho bảng NOTIFICATION
+INSERT INTO NOTIFICATION (sender_id, receiver_id, message, type, created_at, status)
+VALUES 
+(8, 9, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read'),
+(8, 10, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read'),
+(8, 11, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read');
+
+-- Thêm dữ liệu mẫu cho bảng GROUP_INVITE
+INSERT INTO GROUP_INVITE (group_id, notification_id, inviter_id, invitee_id, created_date, updated_date, status)
+VALUES 
+(1, 1, 8, 9, GETDATE(), GETDATE(), 'Accepted'),
+(1, 2, 8, 10, GETDATE(), GETDATE(), 'Accepted'),
+(1, 3, 8, 11, GETDATE(), GETDATE(), 'Accepted');
+
+-- Thêm dữ liệu mẫu cho bảng WORKSHOP
+INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
+VALUES 
+('Innovation Workshop', 'Workshop on innovation and entrepreneurship', '2024-10-10', '2024-10-12', N'FPT Hà Nội', 'http://example.com/register', 'Completed'),
+('Tech Expo', 'Exhibition on smart city technologies', '2024-12-01', '2024-12-03', N'FPT Hồ Chí Minh', 'http://example.com/register', 'Not_Started');
+
+INSERT INTO REG_MEMBER_FORM (group_id, description, status)
+VALUES 
+    (1, N'Tôi cần tìm 1 FE có đủ kỹ năng để làm việc nhóm', 1);
 
 INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
 VALUES
@@ -618,3 +803,10 @@ VALUES
 ('Presentation Quality', 'Deliver a well-structured and engaging presentation', 40, 6, GETDATE(), GETDATE(), 0),
 ('Business Model Explanation', 'Clearly articulate the business model and its scalability', 35, 6, GETDATE(), GETDATE(), 0),
 ('Investor Q&A', 'Respond effectively to investor questions and concerns', 25, 6, GETDATE(), GETDATE(), 0);
+
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE201', N'Finalize Group EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
