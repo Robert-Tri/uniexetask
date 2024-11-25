@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
@@ -20,8 +21,10 @@ namespace uniexetask.api.Controllers
             _memberScoreService = memberScoreService;
             _mapper = mapper;
         }
-        [HttpPost]
-        public async Task<IActionResult> AddMemberScore(AddMemberScoreModel memberScore)
+
+        [Authorize(Roles = "Mentor")]
+        [HttpPost("submitmemberscore")]
+        public async Task<IActionResult> SubmitMemberScore(AddMemberScoreModel memberScore)
         {
             List<MemberScore> memberScoreToAdd = new List<MemberScore>();
             foreach (var studentScore in memberScore.StudentScores) 

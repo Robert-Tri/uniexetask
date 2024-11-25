@@ -21,19 +21,19 @@ namespace uniexetask.services
 
         public async Task<bool> UpdateGroupApproved(int groupId)
         {
-                var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
-                if (group != null)
-                {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            if (group != null)
+            {
                 group.Status = "Approved";
-                    _unitOfWork.Groups.Update(group);
+                _unitOfWork.Groups.Update(group);
 
-                    var result = _unitOfWork.Save();
+                var result = _unitOfWork.Save();
 
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
-                }
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
             return false;
         }
 
@@ -90,7 +90,7 @@ namespace uniexetask.services
                     .Where(m => m.User?.CampusId == campusId)
                     .ToList();
 
-                if (!allMentors.Any()) continue; 
+                if (!allMentors.Any()) continue;
 
                 var mentorGroupCounts = allMentors.ToDictionary(m => m.MentorId, _ => 0);
 
@@ -186,7 +186,7 @@ namespace uniexetask.services
                 g => g.GroupId == groupId && g.IsDeleted == false,
                 includeProperties: "Subject,RegTopicForms"
             );
-            return group.FirstOrDefault();  
+            return group.FirstOrDefault();
         }
 
 
@@ -227,15 +227,20 @@ namespace uniexetask.services
             int minGroupSize = 0;
             int maxGroupSize = 0;
 
-            if(SubjectType.EXE101 == subjectType)
+            if (SubjectType.EXE101 == subjectType)
             {
                 minGroupSize = 4;
                 maxGroupSize = 6;
             }
-            else if(SubjectType.EXE201 == subjectType)
+            else if (SubjectType.EXE201 == subjectType)
             {
                 minGroupSize = 8;
                 maxGroupSize = 10;
+            }
+
+            if(numStudents < minGroupSize)
+            {
+                return new List<int>();
             }
 
             List<int> groups = new List<int>();
@@ -271,8 +276,8 @@ namespace uniexetask.services
             int minMembers = 0;
             if (1 == (int)subjectType)
                 minMembers = 4;
-            else if(2 == (int)subjectType)
-               minMembers = 6;
+            else if (2 == (int)subjectType)
+                minMembers = 6;
             HashSet<int> studentIdSet = new HashSet<int>();
             var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.IsDeleted == false && g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())
@@ -293,6 +298,7 @@ namespace uniexetask.services
                     else
                     {
                         group.IsDeleted = true;
+                        await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
                         _unitOfWork.Groups.Update(group);
                     }
                 }
@@ -303,8 +309,17 @@ namespace uniexetask.services
 
         private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet, SubjectType subjectType)
         {
+
+            var groupMemberStudentIds = (await _unitOfWork.GroupMembers.GetAsync()).Select(gm => gm.StudentId).ToHashSet();
+
             var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s =>
-                !studentIdSet.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType)).ToList();
+                (!groupMemberStudentIds.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType))).ToList();
+
+            if (!studentsWithoutGroup.Any())
+            {
+                return;
+            }
+
             var userIds = studentsWithoutGroup.Select(s => s.UserId).ToHashSet();
             var users = (await _unitOfWork.Users.GetAsync(filter: u => userIds.Contains(u.UserId))).ToList();
 
@@ -339,6 +354,9 @@ namespace uniexetask.services
 
             var distributedGroups = DistributeStudents(students.Count, subjectType);
 
+            if (distributedGroups.Count() == 0)
+                return;
+
             var groupDictionary = new Dictionary<Group, int>();
             foreach (var (groupSize, index) in distributedGroups.Select((value, i) => (value, i)))
             {
@@ -347,6 +365,7 @@ namespace uniexetask.services
                     GroupName = $"Group {campusId}-{subjectId}-{index + 1}",
                     SubjectId = subjectId,
                     HasMentor = false,
+                    IsCurrentPeriod = true,
                     Status = "Eligible"
                 };
                 await _unitOfWork.Groups.InsertAsync(groupToAdd);

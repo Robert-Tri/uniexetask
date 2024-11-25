@@ -56,6 +56,18 @@ namespace uniexetask.api.Controllers
             response.Data = groupMemberList;
             return Ok(response);
         }
+        [HttpGet("getmembergroupbyprojectid")]
+        public async Task<IActionResult> GetMemberGroupByProjectId(int projectId)
+        {
+            var groupMember = await _groupMemberService.GetGroupMemberByProjectId(projectId);
+            if (groupMember == null)
+            {
+                return NotFound();
+            }
+            ApiResponse<IEnumerable<GroupMember>> response = new ApiResponse<IEnumerable<GroupMember>>();
+            response.Data = groupMember;
+            return Ok(response);
+        }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost("AddMemberToGroup")]
