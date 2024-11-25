@@ -32,7 +32,30 @@ namespace uniexetask.services
             return projects;
         }
 
-
+        public async Task<Project> GetProjectById(int projectId)
+        {
+            if (projectId > 0)
+            {
+                var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+                if (project != null)
+                {
+                    return project;
+                }
+            }
+            return null;
+        }
+        public async Task<Project> GetProjectWithAllDataById(int projectId)
+        {
+            if (projectId > 0)
+            {
+                var project = await _unitOfWork.Projects.GetProjectWithAllDataById(projectId);
+                if (project != null)
+                {
+                    return project;
+                }
+            }
+            return null;
+        }
 
         public async Task<bool> CreateProject(Project project)
         {
