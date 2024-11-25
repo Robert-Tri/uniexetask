@@ -140,9 +140,7 @@ namespace uniexetask.services
                     {
                         return false;
                     }
-                    if(task.Status == null)
-                    {
-                        // Xác định trạng thái của task dựa trên ngày
+                         // Xác định trạng thái của task dựa trên ngày
                         if (task.StartDate.Date > DateTime.Now.Date)
                         {
                             task.Status = nameof(TasksStatus.Not_Started);
@@ -155,7 +153,6 @@ namespace uniexetask.services
                         {
                             task.Status = nameof(TasksStatus.Overdue);
                         }
-                    }
                     
                     obj.TaskName = task.TaskName;
                     obj.Description = task.Description;

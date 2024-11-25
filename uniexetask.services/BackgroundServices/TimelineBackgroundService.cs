@@ -39,7 +39,7 @@ namespace uniexetask.api.BackgroundServices
                                 await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
                                 break;
                             case TimelineType.FinalizeGroupEXE201:
-                                await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
+                                await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE201);
                                 break;
 
                             case TimelineType.FinalizeMentorEXE101:

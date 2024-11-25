@@ -28,12 +28,21 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly ICampusService _campusService;
         private readonly INotificationService _notificationService;
+        private readonly IChatGroupService _chatGroupService;
         private readonly IStudentService _studentService;
         private readonly IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public GroupMemberController(ICampusService campusService, INotificationService notificationService, IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public GroupMemberController(
+            ICampusService campusService, 
+            INotificationService notificationService, 
+            IStudentService studentService, 
+            IGroupService groupService, 
+            IGroupMemberService groupMemberService, 
+            IMapper mapper, 
+            IHubContext<NotificationHub> hubContext,
+            IChatGroupService chatGroupService)
         {
             _notificationService = notificationService;
             _studentService = studentService;
@@ -42,6 +51,7 @@ namespace uniexetask.api.Controllers
             _campusService = campusService;
             _mapper = mapper;
             _hubContext = hubContext;
+            _chatGroupService = chatGroupService;
         }
 
 
@@ -232,6 +242,7 @@ namespace uniexetask.api.Controllers
             // All conditions are valid, proceed with group creation
             request.Group.HasMentor = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
+            request.Group.IsCurrentPeriod = true; 
 
             var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
             var isGroupCreated = await _groupService.CreateGroup(objGroup);
@@ -269,6 +280,9 @@ namespace uniexetask.api.Controllers
                 await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 memberCreationResults.Add(new { StudentCode = studentCode, Success = true, Message = $"Invitation to join the group has been sent to student with code {studentCode}" });
             }
+
+            var chatGroupCreated = await _chatGroupService.CreateChatGroupForGroup(objGroup, userId);
+            if (!chatGroupCreated) return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Chat group can not created." });
 
             var response = new ApiResponse<object>
             {

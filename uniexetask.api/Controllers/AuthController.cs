@@ -54,14 +54,15 @@ namespace uniexetask.api.Controllers
                     RefreshToken = await GenerateRefreshToken()
                 };
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
-                response.Data = "Login successfully!";
+                response.Data = token.AccessToken;
 
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
+                    HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    Expires = DateTime.Now.AddDays(7)
                 });
 
                 Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
@@ -70,7 +71,7 @@ namespace uniexetask.api.Controllers
                     Secure = true,
                     SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    Expires = DateTime.Now.AddDays(7)
                 });
 
                 return Ok(response);
@@ -121,8 +122,23 @@ namespace uniexetask.api.Controllers
                 var userId = int.Parse(userIdClaim);
                 var result = await _authService.RevokeRefreshToken(userId);
                 if (!result) throw new Exception("Logout failed");
-                Response.Cookies.Delete("AccessToken");
-                Response.Cookies.Delete("RefreshToken");
+                Response.Cookies.Append("AccessToken", "", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTime.Now.AddDays(-1)
+                });
+
+                Response.Cookies.Append("RefreshToken", "", new CookieOptions
+                {
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    HttpOnly = true,
+                    Path = "/",
+                    Expires = DateTime.Now.AddDays(-1)
+                });
 
                 response.Data = "Logout successful.";
                 return Ok(response);
@@ -165,7 +181,7 @@ namespace uniexetask.api.Controllers
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, role.Name),
                 new Claim(ClaimTypes.Name, user.FullName),
-                new Claim(ClaimTypes.Uri, user.Avatar)
+                new Claim(ClaimTypes.Uri, user.Avatar != null? user.Avatar : "")
 
             };
             var permissions = await _rolePermissionService.GetRolePermissionsByRole(role.Name);
@@ -228,15 +244,16 @@ namespace uniexetask.api.Controllers
                 };
 
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
-                response.Data = "Login successfully!";
+                response.Data = token.AccessToken;
 
                 // Set cookies
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions
                 {
+                    HttpOnly = false,
                     Secure = true,
                     SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    Expires = DateTime.Now.AddDays(7)
                 });
 
                 Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
@@ -245,7 +262,7 @@ namespace uniexetask.api.Controllers
                     Secure = true,
                     SameSite = SameSiteMode.None,
                     Path = "/",
-                    Expires = DateTime.UtcNow.AddDays(7)
+                    Expires = DateTime.Now.AddDays(7)
                 });
 
                 return Ok(response);

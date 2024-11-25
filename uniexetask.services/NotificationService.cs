@@ -92,6 +92,8 @@ namespace uniexetask.services
                 throw new Exception("The user, notification or the group do not exist.");
             }
 
+            if (groupExists.IsDeleted) throw new Exception("The group has been deleted or is past the semester.");
+
             var studentExists = await _unitOfWork.Students.GetStudentByUserId(inviteeId);
 
             if (studentExists == null)  throw new Exception("The person invited to join the group is not a student.");
@@ -118,6 +120,11 @@ namespace uniexetask.services
                         Role = nameof(GroupMemberRole.Member)
                     };
                     await _unitOfWork.GroupMembers.InsertAsync(groupMember);
+                    _unitOfWork.Save();
+                    var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupExists.GroupId);
+                    if (chatGroup == null) throw new Exception("Chat group for this group is not exist.");
+                    chatGroup.Users.Add(inviteeExists);
+                    _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                     _unitOfWork.Commit();
                     return groupInvite;

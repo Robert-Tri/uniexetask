@@ -56,7 +56,7 @@ namespace uniexetask.api.Middleware
                             Secure = true,
                             SameSite = SameSiteMode.None,
                             Path = "/",
-                            Expires = DateTime.UtcNow.AddDays(7)
+                            Expires = DateTime.Now.AddDays(7)
                         });
                         context.User = ValidateToken(newAccessToken);
                     }
