@@ -166,6 +166,50 @@ namespace uniexetask.api.Controllers
             else return BadRequest();
         }
 
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetProjectById(int projectId)
+        {
+            ApiResponse<ProjectListModel> response = new ApiResponse<ProjectListModel>();
+
+            try
+            {
+                var project = await _projectService.GetProjectWithAllDataById(projectId);
+                if (project == null)
+                {
+                    throw new Exception("Project not found");
+                }
+                ProjectListModel projectData = new ProjectListModel();
+
+                projectData = (new ProjectListModel
+                {
+                    ProjectId = project.ProjectId,
+                    TopicCode = project.Topic.TopicCode,
+                    TopicName = project.Topic.TopicName,
+                    Description = project.Topic.Description,
+                    SubjectName = project.Subject.SubjectName,
+                    StartDate = project.StartDate,
+                    EndDate = project.EndDate,
+                    Status = project.Status,
+                });
+                foreach (var item in project.ProjectProgresses)
+                {
+                    if (!item.IsDeleted)
+                    {
+                        projectData.ProgressPercentage = item.ProgressPercentage; // Thêm item vào danh sách
+                    }
+                }
+                // Trả về dữ liệu project
+                response.Data = projectData;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetProjectByUserId(int userId)
         {
