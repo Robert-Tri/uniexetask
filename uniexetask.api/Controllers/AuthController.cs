@@ -244,7 +244,7 @@ namespace uniexetask.api.Controllers
                 };
 
                 await _authService.SaveRefreshToken(user.UserId, token.RefreshToken);
-                response.Data = "Login successfully!";
+                response.Data = token.AccessToken;
 
                 // Set cookies
                 Response.Cookies.Append("AccessToken", token.AccessToken, new CookieOptions

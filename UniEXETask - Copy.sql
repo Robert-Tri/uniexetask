@@ -1,10 +1,4 @@
-﻿USE master
-GO
-CREATE DATABASE UniEXETask
-GO
-USE UniEXETask
-GO
-
+﻿
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
@@ -613,7 +607,7 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng TOPIC
 INSERT INTO TOPIC (topic_code, topic_name, description)
 VALUES 
-('TP001', 'Uni EXE Task', 'Platform to manage and support the Experiential Entrepreneurship subject of FPT University.');
+('TP000', 'Uni EXE Task', 'Platform to manage and support the Experiential Entrepreneurship subject of FPT University.');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
@@ -682,7 +676,7 @@ VALUES
 -- Task 2: 'Project Initiation'
 (2, N'Xác định phạm vi dự án', 40.00, 1, 0),
 (2, N'Phân bổ nguồn lực và lập kế hoạch', 30.00, 1, 0),
-(2, N'Báo cáo', 30.00, 0, 0),
+(2, N'Báo cáo', 30.00, 1, 0),
 
 -- Task 3: 'Requirements Gathering'
 (3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 1, 0),

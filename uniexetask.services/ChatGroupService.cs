@@ -215,10 +215,10 @@ namespace uniexetask.services
                     var chatGroup = new ChatGroup
                     {
                         ChatGroupName = userExists.FullName,
-                        CreatedDate = DateTime.UtcNow,
+                        CreatedDate = DateTime.Now,
                         CreatedBy = userId,
                         OwnerId = userId,
-                        LatestActivity = DateTime.UtcNow,
+                        LatestActivity = DateTime.Now,
                         Type = nameof(ChatGroupType.Personal),
                     };
                     await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
