@@ -20,12 +20,16 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IStudentService _studentsService;
         private readonly IUserService _userService;
+        private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly Cloudinary _cloudinary;
-        public UserController(IUserService userService, IMapper mapper, IEmailService emailService)
+        public UserController(IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService)
         {
+            _studentsService = studentsService;
+            _mentorService = mentorService;
             _userService = userService;
             _emailService = emailService;
             _mapper = mapper;
@@ -150,8 +154,8 @@ namespace uniexetask.api.Controllers
                 };
                 return BadRequest(response);
             }
-
-            var usersList = new List<UserModel>();
+         
+            var excelList = new List<ExcelModel>();
             var emailList = new HashSet<string>();
             var phoneList = new HashSet<string>();
 
@@ -168,14 +172,29 @@ namespace uniexetask.api.Controllers
                     for (int row = 2; row <= rowCount; row++)
                     {
                         var campusName = worksheet.Cells[row, 6].Text;
-                        var roleName = worksheet.Cells[row, 8].Text;
-                        var khoiText = worksheet.Cells[row, 9].Text;
+                        var roleName = worksheet.Cells[row, 7].Text;
+                        var khoiText = worksheet.Cells[row, 8].Text;
+                        var subjectId = worksheet.Cells[row, 9].Text;
+                        string studentcode = worksheet.Cells[row, 10].Text;
+                        string major = worksheet.Cells[row,11].Text;
+                        //var lecturer = worksheet.Cells[row, 12].Text;
+
+                        string lecturer = worksheet.Cells[row, 12].Text;
+
+                        var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
 
                         int campusId = campusName switch
                         {
                             "FPT-HN" => 1,
                             "FPT-HCM" => 2,
                             "FPT-DN" => 3,
+                            _ => 0
+                        };
+
+                        int subject = subjectId switch
+                        {
+                            "EXE101" => 1,
+                            "EXE201" => 2,
                             _ => 0
                         };
 
@@ -189,8 +208,8 @@ namespace uniexetask.api.Controllers
                             _ => 0
                         };
 
-                        string password = worksheet.Cells[row, 3].Text;
                         string fullname = worksheet.Cells[row, 2].Text;
+                        string password = worksheet.Cells[row, 3].Text;
                         string emailUser = worksheet.Cells[row, 4].Text;
                         string phoneUser = worksheet.Cells[row, 5].Text;
                         int khoiNumber = int.Parse(khoiText.Substring(1));
@@ -242,33 +261,68 @@ namespace uniexetask.api.Controllers
                             password = GenerateRandomPassword(8);
                         }
 
-                        var user = new UserModel
+                        var excel = new ExcelModel
                         {
                             FullName = fullname,
                             Password = password,
                             Email = emailUser,
                             Phone = phoneUser,
                             CampusId = campusId,
-                            Status = bool.Parse(worksheet.Cells[row, 7].Text),
-                            RoleId = roleId
+                            IsDeleted = false,
+                            RoleId = roleId,
+                            LecturerId = lecturerUser.MentorId,
+                            StudentCode = studentcode,
+                            Major = major,
+                            SubjectId = subject,
+                            IsCurrentPeriod = true
                         };
 
-                        usersList.Add(user);
+                        excelList.Add(excel);
+
+
                     }
                 }
             }
 
-            foreach (var userModel in usersList)
-            {
-                string rawPassword = userModel.Password;
+            var emailTasks = new List<System.Threading.Tasks.Task>();
 
-                userModel.Password = PasswordHasher.HashPassword(userModel.Password);
+            foreach (var excelModel in excelList)
+            {
+                string rawPassword = excelModel.Password;
+
+                excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
+
+                var userModel = new UserModel
+                {
+                    FullName = excelModel.FullName,
+                    Password = excelModel.Password,
+                    Email = excelModel.Email,
+                    Phone = excelModel.Phone,
+                    CampusId = excelModel.CampusId,
+                    IsDeleted = false,
+                    RoleId = excelModel.RoleId
+                };
 
                 var userEntity = _mapper.Map<User>(userModel);
 
-                var isUserCreated = await _userService.CreateUser(userEntity);
+                var isUserCreated = await _userService.CreateUserExcel(userEntity);
 
-                if (!isUserCreated)
+                var studentModel = new StudentModel
+                {
+                    UserId = isUserCreated.UserId,
+                    LecturerId = excelModel.LecturerId,
+                    StudentCode = excelModel.StudentCode,
+                    Major = excelModel.Major,
+                    SubjectId = excelModel.SubjectId,
+                    IsCurrentPeriod = true
+                };
+
+                var studentEntity = _mapper.Map<Student>(studentModel);
+
+                var isStudentCreated = await _studentsService.CreateStudent(studentEntity);
+
+
+                if (isUserCreated == null)
                 {
                     var response = new ApiResponse<bool>
                     {
@@ -312,8 +366,11 @@ namespace uniexetask.api.Controllers
 </html>
 ";
 
-                await _emailService.SendEmailAsync(userModel.Email, "Users Invitation", userEmail);
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Users Invitation", userEmail);
+                emailTasks.Add(emailTask);
             }
+
+            await System.Threading.Tasks.Task.WhenAll(emailTasks);
 
             var successResponse = new ApiResponse<string>
             {
@@ -323,7 +380,6 @@ namespace uniexetask.api.Controllers
 
             return Ok(successResponse);
         }
-
 
 
         private string GenerateRandomPassword(int length)

@@ -16,6 +16,23 @@ namespace uniexetask.services
             var studentList = await _unitOfWork.Students.GetAsync();
             return studentList;
         }
+
+        public async Task<bool> CreateStudent(Student student)
+        {
+            if (student != null)
+            {
+                await _unitOfWork.Students.InsertAsync(student);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         public async Task<Student?> GetStudentById(int studentId)
         {
             if (studentId > 0)

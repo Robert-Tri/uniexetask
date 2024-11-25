@@ -45,6 +45,30 @@ namespace uniexetask.services
             return false;
         }
 
+        public async Task<User> CreateUserExcel(User user)
+        {
+            var existedUser = await CheckDuplicateUser(user.Email, user.Phone);
+            if (existedUser == 1)
+            {
+                throw new Exception("Email or phone number already exists.");
+            }
+
+            if (user != null)
+            {
+                await _unitOfWork.Users.InsertAsync(user);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                {
+                    return user;
+                }
+            }
+
+            throw new Exception("Failed to create user.");
+        }
+
+
         public async Task<bool> DeleteUser(int userId)
         {
 
