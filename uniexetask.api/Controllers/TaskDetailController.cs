@@ -1,9 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using uniexetask.api.Extensions;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.services;
 using uniexetask.services.Interfaces;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.api.Controllers
 {
@@ -15,12 +20,20 @@ namespace uniexetask.api.Controllers
         private readonly ITaskDetailService _taskDetailService;
         private readonly ITaskService _taskService;
         private readonly ITaskProgressService _taskProgressService;
+        private readonly IEmailService _emailService;
+        private readonly IGroupMemberService _groupMemberService;
 
-        public TaskDetailController(ITaskDetailService taskDetailService, ITaskService taskService, ITaskProgressService taskProgressService)
+        public TaskDetailController(ITaskDetailService taskDetailService,
+            ITaskService taskService,
+            ITaskProgressService taskProgressService,
+            IEmailService emailService,
+            IGroupMemberService groupMemberService)
         {
             _taskDetailService = taskDetailService;
             _taskService = taskService;
             _taskProgressService = taskProgressService;
+            _emailService = emailService;
+            _groupMemberService = groupMemberService;
         }
 
         [HttpGet("byTask/{taskId}")]
@@ -125,6 +138,93 @@ namespace uniexetask.api.Controllers
                     if (!loadStatusTask)
                     {
                         throw new Exception("Error updating task status");
+                    }
+                    var checkComplete = await _taskService.GetTaskById(existingTaskDetail.TaskId);
+                    if(checkComplete.Status == nameof(TasksStatus.Completed))
+                    {
+                        var taskEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        table, th, td {{
+            border: 1px solid #ddd;
+        }}
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>A task in your project has been COMPLETED!</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {checkComplete.TaskName}</p>
+    <p><strong>Start Date:</strong> {checkComplete.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {checkComplete.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {checkComplete.Description}</p>
+    
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+                        var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                        if (string.IsNullOrEmpty(userIdString))
+                        {
+                            return BadRequest("User ID not found.");
+                        }
+
+                        if (!int.TryParse(userIdString, out int userId))
+                        {
+                            return BadRequest("Invalid User ID format.");
+                        }
+
+                        var users = await _groupMemberService.GetUsersByUserId(userId);
+
+                        foreach (var user in users)
+                        {
+                            if (user.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role == "Leader")
+                            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                                _emailService.SendEmailAsync(user.Email, "Task of Project", taskEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                            }
+
+                        }
                     }
                 }
 

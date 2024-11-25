@@ -7,5 +7,6 @@ namespace uniexetask.services.Interfaces
         Task<Mentor?> GetMentorWithGroupAsync(int userId);
         Task<IEnumerable<Mentor>> GetMentorsAsync();
         Task<Mentor?> GetMentorByUserId(int userId);
+        Task<Mentor?> GetMentorByEmail(string email);
     }
 }

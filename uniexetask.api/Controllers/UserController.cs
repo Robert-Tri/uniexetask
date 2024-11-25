@@ -1,29 +1,37 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using OfficeOpenXml;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 using uniexetask.api.Extensions;
 
 namespace uniexetask.api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IStudentService _studentsService;
         private readonly IUserService _userService;
+        private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
         private readonly Cloudinary _cloudinary;
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService)
         {
+            _studentsService = studentsService;
+            _mentorService = mentorService;
             _userService = userService;
+            _emailService = emailService;
             _mapper = mapper;
 
             var cloudinaryAccount = new Account(
@@ -144,16 +152,18 @@ namespace uniexetask.api.Controllers
                     Success = false,
                     ErrorMessage = "File is not selected or is empty."
                 };
-                return BadRequest(response); // Trả về lỗi với ApiResponse
+                return BadRequest(response);
             }
+         
+            var excelList = new List<ExcelModel>();
+            var emailList = new HashSet<string>();
+            var phoneList = new HashSet<string>();
 
-            var usersList = new List<UserModel>();
-
-            // Đọc file Excel
             using (var stream = new MemoryStream())
             {
                 await excelFile.CopyToAsync(stream);
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
                 using (var package = new ExcelPackage(stream))
                 {
                     var worksheet = package.Workbook.Worksheets[0];
@@ -162,88 +172,205 @@ namespace uniexetask.api.Controllers
                     for (int row = 2; row <= rowCount; row++)
                     {
                         var campusName = worksheet.Cells[row, 6].Text;
-                        var roleName = worksheet.Cells[row, 8].Text;
-                        var khoiText = worksheet.Cells[row, 9].Text;
+                        var roleName = worksheet.Cells[row, 7].Text;
+                        var khoiText = worksheet.Cells[row, 8].Text;
+                        var subjectId = worksheet.Cells[row, 9].Text;
+                        string studentcode = worksheet.Cells[row, 10].Text;
+                        string major = worksheet.Cells[row,11].Text;
+                        //var lecturer = worksheet.Cells[row, 12].Text;
 
-                        int campusId;
-                        switch (campusName)
+                        string lecturer = worksheet.Cells[row, 12].Text;
+
+                        var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
+
+                        int campusId = campusName switch
                         {
-                            case "FPT-HN":
-                                campusId = 1;
-                                break;
-                            case "FPT-HCM":
-                                campusId = 2;
-                                break;
-                            case "FPT-DN":
-                                campusId = 3;
-                                break;
-                            default:
-                                campusId = 0;
-                                break;
-                        }
+                            "FPT-HN" => 1,
+                            "FPT-HCM" => 2,
+                            "FPT-DN" => 3,
+                            _ => 0
+                        };
 
-                        int roleId;
-                        switch (roleName.ToLower())
+                        int subject = subjectId switch
                         {
-                            case "admin":
-                                roleId = 1;
-                                break;
-                            case "manager":
-                                roleId = 2;
-                                break;
-                            case "student":
-                                roleId = 3;
-                                break;
-                            case "mentor":
-                                roleId = 4;
-                                break;
-                            case "sponsor":
-                                roleId = 5;
-                                break;
-                            default:
-                                roleId = 0;
-                                break;
-                        }
+                            "EXE101" => 1,
+                            "EXE201" => 2,
+                            _ => 0
+                        };
 
+                        int roleId = roleName.ToLower() switch
+                        {
+                            "admin" => 1,
+                            "manager" => 2,
+                            "student" => 3,
+                            "mentor" => 4,
+                            "sponsor" => 5,
+                            _ => 0
+                        };
 
+                        string fullname = worksheet.Cells[row, 2].Text;
                         string password = worksheet.Cells[row, 3].Text;
+                        string emailUser = worksheet.Cells[row, 4].Text;
+                        string phoneUser = worksheet.Cells[row, 5].Text;
                         int khoiNumber = int.Parse(khoiText.Substring(1));
+
+                        if (emailList.Contains(emailUser))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate email found: {emailUser}"
+                            };
+                            return BadRequest(response);
+                        }
+                        emailList.Add(emailUser);
+
+                        if (!emailUser.Contains("@"))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Invalid email format: {emailUser}. Email must contain '@'."
+                            };
+                            return BadRequest(response);
+                        }
+
+                        if (phoneList.Contains(phoneUser))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate phone number found: {phoneUser}"
+                            };
+                            return BadRequest(response);
+                        }
+                        phoneList.Add(phoneUser);
+
+                        if (!long.TryParse(phoneUser, out _))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Invalid phone number (should be numeric): {phoneUser}"
+                            };
+                            return BadRequest(response);
+                        }
 
                         if (khoiNumber >= 19)
                         {
-                            password = GenerateRandomPassword(6);
+                            password = GenerateRandomPassword(8);
                         }
 
-                        var user = new UserModel
+                        var excel = new ExcelModel
                         {
-                            FullName = worksheet.Cells[row, 2].Text,
+                            FullName = fullname,
                             Password = password,
-                            Email = worksheet.Cells[row, 4].Text,
-                            Phone = worksheet.Cells[row, 5].Text,
+                            Email = emailUser,
+                            Phone = phoneUser,
                             CampusId = campusId,
-                            Status = bool.Parse(worksheet.Cells[row, 7].Text),
-                            RoleId = roleId
+                            IsDeleted = false,
+                            RoleId = roleId,
+                            LecturerId = lecturerUser.MentorId,
+                            StudentCode = studentcode,
+                            Major = major,
+                            SubjectId = subject,
+                            IsCurrentPeriod = true
                         };
-                        usersList.Add(user);
+
+                        excelList.Add(excel);
+
+
                     }
                 }
             }
 
-            foreach (var userModel in usersList)
-            {
-                var userEntity = _mapper.Map<User>(userModel);
-                var isUserCreated = await _userService.CreateUser(userEntity);
+            var emailTasks = new List<System.Threading.Tasks.Task>();
 
-                if (!isUserCreated)
+            foreach (var excelModel in excelList)
+            {
+                string rawPassword = excelModel.Password;
+
+                excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
+
+                var userModel = new UserModel
+                {
+                    FullName = excelModel.FullName,
+                    Password = excelModel.Password,
+                    Email = excelModel.Email,
+                    Phone = excelModel.Phone,
+                    CampusId = excelModel.CampusId,
+                    IsDeleted = false,
+                    RoleId = excelModel.RoleId
+                };
+
+                var userEntity = _mapper.Map<User>(userModel);
+
+                var isUserCreated = await _userService.CreateUserExcel(userEntity);
+
+                var studentModel = new StudentModel
+                {
+                    UserId = isUserCreated.UserId,
+                    LecturerId = excelModel.LecturerId,
+                    StudentCode = excelModel.StudentCode,
+                    Major = excelModel.Major,
+                    SubjectId = excelModel.SubjectId,
+                    IsCurrentPeriod = true
+                };
+
+                var studentEntity = _mapper.Map<Student>(studentModel);
+
+                var isStudentCreated = await _studentsService.CreateStudent(studentEntity);
+
+
+                if (isUserCreated == null)
                 {
                     var response = new ApiResponse<bool>
                     {
                         Success = false,
                         ErrorMessage = $"Failed to create user: {userModel.Email}"
                     };
-                    return BadRequest(response); // Trả về lỗi nếu không thể tạo user
+                    return BadRequest(response);
                 }
+
+                var userEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff;
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear {userModel.FullName},</h2>
+    <p>We sent you the login password: <strong>{rawPassword}</strong>. We recommend that you change your password after logging in for the first time.</p>
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Users Invitation", userEmail);
+                emailTasks.Add(emailTask);
             }
+
+            await System.Threading.Tasks.Task.WhenAll(emailTasks);
 
             var successResponse = new ApiResponse<string>
             {
@@ -251,19 +378,44 @@ namespace uniexetask.api.Controllers
                 Data = "All users were successfully created."
             };
 
-            return Ok(successResponse); // Trả về thông báo thành công
+            return Ok(successResponse);
         }
-
 
 
         private string GenerateRandomPassword(int length)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const string upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowerChars = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+
             var random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+
+            var password = new List<char>
+            {
+                upperChars[random.Next(upperChars.Length)], 
+                lowerChars[random.Next(lowerChars.Length)], 
+                digits[random.Next(digits.Length)],
+            };
+
+            const string allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (int i = password.Count; i < length; i++)
+            {
+                password.Add(allChars[random.Next(allChars.Length)]);
+            }
+
+            return new string(password.OrderBy(c => random.Next()).ToArray());
         }
 
+        private bool IsPasswordValid(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password)) return false;
+            if (password.Length < 8) return false;
+            if (!password.Any(char.IsUpper)) return false;
+            if (!password.Any(char.IsLower)) return false;
+            if (!password.Any(char.IsDigit)) return false;
+
+            return true;
+        }
 
 
 
@@ -275,27 +427,16 @@ namespace uniexetask.api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel users)
         {
-            try
-            {
-                var obj = _mapper.Map<User>(users);
-                var isUserCreated = await _userService.CreateUser(obj);
+            var obj = _mapper.Map<User>(users);
+            var isUserCreated = await _userService.CreateUser(obj);
 
-                if (isUserCreated)
-                {
-                    return Ok(isUserCreated);
-                }
-                else
-                {
-                    return BadRequest("Failed to create user.");
-                }
-            }
-            catch (Exception ex)
+            if (isUserCreated)
             {
-                if (ex.Message == "Email or phone number already exists.")
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
+                return Ok(isUserCreated);
+            }
+            else
+            {
+                return BadRequest();
             }
         }
 
@@ -308,29 +449,17 @@ namespace uniexetask.api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
-            try
+            ApiResponse<bool> respone = new ApiResponse<bool>();
+            var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
+            if (isUserUpdated)
             {
-                ApiResponse<bool> respone = new ApiResponse<bool>();
-                var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
-                if (isUserUpdated)
-                {
-                    respone.Data = isUserUpdated;
-                    return Ok(respone);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                respone.Data = isUserUpdated;
+                return Ok(respone);
             }
-            catch (Exception ex)
+            else
             {
-                if (ex.Message == "Email or phone number already exists.")
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                return StatusCode(500, new { error = "An unexpected error occurred.", details = ex.Message });
+                return BadRequest();
             }
-
         }
 
         [Authorize]
@@ -389,7 +518,7 @@ namespace uniexetask.api.Controllers
                 return BadRequest("Old password is incorrect.");
             }
 
-            user.Password = passwordModel.newPassword;
+            user.Password = PasswordHasher.HashPassword(passwordModel.newPassword);
             var isUserUpdated = await _userService.UpdateUser(user);
 
             ApiResponse<object> response = new ApiResponse<object>
