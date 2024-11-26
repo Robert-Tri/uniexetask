@@ -142,7 +142,7 @@ CREATE TABLE TOPIC (
     topic_id INT PRIMARY KEY IDENTITY(1,1),
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
-	description NVARCHAR(250) NOT NULL
+	description NVARCHAR(MAX) NOT NULL
 );
 
 -- Tạo bảng GROUP
@@ -316,7 +316,7 @@ CREATE TABLE MEETING_SCHEDULE (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     group_id INT NOT NULL,
     mentor_id INT NOT NULL,
-	location INT NOT NULL,
+	location NVARCHAR(MAX) NOT NULL,
 	meeting_date DATETIME NOT NULL,
 	duration INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
@@ -454,7 +454,7 @@ CREATE TABLE REG_TOPIC_FORM (
     group_id INT NOT NULL,
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(MAX) NOT NULL,
 	status BIT NOT NULL,
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
@@ -468,6 +468,20 @@ CREATE TABLE REG_MEMBER_FORM (
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
+-- Tạo bảng TOPIC_FOR_MENTOR
+CREATE TABLE TOPIC_FOR_MENTOR (
+    topic_for_mentor_id INT PRIMARY KEY IDENTITY(1,1),
+    mentor_id INT NOT NULL,
+	topic_code NVARCHAR(50) NOT NULL,
+	topic_name NVARCHAR(100) NOT NULL,
+	description NVARCHAR(MAX) NOT NULL,
+	isRegistered BIT NOT NULL,
+    FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
+);
+
+-- SS: 
+-- SE:
+-- AI:
 
 
 -- Thêm dữ liệu mẫu cho bảng Campus
