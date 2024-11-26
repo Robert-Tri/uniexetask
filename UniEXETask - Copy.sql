@@ -1,10 +1,4 @@
-﻿USE master
-GO
-CREATE DATABASE UniEXETask
-GO
-USE UniEXETask
-GO
-
+﻿
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
@@ -538,109 +532,50 @@ INSERT INTO [USER] (full_name, [password], email, avatar, phone, campus_id, role
 VALUES 
 ('Admin User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'admin@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
 ('Manager User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
-('Student User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000003', 3, 3),
-('Mentor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000004', 1, 4),
-('Sponsor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'sponsor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000005', 2, 5),
-('Student User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000006', 1, 3),
-('Mentor User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000007', 2, 4),
-('Sponsor User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'sponsor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000008', 1, 5),
-('Student User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000009', 2, 3),
-('Mentor User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000010', 3, 4),
-('Sponsor User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'sponsor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000011', 3, 5),
-(N'Nguyễn Huỳnh Đức Trí', NULL, 'trinhdse162014@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0867892130', 1, 3),
-(N'Phan Song Thảo', NULL, 'thaopsse162032@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0837250452', 1, 3),
-(N'Lê Hòa Bình', NULL, 'binhlhse162087@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0913926749', 1, 3),
-(N'Trần Hồng Hưng', NULL, 'hungthse162056@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0374312384', 1, 3),
--- 5 Mentors (role_id = 4)
-('Mentor User 4', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
-('Mentor User 5', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000013', 2, 4),
-('Mentor User 6', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor6@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000014', 3, 4),
-('Mentor User 7', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor7@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000015', 1, 4),
-('Mentor User 8', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor8@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000016', 2, 4),
--- 30 Students (role_id = 3)
-('Student User 4', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000017', 1, 3),
-('Student User 5', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000018', 2, 3),
-('Student User 6', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student6@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000019', 3, 3),
-('Student User 7', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student7@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000020', 1, 3),
-('Student User 8', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student8@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000021', 2, 3),
-('Student User 9', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student9@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000022', 3, 3),
-('Student User 10', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student10@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000023', 1, 3),
-('Student User 11', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student11@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000024', 2, 3),
-('Student User 12', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student12@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000025', 3, 3),
-('Student User 13', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student13@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000026', 1, 3),
-('Student User 14', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student14@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000027', 2, 3),
-('Student User 15', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student15@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000028', 3, 3),
-('Student User 16', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student16@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000029', 1, 3),
-('Student User 17', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student17@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000030', 2, 3),
-('Student User 18', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student18@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000031', 3, 3),
-('Student User 19', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student19@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000032', 1, 3),
-('Student User 20', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student20@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000033', 2, 3),
-('Student User 21', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student21@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000034', 3, 3),
-('Student User 22', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student22@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000035', 1, 3),
-('Student User 23', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student23@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000036', 2, 3),
-('Student User 24', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student24@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000037', 3, 3),
-('Student User 25', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student25@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000038', 1, 3),
-('Student User 26', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student26@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000039', 2, 3),
-('Student User 27', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student27@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000040', 3, 3),
-('Student User 28', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student28@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000041', 1, 3),
-('Student User 29', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student29@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000042', 2, 3),
-('Student User 30', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student30@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000043', 3, 3),
-('Student User 31', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student31@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000044', 1, 3),
-('Student User 32', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student32@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000045', 2, 3),
-('Student User 33', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'student33@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000046', 3, 3);
+('Mentor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
+('Mentor User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000013', 2, 4),
+('Mentor User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000014', 2, 4),
+('Mentor User 4', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000015', 3, 4),
+('Mentor User 5', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor5@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000016', 3, 4),
+(N'Nguyễn Huỳnh Đức Trí', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'trinhdse162014@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0867892130', 2, 3),
+(N'Phan Song Thảo', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'thaopsse162032@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0837250452', 2, 3),
+(N'Lê Hòa Bình', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'binhlhse162087@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0913926749', 2, 3),
+(N'Trần Hồng Hưng', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'hungthse162056@fpt.edu.vn', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0374312384', 2, 3);
 
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
 VALUES 
-(4, 'Renewable Energy'),
-(7, 'Urban Planning'),
-(10, 'Data Science'),
-(16, 'Artificial Intelligence'),
-(17, 'Blockchain Technology'),
-(18, 'Internet of Things'),
-(19, 'Cybersecurity'),
-(20, 'Renewable Energy');
+(3, 'Renewable Energy'),
+(4, 'Urban Planning'),
+(5, 'Data Science'),
+(6, 'Artificial Intelligence'),
+(7, 'Blockchain Technology');
 
 -- Thêm dữ liệu mẫu cho bảng STUDENT
 INSERT INTO STUDENT (user_id, lecturer_id, student_code, major, subject_id, isCurrentPeriod)
 VALUES 
-(3, 1,'ST12345', 'Computer Science', 1, 1),
-(6, 1,'ST67890', 'Information Technology', 1, 1),
-(9, 2,'SS162981', 'Financial Economics', 1, 1),
-(12, 2,'SE162014', 'Software Engineering', 1, 1),
-(13, 1,'SE162032', 'Software Engineering', 1, 1),
-(14, 1,'SE162087', 'Software Engineering', 1, 1),
-(15, 2,'SE162056', 'Software Engineering', 1, 1),
-(21, 3,'ST100004', 'Software Engineering', 1, 1),
-(22, 4,'ST100005', 'Software Engineering', 1, 1),
-(23, 5,'ST100006', 'Software Engineering', 1, 1),
-(24, 6,'ST100007', 'Software Engineering', 1, 1),
-(25, 7,'ST100008', 'Software Engineering', 1, 1),
-(26, 8,'ST100009', 'Software Engineering', 1, 1),
-(27, 8,'ST100010', 'Software Engineering', 1, 1),
-(28, 8,'ST100011', 'Software Engineering', 1, 1),
-(29, 1,'ST100012', 'Software Engineering', 1, 1),
-(30, 1,'ST100013', 'Software Engineering', 1, 1),
-(31, 1,'ST100014', 'Software Engineering', 1, 1),
-(32, 2,'ST100015', 'Software Engineering', 1, 1),
-(33, 2,'ST100016', 'Software Engineering', 1, 1),
-(34, 2,'ST100017', 'Software Engineering', 2, 1),
-(35, 3,'ST100018', 'Software Engineering', 2, 1),
-(36, 3,'ST100019', 'Software Engineering', 2, 1),
-(37, 3,'ST100020', 'Software Engineering', 2, 1),
-(38, 4,'ST100021', 'Software Engineering', 2, 1),
-(39, 4,'ST100022', 'Software Engineering', 2, 1),
-(40, 4,'ST100023', 'Software Engineering', 2, 1),
-(41, 5,'ST100024', 'Software Engineering', 2, 1),
-(42, 5,'ST100025', 'Software Engineering', 2, 1),
-(43, 5,'ST100026', 'Software Engineering', 2, 1),
-(44, 6,'ST100027', 'Software Engineering', 2, 1),
-(45, 6,'ST100028', 'Software Engineering', 2, 1),
-(46, 6,'ST100029', 'Software Engineering', 2, 1),
-(47, 7,'ST100030', 'Software Engineering', 2, 1),
-(48, 7,'ST100031', 'Software Engineering', 2, 1),
-(49, 7,'ST100032', 'Software Engineering', 2, 1),
-(50, 8,'ST100033', 'Software Engineering', 2, 1);
+(8, 2,'SE162014', 'Software Engineering', 1, 1),
+(9, 2,'SE162032', 'Software Engineering', 1, 1),
+(10, 3,'SE162087', 'Software Engineering', 1, 1),
+(11, 3,'SE162056', 'Software Engineering', 1, 1);
+
+-- Thêm dữ liệu mẫu cho bảng GROUP
+INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status, isCurrentPeriod)
+VALUES 
+('UniExETask', 1, 1, 'Approved', 1);
+
+-- Thêm dữ liệu mẫu cho bảng GROUP_MEMBER
+INSERT INTO GROUP_MEMBER (group_id, student_id, role)
+VALUES 
+(1, 1, 'Leader'), 
+(1, 2, 'Member'),
+(1, 3, 'Member'), 
+(1, 4, 'Member');
+
+-- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
+INSERT INTO MENTOR_GROUP (group_id, mentor_id)
+VALUES 
+(1, 2);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -654,98 +589,30 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
 VALUES 
-('Green Energy Team', null, 1, 1, 1, 'Group'),
-('Smart City Team', null, 2, 2, 2, 'Group'),
-('Admin User', null, 2, 2, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal'),
-('Admin User', null, 1, 1, null, 'Personal');
+('UniExETask', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 8, 8, 1, 'Group');
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
 VALUES 
-(2, 1),
-(30, 1),
-(3, 2),
-(1, 4),
-(3, 4),
-(1, 5),
-(4, 5),
-(1, 6),
-(5, 6),
-(1, 7),
-(6, 7),
-(1, 8),
-(7, 8),
-(1, 9),
-(8, 9),
-(1, 10),
-(9, 10),
-(1, 11),
-(10, 11),
-(1, 12),
-(11, 12),
-(1, 13),
-(12, 13),
-(1, 14),
-(13, 14),
-(1, 15),
-(14, 15),
-(1, 16),
-(15, 16),
-(1, 17),
-(16, 17),
-(1, 18),
-(17, 18);
+(8, 1),
+(9, 1),
+(10, 1),
+(11, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
 VALUES 
-(1, 1, 'Welcome to the Admin Group!'),
-(2, 2, 'Project discussions start here.'),
-(3, 1, 'Hello guy.'),
-(3, 2, 'Hello admin.');
-
--- Thêm dữ liệu mẫu cho bảng GROUP
-INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status, isCurrentPeriod)
-VALUES 
-('Green Energy Team', 1, 0, 'Initialized', 1),
-('Smart City Team', 2, 1, 'Approved', 1),
-('UniEXETask', 1, 1, 'Approved', 1),
-('AI Innovation Team', 1, 0, 'Eligible', 1),
-('Blockchain Pioneers', 2, 1, 'Initialized', 1),
-('IoT Solutions', 1, 1, 'Eligible', 1),
-('Cybersecurity Guardians', 1, 1, 'Approved', 1),
-('Data Science Explorers', 1, 1, 'Overdue', 1),
-('Cloud Computing Experts', 2, 1, 'Initialized', 1),
-('ML Research Group', 1, 1, 'Approved', 0),
-('Group Test', 2, 0, 'Initialized', 1);
+(1, 8, 'Welcome to the UniExETask Group!');
 
 -- Thêm dữ liệu mẫu cho bảng TOPIC
 INSERT INTO TOPIC (topic_code, topic_name, description)
 VALUES 
-('TP001', 'Green Energy', 'Research on renewable energy'),
-('TP002', 'Smart City', 'Building smart city systems'),
-('TP003', 'Smart Home 10', 'Building smart home systems 10');
+('TP000', 'Uni EXE Task', 'Platform to manage and support the Experiential Entrepreneurship subject of FPT University.');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
 VALUES 
-(3, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
-(4, 2, '2024-09-01', '2025-02-01', 2, 'In_Progress', 1),
-(10, 3, '2024-05-01', '2025-08-01', 2, 'Completed', 0);
+(1, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1);
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
@@ -757,15 +624,7 @@ VALUES
 (1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In_Progress'),
 (1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In_Progress'),
 (1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not_Started'),
-(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not_Started'),
-(2, 'Integration and Testing', 'Integrate components and perform system testing', '2024-10-09', '2024-11-02', 'In_Progress'),
-(2, 'User Acceptance Testing', 'Conduct UAT with stakeholders', '2024-11-06', '2024-11-28', 'Not_Started'),
-(2, 'Prototype', 'Build a prototype for the smart city project', '2024-12-01', '2024-12-15', 'Not_Started'),
-(2, 'Deployment and Documentation', 'Deploy the system and create user documentation', '2024-10-01', '2024-10-10', 'Completed'),
-(3, 'Integration and Testing 10', 'Integrate components and perform system testing 10', '2024-05-09', '2024-06-02', 'Completed'),
-(3, 'User Acceptance Testing 10', 'Conduct UAT with stakeholders 10', '2024-06-06', '2024-06-28', 'Completed'),
-(3, 'Prototype 10', 'Build a prototype for the smart city project 10', '2024-07-01', '2024-07-15', 'Completed'),
-(3, 'Deployment and Documentation 10', 'Deploy the system and create user documentation 10', '2024-07-01', '2024-07-28', 'Completed');
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not_Started');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
 INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
@@ -773,10 +632,7 @@ VALUES
 (1, 20.00, '2024-09-15', 'Project scope defined', 1),
 (1, 40.00, '2024-10-15', 'Requirements collected and documented', 1),
 (1, 50.00, '2024-10-23', 'System design initiated', 1),
-(1, 60.00, '2024-11-01', 'Research phase started', 0),
-(2, 30.00, '2024-10-02', 'Initial components integrated', 1),
-(2, 50.00, '2024-10-09', 'System testing in progress', 0),
-(3, 100.00, '2024-07-28', 'System testing in progress 10', 0);
+(1, 60.00, '2024-11-01', 'Research phase started', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
@@ -788,51 +644,27 @@ VALUES
 (5, 25.00, '2024-11-01', 'Initial database schema designed'),
 (6, 30.00, '2024-11-03', 'UI mockups under review'),
 (7, 0.00, '2024-10-30', 'Not started yet'),
-(8, 0.00, '2024-10-30', 'Not started yet'),
-(9, 40.00, '2024-10-25', 'Integration in progress, some issues encountered'),
-(10, 0.00, '2024-11-05', 'Not started yet'),
-(11, 0.00, '2024-12-01', 'Not started yet'),
-(12, 100.00, '2024-10-10', 'Deployment and documentation completed successfully'),
-(13, 100.00, '2024-06-02', 'Integration in progress, some issues encountered 10'),
-(14, 100.00, '2024-06-28', 'Not started yet 10'),
-(15, 100.00, '2024-07-15', 'Not started yet 10'),
-(16, 100.00, '2024-07-28', 'Deployment and documentation completed successfully 10');
+(8, 0.00, '2024-10-30', 'Not started yet');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK_ASSIGN(task_id, student_id, assigned_date)
 VALUES 
-(1, 4, '2024-11-01'),
 (1, 1, '2024-11-01'),
-(2, 5, '2024-12-01'),
+(1, 2, '2024-11-01'),
+(2, 2, '2024-12-01'),
+(3, 3, '2024-11-01'),
 (3, 4, '2024-11-01'),
-(3, 6, '2024-11-01'),
-(3, 7, '2024-11-01'),
-(4, 5, '2024-11-01'),
-(4, 7, '2024-11-01'),
+(3, 3, '2024-11-01'),
+(4, 2, '2024-11-01'),
+(4, 1, '2024-11-01'),
+(5, 3, '2024-11-01'),
 (5, 4, '2024-11-01'),
-(5, 1, '2024-11-01'),
-(6, 5, '2024-11-01'),
-(6, 6, '2024-11-01'),
-(6, 7, '2024-11-01'),
-(7, 6, '2024-11-01'),
-(8, 4, '2024-11-01'),
-(8, 1, '2024-11-01'),
-(9, 8, '2024-11-01'),
-(10, 9, '2024-11-01'),
-(11, 8, '2024-11-01'),
-(11, 10, '2024-11-01'),
-(11, 11, '2024-11-01'),
-(12, 9, '2024-11-01'),
-(12, 11, '2024-11-01'),
-
-(13, 32, '2024-05-05'),
-(14, 33, '2024-05-05'),
-(14, 33, '2024-05-05'),
-(15, 32, '2024-05-05'),
-(15, 34, '2024-05-05'),
-(15, 35, '2024-05-05'),
-(16, 36, '2024-05-05'),
-(16, 37, '2024-05-05');
+(6, 3, '2024-11-01'),
+(6, 2, '2024-11-01'),
+(6, 1, '2024-11-01'),
+(7, 4, '2024-11-01'),
+(8, 2, '2024-11-01'),
+(8, 1, '2024-11-01');
 
 -- Thêm dữ liệu mẫu cho bảng TASK_DETAIL
 INSERT INTO TASK_DETAIL (task_id, task_detail_name, progress_percentage, isCompleted, isDeleted)
@@ -844,7 +676,7 @@ VALUES
 -- Task 2: 'Project Initiation'
 (2, N'Xác định phạm vi dự án', 40.00, 1, 0),
 (2, N'Phân bổ nguồn lực và lập kế hoạch', 30.00, 1, 0),
-(2, N'Báo cáo', 30.00, 0, 0),
+(2, N'Báo cáo', 30.00, 1, 0),
 
 -- Task 3: 'Requirements Gathering'
 (3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 1, 0),
@@ -869,127 +701,21 @@ VALUES
 
 -- Task 8: 'Frontend Development'
 (8, N'Phát triển giao diện cho đăng nhập', 38.00, 1, 0),
-(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 1, 0),
-
--- Task 9: 'Integration and Testing'
-(9, N'Tích hợp các thành phần hệ thống', 50.00, 1, 0),
-(9, N'Kiểm thử hệ thống tổng thể', 50.00, 1, 0),
-
--- Task 10: 'User Acceptance Testing'
-(10, N'Chuẩn bị môi trường kiểm thử UAT', 67.00, 1, 0),
-(10, N'Thực hiện kiểm thử UAT', 33.00, 0, 0),
-
--- Task 11: 'Prototype'
-(11, N'Xây dựng nguyên mẫu ban đầu', 70.00, 0, 0),
-(11, N'Kiểm thử và hoàn thiện nguyên mẫu', 30.00, 0, 0),
-
--- Task 12: 'Deployment and Documentation'
-(12, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 0, 0),
-(12, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 0, 0),
-
--- Task 13: 'Integration and Testing'
-(13, N'Tích hợp các thành phần hệ thống', 50.00, 1, 0),
-(13, N'Kiểm thử hệ thống tổng thể', 50.00, 1, 0),
-
--- Task 14: 'User Acceptance Testing'
-(14, N'Chuẩn bị môi trường kiểm thử UAT', 67.00, 1, 0),
-(14, N'Thực hiện kiểm thử UAT', 33.00, 1, 0),
-
--- Task 15: 'Prototype'
-(15, N'Xây dựng nguyên mẫu ban đầu', 70.00, 1, 0),
-(15, N'Kiểm thử và hoàn thiện nguyên mẫu', 30.00, 1, 0),
-
--- Task 16: 'Deployment and Documentation'
-(16, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 1, 0),
-(16, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 1, 0);
-
--- Thêm dữ liệu mẫu cho bảng LABEL
-INSERT INTO LABEL (label_name)
-VALUES 
-('Renewable Energy'), 
-('Smart City');
-
--- Thêm dữ liệu mẫu cho bảng PROJECT_LABEL
-INSERT INTO PROJECT_LABEL (project_id, label_id)
-VALUES 
-(1, 1), -- Green Energy project with 'Renewable Energy' label
-(2, 2); -- Smart City project with 'Smart City' label
-
--- Thêm dữ liệu mẫu cho bảng RESOURCE
-INSERT INTO DOCUMENT(project_id, name, type, url, upload_by)
-VALUES 
-(1, 'Energy Research Report', 'PDF', 'http://example.com/energy_report.pdf', 1),
-(2, 'Smart City Plan', 'PDF', 'http://example.com/smart_city_plan.pdf', 2);
-
--- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
-INSERT INTO MENTOR_GROUP (group_id, mentor_id)
-VALUES 
-(2, 1), 
-(3, 2),
-(5, 3), 
-(6, 4), 
-(7, 1), 
-(8, 1), 
-(9, 5),
-(10, 1);
-
--- Thêm dữ liệu mẫu cho bảng MEETING_SCHEDULE
-INSERT INTO MEETING_SCHEDULE (group_id, mentor_id, location, meeting_date, duration, type, content)
-VALUES 
-(1, 1, 1, '2024-10-01', 60, 'Offline', 'Discussing project progress'),
-(2, 2, 2, '2024-11-01', 90, 'Online', 'Planning prototype development');
-
--- Thêm dữ liệu mẫu cho bảng GROUP_MEMBER
-INSERT INTO GROUP_MEMBER (group_id, student_id, role)
-VALUES 
-(1, 2, 'Leader'), 
-(1, 30, 'Member'),
-(2, 3, 'Leader'), 
-(3, 4, 'Leader'),
-(3, 5, 'Member'),
-(3, 6, 'Member'),
-(3, 7, 'Member'),
-(3, 1, 'Member'),
-(4, 8, 'Leader'),
-(4, 9, 'Member'),
-(4, 10, 'Member'),
-(4, 11, 'Member'),
-(5, 13, 'Leader'),
-(5, 12, 'Member'),
-(5, 18, 'Member'),
-(5, 19, 'Member'),
-(6, 14, 'Leader'),
-(6, 15, 'Member'),
-(6, 16, 'Member'),
-(7, 20, 'Leader'),
-(7, 28, 'Member'),
-(7, 25, 'Member'),
-(8, 22, 'Leader'),
-(8, 21, 'Member'),
-(8, 23, 'Member'),
-(9, 27, 'Leader'),
-(9, 26, 'Member'),
-(9, 29, 'Member'),
-(10, 32, 'Leader'),
-(10, 33, 'Member'),
-(10, 34, 'Member'),
-(10, 35, 'Member'),
-(10, 36, 'Member'),
-(10, 37, 'Member'),
-(11, 33, 'Leader'),
-(11, 31, 'Member');
+(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 1, 0);
 
 -- Thêm dữ liệu mẫu cho bảng NOTIFICATION
 INSERT INTO NOTIFICATION (sender_id, receiver_id, message, type, created_at, status)
 VALUES 
-(1, 2, 'Project update required', 'Group_Request', GETDATE(), 'Sent'),
-(2, 3, 'Meeting reminder', 'Group_Request', GETDATE(), 'Read');
+(8, 9, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read'),
+(8, 10, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read'),
+(8, 11, 'You received an invitation to join the UniExETask group.', 'Group_Request', GETDATE(), 'Read');
 
 -- Thêm dữ liệu mẫu cho bảng GROUP_INVITE
 INSERT INTO GROUP_INVITE (group_id, notification_id, inviter_id, invitee_id, created_date, updated_date, status)
 VALUES 
-(1, 1, 1, 2, GETDATE(), GETDATE(), 'Pending'),
-(2, 2, 2, 3, GETDATE(), GETDATE(), 'Accepted');
+(1, 1, 8, 9, GETDATE(), GETDATE(), 'Accepted'),
+(1, 2, 8, 10, GETDATE(), GETDATE(), 'Accepted'),
+(1, 3, 8, 11, GETDATE(), GETDATE(), 'Accepted');
 
 -- Thêm dữ liệu mẫu cho bảng WORKSHOP
 INSERT INTO WORKSHOP (name, description, start_date, end_date, location, reg_url, status)
@@ -999,16 +725,7 @@ VALUES
 
 INSERT INTO REG_MEMBER_FORM (group_id, description, status)
 VALUES 
-    (1, N'Tôi cần tìm 1 FE có đủ kỹ năng để làm việc nhóm', 1),
-    (2, N'Cần tìm 1 FE và 1 BE có thể làm việc từ xa', 1),
-    (3, N'Nhóm muốn bổ sung 1 bạn BE và 1 bạn FE cho dự án mới', 1),
-    (4, N'Nhóm đang cần thêm 1 FE với kinh nghiệm 2 năm', 1),
-    (5, N'Chúng tôi tìm kiếm 1 BE giỏi về Node.js', 1),
-    (6, N'Nhóm cần bổ sung thêm 2 người: 1 FE và 1 BE', 1),
-    (7, N'Tìm 1 bạn FE biết sử dụng React', 1),
-    (8, N'Tìm kiếm 1 BE có kinh nghiệm với Python', 1),
-    (9, N'Nhóm cần thêm 1 FE để hoàn thành dự án', 1),
-    (10, N'Chúng tôi tìm kiếm 1 bạn BE để hỗ trợ phần backend', 1);
+    (1, N'Tôi cần tìm 1 FE có đủ kỹ năng để làm việc nhóm', 1);
 
 INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
 VALUES

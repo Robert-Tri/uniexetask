@@ -36,6 +36,56 @@ namespace uniexetask.services
             return true;
         }
 
+        public async Task<bool> CreateChatGroupForGroup(core.Models.Group group, int userId)
+        {
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                var chatGroup = new ChatGroup 
+                {
+                    ChatGroupName = group.GroupName,
+                    ChatGroupAvatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg",
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = userId,
+                    OwnerId = userId,
+                    GroupId = group.GroupId,
+                    LatestActivity = DateTime.Now,
+                    Type = nameof(ChatGroupType.Group)
+                };
+                await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
+                _unitOfWork.Save();
+                var user = await _unitOfWork.Users.GetByIDAsync(userId);
+                if (user == null) throw new Exception("User not found");
+                chatGroup.Users.Add(user);
+                _unitOfWork.ChatGroups.Update(chatGroup);
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
+                return true;
+            }
+            catch (Exception ex) {
+                _unitOfWork.Rollback();
+                return false;
+            }
+
+        }
+        public int ChatGroupId { get; set; }
+
+        public string ChatGroupName { get; set; } = null!;
+
+        public string? ChatGroupAvatar { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public int CreatedBy { get; set; }
+
+        public int OwnerId { get; set; }
+
+        public int? GroupId { get; set; }
+
+        public DateTime LatestActivity { get; set; }
+
+        public string Type { get; set; } = null!;
+
         public async Task<ChatGroup?> GetChatGroupByChatGroupId(int chatGroupId)
         {
             return await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
@@ -165,10 +215,10 @@ namespace uniexetask.services
                     var chatGroup = new ChatGroup
                     {
                         ChatGroupName = userExists.FullName,
-                        CreatedDate = DateTime.UtcNow,
+                        CreatedDate = DateTime.Now,
                         CreatedBy = userId,
                         OwnerId = userId,
-                        LatestActivity = DateTime.UtcNow,
+                        LatestActivity = DateTime.Now,
                         Type = nameof(ChatGroupType.Personal),
                     };
                     await _unitOfWork.ChatGroups.InsertAsync(chatGroup);

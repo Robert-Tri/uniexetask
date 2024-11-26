@@ -17,6 +17,8 @@ public partial class ChatGroup
 
     public int OwnerId { get; set; }
 
+    public int? GroupId { get; set; }
+
     public DateTime LatestActivity { get; set; }
 
     public string Type { get; set; } = null!;

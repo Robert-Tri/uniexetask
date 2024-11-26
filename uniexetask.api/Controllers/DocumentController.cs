@@ -99,6 +99,27 @@ namespace uniexetask.api.Controllers
                 : throw new InvalidOperationException($"Unsupported MIME type: {mimeType}");
         }
 
+        private string MapMimeTypeToDocumentType(string mimeType)
+        {
+            var mimeTypeToDocumentType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+{
+            { "application/msword", "DOC" },
+            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX" },
+            { "application/vnd.ms-excel", "XLS" },
+            { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX" },
+            { "application/pdf", "PDF" },
+            { "text/plain", "TXT" },
+            { "image/jpeg", "JPG" },
+            { "image/png", "PNG" },
+            { "application/zip", "ZIP" },
+            { "application/x-rar-compressed", "RAR" }
+};
+
+            return mimeTypeToDocumentType.TryGetValue(mimeType, out var documentType)
+                ? documentType
+                : throw new InvalidOperationException($"Unsupported MIME type: {mimeType}");
+        }
+
         [HttpPost("upload")]
         public async Task<IActionResult> UploadDocument(IFormFile file, int userId)
         {
@@ -110,7 +131,7 @@ namespace uniexetask.api.Controllers
                 return NotFound("Project not found for the given student.");
 
             var existedDocument = await _documentService.GetDocumentByName($"Project{project.ProjectId}/{file.FileName}");
-            if(existedDocument != null)
+            if (existedDocument != null)
                 return Conflict(new { Message = "Document with the same name already exists." });
             var document = await _documentService.UploadDocument(new Document
             {
