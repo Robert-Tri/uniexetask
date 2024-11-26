@@ -18,11 +18,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigins", builder =>
+//    {
+//        builder.WithOrigins("https://uniexetask.netlify.app")
+//               .AllowAnyMethod()
+//               .AllowAnyHeader()
+//               .AllowCredentials();
+//    });
+//});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://uniexetask.netlify.app")
+        builder.WithOrigins("https://localhost:3000")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
