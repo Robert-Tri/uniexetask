@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -15,17 +16,37 @@ namespace uniexetask.api.Controllers
     public class MemberScoreController : ControllerBase
     {
         private readonly IMemberScoreService _memberScoreService;
+        private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
-        public MemberScoreController(IMemberScoreService memberScoreService, IMapper mapper) 
+        public MemberScoreController(IMemberScoreService memberScoreService, IMentorService mentorService,IMapper mapper) 
         {
             _memberScoreService = memberScoreService;
+            _mentorService = mentorService;
             _mapper = mapper;
+        }
+
+        [HttpGet("getmemberscore")]
+        public async Task<IActionResult> GetMemberScore(int projectId, int mileStoneId)
+        {
+            ApiResponse<MemberScoreResult> respone = new ApiResponse<MemberScoreResult>();
+            respone.Data = await _memberScoreService.GetMemberScores(projectId, mileStoneId);
+            return Ok(respone);
+        }
+
+        [HttpGet("gettotalmemberscore")]
+        public async Task<IActionResult> GetTotalMemberScore(int projectId)
+        {
+            ApiResponse<TotalMemberScoreResult> respone = new ApiResponse<TotalMemberScoreResult>();
+            respone.Data = await _memberScoreService.GetTotalMemberScore(projectId);
+            return Ok(respone);
         }
 
         [Authorize(Roles = "Mentor")]
         [HttpPost("submitmemberscore")]
         public async Task<IActionResult> SubmitMemberScore(AddMemberScoreModel memberScore)
         {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var mentor = await _mentorService.GetMentorByUserId(Int32.Parse(userId));
             List<MemberScore> memberScoreToAdd = new List<MemberScore>();
             foreach (var studentScore in memberScore.StudentScores) 
             {
@@ -33,7 +54,7 @@ namespace uniexetask.api.Controllers
                 {
                     ProjectId = memberScore.ProjectId,
                     MilestoneId = memberScore.MilestoneId,
-                    ScoredBy = memberScore.ScoredBy,
+                    ScoredBy = mentor.MentorId,
                     ScoringDate = DateTime.Today,
                     StudentId = studentScore.StudentId,
                     Score = studentScore.Score,

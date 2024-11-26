@@ -12,7 +12,7 @@
 
         public string Url { get; set; } = null!;
 
-        public int UploadBy { get; set; }
+        public string UploadBy { get; set; }
 
         public bool IsFinancialReport { get; set; }
 

@@ -16,11 +16,14 @@ namespace uniexetask.api.Controllers
         private readonly StorageClient _storageClient;
         private readonly IProjectService _projectService;
         private readonly IDocumentService _documentService;
-        public DocumentController(StorageClient storageClient, IProjectService projectService, IDocumentService documentService)
+        private readonly IUserService _userSerivce;
+
+        public DocumentController(StorageClient storageClient, IProjectService projectService, IDocumentService documentService, IUserService userSerivce)
         {
             _storageClient = storageClient;
             _projectService = projectService;
             _documentService = documentService;
+            _userSerivce = userSerivce;
         }
 
         [HttpGet("{userId}")]
@@ -35,7 +38,6 @@ namespace uniexetask.api.Controllers
             var documents = await _documentService.GetDocumentsByProjectId(project.ProjectId);
             var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
 
-            // Function to convert MIME type to file extension
             string GetFileExtension(string mimeType)
             {
                 return mimeType switch
@@ -45,14 +47,13 @@ namespace uniexetask.api.Controllers
                     "application/msword" => "doc",
                     "image/jpeg" => "jpg",
                     "image/png" => "png",
-                    // Add more mappings as needed
                     _ => "unknown"
                 };
             }
 
-            // Map documents and storage objects to DocumentRespone
-            var documentResponses = documents.Select(doc =>
+            var documentResponses = await System.Threading.Tasks.Task.WhenAll(documents.Select(async doc =>
             {
+                var user = await _userSerivce.GetUserById(doc.UploadBy);
                 var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
 
                 return new DocumentRespone
@@ -62,16 +63,17 @@ namespace uniexetask.api.Controllers
                     Name = doc.Name,
                     Type = doc.Type,
                     Url = doc.Url,
-                    UploadBy = doc.UploadBy,
+                    UploadBy = user.FullName,
                     TypeFile = storageObject != null ? GetFileExtension(storageObject.ContentType) : "unknown",
                     Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
                 };
-            }).ToList();
+            }));
 
             ApiResponse<IEnumerable<DocumentRespone>> response = new ApiResponse<IEnumerable<DocumentRespone>>
             {
                 Data = documentResponses
             };
+
 
             return Ok(response);
         }

@@ -11,6 +11,6 @@ namespace uniexetask.core.Interfaces
     {
        Task<int> GetGroupIdByStudentId(int studentId);
        System.Threading.Tasks.Task DeleteGroupMembers(int groupId);
-        Task<IEnumerable<GroupMember>> GetGroupMembersWithStudentAndUser(int projectId);
+       Task<IEnumerable<GroupMember>> GetGroupMembersWithStudentAndUser(int groupId);
     }
 }
