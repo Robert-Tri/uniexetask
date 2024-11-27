@@ -11,5 +11,6 @@ namespace uniexetask.core.Interfaces
     {
         Task<ChatGroup?> GetChatGroupByGroupId(int groupId);
         Task<ChatGroup?> GetChatGroupWithUsersByChatGroupIdAsync(int chatGroupId);
+        Task<bool> IsUserInChatGroup(int chatGroupId, int userId);
     }
 }
