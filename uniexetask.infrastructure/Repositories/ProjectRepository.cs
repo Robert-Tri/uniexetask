@@ -53,5 +53,6 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(p => p.Group)
                 .FirstOrDefaultAsync(p => p.ProjectId == projectId);
         }
+
     }
 }

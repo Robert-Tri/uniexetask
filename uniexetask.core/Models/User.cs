@@ -31,6 +31,10 @@ public partial class User
 
     public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
 
+    public virtual ICollection<Document> DocumentModifiedByNavigations { get; set; } = new List<Document>();
+
+    public virtual ICollection<Document> DocumentUploadByNavigations { get; set; } = new List<Document>();
+
     public virtual ICollection<Mentor> Mentors { get; set; } = new List<Mentor>();
 
     public virtual ICollection<Notification> NotificationReceivers { get; set; } = new List<Notification>();

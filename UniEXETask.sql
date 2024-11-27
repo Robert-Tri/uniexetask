@@ -263,8 +263,12 @@ CREATE TABLE DOCUMENT (
         'RAR'
     )) NOT NULL,
     url NVARCHAR(250) NOT NULL,
+	modified_by INT,
+	modified_date DATETIME,
     upload_by INT NOT NULL,
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+	FOREIGN KEY (modified_by) REFERENCES [USER](user_id),
+	FOREIGN KEY (upload_by) REFERENCES [USER](user_id),
     isDeleted BIT NOT NULL DEFAULT 0
 );
 
