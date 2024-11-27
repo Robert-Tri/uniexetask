@@ -45,6 +45,46 @@ namespace uniexetask.services
             return reqTopicList.ToList();
         }
 
+        public async Task<List<RegTopicForm>> GetReqTopicByUserId(int userId)
+        {
+            // Lấy thông tin GroupMember theo userId
+            var groupMember = await _unitOfWork.GroupMembers.GetAsync(
+                filter: gm => gm.Student.UserId == userId,
+                includeProperties: "Group"
+            );
+
+            if (groupMember == null || !groupMember.Any())
+            {
+                // Nếu không tìm thấy GroupMember, trả về danh sách rỗng
+                return new List<RegTopicForm>();
+            }
+
+            // Lấy GroupId từ GroupMember
+            var groupId = groupMember.FirstOrDefault()?.GroupId;
+
+            if (groupId == null)
+            {
+                return new List<RegTopicForm>();
+            }
+
+            // Lấy danh sách RegTopicForm dựa trên GroupId và Status
+            var reqTopicList = await _unitOfWork.ReqTopic.GetAsync(
+                filter: rt => rt.Status == true && rt.GroupId == groupId,
+                includeProperties: "Group"
+            );
+
+            return reqTopicList.ToList();
+        }
+
+
+        public async Task<List<RegTopicForm>> GetReqTopicByDescription(string description)
+        {
+            var reqTopicList = await _unitOfWork.ReqTopic.GetAsync(
+                filter: rm => rm.Status == true && rm.Description == description
+            );
+
+            return reqTopicList.ToList();
+        }
 
         public async Task<bool> CreateReqTopic(RegTopicForm reqTopic)
         {
@@ -131,6 +171,8 @@ namespace uniexetask.services
                 }
             return false;
         }
+
+
 
         public async Task<string> GetMaxTopicCode()
         {
