@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Storage.V1;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -30,8 +33,21 @@ namespace uniexetask.api.Controllers
         private readonly IReqTopicService _reqTopicService;
         private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public ReqTopicController(StorageClient storageClient, ITimeLineService timeLineService, IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
+        public ReqTopicController(
+            StorageClient storageClient, 
+            ITimeLineService timeLineService,
+            IProjectService projectService, 
+            ITopicService userService, 
+            IReqTopicService reqTopicService, 
+            IMentorService mentorService, 
+            IMapper mapper, 
+            IGroupService groupService, 
+            IGroupMemberService groupMemberService,
+            IHubContext<NotificationHub> hubContext,
+            INotificationService notificationService)
         {
             _storageClient = storageClient;
             _projectService = projectService;
@@ -42,6 +58,8 @@ namespace uniexetask.api.Controllers
             _groupService = groupService;
             _groupMemberService = groupMemberService;
             _timeLineService = timeLineService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }   
 
         [HttpGet]
@@ -246,46 +264,51 @@ namespace uniexetask.api.Controllers
             }
         }
 
-
-        [Authorize(Roles = "Mentor")]
-        [HttpPut("RejectReqTopic/{regTopicId}")]
-        public async Task<IActionResult> RejectReqTopic(int regTopicId)
+        [Authorize]
+        [HttpPost("RejectTopic")]
+        public async Task<IActionResult> RejectTopic([FromBody] RejectRegTopicModel reqTopic)
         {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
-            }
-
-
-            var reqNew = await _reqTopicService.GetReqTopicById(regTopicId);
-
-            if (reqNew == null)
-            {
-                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy yêu cầu với ID đã cho." });
-            }
-
-            reqNew.Status = false;
-            var isReqUpdated = await _reqTopicService.UpdateReqTopic(reqNew);
-
-            ApiResponse<object> response = new ApiResponse<object>
-            {
-                Data = new
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    Description = reqNew.Description,
-                    TopicName = reqNew.TopicName,
-                    Status = reqNew.Status
+                    throw new Exception("Invalid user id");
                 }
-            };
+                if (reqTopic.RegTopicId <= 0)
+                {
+                    throw new Exception("Invalid RegTopicId.");
+                }
 
-            if (isReqUpdated)
+                var result = await _reqTopicService.RejectRegTopicFormAsync(reqTopic.RegTopicId, reqTopic.RejectionReason);
+
+                if (result)
+                {
+                    var regTopicForm = await _reqTopicService.GetReqTopicById(reqTopic.RegTopicId);
+                    if (regTopicForm == null) throw new Exception("Request topic not found");
+                    var users = await _groupMemberService.GetUsersByGroupId(regTopicForm.GroupId);
+                    foreach (var user in users)
+                    {
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Your group topic was rejected for the reason: " +
+                            $"{(reqTopic.RejectionReason != null ? reqTopic.RejectionReason : "No Reason")}");
+                        await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                    }
+                    response.Data = "Topic rejected successfully!";
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Reject topic failed.");
+                }
+            }
+            catch (Exception ex)
             {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
                 return Ok(response);
             }
-            else
-            {
-                return BadRequest("Không thể từ chối.");
-            }
+
         }
 
         [Authorize(Roles = nameof(EnumRole.Student))]

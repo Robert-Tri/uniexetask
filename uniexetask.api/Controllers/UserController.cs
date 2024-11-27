@@ -49,31 +49,49 @@ namespace uniexetask.api.Controllers
 
         }
 
-        [HttpGet("search-email")]
-        public async Task<IActionResult> SearchUserByEmail([FromQuery] string query)
+        [HttpGet("student/search-studentcode")]
+        public async Task<IActionResult> SearchStudentByStudentCode([FromQuery] string query)
         {
-            ApiResponse<IEnumerable<UserModel>> response = new ApiResponse<IEnumerable<UserModel>>();
-            List<UserModel> userList = new List<UserModel>();
-            if (string.IsNullOrWhiteSpace(query))
+            ApiResponse<IEnumerable<SearchStudentCodeResponse>> response = new ApiResponse<IEnumerable<SearchStudentCodeResponse>>();
+            try
             {
-                return BadRequest("Query parameter is required.");
-            }
+                
+                List<SearchStudentCodeResponse> studentList = new List<SearchStudentCodeResponse>();
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    throw new Exception("Query parameter is required.");
+                }
             
-            var users = await _userService.SearchUsersByEmailAsync(query);
+                var students = await _userService.SearchStudentByStudentCodeAsync(query);
 
-            if (users.Count() == 0)
+                if (students.Count() == 0)
+                {
+                    throw new Exception("No matching student codes found.");
+                }
+
+                foreach (var student in students)
+                {
+    #pragma warning disable CS8601 // Possible null reference assignment.
+                    studentList.Add(new SearchStudentCodeResponse 
+                    { 
+                        FullName = student.FullName,
+                        Email = student.Email,
+                        StudentCode = student.Students.FirstOrDefault()?.StudentCode,
+                        Avatar = student.Avatar,
+                    });
+    #pragma warning restore CS8601 // Possible null reference assignment.
+                }
+                response.Data = studentList;
+
+                return Ok(response);
+            }
+            catch (Exception e)
             {
-                return NotFound("No matching emails found.");
+                response.Success = false;
+                response.ErrorMessage = e.Message;
+                return Ok(response);
             }
 
-            foreach (var use in users)
-            {
-                var userEntity = _mapper.Map<UserModel>(use);
-                userList.Add(userEntity);
-            }
-            response.Data = userList;
-
-            return Ok(response);
         }
 
         /// <summary>

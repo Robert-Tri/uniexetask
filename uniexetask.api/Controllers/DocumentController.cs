@@ -15,11 +15,14 @@ namespace uniexetask.api.Controllers
         private readonly StorageClient _storageClient;
         private readonly IProjectService _projectService;
         private readonly IDocumentService _documentService;
-        public DocumentController(StorageClient storageClient, IProjectService projectService, IDocumentService documentService)
+        private readonly IUserService _userSerivce;
+
+        public DocumentController(StorageClient storageClient, IProjectService projectService, IDocumentService documentService, IUserService userSerivce)
         {
             _storageClient = storageClient;
             _projectService = projectService;
             _documentService = documentService;
+            _userSerivce = userSerivce;
         }
 
         [HttpGet("{userId}")]
@@ -34,7 +37,6 @@ namespace uniexetask.api.Controllers
             var documents = await _documentService.GetDocumentsByProjectId(project.ProjectId);
             var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
 
-            // Function to convert MIME type to file extension
             string GetFileExtension(string mimeType)
             {
                 return mimeType switch
@@ -44,14 +46,15 @@ namespace uniexetask.api.Controllers
                     "application/msword" => "doc",
                     "image/jpeg" => "jpg",
                     "image/png" => "png",
-                    // Add more mappings as needed
                     _ => "unknown"
                 };
             }
 
-            // Map documents and storage objects to DocumentRespone
-            var documentResponses = documents.Select(doc =>
+            var documentResponses = await System.Threading.Tasks.Task.WhenAll(documents.Select(async doc =>
             {
+                var uploadUser = await _userSerivce.GetUserById(doc.UploadBy);
+                var modifyUser = doc.ModifiedBy.HasValue ? await _userSerivce.GetUserById(doc.ModifiedBy.Value) : null;
+
                 var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
 
                 return new DocumentRespone
@@ -61,37 +64,37 @@ namespace uniexetask.api.Controllers
                     Name = doc.Name,
                     Type = doc.Type,
                     Url = doc.Url,
-                    UploadBy = doc.UploadBy,
-                    TypeFile = storageObject != null ? GetFileExtension(storageObject.ContentType) : "unknown",
+                    UploadBy = uploadUser.FullName,
+                    ModifiedBy = modifyUser?.FullName,
+                    ModifiedDate = doc.ModifiedDate,
                     Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
                 };
-            }).ToList();
+            }));
 
             ApiResponse<IEnumerable<DocumentRespone>> response = new ApiResponse<IEnumerable<DocumentRespone>>
             {
                 Data = documentResponses
             };
 
+
             return Ok(response);
         }
-
-
 
         private string MapMimeTypeToDocumentType(string mimeType)
         {
             var mimeTypeToDocumentType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-{
-            { "application/msword", "DOC" },
-            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX" },
-            { "application/vnd.ms-excel", "XLS" },
-            { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX" },
-            { "application/pdf", "PDF" },
-            { "text/plain", "TXT" },
-            { "image/jpeg", "JPG" },
-            { "image/png", "PNG" },
-            { "application/zip", "ZIP" },
-            { "application/x-rar-compressed", "RAR" }
-};
+    {
+        { "application/msword", "DOC" },
+        { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX" },
+        { "application/vnd.ms-excel", "XLS" },
+        { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX" },
+        { "application/pdf", "PDF" },
+        { "text/plain", "TXT" },
+        { "image/jpeg", "JPG" },
+        { "image/png", "PNG" },
+        { "application/zip", "ZIP" },
+        { "application/x-rar-compressed", "RAR" }
+    };
 
             return mimeTypeToDocumentType.TryGetValue(mimeType, out var documentType)
                 ? documentType
@@ -110,7 +113,7 @@ namespace uniexetask.api.Controllers
 
             var existedDocument = await _documentService.GetDocumentByName($"Project{project.ProjectId}/{file.FileName}");
             if (existedDocument != null)
-                return Conflict(new { Message = "Document with the same name already exists." });
+                return Conflict(new ApiResponse<Document>() { Success = false ,ErrorMessage = "Document with the same name already exists." });
             var document = await _documentService.UploadDocument(new Document
             {
                 Name = file.FileName,
@@ -131,6 +134,35 @@ namespace uniexetask.api.Controllers
             respone.Data = document;
 
             return Ok(respone);
+        }
+
+        [HttpPost("overwrite")]
+        public async Task<IActionResult> OverwriteDocument(IFormFile file, int userId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var project = await _projectService.GetProjectByUserId(userId);
+            if (project == null)
+                return NotFound("Project not found for the given student.");
+            var modifyUser = await _userSerivce.GetUserById(userId);
+            var document = await _documentService.OverWriteDocument(new Document()
+            {
+                Url = $"Project{project.ProjectId}/{file.FileName}",
+                ModifiedBy = modifyUser.UserId,
+                ModifiedDate = DateTime.Now,
+            });
+
+            var fileName = file.FileName;
+            var filePath = $"Project{project.ProjectId}/{file.FileName}";
+            using (var stream = file.OpenReadStream())
+            {
+                await _storageClient.UploadObjectAsync(_bucketName, filePath, file.ContentType, stream);
+            }
+            ApiResponse<Document> respone = new ApiResponse<Document>();
+            respone.Data = document;
+            return Ok(respone);
+            
         }
 
         [HttpGet("download")]

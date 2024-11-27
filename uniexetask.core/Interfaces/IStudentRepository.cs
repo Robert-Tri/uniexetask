@@ -12,6 +12,6 @@ namespace uniexetask.core.Interfaces
         Task<IEnumerable<Student>> GetEligibleStudentsWithUser();
         Task<Student?> GetStudentByUserId(int inviteeId);
         Task<int> GetStudentIdByUserId(int inviteeId);
-
+        
     }
 }

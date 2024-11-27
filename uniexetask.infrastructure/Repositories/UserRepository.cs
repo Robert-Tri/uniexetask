@@ -65,5 +65,14 @@ namespace uniexetask.infrastructure.Repositories
                         .Take(5)
                         .ToListAsync();
         }
+
+        public async Task<IEnumerable<User>> SearchStudentsByStudentCodeAsync(string query)
+        {
+            return await dbSet
+                    .Include(u => u.Students) // Bao gồm thông tin từ bảng Student
+                    .Where(u => u.Students.Any(s => EF.Functions.Like(s.StudentCode, $"%{query}%"))) // Lọc theo StudentCode
+                    .Take(5)
+                    .ToListAsync();
+        }
     }
 }

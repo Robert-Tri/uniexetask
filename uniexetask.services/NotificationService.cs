@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
@@ -71,6 +72,29 @@ namespace uniexetask.services
             }
         }
 
+        public async Task<Notification> CreateNotification(int senderId, int receiverId, string message)
+        {
+            var senderExists = await _unitOfWork.Users.GetByIDAsync(senderId);
+            var receiverExists = await _unitOfWork.Users.GetByIDAsync(receiverId);
+
+            if (senderExists == null || receiverExists == null)
+            {
+                throw new Exception("One or more users do not exist.");
+            }
+            var notification = new Notification
+            {
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                Message = message,
+                Type = nameof(NotificationType.Info),
+                CreatedAt = DateTime.Now,
+                Status = "Sent"
+            };
+            await _unitOfWork.Notifications.InsertAsync(notification);
+            _unitOfWork.Save();
+            return notification;
+        }
+
         public async Task<IEnumerable<Notification>?> GetNotificationsWithGroupInviteByUserId(int userId, int notificationIndex, int limit, string keyword)
         {
             return await _unitOfWork.Notifications.GetNotificationsWithGroupInviteByUserId(userId, notificationIndex, limit, keyword);
@@ -79,6 +103,11 @@ namespace uniexetask.services
         public async Task<int> GetNumberOfUnreadNotificationByUserId(int userId)
         {
             return await _unitOfWork.Notifications.GetNumberOfUnreadNotificationByUserId(userId);
+        }
+
+        public async Task<IEnumerable<GroupInvite>> GetPendingInvitesAsync()
+        {
+            return await _unitOfWork.GroupInvites.GetPendingInvites();
         }
 
         public async Task<GroupInvite?> HandleGroupInviteResponse(string choice, int notificationId, int groupId, int inviteeId)
@@ -104,12 +133,15 @@ namespace uniexetask.services
 
             if (groupInvite == null) throw new Exception("Group invite not found.");
 
+            if (groupInvite.Status == nameof(GroupInviteStatus.Expired)) throw new Exception("Group invitation expired.");
+
             if (choice.Equals("Accept", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
                     _unitOfWork.BeginTransaction();
                     groupInvite.Status = nameof(GroupInviteStatus.Accepted);
+                    groupInvite.UpdatedDate = DateTime.Now;
                     _unitOfWork.GroupInvites.Update(groupInvite);
                     _unitOfWork.Save();
 
@@ -158,6 +190,12 @@ namespace uniexetask.services
             }
             _unitOfWork.Save();
             return true;
+        }
+
+        public void UpdateGroupInviteAsync(GroupInvite invite)
+        {
+            _unitOfWork.GroupInvites.Update(invite);
+            _unitOfWork.Save();
         }
     }
 }

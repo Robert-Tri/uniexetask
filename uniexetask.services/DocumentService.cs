@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Interfaces;
+﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -38,6 +33,18 @@ namespace uniexetask.services
             _unitOfWork.Save(); 
 
             return documentToDelete;
+        }
+
+        public async Task<Document?> OverWriteDocument(Document document)
+        {
+            var existedDocument = (await _unitOfWork.Documents.GetAsync(filter: d => d.Url == document.Url)).FirstOrDefault();
+            if (existedDocument == null)
+                return null;
+            existedDocument.ModifiedBy = document.ModifiedBy;
+            existedDocument.ModifiedDate = document.ModifiedDate;
+            _unitOfWork.Documents.Update(existedDocument);
+            _unitOfWork.Save();
+            return existedDocument;
         }
 
         public async Task<Document?> GetDocumentById(int id)

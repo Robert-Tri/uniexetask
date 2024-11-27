@@ -9,7 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/projectscore")]
     [ApiController]
     public class ProjectScoreController : ControllerBase
@@ -23,6 +23,7 @@ namespace uniexetask.api.Controllers
             _mentorService = mentorService;
             _mapper = mapper;
         }
+
         [HttpGet("getmilestonescore")]
         public async Task<IActionResult> GetMileStoneScore(int projectId, int mileStoneId)
         {
@@ -30,6 +31,15 @@ namespace uniexetask.api.Controllers
             respone.Data = await _projectScoreService.GetMileStoneScore(projectId, mileStoneId);
             return Ok(respone);
         }
+
+        [HttpGet("getprojectscore")]
+        public async Task<IActionResult> GetProjectScore(int projectId)
+        {
+            ApiResponse<ProjectScoreResult> respone = new ApiResponse<ProjectScoreResult>();
+            respone.Data = await _projectScoreService.GetTotalProjectScore(projectId);
+            return Ok(respone);
+        }
+
         [Authorize(Roles = "Mentor")]
         [HttpPost("submitprojectscore")]
         public async Task<IActionResult> SubmitProjectScore(AddProjectScoreModel addProjectScoreModel)
