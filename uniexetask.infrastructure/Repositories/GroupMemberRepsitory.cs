@@ -28,5 +28,10 @@ namespace uniexetask.infrastructure.Repositories
         {
             return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId && g.Group.IsCurrentPeriod)).GroupId;
         }
+
+        public async Task<IEnumerable<GroupMember>> GetGroupMembersWithStudentAndUser(int groupId)
+        {
+            return await dbSet.Where(gm => gm.GroupId == groupId).Include(gm => gm.Student).ThenInclude(gm => gm.User).ToListAsync();
+        }
     }
 }

@@ -10,5 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IMemberScoreService
     {
         Task<bool> AddMemberScore(List<MemberScore> memberScores);
+        Task<MemberScoreResult> GetMemberScores(int projectId, int milestoneId);
+        Task<TotalMemberScoreResult> GetTotalMemberScore(int projectId);
     }
 }

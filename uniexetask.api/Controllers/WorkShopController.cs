@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Extensions;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/workshop")]
     [ApiController]
     public class WorkShopController : ControllerBase
@@ -29,6 +31,7 @@ namespace uniexetask.api.Controllers
             respone.Data = workShops;
             return Ok(respone);
         }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
         [HttpPost]
         public async Task<IActionResult> CreateWorkShop(Workshop workshop)
         {
@@ -94,7 +97,7 @@ namespace uniexetask.api.Controllers
             };
             return Ok(response);
         }
-
+        [Authorize(Roles = nameof(EnumRole.Manager))]
         [HttpPut]
         public async Task<IActionResult> UpdateWorkShop(Workshop workShop)
         {
@@ -103,6 +106,7 @@ namespace uniexetask.api.Controllers
             respone.Data = workShop;
             return Ok(respone);
         }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
         [HttpDelete("{workShopId}")]
         public IActionResult DeleteWorkShop(int workShopId)
         {

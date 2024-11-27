@@ -142,8 +142,11 @@ namespace uniexetask.services
             return false; 
         }
 
-
-
-
+        public async Task<IEnumerable<GroupMember>> GetGroupMemberByProjectId(int projectId)
+        {
+            var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+            var groupMember = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(project.GroupId);
+            return groupMember;
+        }
     }
 }

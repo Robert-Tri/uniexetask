@@ -20,14 +20,20 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IRoleService _roleService;
+        private readonly ICampusService _campusService;
+        private readonly ISubjectService _subjectService;
         private readonly IStudentService _studentsService;
         private readonly IUserService _userService;
         private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly Cloudinary _cloudinary;
-        public UserController(IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService)
+        public UserController(IRoleService roleService, ISubjectService subjectService, ICampusService campusService, IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService)
         {
+            _roleService = roleService;
+            _subjectService = subjectService;
+            _campusService = campusService;
             _studentsService = studentsService;
             _mentorService = mentorService;
             _userService = userService;
@@ -177,6 +183,10 @@ namespace uniexetask.api.Controllers
             var emailList = new HashSet<string>();
             var phoneList = new HashSet<string>();
 
+            var campusesList = await _campusService.GetAllCampus();
+            var subjectList = await _subjectService.GetSubjects();
+            var rolesList = await _roleService.GetAllRole();
+
             using (var stream = new MemoryStream())
             {
                 await excelFile.CopyToAsync(stream);
@@ -189,42 +199,33 @@ namespace uniexetask.api.Controllers
 
                     for (int row = 2; row <= rowCount; row++)
                     {
-                        var campusName = worksheet.Cells[row, 6].Text;
+                        var campusCode = worksheet.Cells[row, 6].Text;
                         var roleName = worksheet.Cells[row, 7].Text;
                         var khoiText = worksheet.Cells[row, 8].Text;
-                        var subjectId = worksheet.Cells[row, 9].Text;
-                        string studentcode = worksheet.Cells[row, 10].Text;
+                        var subjectCode = worksheet.Cells[row, 9].Text;
+                        string studentCode = worksheet.Cells[row, 10].Text;
                         string major = worksheet.Cells[row,11].Text;
-                        //var lecturer = worksheet.Cells[row, 12].Text;
-
                         string lecturer = worksheet.Cells[row, 12].Text;
 
                         var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
 
-                        int campusId = campusName switch
-                        {
-                            "FPT-HN" => 1,
-                            "FPT-HCM" => 2,
-                            "FPT-DN" => 3,
-                            _ => 0
-                        };
+                        int campusId = campusesList
+                        .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
+                        .Select(c => c.CampusId)
+                        .FirstOrDefault();
 
-                        int subject = subjectId switch
-                        {
-                            "EXE101" => 1,
-                            "EXE201" => 2,
-                            _ => 0
-                        };
 
-                        int roleId = roleName.ToLower() switch
-                        {
-                            "admin" => 1,
-                            "manager" => 2,
-                            "student" => 3,
-                            "mentor" => 4,
-                            "sponsor" => 5,
-                            _ => 0
-                        };
+                        int subjectId = subjectList
+                        .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
+                        .Select(s => s.SubjectId)
+                        .FirstOrDefault();
+
+
+                        int roleId = rolesList
+                        .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
+                        .Select(r => r.RoleId)
+                        .FirstOrDefault();
+
 
                         string fullname = worksheet.Cells[row, 2].Text;
                         string password = worksheet.Cells[row, 3].Text;
@@ -289,9 +290,9 @@ namespace uniexetask.api.Controllers
                             IsDeleted = false,
                             RoleId = roleId,
                             LecturerId = lecturerUser.MentorId,
-                            StudentCode = studentcode,
+                            StudentCode = studentCode,
                             Major = major,
-                            SubjectId = subject,
+                            SubjectId = subjectId,
                             IsCurrentPeriod = true
                         };
 
@@ -318,7 +319,8 @@ namespace uniexetask.api.Controllers
                     Phone = excelModel.Phone,
                     CampusId = excelModel.CampusId,
                     IsDeleted = false,
-                    RoleId = excelModel.RoleId
+                    RoleId = excelModel.RoleId,
+                    Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
                 };
 
                 var userEntity = _mapper.Map<User>(userModel);
@@ -373,18 +375,20 @@ namespace uniexetask.api.Controllers
 </head>
 <body>
     <h2>Dear {userModel.FullName},</h2>
-    <p>We sent you the login password: <strong>{rawPassword}</strong>. We recommend that you change your password after logging in for the first time.</p>
+    <p>We are sending you the following login account information:</p>
+    <ul>
+        <li><strong>Account:</strong> {userModel.Email}</li>
+        <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
+    </ul>
+    <p>We recommend that you change your password after logging in for the first time.</p>
     <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>
-    <p>Best regards,<br />
-    [Your Name]<br />
-    [Your Position]<br />
-    [Your Contact Information]</p>
+    <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
 </body>
 </html>
 ";
 
-                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Users Invitation", userEmail);
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account", userEmail);
                 emailTasks.Add(emailTask);
             }
 
@@ -433,6 +437,115 @@ namespace uniexetask.api.Controllers
             if (!password.Any(char.IsDigit)) return false;
 
             return true;
+        }
+
+        private static Dictionary<string, string> VerificationCodes = new Dictionary<string, string>();
+
+        [HttpPost("forgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            try
+            {
+                // Tạo mã ngẫu nhiên 5 chữ số
+                string randomCode = GenerateRandomCode(5);
+
+                // Lưu mã vào bộ nhớ (có thể lưu theo email hoặc một số nhận dạng khác)
+                VerificationCodes[email] = randomCode;
+
+                // Nội dung email bao gồm mã ngẫu nhiên
+                var contentEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff;
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <p>We have received your request to reset your password. Please use the following code to proceed:</p>
+    <p><strong>{randomCode}</strong></p>
+    <p>You should not share this code with anyone.</p>
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+    <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
+</body>
+</html>
+";
+
+                var emailTask = _emailService.SendEmailAsync(email, "Password Reset Request", contentEmail);
+
+                if (emailTask != null)
+                {
+                    return Ok(new { message = "Password reset email sent successfully." });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Failed to send email." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+            }
+        }
+
+        [HttpPost("verifyCode")]
+        public IActionResult VerifyCode([FromBody] VerifyCodeModel request)
+        {
+            try
+            {
+                // Kiểm tra mã xác minh có tồn tại trong bộ nhớ không
+                if (VerificationCodes.ContainsKey(request.Email))
+                {
+                    // Kiểm tra mã xác minh có khớp không
+                    if (VerificationCodes[request.Email] == request.Code)
+                    {
+                        return Ok(new { message = "Code verified successfully." });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Invalid code." });
+                    }
+                }
+                else
+                {
+                    return BadRequest(new { message = "No code found for this email." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+            }
+        }
+
+
+        private string GenerateRandomCode(int length)
+        {
+            const string digits = "0123456789";
+
+            var random = new Random();
+
+            var code = new List<char>();
+
+            for (int i = 0; i < length; i++)
+            {
+                code.Add(digits[random.Next(digits.Length)]);
+            }
+
+            return new string(code.ToArray());
         }
 
 
