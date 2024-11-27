@@ -15,6 +15,6 @@ namespace uniexetask.core.Interfaces
         Task<Project?> GetProjectByGroupId(int? groupId);
         Task<int> GetProjectIdByGroupId(int groupId);
         Task<Project?> GetProjectWithAllDataById(int groupId);
-
+        Task<Project?> GetProjectWithTopicByGroupId(int groupId);
     }
 }

@@ -15,6 +15,7 @@ namespace uniexetask.core.Interfaces
         Task<User?> GetUserByEmailAsync(string email);
         Task<IEnumerable<User>> GetUsersWithCampusAndRole();
         Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId);
+        Task<IEnumerable<User>> SearchStudentsByStudentCodeAsync(string query);
         Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
     }
 }

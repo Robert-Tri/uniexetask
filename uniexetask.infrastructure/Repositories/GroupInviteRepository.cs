@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
@@ -35,6 +36,13 @@ namespace uniexetask.infrastructure.Repositories
             return await dbSet
                 .Where(g => g.Status == nameof(GroupInviteStatus.Pending) && g.GroupId == groupId && g.InviteeId == receiverId)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<GroupInvite>> GetPendingInvites()
+        {
+            return await dbSet
+                .Where(g => g.Status == nameof(GroupInviteStatus.Pending))
+                .ToListAsync();
         }
     }
 }

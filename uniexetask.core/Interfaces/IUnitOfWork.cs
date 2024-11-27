@@ -40,6 +40,7 @@ namespace uniexetask.core.Interfaces
 
         ITaskDetailRepository TaskDetails { get; }
         IReqTopicRepsitory ReqTopic { get; }
+        IMeetingScheduleRepository MeetingSchedules { get; }
 
         int Save();
 

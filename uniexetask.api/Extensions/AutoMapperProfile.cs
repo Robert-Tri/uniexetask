@@ -28,6 +28,7 @@ namespace Unitask.Api.Extensions
             CreateMap<AddProjectScoreModel, uniexetask.core.Models.ProjectScore>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
             CreateMap<ProjectModel, Project>().ReverseMap();
+            CreateMap<MeetingScheduleModel, MeetingSchedule>().ReverseMap();
 
         }
     }

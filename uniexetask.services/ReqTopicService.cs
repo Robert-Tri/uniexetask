@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Runtime.CompilerServices;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
@@ -142,6 +143,18 @@ namespace uniexetask.services
                 .FirstOrDefault();
 
             return maxTopicCode;
+        }
+
+        public async Task<bool> RejectRegTopicFormAsync(int regTopicId, string? rejectionReason)
+        {
+            var regTopic = await _unitOfWork.ReqTopic.GetByIDAsync(regTopicId);
+            if (regTopic == null) throw new Exception("Request topic form not found");
+            regTopic.RejectionReason = rejectionReason;
+            regTopic.Status = false;
+            _unitOfWork.ReqTopic.Update(regTopic);
+            _unitOfWork.Save();
+            return true;
+            
         }
     }
 }

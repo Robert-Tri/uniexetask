@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -23,8 +26,19 @@ namespace uniexetask.api.Controllers
         private readonly IReqTopicService _reqTopicService;
         private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public ReqTopicController(IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
+        public ReqTopicController(
+            IProjectService projectService, 
+            ITopicService userService, 
+            IReqTopicService reqTopicService, 
+            IMentorService mentorService, 
+            IMapper mapper, 
+            IGroupService groupService, 
+            IGroupMemberService groupMemberService,
+            IHubContext<NotificationHub> hubContext,
+            INotificationService notificationService)
         {
             _projectService = projectService;
             _topicService = userService;
@@ -33,6 +47,8 @@ namespace uniexetask.api.Controllers
             _mapper = mapper;
             _groupService = groupService;
             _groupMemberService = groupMemberService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }   
 
         [HttpGet]
@@ -224,6 +240,52 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("RejectTopic")]
+        public async Task<IActionResult> RejectTopic([FromBody] RejectRegTopicModel reqTopic)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid user id");
+                }
+                if (reqTopic.RegTopicId <= 0)
+                {
+                    throw new Exception("Invalid RegTopicId.");
+                }
+
+                var result = await _reqTopicService.RejectRegTopicFormAsync(reqTopic.RegTopicId, reqTopic.RejectionReason);
+
+                if (result)
+                {
+                    var regTopicForm = await _reqTopicService.GetReqTopicById(reqTopic.RegTopicId);
+                    if (regTopicForm == null) throw new Exception("Request topic not found");
+                    var users = await _groupMemberService.GetUsersByGroupId(regTopicForm.GroupId);
+                    foreach (var user in users)
+                    {
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Your group topic was rejected for the reason: " +
+                            $"{(reqTopic.RejectionReason != null ? reqTopic.RejectionReason : "No Reason")}");
+                        await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                    }
+                    response.Data = "Topic rejected successfully!";
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Reject topic failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+
+        }
 
 
         [Authorize(Roles = nameof(EnumRole.Student))]

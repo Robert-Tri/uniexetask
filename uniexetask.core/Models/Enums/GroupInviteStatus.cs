@@ -10,6 +10,7 @@ namespace uniexetask.core.Models.Enums
     {
         Pending,
         Accepted,
-        Rejected
+        Rejected,
+        Expired
     }
 }
