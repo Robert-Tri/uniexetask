@@ -40,8 +40,8 @@ namespace uniexetask.services
             var newRefreshToken = new RefreshToken
             {
                 UserId = id,
-                Expires = DateTime.UtcNow.AddDays(7),
-                Revoked = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.Now.AddDays(7),
+                Revoked = DateTime.Now.AddDays(7),
                 Token = refreshToken,
                 Status = true
             };

@@ -44,5 +44,15 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.Status.Equals("Status 1") && x.IsCurrentPeriod);
         }
+        public async Task<Project?> GetProjectWithAllDataById(int projectId)
+        {
+            return await dbSet
+                .Include(p => p.ProjectProgresses)
+                .Include(p => p.Subject)
+                .Include(p => p.Topic)
+                .Include(p => p.Group)
+                .FirstOrDefaultAsync(p => p.ProjectId == projectId);
+        }
+
     }
 }

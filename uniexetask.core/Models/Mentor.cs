@@ -17,6 +17,8 @@ public partial class Mentor
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
+    public virtual ICollection<TopicForMentor> TopicForMentors { get; set; } = new List<TopicForMentor>();
+
     public virtual User User { get; set; } = null!;
 
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();

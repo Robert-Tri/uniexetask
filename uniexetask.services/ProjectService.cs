@@ -32,7 +32,30 @@ namespace uniexetask.services
             return projects;
         }
 
-
+        public async Task<Project> GetProjectById(int projectId)
+        {
+            if (projectId > 0)
+            {
+                var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+                if (project != null)
+                {
+                    return project;
+                }
+            }
+            return null;
+        }
+        public async Task<Project> GetProjectWithAllDataById(int projectId)
+        {
+            if (projectId > 0)
+            {
+                var project = await _unitOfWork.Projects.GetProjectWithAllDataById(projectId);
+                if (project != null)
+                {
+                    return project;
+                }
+            }
+            return null;
+        }
 
         public async Task<bool> CreateProject(Project project)
         {
@@ -86,5 +109,6 @@ namespace uniexetask.services
         .ContinueWith(async studentTask => studentTask.Result.FirstOrDefault() is var student && student != null
             ? await _unitOfWork.Projects.GetProjectByGroupId((int)await _unitOfWork.GroupMembers.GetGroupIdByStudentId(student.StudentId))
             : null).Unwrap();
+
     }
 }

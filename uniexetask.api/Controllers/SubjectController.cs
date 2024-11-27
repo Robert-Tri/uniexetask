@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
@@ -8,6 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/subject")]
     [ApiController]
     public class SubjectController : ControllerBase

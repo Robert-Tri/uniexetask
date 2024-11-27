@@ -439,6 +439,7 @@ namespace uniexetask.api.Controllers
                 {
                     throw new Exception("Error: Total ProgressPercentage is NOT equal to 100");
                 }
+                if (task.EndDate <= DateTime.Now) throw new Exception("End date exceeds current date.");
 
                 // Tìm Task hiện tại theo TaskId
                 var existingTask = await _taskService.GetTaskById(task.TaskId);
@@ -606,7 +607,7 @@ namespace uniexetask.api.Controllers
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 

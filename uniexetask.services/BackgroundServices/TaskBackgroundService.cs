@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using uniexetask.api.Extensions;
 using uniexetask.core.Interfaces;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.services.BackgroundServices
 {
@@ -31,18 +32,18 @@ namespace uniexetask.services.BackgroundServices
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-                var tasks = await unitOfWork.Tasks.GetAsync(filter: t => t.Status == "Not Started" || t.Status == "In Progress" || t.Status == "Overdue");
+                var tasks = await unitOfWork.Tasks.GetAsync(filter: t => t.Status == nameof(TasksStatus.Not_Started) || t.Status == nameof(TasksStatus.In_Progress) || t.Status == nameof(TasksStatus.Overdue));
                 var emailTasks = new List<Task>();
 
                 foreach (var task in tasks)
                 {
-                    if (task.Status == "Not Started" && task.StartDate.Date == DateTime.Now.Date)
+                    if (task.Status == nameof(TasksStatus.Not_Started) && task.StartDate.Date == DateTime.Now.Date)
                     {
-                        task.Status = "In Progress";
+                        task.Status = nameof(TasksStatus.In_Progress);
                         unitOfWork.Tasks.Update(task);
                         emailTasks.Add(NotifyTaskAssignmentAsync(task, emailService, "Your task has started. Please proceed!", "green"));
                     }
-                    else if (task.Status == "In Progress")
+                    else if (task.Status == nameof(TasksStatus.In_Progress))
                     {
                         if (task.EndDate.Date == DateTime.Now.Date.AddDays(1))
                         {
@@ -50,7 +51,7 @@ namespace uniexetask.services.BackgroundServices
                         }
                         else if (task.EndDate < DateTime.Now.Date)
                         {
-                            task.Status = "Overdue";
+                            task.Status = nameof(TasksStatus.Overdue);
                             unitOfWork.Tasks.Update(task);
                             emailTasks.Add(NotifyTaskAssignmentAsync(task, emailService, "This task is now overdue. Please take immediate action!", "red"));
                         }

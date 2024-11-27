@@ -11,7 +11,7 @@ public partial class MeetingSchedule
 
     public int MentorId { get; set; }
 
-    public int Location { get; set; }
+    public string Location { get; set; } = null!;
 
     public DateTime MeetingDate { get; set; }
 
