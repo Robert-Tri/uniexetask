@@ -60,7 +60,7 @@ namespace uniexetask.api.Controllers
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
@@ -81,14 +81,14 @@ namespace uniexetask.api.Controllers
                 var newNotification = await _notificationService.CreateGroupInvite(senderId, receiverId, groupId, request.GroupName);
 
                 await _hubContext.Clients.User(request.ReceiverId).SendAsync("ReceiveNotification", newNotification);
-                response.Data = "Group invitation sent successfully";
+                response.Data = "Group invitation sent successfully. Group invitations are valid for 24 hours from the time the invitation is created.";
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
 
         }
@@ -121,7 +121,7 @@ namespace uniexetask.api.Controllers
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
@@ -162,7 +162,7 @@ namespace uniexetask.api.Controllers
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
     }

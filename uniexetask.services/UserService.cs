@@ -156,5 +156,10 @@ namespace uniexetask.services
             }
             return false;
         }
+
+        public async Task<IEnumerable<User>> SearchStudentByStudentCodeAsync(string query)
+        {
+            return await _unitOfWork.Users.SearchStudentsByStudentCodeAsync(query);
+        }
     }
 }

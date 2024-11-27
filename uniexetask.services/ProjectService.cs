@@ -110,5 +110,9 @@ namespace uniexetask.services
             ? await _unitOfWork.Projects.GetProjectByGroupId((int)await _unitOfWork.GroupMembers.GetGroupIdByStudentId(student.StudentId))
             : null).Unwrap();
 
+        public async Task<Project?> GetProjectWithTopicByGroupId(int groupId)
+        {
+            return await _unitOfWork.Projects.GetProjectWithTopicByGroupId(groupId);
+        }
     }
 }

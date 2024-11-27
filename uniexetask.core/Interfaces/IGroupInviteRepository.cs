@@ -12,5 +12,6 @@ namespace uniexetask.core.Interfaces
         Task<GroupInvite?> GetGroupInviteByNotificationId(int notificationId);
         Task<GroupInvite?> GetPendingInvite(int receiverId, int groupId);
         System.Threading.Tasks.Task DeleteGroupInvites(int groupId);
+        Task<IEnumerable<GroupInvite>> GetPendingInvites();
     }
 }

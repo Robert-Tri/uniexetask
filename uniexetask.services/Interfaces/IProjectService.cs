@@ -18,6 +18,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Project>> GetAllProjectsByGroupId(int groupId);
         Task<Project> GetProjectById(int projectId);
         Task<Project> GetProjectWithAllDataById(int projectId);
-
+        Task<Project?> GetProjectWithTopicByGroupId(int groupId);
     }
 }

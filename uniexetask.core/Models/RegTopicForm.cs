@@ -15,6 +15,8 @@ public partial class RegTopicForm
 
     public string Description { get; set; } = null!;
 
+    public string? RejectionReason { get; set; }
+
     public bool Status { get; set; }
 
     public virtual Group Group { get; set; } = null!;

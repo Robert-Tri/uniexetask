@@ -52,6 +52,7 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ITaskDetailRepository, TaskDetailRepository>();
             services.AddScoped<IReqTopicRepsitory, ReqTopicRepsitory>();
+            services.AddScoped<IMeetingScheduleRepository, MeetingScheduleRepository>();
 
             return services;
         }

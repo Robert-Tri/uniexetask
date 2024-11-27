@@ -1,11 +1,10 @@
-﻿/* 
+﻿
 USE master
 GO
 CREATE DATABASE UniEXETask
 GO
 USE UniEXETask
 GO
-*/
 
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
@@ -363,7 +362,7 @@ CREATE TABLE GROUP_INVITE (
     invitee_id INT NOT NULL,
 	created_date DATETIME DEFAULT GETDATE() NOT NULL,
     updated_date DATETIME NOT NULL,
-	status NVARCHAR(20) CHECK (status IN ('Pending', 'Accepted', 'Rejected')) NOT NULL,
+	status NVARCHAR(20) CHECK (status IN ('Pending', 'Accepted', 'Rejected', 'Expired')) NOT NULL,
     PRIMARY KEY (group_id, notification_id),
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
     FOREIGN KEY (notification_id) REFERENCES NOTIFICATION(notification_id)
@@ -461,6 +460,7 @@ CREATE TABLE REG_TOPIC_FORM (
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
 	description NVARCHAR(MAX) NOT NULL,
+	rejection_reason NVARCHAR(MAX) NULL,
 	status BIT NOT NULL,
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );

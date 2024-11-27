@@ -16,23 +16,11 @@ using Unitask.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Add services to the container.
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigins", builder =>
-//    {
-//        builder.WithOrigins("https://uniexetask.netlify.app")
-//               .AllowAnyMethod()
-//               .AllowAnyHeader()
-//               .AllowCredentials();
-//    });
-//});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://localhost:3000")
+        builder.WithOrigins("https://localhost:3000", "https://uniexetask.netlify.app")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
@@ -81,9 +69,11 @@ builder.Services.AddScoped<IProjectScoreService, ProjectScoreService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ITaskDetailService, TaskDetailService>();
 builder.Services.AddScoped<IReqTopicService, ReqTopicService>();
+builder.Services.AddScoped<IMeetingScheduleService, MeetingScheduleService>();
 
 builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddHostedService<TaskBackgroundService>();
+builder.Services.AddHostedService<GroupInviteBackgroundService>();
 
 
 
