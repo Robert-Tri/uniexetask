@@ -40,7 +40,7 @@ namespace uniexetask.api.Controllers
         [HttpPut("updatemaintimeline")]
         public async Task<IActionResult> UpdateMainTimeLine(MainTimelineUpdateModel timeLine)
         {
-            await _timeLineService.UpdateMainTimeLine(timeLine.StartDate, timeLine.SubjectId);
+            await _timeLineService.UpdateMainTimeLine(timeLine.StartDate, timeLine.EndDate, timeLine.SubjectId);
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             return Ok();
         }
