@@ -39,6 +39,8 @@ namespace uniexetask.services.tests.Services
             .Without(x => x.ChatGroupCreatedByNavigations)
             .Without(x => x.ChatGroupOwners)
             .Without(x => x.ChatMessages)
+            .Without(x => x.DocumentModifiedByNavigations)
+            .Without(x => x.DocumentUploadByNavigations)
             .Without(x => x.Mentors)
             .Without(x => x.NotificationReceivers)
             .Without(x => x.NotificationSenders)
@@ -47,7 +49,6 @@ namespace uniexetask.services.tests.Services
             .Without(x => x.Role)
             .Without(x => x.Students)
             .Without(x => x.ChatGroups));
-
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _sut = new ChatGroupService(_unitOfWorkMock.Object);
         }
