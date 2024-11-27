@@ -21,5 +21,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> RejectRegTopicFormAsync(int regTopicId, string? rejectionReason);
         Task<List<RegTopicForm>> GetReqTopicByDescription(string description);
         Task<List<RegTopicForm>> GetReqTopicByUserId(int userId);
+        Task<List<RegTopicForm>> GetReqTopicByMentorId(int mentorId);
     }
 }

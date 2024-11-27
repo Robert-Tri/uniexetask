@@ -82,6 +82,11 @@ namespace uniexetask.services
             return _unitOfWork.Save() > 0;
         }
 
+        public async Task<Timeline> GetTimelineById(int id)
+        {
+            var timeLines = await _unitOfWork.TimeLines.GetByIDAsync(id);
+            return timeLines;
+        }
 
         public void DeleteTimeLine(int timeLineId)
         {

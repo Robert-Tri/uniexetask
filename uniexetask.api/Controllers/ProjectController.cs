@@ -92,6 +92,7 @@ namespace uniexetask.api.Controllers
                         {
                             ProjectId = project.ProjectId,
                             GroupName = project.Group.GroupName,
+                            TopicId = project.Topic?.TopicId,
                             TopicCode = project.Topic?.TopicCode,
                             TopicName = project.Topic?.TopicName,
                             Description = project.Topic?.Description,
@@ -103,7 +104,7 @@ namespace uniexetask.api.Controllers
                             IsDeleted = project.IsDeleted
                         };
 
-                        projects.Add(projectData); // Thêm dự án vào danh sách
+                        projects.Add(projectData);
                     }
                 }
             }
