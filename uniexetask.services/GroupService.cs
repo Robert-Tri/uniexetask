@@ -231,6 +231,27 @@ namespace uniexetask.services
             return group;
         }
 
+        public async Task<Group?> GetGroupByUserId(int userId)
+        {
+            var groupMember = await _unitOfWork.GroupMembers.GetAsync(gm => gm.Student.UserId == userId);
+
+            if (groupMember == null || !groupMember.Any())
+            {
+                return null; // Trả về null nếu không tìm thấy nhóm nào
+            }
+
+            var groupId = groupMember.FirstOrDefault()?.GroupId;
+
+            if (groupId == null)
+            {
+                return null;
+            }
+
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId.Value);
+
+            return group; // Trả về nhóm tìm được
+        }
+
 
         public Task<IEnumerable<Group>> GetGroupsAsync()
         {
