@@ -9,5 +9,7 @@ namespace uniexetask.core.Interfaces
 {
     public interface IProjectProgressRepository : IGenericRepository<ProjectProgress>
     {
+        Task<ProjectProgress?> GetProjectProgressByProjectId(int? projectId);
+
     }
 }

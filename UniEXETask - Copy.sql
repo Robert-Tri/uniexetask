@@ -1,4 +1,12 @@
-﻿
+﻿/* 
+USE master
+GO
+CREATE DATABASE UniEXETask
+GO
+USE UniEXETask
+GO
+*/
+
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
     campus_id INT PRIMARY KEY IDENTITY(1,1),
@@ -136,7 +144,7 @@ CREATE TABLE TOPIC (
     topic_id INT PRIMARY KEY IDENTITY(1,1),
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
-	description NVARCHAR(250) NOT NULL
+	description NVARCHAR(MAX) NOT NULL
 );
 
 -- Tạo bảng GROUP
@@ -257,8 +265,12 @@ CREATE TABLE DOCUMENT (
         'RAR'
     )) NOT NULL,
     url NVARCHAR(250) NOT NULL,
+	modified_by INT,
+	modified_date DATETIME,
     upload_by INT NOT NULL,
     FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
+	FOREIGN KEY (modified_by) REFERENCES [USER](user_id),
+	FOREIGN KEY (upload_by) REFERENCES [USER](user_id),
     isDeleted BIT NOT NULL DEFAULT 0
 );
 
@@ -310,7 +322,7 @@ CREATE TABLE MEETING_SCHEDULE (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
     group_id INT NOT NULL,
     mentor_id INT NOT NULL,
-	location INT NOT NULL,
+	location NVARCHAR(MAX) NOT NULL,
 	meeting_date DATETIME NOT NULL,
 	duration INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
@@ -448,7 +460,7 @@ CREATE TABLE REG_TOPIC_FORM (
     group_id INT NOT NULL,
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
-	description NVARCHAR(250) NOT NULL,
+	description NVARCHAR(MAX) NOT NULL,
 	status BIT NOT NULL,
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
@@ -462,6 +474,16 @@ CREATE TABLE REG_MEMBER_FORM (
     FOREIGN KEY (group_id) REFERENCES [GROUP](group_id)
 );
 
+-- Tạo bảng TOPIC_FOR_MENTOR
+CREATE TABLE TOPIC_FOR_MENTOR (
+    topic_for_mentor_id INT PRIMARY KEY IDENTITY(1,1),
+    mentor_id INT NOT NULL,
+	topic_code NVARCHAR(50) NOT NULL,
+	topic_name NVARCHAR(100) NOT NULL,
+	description NVARCHAR(MAX) NOT NULL,
+	isRegistered BIT NOT NULL,
+    FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
+);
 
 
 -- Thêm dữ liệu mẫu cho bảng Campus
@@ -617,61 +639,60 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
 VALUES 
-(1, 'Research Phase', 'Complete the research phase of the project', '2024-11-01', '2024-12-01', 'Not_Started'),
-(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-01', '2024-09-15', 'Completed'),
-(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-16', '2024-10-15', 'Completed'),
-(1, 'System Design', 'Create system architecture and design documents', '2024-10-08', '2024-10-23', 'Overdue'),
-(1, 'Database Design', 'Design database schema and relationships', '2024-10-16', '2024-11-15', 'In_Progress'),
-(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-10-17', '2024-11-12', 'In_Progress'),
-(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-11-16', '2024-12-31', 'Not_Started'),
-(1, 'Frontend Development', 'Implement client-side user interface', '2024-11-16', '2024-12-31', 'Not_Started');
+(1, 'Research Phase', 'Complete the research phase of the project', '2024-09-03', '2024-09-17', 'Completed'),
+(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-15', '2024-09-28', 'Completed'),
+(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-25', '2024-10-15', 'Overdue'),
+(1, 'System Design', 'Create system architecture and design documents', '2024-11-10', '2024-11-30', 'In_Progress'),
+(1, 'Database Design', 'Design database schema and relationships', '2024-11-15', '2024-12-5', 'In_Progress'),
+(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-11-17', '2024-12-10', 'In_Progress'),
+(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-12-12', '2024-12-23', 'Not_Started'),
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-12-14', '2024-12-28', 'Not_Started');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
 INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
 VALUES 
-(1, 20.00, '2024-09-15', 'Project scope defined', 1),
-(1, 40.00, '2024-10-15', 'Requirements collected and documented', 1),
-(1, 50.00, '2024-10-23', 'System design initiated', 1),
-(1, 60.00, '2024-11-01', 'Research phase started', 0);
+(1, 20.00, '2024-09-15', 'Research phase started', 1),
+(1, 35.00, '2024-10-15', 'Requirements collected and documented', 1),
+(1, 45.00, '2024-10-23', 'System design initiated', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
 VALUES 
-(1, 0.00, '2024-10-30', 'Not started yet'),
+(1, 100.00, '2024-09-15', 'Finished'),
 (2, 100.00, '2024-09-15', 'Project initiation completed successfully'),
-(3, 100.00, '2024-10-15', 'Requirements gathering completed'),
-(4, 50.00, '2024-10-23', 'System design halfway completed, facing some delays'),
-(5, 25.00, '2024-11-01', 'Initial database schema designed'),
-(6, 30.00, '2024-11-03', 'UI mockups under review'),
-(7, 0.00, '2024-10-30', 'Not started yet'),
-(8, 0.00, '2024-10-30', 'Not started yet');
+(3, 0.00, '2024-09-01', 'Not started yet'),
+(4, 80.00, '2024-10-23', 'System design halfway completed, facing some delays'),
+(5, 40.00, '2024-11-01', 'Initial database schema designed'),
+(6, 0.00, '2024-09-01', 'UI mockups under review'),
+(7, 0.00, '2024-09-01', 'Not started yet'),
+(8, 0.00, '2024-09-01', 'Not started yet');
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK_ASSIGN(task_id, student_id, assigned_date)
 VALUES 
-(1, 1, '2024-11-01'),
-(1, 2, '2024-11-01'),
-(2, 2, '2024-12-01'),
-(3, 3, '2024-11-01'),
-(3, 4, '2024-11-01'),
-(3, 3, '2024-11-01'),
-(4, 2, '2024-11-01'),
-(4, 1, '2024-11-01'),
-(5, 3, '2024-11-01'),
-(5, 4, '2024-11-01'),
-(6, 3, '2024-11-01'),
-(6, 2, '2024-11-01'),
-(6, 1, '2024-11-01'),
-(7, 4, '2024-11-01'),
-(8, 2, '2024-11-01'),
-(8, 1, '2024-11-01');
+(1, 1, '2024-09-01'),
+(1, 2, '2024-09-01'),
+(2, 2, '2024-09-01'),
+(3, 3, '2024-09-01'),
+(3, 4, '2024-09-01'),
+(3, 3, '2024-09-01'),
+(4, 2, '2024-09-01'),
+(4, 1, '2024-09-01'),
+(5, 3, '2024-09-01'),
+(5, 4, '2024-09-01'),
+(6, 3, '2024-09-01'),
+(6, 2, '2024-09-01'),
+(6, 1, '2024-09-01'),
+(7, 4, '2024-09-01'),
+(8, 2, '2024-09-01'),
+(8, 1, '2024-09-01');
 
 -- Thêm dữ liệu mẫu cho bảng TASK_DETAIL
 INSERT INTO TASK_DETAIL (task_id, task_detail_name, progress_percentage, isCompleted, isDeleted)
 VALUES 
 -- Task 1: 'Research Phase'
 (1, N'Nghiên cứu tài liệu và công nghệ liên quan', 80.00, 1, 0),
-(1, N'Phân tích yêu cầu về nghiên cứu', 20.00, 0, 0),
+(1, N'Phân tích yêu cầu về nghiên cứu', 20.00, 1, 0),
 
 -- Task 2: 'Project Initiation'
 (2, N'Xác định phạm vi dự án', 40.00, 1, 0),
@@ -679,29 +700,29 @@ VALUES
 (2, N'Báo cáo', 30.00, 1, 0),
 
 -- Task 3: 'Requirements Gathering'
-(3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 1, 0),
-(3, N'Phân tích và tài liệu hóa yêu cầu', 40.00, 1, 0),
+(3, N'Thu thập yêu cầu từ các bên liên quan', 60.00, 0, 0),
+(3, N'Phân tích và tài liệu hóa yêu cầu', 40.00, 0, 0),
 
 -- Task 4: 'System Design'
 (4, N'Thiết kế giao diện người dùng (UI)', 45.00, 1, 0),
-(4, N'Thiết kế kiến trúc hệ thống', 35.00, 0, 0),
+(4, N'Thiết kế kiến trúc hệ thống', 35.00, 1, 0),
 (4, N'Báo cáo 4', 20.00, 0, 0),
 
 -- Task 5: 'Database Design'
-(5, N'Thiết kế cơ sở dữ liệu ban đầu', 40.00, 0, 0),
+(5, N'Thiết kế cơ sở dữ liệu ban đầu', 40.00, 1, 0),
 (5, N'Tối ưu hóa cơ sở dữ liệu', 60.00, 0, 0),
 
 -- Task 6: 'UI/UX Design'
 (6, N'Tạo mockups cho trang chủ', 30.00, 0, 0),
-(6, N'Review và phản hồi từ đội ngũ thiết kế', 70.00, 1, 0),
+(6, N'Review và phản hồi từ đội ngũ thiết kế', 70.00, 0, 0),
 
 -- Task 7: 'Backend Development'
 (7, N'Phát triển API cho người dùng', 55.00, 0, 0),
-(7, N'Phát triển API cho quản lý dự án', 45.00, 1, 0),
+(7, N'Phát triển API cho quản lý dự án', 45.00, 0, 0),
 
 -- Task 8: 'Frontend Development'
-(8, N'Phát triển giao diện cho đăng nhập', 38.00, 1, 0),
-(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 1, 0);
+(8, N'Phát triển giao diện cho đăng nhập', 38.00, 0, 0),
+(8, N'Phát triển giao diện cho quản lý dự án', 62.00, 0, 0);
 
 -- Thêm dữ liệu mẫu cho bảng NOTIFICATION
 INSERT INTO NOTIFICATION (sender_id, receiver_id, message, type, created_at, status)

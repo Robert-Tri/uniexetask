@@ -22,18 +22,24 @@ namespace uniexetask.api.Controllers
         private readonly ITaskProgressService _taskProgressService;
         private readonly IEmailService _emailService;
         private readonly IGroupMemberService _groupMemberService;
+        private readonly IProjectProgressService _projectProgressService;
+        private readonly IProjectService _projectService;
 
         public TaskDetailController(ITaskDetailService taskDetailService,
             ITaskService taskService,
             ITaskProgressService taskProgressService,
             IEmailService emailService,
-            IGroupMemberService groupMemberService)
+            IGroupMemberService groupMemberService,
+            IProjectProgressService projectProgressService,
+            IProjectService projectService)
         {
             _taskDetailService = taskDetailService;
             _taskService = taskService;
             _taskProgressService = taskProgressService;
             _emailService = emailService;
             _groupMemberService = groupMemberService;
+            _projectProgressService = projectProgressService;
+            _projectService = projectService;
         }
 
         [HttpGet("byTask/{taskId}")]
@@ -135,9 +141,15 @@ namespace uniexetask.api.Controllers
                 if (loadProgressTaskProgress)
                 {
                     var loadStatusTask = await _taskService.LoadStatusCompletedTaskByTaskId(existingTaskDetail.TaskId);
-                    if (!loadStatusTask)
+                    if (loadStatusTask)
                     {
-                        throw new Exception("Error updating task status");
+                        var task = await _taskService.GetTaskById(existingTaskDetail.TaskId);
+                        var projectId = task.ProjectId;
+                        var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
+                        if (!loadProgressProject)
+                        {
+                            throw new Exception("Error updating task detail status");
+                        }
                     }
                     var checkComplete = await _taskService.GetTaskById(existingTaskDetail.TaskId);
                     if(checkComplete.Status == nameof(TasksStatus.Completed))
