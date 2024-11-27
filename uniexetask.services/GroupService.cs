@@ -156,7 +156,7 @@ namespace uniexetask.services
         {
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
             var mentor = await _unitOfWork.Mentors.GetByIDAsync(mentorId);
-            var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
+            //var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
             if (group.HasMentor == true)
             {
                 group.Mentors.Clear();
@@ -165,9 +165,9 @@ namespace uniexetask.services
             }
             else if (group.HasMentor == false)
             {
-                if (group != null && mentor != null && chatGroup != null)
+                if (group != null && mentor != null /*&& chatGroup != null*/)
                 {
-                    var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
+                    /*var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
                     if (chatGroupWithUsers != null) 
                     {
                         bool isMentorInGroup = chatGroupWithUsers.Users.Any(u => u.UserId == mentor.UserId);
@@ -181,9 +181,9 @@ namespace uniexetask.services
                                 _unitOfWork.Save();
                             }
                         }
-                    }
+                    }*/
 
-                    _unitOfWork.ChatGroups.Update(chatGroup);
+                    //_unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                     group.Mentors.Add(mentor);
                     group.HasMentor = true;

@@ -3,7 +3,6 @@ using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -99,27 +98,6 @@ namespace uniexetask.api.Controllers
                 : throw new InvalidOperationException($"Unsupported MIME type: {mimeType}");
         }
 
-        private string MapMimeTypeToDocumentType(string mimeType)
-        {
-            var mimeTypeToDocumentType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-{
-            { "application/msword", "DOC" },
-            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DOCX" },
-            { "application/vnd.ms-excel", "XLS" },
-            { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX" },
-            { "application/pdf", "PDF" },
-            { "text/plain", "TXT" },
-            { "image/jpeg", "JPG" },
-            { "image/png", "PNG" },
-            { "application/zip", "ZIP" },
-            { "application/x-rar-compressed", "RAR" }
-};
-
-            return mimeTypeToDocumentType.TryGetValue(mimeType, out var documentType)
-                ? documentType
-                : throw new InvalidOperationException($"Unsupported MIME type: {mimeType}");
-        }
-
         [HttpPost("upload")]
         public async Task<IActionResult> UploadDocument(IFormFile file, int userId)
         {
@@ -153,6 +131,36 @@ namespace uniexetask.api.Controllers
             respone.Data = document;
 
             return Ok(respone);
+        }
+
+        [HttpPost("overwrite")]
+        public async Task<IActionResult> OverwriteDocument(IFormFile file, int userId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var project = await _projectService.GetProjectByUserId(userId);
+            if (project == null)
+                return NotFound("Project not found for the given student.");
+
+            var fileName = file.FileName;
+            var filePath = $"Project{project.ProjectId}/{file.FileName}";
+            using (var stream = file.OpenReadStream())
+            {
+                await _storageClient.UploadObjectAsync(_bucketName, filePath, file.ContentType, stream);
+            }
+            ApiResponse<Document> respone = new ApiResponse<Document>();
+            respone.Data = new Document()
+            {
+                Name = file.FileName,
+                ProjectId = project.ProjectId,
+                Type = MapMimeTypeToDocumentType(file.ContentType),
+                Url = $"Project{project.ProjectId}/{file.FileName}",
+                UploadBy = userId
+            }; 
+
+            return Ok(respone);
+            
         }
 
         [HttpGet("download")]
