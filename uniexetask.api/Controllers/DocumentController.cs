@@ -52,7 +52,9 @@ namespace uniexetask.api.Controllers
 
             var documentResponses = await System.Threading.Tasks.Task.WhenAll(documents.Select(async doc =>
             {
-                var user = await _userSerivce.GetUserById(doc.UploadBy);
+                var uploadUser = await _userSerivce.GetUserById(doc.UploadBy);
+                var modifyUser = doc.ModifiedBy.HasValue ? await _userSerivce.GetUserById(doc.ModifiedBy.Value) : null;
+
                 var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
 
                 return new DocumentRespone
@@ -62,8 +64,9 @@ namespace uniexetask.api.Controllers
                     Name = doc.Name,
                     Type = doc.Type,
                     Url = doc.Url,
-                    UploadBy = user.FullName,
-                    TypeFile = storageObject != null ? GetFileExtension(storageObject.ContentType) : "unknown",
+                    UploadBy = uploadUser.FullName,
+                    ModifiedBy = modifyUser?.FullName,
+                    ModifiedDate = doc.ModifiedDate,
                     Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
                 };
             }));
@@ -110,7 +113,7 @@ namespace uniexetask.api.Controllers
 
             var existedDocument = await _documentService.GetDocumentByName($"Project{project.ProjectId}/{file.FileName}");
             if (existedDocument != null)
-                return Conflict(new { Message = "Document with the same name already exists." });
+                return Conflict(new ApiResponse<Document>() { Success = false ,ErrorMessage = "Document with the same name already exists." });
             var document = await _documentService.UploadDocument(new Document
             {
                 Name = file.FileName,
@@ -142,6 +145,13 @@ namespace uniexetask.api.Controllers
             var project = await _projectService.GetProjectByUserId(userId);
             if (project == null)
                 return NotFound("Project not found for the given student.");
+            var modifyUser = await _userSerivce.GetUserById(userId);
+            var document = await _documentService.OverWriteDocument(new Document()
+            {
+                Url = $"Project{project.ProjectId}/{file.FileName}",
+                ModifiedBy = modifyUser.UserId,
+                ModifiedDate = DateTime.Now,
+            });
 
             var fileName = file.FileName;
             var filePath = $"Project{project.ProjectId}/{file.FileName}";
@@ -150,15 +160,7 @@ namespace uniexetask.api.Controllers
                 await _storageClient.UploadObjectAsync(_bucketName, filePath, file.ContentType, stream);
             }
             ApiResponse<Document> respone = new ApiResponse<Document>();
-            respone.Data = new Document()
-            {
-                Name = file.FileName,
-                ProjectId = project.ProjectId,
-                Type = MapMimeTypeToDocumentType(file.ContentType),
-                Url = $"Project{project.ProjectId}/{file.FileName}",
-                UploadBy = userId
-            }; 
-
+            respone.Data = document;
             return Ok(respone);
             
         }

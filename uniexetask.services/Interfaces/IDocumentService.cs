@@ -14,5 +14,6 @@ namespace uniexetask.services.Interfaces
         Task<Document?> GetDocumentByName(string name);
         Task<Document?> DeleteDocumentById(int id);
         Task<Document?> GetDocumentById(int id);
+        Task<Document?> OverWriteDocument(Document document);
     }
 }

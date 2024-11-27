@@ -14,9 +14,9 @@
 
         public string UploadBy { get; set; }
 
-        public bool IsFinancialReport { get; set; }
+        public string? ModifiedBy { get; set; }
 
-        public string TypeFile { get; set; } = null!;
+        public DateTime? ModifiedDate { get; set; }
 
         public long Size { get; set; } 
     }
