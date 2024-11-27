@@ -25,11 +25,21 @@ namespace uniexetask.services
             _unitOfWork.Save();
         }*/
 
-        public async System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, int subjectId)
+        public async System.Threading.Tasks.Task UpdateMainTimeLine(DateTime startDate, DateTime endDate, int subjectId)
         {
+            var mainTimeline = (await _unitOfWork.TimeLines.GetAsync(filter: t => t.TimelineId == subjectId)).FirstOrDefault();
+
+            if(mainTimeline != null)
+            {
+                mainTimeline.StartDate = startDate;
+                mainTimeline.EndDate = endDate;
+                _unitOfWork.TimeLines.Update(mainTimeline);
+            }
+
             var timeLines = await _unitOfWork.TimeLines.GetAsync(filter: t => t.SubjectId == subjectId);
             foreach (var timeLine in timeLines)
             {
+                timeLine.StartDate = startDate;
                 switch (timeLine.TimelineId)
                 {
                     case (int)TimelineType.FinalizeGroupEXE101:
@@ -72,6 +82,11 @@ namespace uniexetask.services
             return _unitOfWork.Save() > 0;
         }
 
+        public async Task<Timeline> GetTimelineById(int id)
+        {
+            var timeLines = await _unitOfWork.TimeLines.GetByIDAsync(id);
+            return timeLines;
+        }
 
         public void DeleteTimeLine(int timeLineId)
         {
