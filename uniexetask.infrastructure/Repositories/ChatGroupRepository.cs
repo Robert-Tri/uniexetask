@@ -27,5 +27,13 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(x => x.Users)
                 .FirstOrDefaultAsync(u => u.ChatGroupId == chatGroupId);
         }
+
+        public async Task<bool> IsUserInChatGroup(int chatGroupId, int userId)
+        {
+            return await dbSet
+                .Where(cg => cg.ChatGroupId == chatGroupId)
+                .SelectMany(cg => cg.Users)
+                .AnyAsync(u => u.UserId == userId); // Kiểm tra UserId
+        }
     }
 }
