@@ -41,6 +41,7 @@ namespace uniexetask.api.Controllers
                     GroupId = group.GroupId,
                     GroupName = group.GroupName,
                     SubjectName = group.Subject.SubjectName,
+                    SubjectCode = group.Subject.SubjectCode,
                     HasMentor = group.HasMentor
                 });
             }

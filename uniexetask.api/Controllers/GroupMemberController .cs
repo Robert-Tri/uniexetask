@@ -25,6 +25,7 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class GroupMemberController : ControllerBase
     {
+        private readonly IMentorService _mentorService;
         private readonly IGroupService _groupService;
         private readonly ICampusService _campusService;
         private readonly INotificationService _notificationService;
@@ -33,8 +34,9 @@ namespace uniexetask.api.Controllers
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public GroupMemberController(ICampusService campusService, INotificationService notificationService, IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public GroupMemberController(ICampusService campusService, IMentorService mentorService, INotificationService notificationService, IStudentService studentService, IGroupService groupService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
+            _mentorService = mentorService;
             _notificationService = notificationService;
             _studentService = studentService;
             _groupService = groupService;
@@ -168,12 +170,12 @@ namespace uniexetask.api.Controllers
 
             var usersCount = request.StudentCodes.Count;
 
-            if (request.Group.SubjectId == 1 && usersCount >= 6)
+            if (studentLeader.SubjectId == 1 && usersCount >= 6)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The limit is 6 people." });
             }
 
-            if (request.Group.SubjectId == 2 && usersCount >= 8)
+            if (studentLeader.SubjectId == 2 && usersCount >= 8)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The limit is 8 people." });
             }
@@ -230,7 +232,10 @@ namespace uniexetask.api.Controllers
             }
 
             // All conditions are valid, proceed with group creation
+            request.Group.SubjectId = studentLeader.SubjectId;
             request.Group.HasMentor = false;
+            request.Group.IsCurrentPeriod = true;
+            request.Group.IsDeleted = false;
             request.Group.Status = nameof(GroupStatus.Initialized);
 
             var objGroup = _mapper.Map<uniexetask.core.Models.Group>(request.Group);
@@ -436,18 +441,35 @@ namespace uniexetask.api.Controllers
                     return NotFound("No members found in this group.");
                 }
 
+                var group = await _groupService.GetGroupByUserId(userId);
+
+                // Khai báo biến mentorName
+                string mentorName = null;
+
+                if (group.HasMentor == true)
+                {
+                    mentorName = await _mentorService.GetMentorNameByGroupId(group.GroupId);
+                }
+
+                // Kiểm tra nếu mentorName là null thì gán giá trị mặc định
+                if (string.IsNullOrEmpty(mentorName))
+                {
+                    mentorName = "The group has no Mentor";
+                }
+
                 var userDetails = users.Select(u => new TeammateModel
                 {
                     UserId = u.UserId,
                     FullName = u.FullName,
                     Email = u.Email,
-                    Major = u.Students.FirstOrDefault()?.Major,         
-                    StudentId = u.Students.FirstOrDefault()?.StudentId, 
-                    StudentCode = u.Students.FirstOrDefault()?.StudentCode, 
+                    Major = u.Students.FirstOrDefault()?.Major,
+                    StudentId = u.Students.FirstOrDefault()?.StudentId,
+                    StudentCode = u.Students.FirstOrDefault()?.StudentCode,
                     SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName,
-                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role, 
-                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId, 
-                    GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName
+                    Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
+                    GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
+                    GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName,
+                    MentorName = mentorName // Gán mentorName vào đây
                 }).ToList();
 
                 response.Data = userDetails;

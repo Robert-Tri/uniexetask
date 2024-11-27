@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
@@ -16,6 +20,8 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class ReqTopicController : ControllerBase
     {
+        private readonly string _bucketName = "exeunitask.appspot.com";
+        private readonly StorageClient _storageClient;
         private readonly IProjectService _projectService;
         private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
@@ -24,8 +30,9 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
 
-        public ReqTopicController(IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
+        public ReqTopicController(StorageClient storageClient, IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
         {
+            _storageClient = storageClient;
             _projectService = projectService;
             _topicService = userService;
             _mentorService = mentorService;
@@ -176,8 +183,7 @@ namespace uniexetask.api.Controllers
 
             if (topicList.Any(t => t.TopicCode == objTopic.TopicCode))
             {
-                // Trả về thông báo lỗi nếu đã có chủ đề với TopicCode này
-                return BadRequest("Topic với mã này đã tồn tại.");
+                return BadRequest("Topic with this code already exists.");
             }
 
             var topicId = await _topicService.CreateTopic(objTopic);
@@ -204,13 +210,12 @@ namespace uniexetask.api.Controllers
 
             var reqTopicList = await _reqTopicService.GetReqTopicByGroupId(reqTopic.GroupId);
 
-            // Chạy vòng lặp để cập nhật trạng thái cho từng yêu cầu trong danh sách
             foreach (var reqTopicItem in reqTopicList)
             {
                 await _reqTopicService.UpdateApproveTopic(reqTopicItem.RegTopicId);
             }
 
-            if (topicId > 0 && createProject)  // Kiểm tra nếu topicId hợp lệ
+            if (topicId > 0 && createProject)  
             {
                 var response = new ApiResponse<object>
                 {
@@ -224,11 +229,50 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Roles = "Mentor")]
+        [HttpPut("RejectReqTopic/{regTopicId}")]
+        public async Task<IActionResult> RejectReqTopic(int regTopicId)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
 
+
+            var reqNew = await _reqTopicService.GetReqTopicById(regTopicId);
+
+            if (reqNew == null)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy yêu cầu với ID đã cho." });
+            }
+
+            reqNew.Status = false;
+            var isReqUpdated = await _reqTopicService.UpdateReqTopic(reqNew);
+
+            ApiResponse<object> response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    Description = reqNew.Description,
+                    TopicName = reqNew.TopicName,
+                    Status = reqNew.Status
+                }
+            };
+
+            if (isReqUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Không thể từ chối.");
+            }
+        }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpPost]
-        public async Task<IActionResult> CreateReqTopic([FromBody] ReqTopicModel reqTopic)
+        public async Task<IActionResult> CreateReqTopic(IFormFile file, string topicName)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
@@ -243,6 +287,21 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
             }
 
+            var groupCheck = await _groupMemberService.GetGroupMemberByUserId(userId);
+
+            var groupMentor = await _groupService.GetGroupById(groupCheck.GroupId);
+
+            if (groupMentor.HasMentor == false )
+                return BadRequest("The group does not have a mentor.");
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var existedTopics = await _reqTopicService.GetReqTopicByDescription($"Topic{groupCheck.GroupId}/{file.FileName}");
+            if (existedTopics.Any())
+                return Conflict(new { Message = "Topic with the same name already exists." });
+
+
             var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
             int nextCodeNumber = 1;
             if (!string.IsNullOrEmpty(topicCodeMax) && topicCodeMax.Length > 2)
@@ -254,7 +313,7 @@ namespace uniexetask.api.Controllers
                 }
             }
 
-            reqTopic.TopicCode = $"TP{nextCodeNumber:D3}";
+            var topicCode = $"TP{nextCodeNumber:D3}";
 
             var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
             var group = await _groupService.GetGroupById(groupMember.GroupId);
@@ -264,11 +323,24 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Nhóm đã Approved. Bạn không thể thêm topic." });
             }
 
-            reqTopic.GroupId = groupMember.GroupId;
-            reqTopic.Status = true;
+            var reqTopic = new ReqTopicModel
+            {
+                GroupId = groupMember.GroupId,
+                TopicCode = topicCode,
+                TopicName = topicName,
+                Description = $"Topic{groupCheck.GroupId}/{file.FileName}",
+                Status = true
+            };
 
             var obj = _mapper.Map<RegTopicForm>(reqTopic);
             var isTopicCreated = await _reqTopicService.CreateReqTopic(obj);
+
+            var filePath = reqTopic.Description;
+
+            using (var stream = file.OpenReadStream())
+            {
+                await _storageClient.UploadObjectAsync(_bucketName, filePath, file.ContentType, stream);
+            }
 
             if (isTopicCreated)
             {
@@ -282,6 +354,32 @@ namespace uniexetask.api.Controllers
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Lỗi Tạo." });
             }
+        }
+
+        [HttpGet("download")]
+        public async Task<IActionResult> DownloadTopic(int regTopicId)
+        {
+            var topic = await _reqTopicService.GetReqTopicById(regTopicId);
+            if (topic == null)
+                return NotFound("Document not found.");
+
+            await _storageClient.GetObjectAsync(_bucketName, topic.Description);
+
+            var credential = GoogleCredential.FromFile(
+                Path.Combine(Directory.GetCurrentDirectory(), "exeunitask-firebase-adminsdk-3jz7t-66373e3f35.json")
+            ).UnderlyingCredential as ServiceAccountCredential;
+
+            if (credential == null)
+                return StatusCode(500, "Failed to load service account credentials.");
+
+            var signedUrl = UrlSigner.FromCredential(credential).Sign(
+                _bucketName,
+                topic.Description,
+                TimeSpan.FromHours(1),
+                HttpMethod.Get
+            );
+
+            return Ok(new { Url = signedUrl });
         }
 
 

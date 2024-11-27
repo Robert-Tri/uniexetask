@@ -18,5 +18,7 @@ namespace uniexetask.services.Interfaces
         Task<List<RegTopicForm>> GetReqTopicByGroupId(int groupId);
         Task<bool> UpdateApproveTopic(int groupId);
         Task<Mentor> GetMentorGroupByUserId(int userId);
+        Task<List<RegTopicForm>> GetReqTopicByDescription(string description);
+        Task<List<RegTopicForm>> GetReqTopicByUserId(int userId);
     }
 }
