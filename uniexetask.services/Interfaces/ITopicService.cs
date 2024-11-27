@@ -11,5 +11,6 @@ namespace uniexetask.services.Interfaces
     {
         Task<IEnumerable<Topic>> GetAllTopics();
         Task<int> CreateTopic(Topic topic);
+        Task<Topic> GetTopicById(int id);
     }
 }

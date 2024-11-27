@@ -47,7 +47,6 @@ namespace uniexetask.services
 
         public async Task<List<RegTopicForm>> GetReqTopicByUserId(int userId)
         {
-            // Lấy thông tin GroupMember theo userId
             var groupMember = await _unitOfWork.GroupMembers.GetAsync(
                 filter: gm => gm.Student.UserId == userId,
                 includeProperties: "Group"
@@ -55,11 +54,9 @@ namespace uniexetask.services
 
             if (groupMember == null || !groupMember.Any())
             {
-                // Nếu không tìm thấy GroupMember, trả về danh sách rỗng
                 return new List<RegTopicForm>();
             }
 
-            // Lấy GroupId từ GroupMember
             var groupId = groupMember.FirstOrDefault()?.GroupId;
 
             if (groupId == null)
@@ -67,7 +64,6 @@ namespace uniexetask.services
                 return new List<RegTopicForm>();
             }
 
-            // Lấy danh sách RegTopicForm dựa trên GroupId và Status
             var reqTopicList = await _unitOfWork.ReqTopic.GetAsync(
                 filter: rt => rt.Status == true && rt.GroupId == groupId,
                 includeProperties: "Group"
@@ -75,6 +71,30 @@ namespace uniexetask.services
 
             return reqTopicList.ToList();
         }
+
+        public async Task<List<RegTopicForm>> GetReqTopicByMentorId(int mentorId)
+        {
+            // Bước 1: Lấy danh sách các Group mà Mentor quản lý
+            var groups = await _unitOfWork.Groups.GetAsync(
+                filter: g => g.Mentors.Any(m => m.MentorId == mentorId), // Mentor liên quan đến nhóm
+                includeProperties: "RegTopicForms" // Include để lấy RegTopicForms của từng Group
+            );
+
+            if (groups == null || !groups.Any())
+            {
+                return new List<RegTopicForm>();
+            }
+
+            // Bước 2: Lấy tất cả các RegTopicForm từ các nhóm quản lý
+            var reqTopics = groups
+                .SelectMany(g => g.RegTopicForms) // Truy xuất RegTopicForms từ từng Group
+                .Where(rt => rt.Status) // Chỉ lấy các topic có Status = true
+                .ToList();
+
+            return reqTopics;
+        }
+
+
 
 
         public async Task<List<RegTopicForm>> GetReqTopicByDescription(string description)

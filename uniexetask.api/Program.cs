@@ -28,6 +28,9 @@ var builder = WebApplication.CreateBuilder(args);
 //               .AllowCredentials();
 //    });
 //});
+
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>

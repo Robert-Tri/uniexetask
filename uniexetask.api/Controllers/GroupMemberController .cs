@@ -484,7 +484,7 @@ namespace uniexetask.api.Controllers
                     Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
                     GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
                     GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName,
-                    MentorName = mentorName // Gán mentorName vào đây
+                    MentorName = mentorName
                 }).ToList();
 
                 response.Data = userDetails;

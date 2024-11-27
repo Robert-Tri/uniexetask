@@ -22,6 +22,7 @@ namespace uniexetask.api.Controllers
     {
         private readonly string _bucketName = "exeunitask.appspot.com";
         private readonly StorageClient _storageClient;
+        private readonly ITimeLineService _timeLineService;
         private readonly IProjectService _projectService;
         private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
@@ -30,7 +31,7 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
 
-        public ReqTopicController(StorageClient storageClient, IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
+        public ReqTopicController(StorageClient storageClient, ITimeLineService timeLineService, IProjectService projectService, ITopicService userService, IReqTopicService reqTopicService, IMentorService mentorService, IMapper mapper, IGroupService groupService, IGroupMemberService groupMemberService)
         {
             _storageClient = storageClient;
             _projectService = projectService;
@@ -40,6 +41,7 @@ namespace uniexetask.api.Controllers
             _mapper = mapper;
             _groupService = groupService;
             _groupMemberService = groupMemberService;
+            _timeLineService = timeLineService;
         }   
 
         [HttpGet]
@@ -54,6 +56,28 @@ namespace uniexetask.api.Controllers
             response.Data = reqTopicList;
             return Ok(response);
         }
+
+        [HttpGet("Test")]
+        public async Task<IActionResult> GetReqTopicListByMentorId(int mentorId)
+        {
+            // Gọi service để lấy danh sách RegTopicForm theo mentorId
+            var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentorId);
+
+            if (reqTopicList == null || !reqTopicList.Any())
+            {
+                return NotFound(new ApiResponse<string>
+                {
+                    ErrorMessage = "Không tìm thấy yêu cầu đề tài nào liên quan đến mentor này."
+                });
+            }
+
+            // Trả về danh sách RegTopicForm trong một ApiResponse
+            return Ok(new ApiResponse<IEnumerable<RegTopicForm>>
+            {
+                Data = reqTopicList
+            });
+        }
+
 
         [Authorize(Roles = "Mentor")]
         [HttpGet("GetGroupReqTopicList")]
@@ -132,26 +156,21 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetReqTopicList/{groupId}")]
         public async Task<IActionResult> GetReqTopicList( int groupId)
         {
-            // Lấy thông tin user từ claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            // Xác thực userId và role
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || string.IsNullOrEmpty(userRole) || !userRole.Equals("Mentor"))
             {
                 return Unauthorized("You are not authorized to access this resource.");
             }
 
-            // Gọi service để lấy danh sách reqTopic theo groupId
             var reqTopics = await _reqTopicService.GetReqTopicByGroupId(groupId);
 
-            // Kiểm tra nếu không có reqTopic nào được tìm thấy
             if (reqTopics == null || !reqTopics.Any())
             {
                 return NotFound("No request topics found for the given group.");
             }
 
-            // Tạo response trả về
             var response = new ApiResponse<IEnumerable<object>>
             {
                 Data = reqTopics,
@@ -176,10 +195,7 @@ namespace uniexetask.api.Controllers
             var objReqTopic = _mapper.Map<RegTopicForm>(reqTopic);
 
             var topicList = await _topicService.GetAllTopics();
-
             var group = await _groupService.GetGroupById(reqTopic.GroupId);
-
-            
 
             if (topicList.Any(t => t.TopicCode == objTopic.TopicCode))
             {
@@ -188,22 +204,23 @@ namespace uniexetask.api.Controllers
 
             var topicId = await _topicService.CreateTopic(objTopic);
 
-
+            var timeLines = group.SubjectId == 1
+                ? await _timeLineService.GetTimelineById(1)
+                : await _timeLineService.GetTimelineById(2);
 
             var project = new ProjectModel
             {
                 GroupId = group.GroupId,
                 TopicId = topicId,
                 StartDate = DateTime.Now,
-                EndDate = DateTime.Now,
-                SubjectId= group.SubjectId,
+                EndDate = timeLines.EndDate, 
+                SubjectId = group.SubjectId,
                 IsCurrentPeriod = true,
                 Status = "In_Progress",
                 IsDeleted = false
             };
 
             var objProject = _mapper.Map<Project>(project);
-
             var createProject = await _projectService.CreateProject(objProject);
 
             var groupUpdate = await _groupService.UpdateGroupApproved(reqTopic.GroupId);
@@ -215,7 +232,7 @@ namespace uniexetask.api.Controllers
                 await _reqTopicService.UpdateApproveTopic(reqTopicItem.RegTopicId);
             }
 
-            if (topicId > 0 && createProject)  
+            if (topicId > 0 && createProject)
             {
                 var response = new ApiResponse<object>
                 {
@@ -228,6 +245,7 @@ namespace uniexetask.api.Controllers
                 return BadRequest("Lỗi Tạo.");
             }
         }
+
 
         [Authorize(Roles = "Mentor")]
         [HttpPut("RejectReqTopic/{regTopicId}")]
@@ -320,7 +338,7 @@ namespace uniexetask.api.Controllers
 
             if (group.Status == "Approved")
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Nhóm đã Approved. Bạn không thể thêm topic." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group Approved. You cannot add topics." });
             }
 
             var reqTopic = new ReqTopicModel
@@ -357,13 +375,13 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("download")]
-        public async Task<IActionResult> DownloadTopic(int regTopicId)
+        public async Task<IActionResult> DownloadReqTopic(int regTopicId)
         {
-            var topic = await _reqTopicService.GetReqTopicById(regTopicId);
-            if (topic == null)
+            var reqtopic = await _reqTopicService.GetReqTopicById(regTopicId);
+            if (reqtopic == null)
                 return NotFound("Document not found.");
 
-            await _storageClient.GetObjectAsync(_bucketName, topic.Description);
+            await _storageClient.GetObjectAsync(_bucketName, reqtopic.Description);
 
             var credential = GoogleCredential.FromFile(
                 Path.Combine(Directory.GetCurrentDirectory(), "exeunitask-firebase-adminsdk-3jz7t-66373e3f35.json")
@@ -374,7 +392,7 @@ namespace uniexetask.api.Controllers
 
             var signedUrl = UrlSigner.FromCredential(credential).Sign(
                 _bucketName,
-                topic.Description,
+                reqtopic.Description,
                 TimeSpan.FromHours(1),
                 HttpMethod.Get
             );

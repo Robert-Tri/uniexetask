@@ -23,6 +23,12 @@ namespace uniexetask.services
             return topic;
         }
 
+        public async Task<Topic> GetTopicById(int id)
+        {
+            var topics = await _unitOfWork.Topics.GetByIDAsync(id);
+            return topics;
+        }
+
         public async Task<int> CreateTopic(Topic topic)
         {
             if (topic != null)
