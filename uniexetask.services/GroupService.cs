@@ -21,19 +21,19 @@ namespace uniexetask.services
 
         public async Task<bool> UpdateGroupApproved(int groupId)
         {
-                var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
-                if (group != null)
-                {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            if (group != null)
+            {
                 group.Status = "Approved";
-                    _unitOfWork.Groups.Update(group);
+                _unitOfWork.Groups.Update(group);
 
-                    var result = _unitOfWork.Save();
+                var result = _unitOfWork.Save();
 
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
-                }
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
             return false;
         }
 
@@ -90,7 +90,7 @@ namespace uniexetask.services
                     .Where(m => m.User?.CampusId == campusId)
                     .ToList();
 
-                if (!allMentors.Any()) continue; 
+                if (!allMentors.Any()) continue;
 
                 var mentorGroupCounts = allMentors.ToDictionary(m => m.MentorId, _ => 0);
 
@@ -156,7 +156,7 @@ namespace uniexetask.services
         {
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
             var mentor = await _unitOfWork.Mentors.GetByIDAsync(mentorId);
-            var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
+            //var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
             if (group.HasMentor == true)
             {
                 group.Mentors.Clear();
@@ -165,9 +165,9 @@ namespace uniexetask.services
             }
             else if (group.HasMentor == false)
             {
-                if (group != null && mentor != null && chatGroup != null)
+                if (group != null && mentor != null /*&& chatGroup != null*/)
                 {
-                    var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
+                    /*var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
                     if (chatGroupWithUsers != null) 
                     {
                         bool isMentorInGroup = chatGroupWithUsers.Users.Any(u => u.UserId == mentor.UserId);
@@ -181,9 +181,9 @@ namespace uniexetask.services
                                 _unitOfWork.Save();
                             }
                         }
-                    }
+                    }*/
 
-                    _unitOfWork.ChatGroups.Update(chatGroup);
+                    //_unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                     group.Mentors.Add(mentor);
                     group.HasMentor = true;
@@ -205,7 +205,7 @@ namespace uniexetask.services
                 g => g.GroupId == groupId && g.IsDeleted == false,
                 includeProperties: "Subject,RegTopicForms"
             );
-            return group.FirstOrDefault();  
+            return group.FirstOrDefault();
         }
 
 
@@ -267,18 +267,18 @@ namespace uniexetask.services
             int minGroupSize = 0;
             int maxGroupSize = 0;
 
-            if(SubjectType.EXE101 == subjectType)
+            if (SubjectType.EXE101 == subjectType)
             {
                 minGroupSize = 4;
                 maxGroupSize = 6;
             }
-            else if(SubjectType.EXE201 == subjectType)
+            else if (SubjectType.EXE201 == subjectType)
             {
                 minGroupSize = 8;
                 maxGroupSize = 10;
             }
 
-            if (numStudents < minGroupSize) 
+            if(numStudents < minGroupSize)
             {
                 return new List<int>();
             }
@@ -316,8 +316,8 @@ namespace uniexetask.services
             int minMembers = 0;
             if (1 == (int)subjectType)
                 minMembers = 4;
-            else if(2 == (int)subjectType)
-               minMembers = 6;
+            else if (2 == (int)subjectType)
+                minMembers = 6;
             HashSet<int> studentIdSet = new HashSet<int>();
             var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.IsDeleted == false && g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())
@@ -349,10 +349,12 @@ namespace uniexetask.services
 
         private async System.Threading.Tasks.Task AssignStudentsToGroups(HashSet<int> studentIdSet, SubjectType subjectType)
         {
+
             var groupMemberStudentIds = (await _unitOfWork.GroupMembers.GetAsync()).Select(gm => gm.StudentId).ToHashSet();
 
             var studentsWithoutGroup = (await _unitOfWork.Students.GetAsync(filter: s =>
-                (!studentIdSet.Contains(s.StudentId) && !groupMemberStudentIds.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType))).ToList();
+                (!groupMemberStudentIds.Contains(s.StudentId) && s.IsCurrentPeriod && s.SubjectId == (int)subjectType))).ToList();
+
             if (!studentsWithoutGroup.Any())
             {
                 return;

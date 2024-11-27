@@ -6,10 +6,6 @@
 
         public int MilestoneId { get; set; }
 
-        public int ScoredBy { get; set; }
-
-        public DateTime ScoringDate { get; set; }
-
         public List<StudentScore> StudentScores { get; set; } = new List<StudentScore>();
     }
     public class StudentScore
