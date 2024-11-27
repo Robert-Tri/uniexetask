@@ -17,12 +17,14 @@ namespace uniexetask.api.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationController(INotificationService notificationService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public NotificationController(INotificationService notificationService, IUserService userService, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
             _notificationService = notificationService;
+            _userService = userService;
             _mapper = mapper;
             _hubContext = hubContext;
         }
@@ -150,6 +152,13 @@ namespace uniexetask.api.Controllers
 
                 if (groupInvite != null)
                 {
+                    var user = await _userService.GetUserById(request.InviteeId);
+                    if (user != null) 
+                    {
+                        var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"{user.FullName} has joined the group");
+                        await _hubContext.Clients.User(groupInvite.InviterId.ToString()).SendAsync("ReceiveNotification", newNotification);
+
+                    }
                     response.Data = $"You have {groupInvite.Status.ToLower()} to join the group!";
                     return Ok(response);
                 }

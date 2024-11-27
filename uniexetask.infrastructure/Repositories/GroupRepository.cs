@@ -37,5 +37,20 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).Where(g => g.Status == nameof(GroupStatus.Approved) && g.IsCurrentPeriod).AsNoTracking().ToListAsync();
         }
+
+        public async Task<Mentor?> GetMentorInGroup(int groupId)
+        {
+            return await dbSet.Where(g => g.GroupId == groupId)
+                                  .Select(g => g.Mentors.FirstOrDefault())
+                                  .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> IsUserInGroup(int studentId, int groupId)
+        {
+            return await dbSet
+                            .Where(cg => cg.GroupId == groupId)
+                            .SelectMany(cg => cg.GroupMembers)
+                            .AnyAsync(u => u.StudentId == studentId);
+        }
     }
 }

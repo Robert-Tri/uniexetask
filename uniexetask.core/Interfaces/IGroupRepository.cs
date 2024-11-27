@@ -13,5 +13,7 @@ namespace uniexetask.core.Interfaces
         Task<Group?> GetGroupWithSubjectAsync(int groupId);
         Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent();
         Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent();
+        Task<Mentor?> GetMentorInGroup(int groupId);
+        Task<bool> IsUserInGroup(int studentId, int groupId);
     }
 }

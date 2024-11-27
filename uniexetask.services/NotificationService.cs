@@ -35,7 +35,7 @@ namespace uniexetask.services
             if (existingInvite != null)
             {
                 throw new Exception("An invite has already been sent to this user for this group.");
-            }
+            }         
             try
             {
                 _unitOfWork.BeginTransaction();
