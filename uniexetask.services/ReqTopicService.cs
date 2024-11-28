@@ -75,25 +75,28 @@ namespace uniexetask.services
 
         public async Task<List<RegTopicForm>> GetReqTopicByMentorId(int mentorId)
         {
-            // Bước 1: Lấy danh sách các Group mà Mentor quản lý
-            var groups = await _unitOfWork.Groups.GetAsync(
-                filter: g => g.Mentors.Any(m => m.MentorId == mentorId), // Mentor liên quan đến nhóm
-                includeProperties: "RegTopicForms" // Include để lấy RegTopicForms của từng Group
-            );
+            var mentorWithGroups = await _unitOfWork.Mentors.GetMentorWithGroupAsync(mentorId);
 
-            if (groups == null || !groups.Any())
+            if (mentorWithGroups == null || mentorWithGroups.Groups == null || !mentorWithGroups.Groups.Any())
             {
                 return new List<RegTopicForm>();
             }
 
-            // Bước 2: Lấy tất cả các RegTopicForm từ các nhóm quản lý
-            var reqTopics = groups
-                .SelectMany(g => g.RegTopicForms) // Truy xuất RegTopicForms từ từng Group
-                .Where(rt => rt.Status) // Chỉ lấy các topic có Status = true
-                .ToList();
+            var reqTopicList = new List<RegTopicForm>();
 
-            return reqTopics;
+            foreach (var group in mentorWithGroups.Groups)
+            {
+                var topics = await _unitOfWork.ReqTopic.GetAsync(
+                    filter: rm => rm.Status == true && rm.GroupId == group.GroupId
+                );
+
+                reqTopicList.AddRange(topics);  
+            }
+
+            return reqTopicList;
         }
+
+
 
 
 

@@ -28,6 +28,7 @@ namespace uniexetask.services
             var mentorWithGroup = await _unitOfWork.Mentors.GetMentorWithGroupAsync(mentor.MentorId);
             return mentorWithGroup;
         }
+
         public async Task<Mentor> GetMentorById(int id)
         {
             var mentor = await _unitOfWork.Mentors.GetByIDAsync(id);
@@ -44,6 +45,19 @@ namespace uniexetask.services
                 .FirstOrDefault()?.User?.FullName;
 
             return mentorFullName;
+        }
+
+        public async Task<Mentor?> GetMentorByGroupId(int groupId)
+        {
+            var group = await _unitOfWork.Groups
+                .GetAsync(g => g.GroupId == groupId && g.Mentors.Any(),
+                          includeProperties: "Mentors.User");
+
+            
+            var mentor = group?.FirstOrDefault()?.Mentors
+                .FirstOrDefault();
+
+            return mentor; 
         }
 
 

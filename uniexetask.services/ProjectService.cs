@@ -57,21 +57,22 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<bool> CreateProject(Project project)
+        public async Task<Project> CreateProject(Project project)
         {
             if (project != null)
             {
                 await _unitOfWork.Projects.InsertAsync(project);
 
-                var result = _unitOfWork.Save();
+                var result = await _unitOfWork.SaveAsync();  
 
                 if (result > 0)
-                    return true;
+                    return project;  
                 else
-                    return false;
+                    return null;  
             }
-            return false;
+            return null; 
         }
+
 
         public async Task<Project?> GetProjectPendingByGroupAsync(Group group)
         {
