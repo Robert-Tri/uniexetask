@@ -8,7 +8,7 @@ using uniexetask.api.Extensions;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -29,6 +29,7 @@ namespace uniexetask.api.Controllers
         private readonly IProjectService _projectService;
         private readonly IUserService _userService;
         private readonly ITopicService _topicService;
+        private readonly IProjectProgressService _projectProgressService;
 
         public TaskController(ITaskService taskService, 
                             ITaskAssignService taskAssignService, 
@@ -40,7 +41,8 @@ namespace uniexetask.api.Controllers
                             IEmailService emailService,
                             IProjectService projectService,
                             IUserService userService,
-                            ITopicService topicService)
+                            ITopicService topicService,
+                            IProjectProgressService projectProgressService)
         {
             _taskService = taskService;
             _taskAssignService = taskAssignService;
@@ -53,6 +55,7 @@ namespace uniexetask.api.Controllers
             _projectService = projectService;
             _userService = userService;
             _topicService = topicService;
+            _projectProgressService = projectProgressService;
         }
 
         [HttpGet("{taskId}")]
@@ -352,7 +355,12 @@ namespace uniexetask.api.Controllers
                         throw new Exception("Error creating task");
                     }
                 }
+                // Kiểm tra cập nhật Progress và Status
+                var loadProgressTaskProgress = await _taskProgressService.LoadProgressUpdateTaskProgressByTaskId(taskId);
+                var projectId = task.ProjectId;
+                var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
 
+                //Gửi mail
                 var taskEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -453,13 +461,13 @@ namespace uniexetask.api.Controllers
                 existingTask.StartDate = task.StartDate;
                 existingTask.EndDate = task.EndDate;
 
+                var taskId = task.TaskId;  // Lấy TaskId từ task đã cập nhật
+
                 var updatedTask = await _taskService.UpdateTask(existingTask);
                 if (!updatedTask)
                 {
                     throw new Exception("Error updating task");
                 }
-
-                var taskId = task.TaskId;  // Lấy TaskId từ task đã cập nhật
 
                 // Xóa các TaskAssign hiện tại để thêm mới các thành viên được giao nhiệm vụ
                 var deletedTaskAssigns = await _taskAssignService.DeleteTaskAssignByTaskId(taskId);
@@ -504,6 +512,12 @@ namespace uniexetask.api.Controllers
                         throw new Exception("Error creating task");
                     }
                 }
+                // Kiểm tra cập nhật Progress và Status
+                var loadProgressTaskProgress = await _taskProgressService.LoadProgressUpdateTaskProgressByTaskId(taskId);
+                var projectId = task.ProjectId;
+                var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
+
+                //Gửi mail
                 var taskDeltailList = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
 
                 var taskEmail = $@"
@@ -629,6 +643,12 @@ namespace uniexetask.api.Controllers
                 var result = await _taskService.DeleteTask(taskId);
                 if (result)
                 {
+                    // Kiểm tra cập nhật Progress và Status
+                    var loadProgressTaskProgress = await _taskProgressService.LoadProgressUpdateTaskProgressByTaskId(taskId);
+                    var projectId = task.ProjectId;
+                    var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
+
+                    //Gửi mail
                     var taskEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -750,6 +770,12 @@ namespace uniexetask.api.Controllers
                     throw new Exception("Error updating task status");
                 }
 
+                // Kiểm tra cập nhật Progress và Status
+                var loadProgressTaskProgress = await _taskProgressService.LoadProgressUpdateTaskProgressByTaskId(existingTask.TaskId);
+                var projectId = existingTask.ProjectId;
+                var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
+
+                //Gửi mail
                 var taskEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -834,5 +860,212 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpPut("re-assign")]
+        public async Task<IActionResult> ReAssignTask([FromBody] UpdateTaskModel task)
+        {
+            ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    throw new Exception("ModelState not found");
+                }
+
+                decimal totalProgressPercentage = 0;
+                foreach (var taskDetailModel in task.TaskDetailsModel)
+                {
+                    totalProgressPercentage += taskDetailModel.ProgressPercentage;
+                }
+
+                if (Math.Round(totalProgressPercentage, 2) != 100)
+                {
+                    throw new Exception("Error: Total ProgressPercentage is NOT equal to 100");
+                }
+                if (task.EndDate <= DateTime.Now) throw new Exception("End date exceeds current date.");
+
+                // Tìm Task hiện tại theo TaskId
+                var existingTask = await _taskService.GetTaskById(task.TaskId);
+                if (existingTask == null)
+                {
+                    throw new Exception("Task not found");
+                }
+
+                //Nếu Overdue thì Re-Assign
+                if (existingTask.Status == nameof(TasksStatus.Overdue))
+                {
+                    var deletesTask = await _taskService.DeleteTask(existingTask.TaskId);
+                    if (!deletesTask)
+                    {
+                        throw new Exception("Error re-assign task");
+                    }
+
+                    core.Models.Task taskModel = new core.Models.Task();
+
+                    taskModel.ProjectId = task.ProjectId;
+                    taskModel.TaskName = task.TaskName;
+                    taskModel.Description = task.Description;
+                    taskModel.StartDate = task.StartDate;
+                    taskModel.EndDate = task.EndDate;
+
+                    var createTask = await _taskService.CreateTask(taskModel);
+                    if (!createTask)
+                    {
+                        throw new Exception("Error re-assign task");
+                    }
+
+                    var taskIdNew = taskModel.TaskId;
+                    // Tạo TaskAssign cho Task mới
+                    foreach (var studentId in task.AssignedMembers)
+                    {
+                        var createdTaskAssign = await _taskAssignService.CreateTaskAssign(new TaskAssign
+                        {
+                            TaskId = taskIdNew,
+                            StudentId = studentId,
+                            AssignedDate = DateTime.Now
+                        });
+
+                        if (createdTaskAssign == null)
+                        {
+                            throw new Exception("Error re-assign task");
+                        }
+                    }
+
+                    var deletedTaskDetails = await _taskDetailService.DeleteTaskDetailsByTaskId(existingTask.TaskId);
+                    if (!deletedTaskDetails)
+                    {
+                        throw new Exception("Error re-assign task");
+                    }
+                    foreach (var taskDetailModel in task.TaskDetailsModel)
+                    {
+                        var createdTaskDetails = await _taskDetailService.CreateTaskDetails(new TaskDetail
+                        {
+                            TaskId = taskIdNew,
+                            TaskDetailName = taskDetailModel.TaskDetailName,
+                            ProgressPercentage = taskDetailModel.ProgressPercentage,
+                            IsCompleted = false,
+                            IsDeleted = false,
+                        });
+                        if (createdTaskDetails == null)
+                        {
+                            throw new Exception("Error re-assign task");
+                        }
+                    }
+                    // Kiểm tra cập nhật Progress và Status
+                    var loadProgressTaskProgress = await _taskProgressService.LoadProgressUpdateTaskProgressByTaskId(taskIdNew);
+                    var projectId = task.ProjectId;
+                    var loadProgressProject = await _projectProgressService.LoadProgressUpdateProjectProgressByProjectId(projectId);
+               
+                    //Gửi mail
+                    var taskDeltailList = await _taskDetailService.GetTaskDetailListByTaskId(taskIdNew);
+
+                    var taskEmail = $@"
+    <!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff; 
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        table, th, td {{
+            border: 1px solid #ddd;
+        }}
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f4f4f4;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear EXE Students,</h2>
+
+    <p>You have been assigned a new task in your project.</p>
+
+    <p><strong>Task Information:</strong></p>
+    <p><strong>Name:</strong> {taskModel.TaskName}</p>
+    <p><strong>Start Date:</strong> {taskModel.StartDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Deadline:</strong> {taskModel.EndDate.ToString("MMMM dd, yyyy")}</p>
+    <p><strong>Description:</strong> {taskModel.Description}</p>
+    
+    <p><strong>Details:</strong></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Task Detail Name</th>
+                <th>Progress Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+";
+                foreach (var item in taskDeltailList)
+                {
+                    taskEmail += $@"
+            <tr>
+                <td>{item.TaskDetailName}</td>
+                <td>{item.ProgressPercentage}%</td>
+            </tr>";
+                }
+
+                taskEmail += @"
+        </tbody>
+    </table>
+
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+
+    <p>Best regards,<br />
+    [Your Name]<br />
+    [Your Position]<br />
+    [Your Contact Information]</p>
+</body>
+</html>
+";
+
+                    var taskAssigns = await _taskAssignService.GetTaskAssignsByTaskId(taskIdNew);
+
+                    List<string> emailList = new List<string>();
+                    foreach (var taskAssign in taskAssigns)
+                    {
+                        var student = await _studentService.GetStudentById(taskAssign.StudentId);
+
+    #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        _emailService.SendEmailAsync(student.User.Email, "Task of Project", taskEmail);
+    #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                    }
+
+                    response.Data = taskModel;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Error re-assign task");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+        }
     }
 }
