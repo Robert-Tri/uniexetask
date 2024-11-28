@@ -79,18 +79,20 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("ReqTopicByMentorId")]
-        public async Task<IActionResult> GetReqTopicListByMentorId(int mentorId)
+        public async Task<IActionResult> GetReqTopicListByMentorId(int groupId)
         {
-            // Lấy mentor từ nhóm mà mentorId quản lý
-            var mentor = await _mentorService.GetMentorByGroupId(mentorId);
+            //var mentor = await _mentorService.GetMentorWithGroupAsync(groupId);
 
-            if (mentor == null)
+            var mentor = await _mentorService.GetMentorByGroupId(groupId);
+
+            var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
+
+            if (reqTopicList == null)
             {
                 return NotFound("Mentor not found");
             }
 
-            // Trả về mentor
-            return Ok(mentor);
+            return Ok(reqTopicList);
         }
 
 
@@ -350,9 +352,17 @@ namespace uniexetask.api.Controllers
 
             var existedTopics = await _reqTopicService.GetReqTopicByDescription($"Topic{groupCheck.GroupId}/{file.FileName}");
             if (existedTopics.Any())
-                return Conflict(new { Message = "Topic with the same name already exists." });
+                return Conflict(new { Message = "Description with the same name already exists." });
 
-            //var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentorId);
+            var mentor = await _mentorService.GetMentorByGroupId(groupCheck.GroupId);
+
+            var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
+
+            var existingTopicName = reqTopicList.Any(rt => string.Equals(rt.TopicName, topicName, StringComparison.OrdinalIgnoreCase));
+            if (existingTopicName)
+            {
+                return Conflict(new { Message = "Topic with the same name already exists." });
+            }
 
             var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
             int nextCodeNumber = 1;
@@ -404,7 +414,7 @@ namespace uniexetask.api.Controllers
             }
             else
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Lỗi Tạo." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Create fails." });
             }
         }
 

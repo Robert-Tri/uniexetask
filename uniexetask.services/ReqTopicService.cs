@@ -142,10 +142,9 @@ namespace uniexetask.services
         public async Task<Mentor> GetMentorGroupByUserId(int userId)
         {
             var mentor = await _unitOfWork.Mentors.GetAsync(filter: rm => rm.UserId == userId);
-            var mentorResult = mentor.FirstOrDefault();  // Lấy phần tử đầu tiên nếu có
+            var mentorResult = mentor.FirstOrDefault(); 
             if (mentorResult == null)
             {
-                // Xử lý khi không tìm thấy mentor
                 return null;
             }
             return mentorResult;
