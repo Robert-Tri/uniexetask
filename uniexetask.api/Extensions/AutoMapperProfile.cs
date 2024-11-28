@@ -15,6 +15,7 @@ namespace Unitask.Api.Extensions
             CreateMap<RegMemberFormModel, RegMemberForm>().ReverseMap();
             CreateMap<ReqTopicModel, RegTopicForm>().ReverseMap();
             CreateMap<TopicModel, Topic>().ReverseMap();
+            CreateMap<TopicForMentorModel, TopicForMentor>().ReverseMap();
             CreateMap<GroupModel, Group>().ReverseMap();
             CreateMap<SubjectModel, Subject>().ReverseMap();
             CreateMap<StudentModel, Student>().ReverseMap();

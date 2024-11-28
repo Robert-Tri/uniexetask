@@ -103,6 +103,13 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
             }
 
+            var group = await _groupService.GetGroupById(member.GroupId);
+
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot add members." });
+            }
+
             var student = await _studentService.GetStudentByCode(member.StudentCode);
             if (student == null)
             {
@@ -152,7 +159,7 @@ namespace uniexetask.api.Controllers
                 });
             }
 
-            var group = await _groupService.GetGroupById(member.GroupId);
+            
             if (group == null)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Group with ID {member.GroupId} not found." });
