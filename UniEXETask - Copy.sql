@@ -485,6 +485,23 @@ CREATE TABLE TOPIC_FOR_MENTOR (
     FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
+CREATE TABLE CONFIG_SYSTEM (
+    config_id INT PRIMARY KEY IDENTITY(1,1),
+	config_name NVARCHAR(250) NOT NULL,
+	number INT,
+	start_date DATETIME
+);
+
+
+-- Thêm dữ liệu mẫu cho bảng Campus
+INSERT INTO CONFIG_SYSTEM (config_name, number, start_date)
+VALUES 
+('MAX_REG_TOPIC', 5, NULL),
+('EDIT_MENTOR', NULL, '2024-12-15'),
+('MIN_MEMBER_EXE101', 4, NULL),
+('MAX_MEMBER_EXE101', 6, NULL),
+('MIN_MEMBER_EXE201', 6, NULL),
+('MAX_MEMBER_EXE201', 8, NULL);
 
 -- Thêm dữ liệu mẫu cho bảng Campus
 INSERT INTO CAMPUS (campus_code, campus_name, location)
