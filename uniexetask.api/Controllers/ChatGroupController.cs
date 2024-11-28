@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
+using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -14,11 +17,17 @@ namespace uniexetask.api.Controllers
     {
         private readonly IChatGroupService _chatGroupService;
         private readonly IUserService _userService;
+        private readonly IStudentService _studentService;
+        private readonly IGroupService _groupService;
+        private readonly IMapper _mapper;
 
-        public ChatGroupController(IChatGroupService chatGroupService, IUserService userService)
+        public ChatGroupController(IChatGroupService chatGroupService, IUserService userService, IGroupService groupService, IStudentService studentService, IMapper mapper)
         {
             _chatGroupService = chatGroupService;
             _userService = userService;
+            _groupService = groupService;
+            _studentService = studentService;
+            _mapper = mapper;
         }
 
         [HttpGet("user")]
@@ -40,12 +49,26 @@ namespace uniexetask.api.Controllers
                 }
                 foreach (var chatgroup in chatgroups)
                 {
+                    Student? student = null;
+                    if (chatgroup.Type == nameof(ChatGroupType.Personal))
+                    {
+                        var chatGroupWithUsers = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatgroup.ChatGroupId);
+                        if (chatGroupWithUsers != null && chatGroupWithUsers.Users != null && chatGroupWithUsers.Users.Count > 0)
+                        {
+                            foreach (var user in chatGroupWithUsers.Users)
+                            {
+                                if (user.UserId == userId) continue;
+                                student = await _studentService.GetStudentByUserId(user.UserId);
+                            }
+                        }
+                    }
                     var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
                     list.Add(new ChatGroupResponse
                     {
                         ChatGroup = chatgroup,
                         LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]",
-                        SendDatetime = latestMessage != null ? latestMessage.SendDatetime : null
+                        SendDatetime = latestMessage != null ? latestMessage.SendDatetime : null,
+                        Student = student != null ? _mapper.Map<StudentModel>(student) : null,
                     });
                 }
                 response.Data = list;
