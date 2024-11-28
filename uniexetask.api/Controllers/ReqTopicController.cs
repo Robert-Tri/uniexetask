@@ -25,6 +25,7 @@ namespace uniexetask.api.Controllers
     {
         private readonly string _bucketName = "exeunitask.appspot.com";
         private readonly StorageClient _storageClient;
+        private readonly IProjectProgressService _projectProgressService;
         private readonly ITimeLineService _timeLineService;
         private readonly IProjectService _projectService;
         private readonly IMentorService _mentorService;
@@ -37,7 +38,8 @@ namespace uniexetask.api.Controllers
         private readonly IHubContext<NotificationHub> _hubContext;
 
         public ReqTopicController(
-            StorageClient storageClient, 
+            StorageClient storageClient,
+            IProjectProgressService projectProgressService,
             ITimeLineService timeLineService,
             IProjectService projectService, 
             ITopicService userService, 
@@ -49,6 +51,7 @@ namespace uniexetask.api.Controllers
             IHubContext<NotificationHub> hubContext,
             INotificationService notificationService)
         {
+            _projectProgressService = projectProgressService;
             _storageClient = storageClient;
             _projectService = projectService;
             _topicService = userService;
@@ -75,26 +78,21 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("Test")]
+        [HttpGet("ReqTopicByMentorId")]
         public async Task<IActionResult> GetReqTopicListByMentorId(int mentorId)
         {
-            // Gọi service để lấy danh sách RegTopicForm theo mentorId
-            var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentorId);
+            // Lấy mentor từ nhóm mà mentorId quản lý
+            var mentor = await _mentorService.GetMentorByGroupId(mentorId);
 
-            if (reqTopicList == null || !reqTopicList.Any())
+            if (mentor == null)
             {
-                return NotFound(new ApiResponse<string>
-                {
-                    ErrorMessage = "Không tìm thấy yêu cầu đề tài nào liên quan đến mentor này."
-                });
+                return NotFound("Mentor not found");
             }
 
-            // Trả về danh sách RegTopicForm trong một ApiResponse
-            return Ok(new ApiResponse<IEnumerable<RegTopicForm>>
-            {
-                Data = reqTopicList
-            });
+            // Trả về mentor
+            return Ok(mentor);
         }
+
 
 
         [Authorize(Roles = "Mentor")]
@@ -241,6 +239,18 @@ namespace uniexetask.api.Controllers
             var objProject = _mapper.Map<Project>(project);
             var createProject = await _projectService.CreateProject(objProject);
 
+            var projectProgress = new ProjectProgressModel
+            {
+                ProjectId = createProject.ProjectId,
+                ProgressPercentage = 0,
+                UpdatedDate = DateTime.Now,
+                Note = null,
+                IsDeleted= false
+            };
+
+            var objProjectProgress = _mapper.Map<ProjectProgress>(projectProgress);
+            var createProjectProgress = await _projectProgressService.CreateProjectProgress(objProjectProgress);
+
             var groupUpdate = await _groupService.UpdateGroupApproved(reqTopic.GroupId);
 
             var reqTopicList = await _reqTopicService.GetReqTopicByGroupId(reqTopic.GroupId);
@@ -250,7 +260,7 @@ namespace uniexetask.api.Controllers
                 await _reqTopicService.UpdateApproveTopic(reqTopicItem.RegTopicId);
             }
 
-            if (topicId > 0 && createProject)
+            if (topicId > 0 && createProject != null)
             {
                 var response = new ApiResponse<object>
                 {
@@ -342,6 +352,7 @@ namespace uniexetask.api.Controllers
             if (existedTopics.Any())
                 return Conflict(new { Message = "Topic with the same name already exists." });
 
+            //var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentorId);
 
             var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
             int nextCodeNumber = 1;

@@ -9,5 +9,6 @@ namespace uniexetask.services.Interfaces
         Task<string?> GetMentorNameByGroupId(int groupId);
         Task<Mentor?> GetMentorByUserId(int userId);
         Task<Mentor?> GetMentorByEmail(string email);
+        Task<Mentor?> GetMentorByGroupId(int groupId);
     }
 }
