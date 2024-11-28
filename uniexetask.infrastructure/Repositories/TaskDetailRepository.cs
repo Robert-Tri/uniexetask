@@ -17,7 +17,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<IEnumerable<TaskDetail>> GetTaskDetailsByTaskIdAsync(int taskId)
         {
-            return await dbSet.Where(t => t.TaskId == taskId).Include(r => r.Task).ToListAsync();
+            return await dbSet.Where(t => t.TaskId == taskId && !t.IsDeleted).Include(r => r.Task).ToListAsync();
         }
     }
 }

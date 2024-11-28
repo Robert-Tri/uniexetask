@@ -68,23 +68,6 @@ namespace uniexetask.services
             }
 
         }
-        public int ChatGroupId { get; set; }
-
-        public string ChatGroupName { get; set; } = null!;
-
-        public string? ChatGroupAvatar { get; set; }
-
-        public DateTime CreatedDate { get; set; }
-
-        public int CreatedBy { get; set; }
-
-        public int OwnerId { get; set; }
-
-        public int? GroupId { get; set; }
-
-        public DateTime LatestActivity { get; set; }
-
-        public string Type { get; set; } = null!;
 
         public async Task<ChatGroup?> GetChatGroupByChatGroupId(int chatGroupId)
         {

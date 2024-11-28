@@ -94,9 +94,10 @@ namespace uniexetask.services
                 {
                     foreach (var taskDetail in taskDetails)
                     {
-                        _unitOfWork.TaskDetails.Delete(taskDetail);
+                        taskDetail.IsDeleted = true;
+                        _unitOfWork.TaskDetails.Update(taskDetail);
                     }
-                    var result = await _unitOfWork.SaveAsync();
+                    var result = _unitOfWork.Save();
 
                     return result > 0;
                 }
