@@ -164,6 +164,36 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("view-profile/{studentCode}")]
+        public async Task<IActionResult> GetUserProfile(string studentCode)
+        {
+            ApiResponse<User> response = new ApiResponse<User>();
+            List<ChatMessageResponse> list = new List<ChatMessageResponse>();
+            try
+            {
+                if (string.IsNullOrEmpty(studentCode)) throw new Exception("student code not found");
+                var student = await _studentsService.GetStudentByCode(studentCode);
+                if (student == null) throw new Exception("student not found");
+                var user = await _userService.GetUserByIdWithCampusAndRoleAndStudents(student.UserId);
+
+                if (user != null)
+                {
+                    response.Data =user;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("student not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+        }
+
 
         [HttpPost]
         [Route("upload-excel")]

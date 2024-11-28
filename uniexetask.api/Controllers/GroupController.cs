@@ -8,6 +8,9 @@ using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using System;
+using System.Security.Claims;
+using uniexetask.core.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace uniexetask.api.Controllers
 {
@@ -17,12 +20,14 @@ namespace uniexetask.api.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly IMentorService _mentorService;
+        private readonly IStudentService _studentService;
         private readonly IMapper _mapper;
-        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper)
+        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper, IStudentService studentService)
         {
             _groupService = groupService;
             _mentorService = mentorService;
             _mapper = mapper;
+            _studentService = studentService;
         }
 
         [HttpGet("group-subject")]
@@ -119,6 +124,44 @@ namespace uniexetask.api.Controllers
 
             response.Data = model;
             return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet("get-group")]
+        public async Task<IActionResult> GetGroupToPrepareAddMenberInChatGroup()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            ApiResponse<GroupModel> response = new ApiResponse<GroupModel>();
+            try 
+            {
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid UserId");
+                }
+                var group = await _groupService.GetGroupByUserId(userId);
+                if (group != null)
+                {
+                    foreach (var member in group.GroupMembers)
+                    {
+                        var student = await _studentService.GetStudentByUserId(userId);
+                        if (student == null) continue;
+                        if (student.StudentId == member.StudentId && member.Role == nameof(GroupMemberRole.Leader))
+                        {
+                            response.Data = _mapper.Map<GroupModel>(group);
+                            return Ok(response);
+                        }
+                        
+                    }
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+
         }
     }
 }

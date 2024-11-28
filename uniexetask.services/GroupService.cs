@@ -357,8 +357,22 @@ namespace uniexetask.services
                     }
                     else
                     {
+                        var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
+                        if (chatGroup != null)
+                        {
+                            var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
+                            if (chatGroupWithUsers != null)
+                            {
+                                chatGroupWithUsers.Users.Clear();
+                                _unitOfWork.ChatGroups.Update(chatGroupWithUsers);
+                                _unitOfWork.Save();
+                                _unitOfWork.ChatGroups.Delete(chatGroupWithUsers);
+                                _unitOfWork.Save();
+                            }
+                        }
                         group.IsDeleted = true;
                         await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
+                        
                         _unitOfWork.Groups.Update(group);
                     }
                 }
@@ -427,6 +441,7 @@ namespace uniexetask.services
                     IsCurrentPeriod = true,
                     Status = "Eligible"
                 };
+
                 await _unitOfWork.Groups.InsertAsync(groupToAdd);
                 groupDictionary.Add(groupToAdd, groupSize);
             }
@@ -443,6 +458,35 @@ namespace uniexetask.services
                         StudentId = student.StudentId,
                         Role = i == 0 ? "Leader" : "Member"
                     };
+                    var existingChatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.Key.GroupId);
+                    if (existingChatGroup == null)
+                    {
+                        var newChatGroup = new ChatGroup
+                        {
+                            ChatGroupName = group.Key.GroupName,
+                            ChatGroupAvatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg",
+                            CreatedDate = DateTime.Now,
+                            CreatedBy = student.UserId,
+                            OwnerId = student.UserId,
+                            GroupId = group.Key.GroupId,
+                            LatestActivity = DateTime.Now,
+                            Type = nameof(ChatGroupType.Group)
+                        };
+                        await _unitOfWork.ChatGroups.InsertAsync(newChatGroup);
+                        _unitOfWork.Save();
+                    }
+                    var chatgroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.Key.GroupId);
+                    if (chatgroup != null)
+                    {
+                        var user = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+                        if (user != null)
+                        {
+                            chatgroup.Users.Add(user);
+                            _unitOfWork.ChatGroups.Update(chatgroup);
+                            _unitOfWork.Save();
+                        }
+                    }
+
                     students.RemoveAt(0);
                     await _unitOfWork.GroupMembers.InsertAsync(groupMember);
                 }

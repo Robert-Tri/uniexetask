@@ -1,10 +1,10 @@
 ﻿
-USE master
+/*USE master
 GO
 CREATE DATABASE UniEXETask
 GO
 USE UniEXETask
-GO
+GO*/
 
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (
@@ -485,6 +485,23 @@ CREATE TABLE TOPIC_FOR_MENTOR (
     FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
+CREATE TABLE CONFIG_SYSTEM (
+    config_id INT PRIMARY KEY IDENTITY(1,1),
+	config_name NVARCHAR(250) NOT NULL,
+	number INT,
+	start_date DATETIME
+);
+
+
+-- Thêm dữ liệu mẫu cho bảng Campus
+INSERT INTO CONFIG_SYSTEM (config_name, number, start_date)
+VALUES 
+('MAX_REG_TOPIC', 5, NULL),
+('EDIT_MENTOR', NULL, '2024-12-15'),
+('MIN_MEMBER_EXE101', 4, NULL),
+('MAX_MEMBER_EXE101', 6, NULL),
+('MIN_MEMBER_EXE201', 6, NULL),
+('MAX_MEMBER_EXE201', 8, NULL);
 
 -- Thêm dữ liệu mẫu cho bảng Campus
 INSERT INTO CAMPUS (campus_code, campus_name, location)
@@ -497,7 +514,7 @@ VALUES
 INSERT INTO SUBJECT (subject_code, subject_name)
 VALUES 
 ('EXE101', 'Entrepreneurship Basics'),
-('EXE102', 'Advanced Entrepreneurship');
+('EXE201', 'Advanced Entrepreneurship');
 
 -- Thêm dữ liệu mẫu cho bảng Role
 INSERT INTO ROLE (name, description)
@@ -823,5 +840,5 @@ INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_dat
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE201', N'Finalize Group EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Finalize Mentor EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Finalize Mentor EXE201', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Finalize Mentor EXE201', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 2)
