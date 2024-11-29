@@ -36,6 +36,7 @@
         IReqTopicRepsitory ReqTopic { get; }
         IMeetingScheduleRepository MeetingSchedules { get; }
         IConfigSystemRepository ConfigSystems { get; }
+        ITopicForMentorRepository TopicForMentor { get; }
 
         int Save();
 
