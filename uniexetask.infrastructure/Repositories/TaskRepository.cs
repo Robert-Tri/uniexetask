@@ -20,6 +20,5 @@ namespace uniexetask.infrastructure.Repositories
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
         }
-
     }
 }
