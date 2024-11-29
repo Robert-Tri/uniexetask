@@ -44,6 +44,7 @@ namespace uniexetask.infrastructure.Repositories
         public ITaskDetailRepository TaskDetails { get; }
         public IReqTopicRepsitory ReqTopic { get; }
         public IMeetingScheduleRepository MeetingSchedules { get; }
+        public IConfigSystemRepository ConfigSystems { get; }
         public ITopicForMentorRepository TopicForMentor { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
@@ -79,6 +80,7 @@ namespace uniexetask.infrastructure.Repositories
                             ITaskDetailRepository taskDetails,
                             IReqTopicRepsitory reqTopic,
                             IMeetingScheduleRepository meetingSchedules,
+                            IConfigSystemRepository configSystem,
                             ITopicForMentorRepository topicForMentor)
         {
             _dbContext = dbContext;
@@ -114,6 +116,7 @@ namespace uniexetask.infrastructure.Repositories
             TaskDetails = taskDetails;
             ReqTopic = reqTopic;
             MeetingSchedules = meetingSchedules;
+            ConfigSystems = configSystem;
             TopicForMentor = topicForMentor;
         }
 

@@ -1,10 +1,10 @@
 ﻿
-/*USE master
+USE master
 GO
 CREATE DATABASE UniEXETask
 GO
 USE UniEXETask
-GO*/
+GO
 
 -- Tạo bảng Campus
 CREATE TABLE CAMPUS (

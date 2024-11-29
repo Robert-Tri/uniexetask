@@ -8,9 +8,17 @@ namespace uniexetask.services
     public class GroupService : IGroupService
     {
         public IUnitOfWork _unitOfWork;
+        private readonly int _min_member_exe101;
+        private readonly int _max_member_exe101;
+        private readonly int _min_member_exe201;
+        private readonly int _max_member_exe201;
         public GroupService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _min_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE101)?.Number ?? 4;
+            _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
+            _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 8;
+            _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 10;
         }
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
@@ -289,13 +297,13 @@ namespace uniexetask.services
 
             if (SubjectType.EXE101 == subjectType)
             {
-                minGroupSize = 4;
-                maxGroupSize = 6;
+                minGroupSize = _min_member_exe101;
+                maxGroupSize = _max_member_exe101;
             }
             else if (SubjectType.EXE201 == subjectType)
             {
-                minGroupSize = 8;
-                maxGroupSize = 10;
+                minGroupSize = _min_member_exe101;
+                maxGroupSize = _max_member_exe201;
             }
 
             if(numStudents < minGroupSize)
