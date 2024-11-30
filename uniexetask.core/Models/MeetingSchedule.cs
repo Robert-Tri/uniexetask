@@ -6,6 +6,7 @@ namespace uniexetask.core.Models;
 public partial class MeetingSchedule
 {
     public int ScheduleId { get; set; }
+    public string MeetingScheduleName { get; set; } = null!;
 
     public int GroupId { get; set; }
 
@@ -20,6 +21,8 @@ public partial class MeetingSchedule
     public string Type { get; set; } = null!;
 
     public string Content { get; set; } = null!;
+
+    public string? Url { get; set; }
 
     public bool IsDeleted { get; set; }
 

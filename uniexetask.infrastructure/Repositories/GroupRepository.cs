@@ -52,5 +52,13 @@ namespace uniexetask.infrastructure.Repositories
                             .SelectMany(cg => cg.GroupMembers)
                             .AnyAsync(u => u.StudentId == studentId);
         }
+
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        {
+            return await dbSet
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%"))
+                        .Take(5)
+                        .ToListAsync();
+        }
     }
 }

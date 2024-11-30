@@ -18,5 +18,6 @@ namespace uniexetask.services.Interfaces
         Task<Group?> GetGroupWithSubject(int groupId);
         System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups(SubjectType subjectType);
         Task<bool> UpdateGroupApproved(int groupId);
+        Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query);
     }
 }

@@ -501,5 +501,10 @@ namespace uniexetask.services
             var studentIdSet = await UpdateEligibleGroup(subjectType);
             await AssignStudentsToGroups(studentIdSet, subjectType);
         }
+
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        {
+            return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
+        }
     }
 }

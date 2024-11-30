@@ -319,6 +319,7 @@ CREATE TABLE MENTOR_GROUP (
 -- Tạo bảng MEETING_SCHEDULE
 CREATE TABLE MEETING_SCHEDULE (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
+	meeting_schedule_name NVARCHAR(250) NOT NULL,
     group_id INT NOT NULL,
     mentor_id INT NOT NULL,
 	location NVARCHAR(MAX) NOT NULL,
@@ -326,6 +327,7 @@ CREATE TABLE MEETING_SCHEDULE (
 	duration INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
 	content NVARCHAR(250) NOT NULL,
+	url NVARCHAR(250),
 	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
