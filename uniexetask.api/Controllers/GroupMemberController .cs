@@ -25,6 +25,7 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class GroupMemberController : ControllerBase
     {
+        private IConfigSystemService _configSystemService;
         private readonly IMentorService _mentorService;
         private readonly IGroupService _groupService;
         private readonly ICampusService _campusService;
@@ -36,6 +37,7 @@ namespace uniexetask.api.Controllers
         private readonly IHubContext<NotificationHub> _hubContext;
 
         public GroupMemberController(
+            IConfigSystemService configSystemService,
             ICampusService campusService, 
             IMentorService mentorService, 
             INotificationService notificationService, 
@@ -46,6 +48,7 @@ namespace uniexetask.api.Controllers
             IHubContext<NotificationHub> hubContext,
             IChatGroupService chatGroupService)
         {
+            _configSystemService = configSystemService;
             _mentorService = mentorService;
             _notificationService = notificationService;
             _studentService = studentService;
@@ -103,6 +106,13 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
             }
 
+            var group = await _groupService.GetGroupById(member.GroupId);
+
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot add members." });
+            }
+
             var student = await _studentService.GetStudentByCode(member.StudentCode);
             if (student == null)
             {
@@ -132,12 +142,17 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You cannot add members from a different subject." });
             }
 
-            if (subject.SubjectId == 1 && users.Count >= 5)
+            var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
+           .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE101");
+            var maxMemberExe201 = (await _configSystemService.GetConfigSystems())
+            .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE201");
+
+            if (subject.SubjectId == 1 && users.Count >= maxMemberExe101.Number)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have enough members for EXE101." });
             }
 
-            if (subject.SubjectId == 2 && users.Count >= 8)
+            if (subject.SubjectId == 2 && users.Count >= maxMemberExe201.Number)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have enough members for EXE201." });
             }
@@ -152,7 +167,7 @@ namespace uniexetask.api.Controllers
                 });
             }
 
-            var group = await _groupService.GetGroupById(member.GroupId);
+            
             if (group == null)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Group with ID {member.GroupId} not found." });
@@ -193,17 +208,21 @@ namespace uniexetask.api.Controllers
 
             var usersCount = request.StudentCodes.Count;
 
-            if (studentLeader.SubjectId == 1 && usersCount >= 6)
+            var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
+            .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE101");
+            var maxMemberExe201 = (await _configSystemService.GetConfigSystems())
+            .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE201");
+
+            if (studentLeader.SubjectId == 1 && usersCount >= maxMemberExe101.Number)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The limit is 6 people." });
             }
 
-            if (studentLeader.SubjectId == 2 && usersCount >= 8)
+            if (studentLeader.SubjectId == 2 && usersCount >= maxMemberExe201.Number)
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The limit is 8 people." });
             }
 
-            // Check student codes
             var studentCodesHashSet = new HashSet<string>();
             foreach (var studentCode in request.StudentCodes)
             {

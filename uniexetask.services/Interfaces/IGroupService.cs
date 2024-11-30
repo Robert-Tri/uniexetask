@@ -1,5 +1,6 @@
 ﻿using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
+using static uniexetask.services.GroupService;
 
 namespace uniexetask.services.Interfaces
 {
@@ -19,5 +20,6 @@ namespace uniexetask.services.Interfaces
         System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups(SubjectType subjectType);
         Task<bool> UpdateGroupApproved(int groupId);
         Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query);
+        Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors();
     }
 }

@@ -44,6 +44,8 @@ namespace uniexetask.infrastructure.Repositories
         public ITaskDetailRepository TaskDetails { get; }
         public IReqTopicRepsitory ReqTopic { get; }
         public IMeetingScheduleRepository MeetingSchedules { get; }
+        public IConfigSystemRepository ConfigSystems { get; }
+        public ITopicForMentorRepository TopicForMentor { get; }
 
         public UnitOfWork(UniExetaskContext dbContext,
                             IUserRepository userRepository,
@@ -77,7 +79,9 @@ namespace uniexetask.infrastructure.Repositories
                             ISubjectRepository subjects,
                             ITaskDetailRepository taskDetails,
                             IReqTopicRepsitory reqTopic,
-                            IMeetingScheduleRepository meetingSchedules)
+                            IMeetingScheduleRepository meetingSchedules,
+                            IConfigSystemRepository configSystem,
+                            ITopicForMentorRepository topicForMentor)
         {
             _dbContext = dbContext;
             Users = userRepository;
@@ -112,6 +116,8 @@ namespace uniexetask.infrastructure.Repositories
             TaskDetails = taskDetails;
             ReqTopic = reqTopic;
             MeetingSchedules = meetingSchedules;
+            ConfigSystems = configSystem;
+            TopicForMentor = topicForMentor;
         }
 
         public void BeginTransaction()

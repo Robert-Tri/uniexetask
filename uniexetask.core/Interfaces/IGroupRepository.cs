@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Models;
+﻿using uniexetask.core.Models;
 
 namespace uniexetask.core.Interfaces
 {
@@ -16,5 +11,7 @@ namespace uniexetask.core.Interfaces
         Task<Mentor?> GetMentorInGroup(int groupId);
         Task<bool> IsUserInGroup(int studentId, int groupId);
         Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query);
+        Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor();
+        System.Threading.Tasks.Task RemoveMentorFromGroup(int groupId);
     }
 }

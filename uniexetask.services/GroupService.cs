@@ -8,9 +8,17 @@ namespace uniexetask.services
     public class GroupService : IGroupService
     {
         public IUnitOfWork _unitOfWork;
+        private readonly int _min_member_exe101;
+        private readonly int _max_member_exe101;
+        private readonly int _min_member_exe201;
+        private readonly int _max_member_exe201;
         public GroupService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _min_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE101)?.Number ?? 4;
+            _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
+            _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 8;
+            _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 10;
         }
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
@@ -160,7 +168,7 @@ namespace uniexetask.services
             if (group.HasMentor == true)
             {
                 var mentorInGroup = await _unitOfWork.Groups.GetMentorInGroup(group.GroupId);
-                if (mentorInGroup != null)
+                if (mentorInGroup != null && chatGroup != null)
                 {
                     var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroup.ChatGroupId, mentorInGroup.UserId);
                     if (isUserInChatGroup)
@@ -176,13 +184,13 @@ namespace uniexetask.services
 
                 }
                 var userToAdd = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
-                if (userToAdd != null) 
+                if (userToAdd != null && chatGroup != null) 
                 {
                     chatGroup.Users.Add(userToAdd);
                     _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                 }
-                group.Mentors.Clear();
+                await _unitOfWork.Groups.RemoveMentorFromGroup(groupId);
                 group.Mentors.Add(mentor);
                 _unitOfWork.Save();
             }
@@ -205,11 +213,11 @@ namespace uniexetask.services
                             }
                         }
                     }
-                    group.Mentors.Add(mentor);
-                    group.HasMentor = true;
-                    _unitOfWork.Groups.Update(group);
-                    _unitOfWork.Save();
                 }
+                group.Mentors.Add(mentor);
+                group.HasMentor = true;
+                _unitOfWork.Groups.Update(group);
+                _unitOfWork.Save();
             }
         }
 
@@ -289,13 +297,13 @@ namespace uniexetask.services
 
             if (SubjectType.EXE101 == subjectType)
             {
-                minGroupSize = 4;
-                maxGroupSize = 6;
+                minGroupSize = _min_member_exe101;
+                maxGroupSize = _max_member_exe101;
             }
             else if (SubjectType.EXE201 == subjectType)
             {
-                minGroupSize = 8;
-                maxGroupSize = 10;
+                minGroupSize = _min_member_exe101;
+                maxGroupSize = _max_member_exe201;
             }
 
             if(numStudents < minGroupSize)
@@ -505,6 +513,58 @@ namespace uniexetask.services
         public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
         {
             return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
+        }
+        
+        public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()
+        {
+            var groups = await _unitOfWork.Groups.GetCurrentPeriodGroupsWithMembersAndMentor();
+
+            var formattedGroups = groups.Select(group => new GroupDetailsResponseModel
+            {
+                GroupId = group.GroupId,
+                GroupName = group.GroupName,
+                Status = group.Status,
+                GroupMembers = group.GroupMembers.Select(gm => new GroupMemberResponseModel
+                {
+                    StudentId = gm.StudentId,
+                    FullName = gm.Student.User.FullName,
+                    StudentCode = gm.Student.StudentCode,
+                    CampusId = gm.Student.User.CampusId,
+                    Major = gm.Student.Major ?? "N/A",
+                    Role = gm.Role
+                }).ToList(),
+                Mentor = group.Mentors.Any() ? new MentorResponseModel
+                {
+                    MentorId = group.Mentors.First().MentorId,
+                    FullName = group.Mentors.First().User.FullName,
+                    Specialty = group.Mentors.First().Specialty
+                } : null 
+            }).ToList();
+
+            return formattedGroups;
+        }
+        public class GroupDetailsResponseModel
+        {
+            public int GroupId { get; set; }
+            public string GroupName { get; set; }
+            public string Status { get; set; }
+            public List<GroupMemberResponseModel> GroupMembers { get; set; }
+            public MentorResponseModel Mentor { get; set; }
+        }
+        public class GroupMemberResponseModel
+        {
+            public int StudentId { get; set; }
+            public string FullName { get; set; }
+            public string StudentCode { get; set; }
+            public int CampusId { get; set; }
+            public string Major { get; set; }
+            public string Role { get; set; }
+        }
+        public class MentorResponseModel
+        {
+            public int MentorId { get; set; }
+            public string FullName { get; set; }
+            public string Specialty { get; set; }
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace uniexetask.core.Interfaces
+﻿namespace uniexetask.core.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
@@ -41,6 +35,8 @@ namespace uniexetask.core.Interfaces
         ITaskDetailRepository TaskDetails { get; }
         IReqTopicRepsitory ReqTopic { get; }
         IMeetingScheduleRepository MeetingSchedules { get; }
+        IConfigSystemRepository ConfigSystems { get; }
+        ITopicForMentorRepository TopicForMentor { get; }
 
         int Save();
 

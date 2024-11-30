@@ -70,6 +70,8 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ITaskDetailService, TaskDetailService>();
 builder.Services.AddScoped<IReqTopicService, ReqTopicService>();
 builder.Services.AddScoped<IMeetingScheduleService, MeetingScheduleService>();
+builder.Services.AddScoped<IConfigSystemService, ConfigSystemService>();
+builder.Services.AddScoped<ITopicForMentorService, TopicForMentorService>();
 
 builder.Services.AddHostedService<TimelineBackgroundService>();
 builder.Services.AddHostedService<TaskBackgroundService>();

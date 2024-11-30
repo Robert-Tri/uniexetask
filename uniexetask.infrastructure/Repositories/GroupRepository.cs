@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
@@ -59,6 +54,19 @@ namespace uniexetask.infrastructure.Repositories
                         .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%"))
                         .Take(5)
                         .ToListAsync();
+        }
+        
+        public async Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor()
+        {
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(gm => gm.Student).ThenInclude(s => s.User).Include(g => g.Mentors).ThenInclude(m => m.User).Where(g => g.IsCurrentPeriod && !g.IsDeleted).AsNoTracking().ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task RemoveMentorFromGroup(int groupId)
+        {
+            var group = await dbSet.Include(g => g.Mentors).FirstOrDefaultAsync(g => g.GroupId == groupId);
+            if(group == null)
+                throw new Exception("Group not found");
+            group.Mentors.Remove(group.Mentors.First());
         }
     }
 }
