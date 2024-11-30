@@ -16,6 +16,10 @@ namespace uniexetask.services
         {
             return await _unitOfWork.ConfigSystems.GetAsync();
         }
+        public async Task<ConfigSystem?> GetConfigSystemById(int id)
+        {
+            return await _unitOfWork.ConfigSystems.GetByIDAsync(id);
+        }
         public async Task<bool> UpdateConfigSystem(int configSystemId, int? number, DateTime? startDate)
         {
             var existedConfigSystem = _unitOfWork.ConfigSystems.GetConfigSystemByID(configSystemId);
