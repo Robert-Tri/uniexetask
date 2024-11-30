@@ -18,14 +18,12 @@ namespace uniexetask.api.Controllers
         private readonly IChatGroupService _chatGroupService;
         private readonly IUserService _userService;
         private readonly IStudentService _studentService;
-        private readonly IGroupService _groupService;
         private readonly IMapper _mapper;
 
-        public ChatGroupController(IChatGroupService chatGroupService, IUserService userService, IGroupService groupService, IStudentService studentService, IMapper mapper)
+        public ChatGroupController(IChatGroupService chatGroupService, IUserService userService, IStudentService studentService, IMapper mapper)
         {
             _chatGroupService = chatGroupService;
             _userService = userService;
-            _groupService = groupService;
             _studentService = studentService;
             _mapper = mapper;
         }

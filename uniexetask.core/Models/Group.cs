@@ -19,6 +19,8 @@ public partial class Group
 
     public bool IsDeleted { get; set; }
 
+    public virtual ICollection<ChatGroup> ChatGroups { get; set; } = new List<ChatGroup>();
+
     public virtual ICollection<GroupInvite> GroupInvites { get; set; } = new List<GroupInvite>();
 
     public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
