@@ -1,5 +1,4 @@
-﻿
-USE master
+﻿USE master
 GO
 CREATE DATABASE UniEXETask
 GO
@@ -92,6 +91,18 @@ CREATE TABLE STUDENT (
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
+-- Tạo bảng GROUP
+CREATE TABLE [GROUP] (
+    group_id INT PRIMARY KEY IDENTITY(1,1),
+	group_name NVARCHAR(250) NOT NULL,
+	subject_id INT NOT NULL,
+	hasMentor BIT NOT NULL,
+	isCurrentPeriod BIT NOT NULL DEFAULT 1,
+	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	isDeleted BIT NOT NULL DEFAULT 0,
+);
+
 -- Tạo bảng CHAT_GROUP
 CREATE TABLE CHAT_GROUP (
     chat_group_id INT PRIMARY KEY IDENTITY(1,1),
@@ -100,9 +111,10 @@ CREATE TABLE CHAT_GROUP (
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
 	created_by INT NOT NULL,
 	owner_id INT NOT NULL,
-	group_id INT,
+	group_id INT NULL,
 	latest_activity DATETIME DEFAULT GETDATE() NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
+	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
 );
@@ -144,18 +156,6 @@ CREATE TABLE TOPIC (
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
 	description NVARCHAR(MAX) NOT NULL
-);
-
--- Tạo bảng GROUP
-CREATE TABLE [GROUP] (
-    group_id INT PRIMARY KEY IDENTITY(1,1),
-	group_name NVARCHAR(250) NOT NULL,
-	subject_id INT NOT NULL,
-	hasMentor BIT NOT NULL,
-	isCurrentPeriod BIT NOT NULL DEFAULT 1,
-	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
-	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
-	isDeleted BIT NOT NULL DEFAULT 0,
 );
 
 -- Tạo bảng PROJECT

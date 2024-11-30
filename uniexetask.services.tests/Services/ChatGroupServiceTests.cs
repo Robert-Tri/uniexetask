@@ -27,6 +27,7 @@ namespace uniexetask.services.tests.Services
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _fixture.Customize<ChatGroup>(composer => composer
+            .Without(x => x.Group)
             .Without(x => x.Users)
             .Without(x => x.ChatMessages)
             .Without(x => x.Owner)
