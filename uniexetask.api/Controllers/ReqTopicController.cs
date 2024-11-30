@@ -42,7 +42,7 @@ namespace uniexetask.api.Controllers
             IProjectProgressService projectProgressService,
             ITimeLineService timeLineService,
             IProjectService projectService, 
-            ITopicService userService, 
+            ITopicService topicService, 
             IReqTopicService reqTopicService, 
             IMentorService mentorService, 
             IMapper mapper, 
@@ -54,7 +54,7 @@ namespace uniexetask.api.Controllers
             _projectProgressService = projectProgressService;
             _storageClient = storageClient;
             _projectService = projectService;
-            _topicService = userService;
+            _topicService = topicService;
             _mentorService = mentorService;
             _reqTopicService = reqTopicService;
             _mapper = mapper;
@@ -94,8 +94,6 @@ namespace uniexetask.api.Controllers
 
             return Ok(reqTopicList);
         }
-
-
 
         [Authorize(Roles = "Mentor")]
         [HttpGet("GetGroupReqTopicList")]
@@ -345,7 +343,7 @@ namespace uniexetask.api.Controllers
             var groupMentor = await _groupService.GetGroupById(groupCheck.GroupId);
 
             if (groupMentor.HasMentor == false )
-                return BadRequest("The group does not have a mentor.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The group does not have a mentor." });
 
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");

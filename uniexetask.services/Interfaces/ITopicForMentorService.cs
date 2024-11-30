@@ -14,5 +14,7 @@ namespace uniexetask.services.Interfaces
         Task<string> GetMaxTopicCodeMentor();
         Task<TopicForMentor> GetTopicMentorById(int id);
         Task<IEnumerable<TopicForMentor>> GetTopicForMentorByMentorId(int mentorId);
+        Task<bool> UpdateTopicMentor(TopicForMentor Topics);
+        Task<TopicForMentor> GetTopicForMentorByTopicCode(string topicCode);
     }
 }
