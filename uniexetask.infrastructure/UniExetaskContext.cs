@@ -1068,6 +1068,7 @@ public partial class UniExetaskContext : DbContext
 
             entity.Property(e => e.TopicForMentorId).HasColumnName("topic_for_mentor_id");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsRegistered).HasColumnName("isRegistered");
             entity.Property(e => e.MentorId).HasColumnName("mentor_id");
             entity.Property(e => e.TopicCode)
