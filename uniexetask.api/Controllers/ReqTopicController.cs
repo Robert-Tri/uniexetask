@@ -42,7 +42,7 @@ namespace uniexetask.api.Controllers
             IProjectProgressService projectProgressService,
             ITimeLineService timeLineService,
             IProjectService projectService, 
-            ITopicService userService, 
+            ITopicService topicService, 
             IReqTopicService reqTopicService, 
             IMentorService mentorService, 
             IMapper mapper, 
@@ -54,7 +54,7 @@ namespace uniexetask.api.Controllers
             _projectProgressService = projectProgressService;
             _storageClient = storageClient;
             _projectService = projectService;
-            _topicService = userService;
+            _topicService = topicService;
             _mentorService = mentorService;
             _reqTopicService = reqTopicService;
             _mapper = mapper;
@@ -94,8 +94,6 @@ namespace uniexetask.api.Controllers
 
             return Ok(reqTopicList);
         }
-
-
 
         [Authorize(Roles = "Mentor")]
         [HttpGet("GetGroupReqTopicList")]
@@ -345,7 +343,7 @@ namespace uniexetask.api.Controllers
             var groupMentor = await _groupService.GetGroupById(groupCheck.GroupId);
 
             if (groupMentor.HasMentor == false )
-                return BadRequest("The group does not have a mentor.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "The group does not have a mentor." });
 
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -447,7 +445,7 @@ namespace uniexetask.api.Controllers
 
         [Authorize(Roles = "Student")]
         [HttpPut]
-        public async Task<IActionResult> UpdateReqTopic([FromBody] UpdateRegTopicModel reqTopic)
+        public async Task<IActionResult> UpdateReqTopic(IFormFile file, string topicName, int regTopicId)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
@@ -462,15 +460,18 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
             }
 
-            var reqNew = await _reqTopicService.GetReqTopicById(reqTopic.RegTopicId);
+            var reqNew = await _reqTopicService.GetReqTopicById(regTopicId);
 
             if (reqNew == null)
             {
                 return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "Không tìm thấy yêu cầu với ID đã cho." });
             }
 
-            reqNew.Description = reqTopic.Description;
-            reqNew.TopicName = reqTopic.TopicName;
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            reqNew.Description = $"Topic{reqNew.GroupId}/{file.FileName}";
+            reqNew.TopicName = topicName;
             var isReqUpdated = await _reqTopicService.UpdateReqTopic(reqNew);
 
             ApiResponse<object> response = new ApiResponse<object>

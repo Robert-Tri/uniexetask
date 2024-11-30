@@ -20,9 +20,18 @@ namespace uniexetask.services
         public async Task<IEnumerable<TopicForMentor>> GetTopicForMentorByMentorId(int mentorId)
         {
             var topicMentorList = await _unitOfWork.TopicForMentor.GetAsync(
-                filter: t => t.MentorId == mentorId
+                filter: t => t.MentorId == mentorId && t.IsRegistered == false
             );
             return topicMentorList;
+        }
+
+        public async Task<TopicForMentor> GetTopicForMentorByTopicCode(string topicCode)
+        {
+            var topicMentor = await _unitOfWork.TopicForMentor.GetAsync(
+                filter: t => t.TopicCode == topicCode && t.IsRegistered == false
+            );
+
+            return topicMentor.FirstOrDefault(); 
         }
 
 
@@ -44,6 +53,30 @@ namespace uniexetask.services
                     return true;
                 else
                     return false;
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateTopicMentor(TopicForMentor Topics)
+        {
+            if (Topics != null)
+            {
+                var Topic = await _unitOfWork.TopicForMentor.GetByIDAsync(Topics.TopicForMentorId);
+                if (Topic != null)
+                {
+                    Topic.TopicName = Topics.TopicName;
+                    Topic.Description = Topics.Description;
+                    Topic.IsRegistered = Topics.IsRegistered;
+
+                    _unitOfWork.TopicForMentor.Update(Topic);
+
+                    var result = _unitOfWork.Save();
+
+                    if (result > 0)
+                        return true;
+                    else
+                        return false;
+                }
             }
             return false;
         }
