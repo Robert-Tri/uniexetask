@@ -8,10 +8,10 @@ namespace uniexetask.core.Models.Enums
 {
     public enum EnumRole
     {
-        Admin,
+        Admin = 1,
+        Manager,
         Student,
         Mentor,
         Sponsor,
-        Manager
     }
 }

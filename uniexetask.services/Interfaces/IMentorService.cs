@@ -10,5 +10,6 @@ namespace uniexetask.services.Interfaces
         Task<Mentor?> GetMentorByUserId(int userId);
         Task<Mentor?> GetMentorByEmail(string email);
         Task<Mentor?> GetMentorByGroupId(int groupId);
+        Task<IEnumerable<Mentor>> GetMentorByCampusId(int campusId);
     }
 }

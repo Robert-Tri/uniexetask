@@ -168,7 +168,7 @@ namespace uniexetask.services
             if (group.HasMentor == true)
             {
                 var mentorInGroup = await _unitOfWork.Groups.GetMentorInGroup(group.GroupId);
-                if (mentorInGroup != null)
+                if (mentorInGroup != null && chatGroup != null)
                 {
                     var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroup.ChatGroupId, mentorInGroup.UserId);
                     if (isUserInChatGroup)
@@ -184,13 +184,13 @@ namespace uniexetask.services
 
                 }
                 var userToAdd = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
-                if (userToAdd != null) 
+                if (userToAdd != null && chatGroup != null) 
                 {
                     chatGroup.Users.Add(userToAdd);
                     _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                 }
-                group.Mentors.Clear();
+                await _unitOfWork.Groups.RemoveMentorFromGroup(groupId);
                 group.Mentors.Add(mentor);
                 _unitOfWork.Save();
             }
@@ -213,11 +213,11 @@ namespace uniexetask.services
                             }
                         }
                     }
-                    group.Mentors.Add(mentor);
-                    group.HasMentor = true;
-                    _unitOfWork.Groups.Update(group);
-                    _unitOfWork.Save();
                 }
+                group.Mentors.Add(mentor);
+                group.HasMentor = true;
+                _unitOfWork.Groups.Update(group);
+                _unitOfWork.Save();
             }
         }
 
@@ -508,6 +508,57 @@ namespace uniexetask.services
         {
             var studentIdSet = await UpdateEligibleGroup(subjectType);
             await AssignStudentsToGroups(studentIdSet, subjectType);
+        }
+        public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()
+        {
+            var groups = await _unitOfWork.Groups.GetCurrentPeriodGroupsWithMembersAndMentor();
+
+            var formattedGroups = groups.Select(group => new GroupDetailsResponseModel
+            {
+                GroupId = group.GroupId,
+                GroupName = group.GroupName,
+                Status = group.Status,
+                GroupMembers = group.GroupMembers.Select(gm => new GroupMemberResponseModel
+                {
+                    StudentId = gm.StudentId,
+                    FullName = gm.Student.User.FullName,
+                    StudentCode = gm.Student.StudentCode,
+                    CampusId = gm.Student.User.CampusId,
+                    Major = gm.Student.Major ?? "N/A",
+                    Role = gm.Role
+                }).ToList(),
+                Mentor = group.Mentors.Any() ? new MentorResponseModel
+                {
+                    MentorId = group.Mentors.First().MentorId,
+                    FullName = group.Mentors.First().User.FullName,
+                    Specialty = group.Mentors.First().Specialty
+                } : null 
+            }).ToList();
+
+            return formattedGroups;
+        }
+        public class GroupDetailsResponseModel
+        {
+            public int GroupId { get; set; }
+            public string GroupName { get; set; }
+            public string Status { get; set; }
+            public List<GroupMemberResponseModel> GroupMembers { get; set; }
+            public MentorResponseModel Mentor { get; set; }
+        }
+        public class GroupMemberResponseModel
+        {
+            public int StudentId { get; set; }
+            public string FullName { get; set; }
+            public string StudentCode { get; set; }
+            public int CampusId { get; set; }
+            public string Major { get; set; }
+            public string Role { get; set; }
+        }
+        public class MentorResponseModel
+        {
+            public int MentorId { get; set; }
+            public string FullName { get; set; }
+            public string Specialty { get; set; }
         }
     }
 }

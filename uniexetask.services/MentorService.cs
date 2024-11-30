@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -86,5 +87,13 @@ namespace uniexetask.services
             // Trả về mentor của user, nếu có
             return user.Mentors.FirstOrDefault(); // Giả sử mỗi user có một mentor
         }
+
+        public async Task<IEnumerable<Mentor>> GetMentorByCampusId(int campusId)
+        {
+            var userIds = (await _unitOfWork.Users.GetAsync(filter: u => u.CampusId == campusId && u.RoleId == (int)EnumRole.Mentor)).Select(u => u.UserId);
+            var mentors = await _unitOfWork.Mentors.GetAsync(filter: m => userIds.Contains(m.UserId), includeProperties: "User");
+            return mentors;
+        }
+
     }
 }

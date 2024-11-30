@@ -11,6 +11,7 @@ using System;
 using System.Security.Claims;
 using uniexetask.core.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
+using static uniexetask.services.GroupService;
 
 namespace uniexetask.api.Controllers
 {
@@ -161,7 +162,14 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = ex.Message;
                 return Ok(response);
             }
-
+        }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpGet("getcurrentgroupswithmembersandMentor")]
+        public async Task<IActionResult> GetCurrentGroupsWithMemberAndMentor()
+        {
+            ApiResponse<IEnumerable<GroupDetailsResponseModel>> respone = new ApiResponse<IEnumerable<GroupDetailsResponseModel>>();
+            respone.Data = await _groupService.GetCurrentGroupsWithMembersAndMentors();
+            return Ok(respone);
         }
     }
 }
