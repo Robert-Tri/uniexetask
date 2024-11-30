@@ -481,6 +481,7 @@ CREATE TABLE TOPIC_FOR_MENTOR (
 	topic_name NVARCHAR(100) NOT NULL,
 	description NVARCHAR(MAX) NOT NULL,
 	isRegistered BIT NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
