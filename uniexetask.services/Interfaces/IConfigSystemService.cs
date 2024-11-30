@@ -11,5 +11,6 @@ namespace uniexetask.services.Interfaces
     {
         Task<IEnumerable<ConfigSystem>> GetConfigSystems();
         Task<bool> UpdateConfigSystem(int configSystemId, int? number, DateTime? startDate);
+        Task<ConfigSystem?> GetConfigSystemById(int id);
     }
 }
