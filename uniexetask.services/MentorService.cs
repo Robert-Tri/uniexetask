@@ -30,10 +30,9 @@ namespace uniexetask.services
             return mentorWithGroup;
         }
 
-        public async Task<Mentor> GetMentorById(int id)
+        public async Task<Mentor?> GetMentorById(int id)
         {
-            var mentor = await _unitOfWork.Mentors.GetByIDAsync(id);
-            return mentor;
+            return await _unitOfWork.Mentors.GetByIDAsync(id);
         }
 
         public async Task<string?> GetMentorNameByGroupId(int groupId)

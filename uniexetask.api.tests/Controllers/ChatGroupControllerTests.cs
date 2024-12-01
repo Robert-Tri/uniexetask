@@ -9,6 +9,7 @@ using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using FluentAssertions;
 using uniexetask.api.Models.Request;
+using AutoMapper;
 
 namespace uniexetask.api.tests.Controllers
 {
@@ -16,8 +17,10 @@ namespace uniexetask.api.tests.Controllers
     {
         private readonly Mock<IChatGroupService> _chatGroupServiceMock;
         private readonly Mock<IUserService> _userServiceMock;
+        private readonly Mock<IStudentService> _studentServiceMock;
         private readonly ChatGroupController _controller;
         private readonly IFixture _fixture;
+        private readonly Mock<IMapper> _mapperMock;
 
         public ChatGroupControllerTests()
         {
@@ -25,6 +28,7 @@ namespace uniexetask.api.tests.Controllers
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _fixture.Customize<ChatGroup>(composer => composer
+            .Without(x => x.Group)
             .Without(x => x.Users)
             .Without(x => x.ChatMessages)
             .Without(x => x.Owner)
@@ -32,10 +36,41 @@ namespace uniexetask.api.tests.Controllers
             _fixture.Customize<ChatMessage>(composer => composer
             .Without(x => x.User)
             .Without(x => x.ChatGroup));
-            _chatGroupServiceMock = _fixture.Freeze<Mock<IChatGroupService>>();
-            _userServiceMock = _fixture.Freeze<Mock<IUserService>>();
+            _fixture.Customize<User>(composer => composer
+            .Without(x => x.Campus)
+            .Without(x => x.ChatGroupCreatedByNavigations)
+            .Without(x => x.ChatGroupOwners)
+            .Without(x => x.ChatMessages)
+            .Without(x => x.DocumentModifiedByNavigations)
+            .Without(x => x.DocumentUploadByNavigations)
+            .Without(x => x.Mentors)
+            .Without(x => x.NotificationReceivers)
+            .Without(x => x.NotificationSenders)
+            .Without(x => x.ProjectScores)
+            .Without(x => x.RefreshTokens)
+            .Without(x => x.Role)
+            .Without(x => x.Students)
+            .Without(x => x.ChatGroups));
+            _fixture.Customize<Student>(composer => composer
+            .Without(x => x.GroupMembers)
+            .Without(x => x.Lecturer)
+            .Without(x => x.MemberScores)
+            .Without(x => x.Subject)
+            .Without(x => x.TaskAssigns)
+            .Without(x => x.User));
+            _mapperMock = new Mock<IMapper>();
+            _fixture.Inject(_mapperMock);
 
-            _controller = new ChatGroupController(_chatGroupServiceMock.Object, _userServiceMock.Object);
+            _studentServiceMock = new Mock<IStudentService>();
+            _fixture.Inject(_studentServiceMock);
+
+            _userServiceMock = new Mock<IUserService>();
+            _fixture.Inject(_userServiceMock);
+
+            _chatGroupServiceMock = new Mock<IChatGroupService>();
+            _fixture.Inject(_chatGroupServiceMock);
+
+            _controller = new ChatGroupController(_chatGroupServiceMock.Object, _userServiceMock.Object, _studentServiceMock.Object, _mapperMock.Object);
             // Set User Claims (mock authenticated user)
             _controller.ControllerContext = new ControllerContext
             {
