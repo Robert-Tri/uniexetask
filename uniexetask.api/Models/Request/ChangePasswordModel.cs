@@ -6,7 +6,7 @@ namespace uniexetask.api.Models.Request
     {
 
 
-        public string oldPassword { get; set; } = null!;
+        public string? oldPassword { get; set; } = null!;
 
         public string? newPassword { get; set; } = null!;
 
