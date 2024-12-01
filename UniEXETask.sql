@@ -229,20 +229,6 @@ CREATE TABLE TASK_DETAIL (
     FOREIGN KEY (task_id) REFERENCES TASK(task_id)
 );
 
--- Tạo bảng LABEL
-CREATE TABLE LABEL (
-    label_id INT PRIMARY KEY IDENTITY(1,1),
-    label_name NVARCHAR(50) NOT NULL
-);
-
--- Tạo bảng PROJECT_LABEL
-CREATE TABLE PROJECT_LABEL (
-    project_id INT NOT NULL,
-    label_id INT NOT NULL,
-    PRIMARY KEY (project_id, label_id),
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-    FOREIGN KEY (label_id) REFERENCES LABEL(label_id)
-);
 
 -- Tạo bảng DOCUMENT
 CREATE TABLE DOCUMENT (
@@ -270,40 +256,6 @@ CREATE TABLE DOCUMENT (
 	FOREIGN KEY (modified_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (upload_by) REFERENCES [USER](user_id),
     isDeleted BIT NOT NULL DEFAULT 0
-);
-
--- Tạo bảng FUNDING
-CREATE TABLE FUNDING (
-    funding_id INT PRIMARY KEY IDENTITY(1,1),
-    project_id INT NOT NULL,
-    amount_money FLOAT,
-    approved_date DATETIME NOT NULL,
-    document_id INT,
-    status NVARCHAR(20) CHECK (status IN ('Pending', 'Approved', 'Rejected')) NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-	FOREIGN KEY (document_id) REFERENCES DOCUMENT(document_id)
-);
-
--- Tạo bảng USAGE_PLAN
-CREATE TABLE USAGE_PLAN (
-    usage_plan_id INT PRIMARY KEY IDENTITY(1,1),
-    funding_id INT NOT NULL,
-    title NVARCHAR(255) NOT NULL,
-    amount FLOAT NOT NULL,
-    description NVARCHAR(MAX) NOT NULL,
-    status NVARCHAR(20) CHECK (status IN ('Planned', 'Spent', 'Not_Achieved')) NOT NULL,
-    FOREIGN KEY (funding_id) REFERENCES FUNDING(funding_id)
-);
-
--- Tạo bảng EXPENSE_REPORT
-CREATE TABLE EXPENSE_REPORT (
-    expense_report_id INT PRIMARY KEY IDENTITY(1,1),
-    usage_plan_id INT NOT NULL,
-    spent_amount FLOAT NOT NULL,
-    spent_date DATETIME NOT NULL,
-    receipt_url NVARCHAR(500) NOT NULL,
-    description NVARCHAR(MAX) NOT NULL,
-    FOREIGN KEY (usage_plan_id) REFERENCES USAGE_PLAN(usage_plan_id)
 );
 
 -- Tạo bảng MENTOR_GROUP
@@ -936,18 +888,6 @@ VALUES
 -- Task 16: 'Deployment and Documentation'
 (16, N'Triển khai hệ thống trên môi trường sản xuất', 90.00, 1, 0),
 (16, N'Hoàn thành tài liệu hướng dẫn sử dụng', 10.00, 1, 0);
-
--- Thêm dữ liệu mẫu cho bảng LABEL
-INSERT INTO LABEL (label_name)
-VALUES 
-('Renewable Energy'), 
-('Smart City');
-
--- Thêm dữ liệu mẫu cho bảng PROJECT_LABEL
-INSERT INTO PROJECT_LABEL (project_id, label_id)
-VALUES 
-(1, 1), -- Green Energy project with 'Renewable Energy' label
-(2, 2); -- Smart City project with 'Smart City' label
 
 -- Thêm dữ liệu mẫu cho bảng RESOURCE
 INSERT INTO DOCUMENT(project_id, name, type, url, upload_by)
