@@ -161,5 +161,18 @@ namespace uniexetask.services
         {
             return await _unitOfWork.Users.SearchStudentsByStudentCodeAsync(query);
         }
+
+        public async Task<User?> GetUserByEmail(string email)
+        {
+            if (email != null)
+            {
+                var users = await _unitOfWork.Users.GetUserByEmailAsync(email);
+                if (users != null)
+                {
+                    return users;
+                }
+            }
+            return null;
+        }
     }
 }
