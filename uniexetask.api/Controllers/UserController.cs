@@ -164,17 +164,14 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [HttpGet("view-profile/{studentCode}")]
-        public async Task<IActionResult> GetUserProfile(string studentCode)
+        [HttpGet("view-profile/{userId}")]
+        public async Task<IActionResult> GetUserProfile(int userId)
         {
             ApiResponse<User> response = new ApiResponse<User>();
             List<ChatMessageResponse> list = new List<ChatMessageResponse>();
             try
             {
-                if (string.IsNullOrEmpty(studentCode)) throw new Exception("student code not found");
-                var student = await _studentsService.GetStudentByCode(studentCode);
-                if (student == null) throw new Exception("student not found");
-                var user = await _userService.GetUserByIdWithCampusAndRoleAndStudents(student.UserId);
+                var user = await _userService.GetUserByIdWithCampusAndRoleAndStudents(userId);
 
                 if (user != null)
                 {

@@ -18,7 +18,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<IEnumerable<MeetingSchedule>> GetMeetingSchedulesByGroupId(int groupId)
         {
-            return await dbSet.Where(m => m.GroupId == groupId).ToListAsync();
+            return await dbSet.Where(m => m.GroupId == groupId && m.IsDeleted == false).ToListAsync();
         }
     }
 }

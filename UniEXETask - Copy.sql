@@ -591,7 +591,8 @@ VALUES
 (8, 1),
 (9, 1),
 (10, 1),
-(11, 1);
+(11, 1),
+(4, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)

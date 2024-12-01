@@ -368,7 +368,7 @@ namespace uniexetask.services.tests.Services
                 .Returns(System.Threading.Tasks.Task.CompletedTask);
 
             // Act
-            var result = await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+            var result = await _sut.CreatePersonalChatGroup(leaderMock.UserId, userMock.UserId, message);
 
             // Assert
             result.Should().BeTrue();
@@ -409,7 +409,7 @@ namespace uniexetask.services.tests.Services
                 .Returns(System.Threading.Tasks.Task.CompletedTask);
 
             // Act
-            var result = await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+            var result = await _sut.CreatePersonalChatGroup(leaderMock.UserId, userMock.UserId, message);
 
             // Assert
             result.Should().BeTrue();
@@ -435,7 +435,7 @@ namespace uniexetask.services.tests.Services
             _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(leaderMock);
 
             // Act
-            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(It.IsAny<int>(), It.IsAny<int>(), "Sample Message");
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.CreatePersonalChatGroup(It.IsAny<int>(), It.IsAny<int>(), "Sample Message");
 
             // Assert
             act.Should().NotBeNull();
@@ -463,7 +463,7 @@ namespace uniexetask.services.tests.Services
                 .ThrowsAsync(new Exception("Failed to create chat group"));
 
             // Act
-            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.CreatePersonalChatGroup(leaderMock.UserId, userMock.UserId, message);
 
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to create chat group");
@@ -493,7 +493,7 @@ namespace uniexetask.services.tests.Services
                 .ThrowsAsync(new Exception("Failed to save message"));
 
             // Act
-            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.CreatePersonalChatGroup(leaderMock.UserId, userMock.UserId, message);
 
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to save message");
@@ -523,7 +523,7 @@ namespace uniexetask.services.tests.Services
                 .Throws(new Exception("Failed to update chat group"));
 
             // Act
-            Func<System.Threading.Tasks.Task> act = async () => await _sut.SendMessageToGroupLeader(leaderMock.UserId, userMock.UserId, message);
+            Func<System.Threading.Tasks.Task> act = async () => await _sut.CreatePersonalChatGroup(leaderMock.UserId, userMock.UserId, message);
 
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to update chat group");
