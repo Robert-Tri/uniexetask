@@ -161,26 +161,26 @@ namespace uniexetask.services
             }
         }
 
-        public async Task<bool> SendMessageToGroupLeader(int leaderId, int userId, string message)
+        public async Task<bool> CreatePersonalChatGroup(int contactedUserId, int contactUserId, string message)
         {
-            var leaderExists = await _unitOfWork.Users.GetByIDAsync(leaderId);
-            var userExists = await _unitOfWork.Users.GetByIDAsync(userId);
+            var contactedUserExists = await _unitOfWork.Users.GetByIDAsync(contactedUserId);
+            var contactUserExists = await _unitOfWork.Users.GetByIDAsync(contactUserId);
 
-            if (leaderExists == null || userExists == null)
+            if (contactedUserExists == null || contactUserExists == null)
             {
                 throw new Exception("One or more users do not exist.");
             }
 
-            var userWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(userId);
-            var leaderWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(leaderId);
+            var contactUserWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactUserId);
+            var contactedUserWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactedUserId);
 
-            var personalChatGroup = userWithChatGroups.ChatGroups
-                    .FirstOrDefault(userGroup => leaderWithChatGroups.ChatGroups
+            var personalChatGroup = contactUserWithChatGroups.ChatGroups
+                    .FirstOrDefault(userGroup => contactedUserWithChatGroups.ChatGroups
                         .Any(leaderGroup => leaderGroup.ChatGroupId == userGroup.ChatGroupId && leaderGroup.Type == nameof(ChatGroupType.Personal)));
 
             if (personalChatGroup != null)
             {
-                await SaveMessageAsync(personalChatGroup.ChatGroupId, userId, message);
+                await SaveMessageAsync(personalChatGroup.ChatGroupId, contactUserId, message);
                 return true;
             }
             else 
@@ -190,22 +190,22 @@ namespace uniexetask.services
                     _unitOfWork.BeginTransaction();
                     var chatGroup = new ChatGroup
                     {
-                        ChatGroupName = userExists.FullName,
+                        ChatGroupName = contactUserExists.FullName,
                         CreatedDate = DateTime.Now,
-                        CreatedBy = userId,
-                        OwnerId = userId,
+                        CreatedBy = contactUserId,
+                        OwnerId = contactUserId,
                         LatestActivity = DateTime.Now,
                         Type = nameof(ChatGroupType.Personal),
                     };
                     await _unitOfWork.ChatGroups.InsertAsync(chatGroup);
                     _unitOfWork.Save();
 
-                    chatGroup.Users.Add(userExists);
-                    chatGroup.Users.Add(leaderExists);
+                    chatGroup.Users.Add(contactUserExists);
+                    chatGroup.Users.Add(contactedUserExists);
                     _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                     _unitOfWork.Commit();
-                    await SaveMessageAsync(chatGroup.ChatGroupId, userId, message);
+                    await SaveMessageAsync(chatGroup.ChatGroupId, contactUserId, message);
                     return true;
                 }
                 catch (Exception ex)

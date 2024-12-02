@@ -41,7 +41,9 @@ namespace uniexetask.services
         {
             var meetingSchedule = await _unitOfWork.MeetingSchedules.GetByIDAsync(meetingScheduleId);
             if (meetingSchedule == null) throw new Exception("Meeting not found.");
-            _unitOfWork.MeetingSchedules.Delete(meetingSchedule);
+            //_unitOfWork.MeetingSchedules.Delete(meetingSchedule);
+            meetingSchedule.IsDeleted = true;
+            _unitOfWork.MeetingSchedules.Update(meetingSchedule);
             _unitOfWork.Save();
             return true;
         }

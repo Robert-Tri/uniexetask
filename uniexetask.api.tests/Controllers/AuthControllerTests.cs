@@ -12,7 +12,7 @@ namespace uniexetask.api.tests.Controllers
 {
     class AuthControllerTests
     {
-        private readonly Mock<IAuthService> _authServiceMock;
+/*        private readonly Mock<IAuthService> _authServiceMock;
         private readonly Mock<IRoleService> _roleServiceMock;
         private readonly Mock<IRolePermissionService> _rolePermissionServiceMock;
         private readonly Mock<IConfiguration> _configurationMock;
@@ -31,6 +31,6 @@ namespace uniexetask.api.tests.Controllers
                 _roleServiceMock.Object,
                 _rolePermissionServiceMock.Object
             );
-        }
+        }*/
     }
 }

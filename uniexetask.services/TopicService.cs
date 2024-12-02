@@ -29,6 +29,50 @@ namespace uniexetask.services
             return topics;
         }
 
+        public async Task<IEnumerable<Topic>> GetTopicsByMentorAsync(int mentorId)
+        {
+            // Lấy mentor và danh sách nhóm mà mentor quản lý
+            var mentorWithGroups = await _unitOfWork.Mentors.GetMentorWithGroupAsync(mentorId);
+
+            if (mentorWithGroups == null || !mentorWithGroups.Groups.Any())
+            {
+                return new List<Topic>(); // Trả về danh sách rỗng nếu mentor không có nhóm
+            }
+
+            // Lấy danh sách GroupId từ các nhóm của mentor
+            var groupIds = mentorWithGroups.Groups.Select(group => group.GroupId).ToList();
+
+            // Lấy danh sách Project dựa trên GroupId
+            var projects = await _unitOfWork.Projects.GetAsync(
+                filter: project => groupIds.Contains(project.GroupId)
+            );
+
+            if (projects == null || !projects.Any())
+            {
+                return new List<Topic>(); // Trả về danh sách rỗng nếu không có project nào
+            }
+
+            // Lấy danh sách TopicId từ các project
+            var topicIds = projects.Select(project => project.TopicId).Distinct().ToList();
+
+            // Lấy danh sách Topic dựa trên TopicId
+            var topics = await _unitOfWork.Topics.GetAsync(
+                filter: topic => topicIds.Contains(topic.TopicId)
+            );
+
+            return topics;
+        }
+
+
+
+        public async Task<IEnumerable<Topic>> GetTopicByTopicName(string topicName)
+        {
+            var topicList = await _unitOfWork.Topics.GetAsync(
+                filter: t => t.TopicName == topicName
+            );
+            return topicList;
+        }
+
         public async Task<int> CreateTopic(Topic topic)
         {
             if (topic != null)

@@ -222,6 +222,16 @@ namespace uniexetask.api.Controllers
             }
 
             var mentor = await _mentorService.GetMentorWithGroupAsync(userId);
+            var topicMentorCheck = await _topicMentorService.GetTopicForMentorByMentorId(mentor.MentorId);
+
+            if (topicMentorCheck.Any(t => t.TopicName == topicName)) 
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "This topic name already exists" });
+            }
+
+            var existedTopics = await _topicMentorService.GetTopicMentorByDescription($"TopicMentor{mentor.MentorId}/{file.FileName}");
+            if (existedTopics.Any())
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Description with the same name already exists." });
 
             var topicCodeMax = await _topicMentorService.GetMaxTopicCodeMentor();
             int nextCodeNumber = 1;
@@ -278,6 +288,12 @@ namespace uniexetask.api.Controllers
             }
 
             var mentor = await _mentorService.GetMentorWithGroupAsync(userId);
+            var topicMentorCheck = await _topicMentorService.GetTopicForMentorByMentorId(mentor.MentorId);
+
+            if (topicMentorCheck.Any(t => t.TopicName == topicName))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "This topic name already exists" });
+            }
 
             var topicNew = await _topicMentorService.GetTopicMentorById(TopicForMentorId);
 
@@ -337,37 +353,5 @@ namespace uniexetask.api.Controllers
 
             return Ok(new { Url = signedUrl });
         }
-
-        //[Authorize(Roles = nameof(EnumRole.Mentor))]
-        //[HttpPut("DeleteReq")]
-        //public async Task<IActionResult> DeleteReqTopic([FromBody] int RegTopicId)
-        //{
-        //    var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        //    if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
-        //    {
-        //        return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
-        //    }
-
-        //    var topicNew = await _topicMentorService.GetTopicMentorById(RegTopicId);
-        //    topicNew.Status = false;
-        //    var isTopicMentorUpdated = await _topicMentorService.UpdateTopicMentor(topicNew);
-        //    ApiResponse<object> response = new ApiResponse<object>
-        //    {
-        //        Data = new
-        //        {
-        //            TopicName = reqNew.TopicName,
-        //            Description = reqNew.Description
-        //        }
-        //    };
-
-        //    if (isTopicMentorUpdated)
-        //    {
-        //        return Ok(response);
-        //    }
-        //    else
-        //    {
-        //        return BadRequest("Không thể cập nhật Description.");
-        //    }
-        //}
     }
 }
