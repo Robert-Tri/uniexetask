@@ -142,6 +142,22 @@ namespace uniexetask.services
             return false; 
         }
 
+        public async Task<bool> DeleteGroupMember(int groupId)
+        {
+            var groupMember = (await _unitOfWork.GroupMembers
+                .GetAsync(gm => gm.GroupId == groupId))
+                .FirstOrDefault();
+
+            if (groupMember != null)
+            {
+                _unitOfWork.GroupMembers.Delete(groupMember);
+                _unitOfWork.Save();
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task<IEnumerable<GroupMember>> GetGroupMemberByProjectId(int projectId)
         {
             var project = await _unitOfWork.Projects.GetByIDAsync(projectId);

@@ -81,18 +81,20 @@ namespace uniexetask.api.Controllers
         [HttpGet("ReqTopicByMentorId")]
         public async Task<IActionResult> GetReqTopicListByMentorId(int groupId)
         {
+            var topic = await _topicService.GetTopicsByMentorAsync(groupId);
+
             //var mentor = await _mentorService.GetMentorWithGroupAsync(groupId);
 
-            var mentor = await _mentorService.GetMentorByGroupId(groupId);
+            //var mentor = await _mentorService.GetMentorByGroupId(groupId);
 
-            var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
+            //var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
 
-            if (reqTopicList == null)
+            if (topic == null)
             {
                 return NotFound("Mentor not found");
             }
 
-            return Ok(reqTopicList);
+            return Ok(topic);
         }
 
         [Authorize(Roles = "Mentor")]
@@ -350,16 +352,19 @@ namespace uniexetask.api.Controllers
 
             var existedTopics = await _reqTopicService.GetReqTopicByDescription($"Topic{groupCheck.GroupId}/{file.FileName}");
             if (existedTopics.Any())
-                return Conflict(new { Message = "Description with the same name already exists." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Description with the same name already exists."});
 
             var mentor = await _mentorService.GetMentorByGroupId(groupCheck.GroupId);
 
             var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
+            var topicList = await _topicService.GetTopicsByMentorAsync(mentor.MentorId);
 
-            var existingTopicName = reqTopicList.Any(rt => string.Equals(rt.TopicName, topicName, StringComparison.OrdinalIgnoreCase));
+            var existingTopicName = reqTopicList.Any(rt => string.Equals(rt.TopicName, topicName, StringComparison.OrdinalIgnoreCase)) ||
+                                    topicList.Any(t => string.Equals(t.TopicName, topicName, StringComparison.OrdinalIgnoreCase));
+
             if (existingTopicName)
             {
-                return Conflict(new { Message = "Topic with the same name already exists." });
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Topic with the same name already exists." });
             }
 
             var topicCodeMax = await _reqTopicService.GetMaxTopicCode();
@@ -548,9 +553,9 @@ namespace uniexetask.api.Controllers
             }
 
             var reqTopicList = await _reqTopicService.GetAllReqTopic();
-            if (reqTopicList == null || !reqTopicList.Any())
+            if (reqTopicList == null)
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "No topics available." });
+                reqTopicList = new List<RegTopicForm>(); // Khởi tạo danh sách rỗng nếu là null
             }
 
             var responseData = reqTopicList
@@ -565,7 +570,7 @@ namespace uniexetask.api.Controllers
                     reqTopic.Status,
                     GroupName = reqTopic.Group.GroupName,
                     SubjectCode = reqTopic.Group.Subject.SubjectCode
-                });
+                }).ToList();
 
             var response = new ApiResponse<IEnumerable<object>>
             {
@@ -575,6 +580,7 @@ namespace uniexetask.api.Controllers
 
             return Ok(response);
         }
+
 
 
     }

@@ -20,5 +20,6 @@ namespace uniexetask.services.Interfaces
         System.Threading.Tasks.Task UpdateAndAssignStudentsToGroups(SubjectType subjectType);
         Task<bool> UpdateGroupApproved(int groupId);
         Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors();
+        Task<bool> DeleteGroup(int groupId);
     }
 }
