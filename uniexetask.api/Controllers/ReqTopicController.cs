@@ -202,6 +202,11 @@ namespace uniexetask.api.Controllers
         [HttpPost("ApproveTopic")]
         public async Task<IActionResult> ApproveTopic([FromBody] ReqTopicModel reqTopic)
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest("Invalid user id");
+            }
             var topic = new TopicModel
             {
                 TopicCode = reqTopic.TopicCode,
@@ -264,6 +269,12 @@ namespace uniexetask.api.Controllers
 
             if (topicId > 0 && createProject != null)
             {
+                var users = await _groupMemberService.GetUsersByGroupId(reqTopic.GroupId);
+                foreach (var user in users)
+                {
+                    var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"{group.GroupName} group's topic \"{reqTopic.TopicName}\" was approved. Please go to your project to view it.");
+                    await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                }
                 var response = new ApiResponse<object>
                 {
                     Data = new { Message = "Topic and Project created successfully!", TopicId = topicId }
@@ -299,10 +310,12 @@ namespace uniexetask.api.Controllers
                 {
                     var regTopicForm = await _reqTopicService.GetReqTopicById(reqTopic.RegTopicId);
                     if (regTopicForm == null) throw new Exception("Request topic not found");
+                    var group = await _groupService.GetGroupById(regTopicForm.GroupId);
+                    if (group == null) throw new Exception($"Group with id = {regTopicForm.GroupId} not found.");
                     var users = await _groupMemberService.GetUsersByGroupId(regTopicForm.GroupId);
                     foreach (var user in users)
                     {
-                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Your group topic was rejected for the reason: " +
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"{group.GroupName} group's topic was rejected for the reason: " +
                             $"{(reqTopic.RejectionReason != null ? reqTopic.RejectionReason : "No Reason")}");
                         await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                     }

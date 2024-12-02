@@ -1,5 +1,7 @@
-﻿using uniexetask.core.Interfaces;
+﻿using FirebaseAdmin.Messaging;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -128,18 +130,51 @@ namespace uniexetask.services
 
         public async Task<bool> DeleteMember(int groupId, int studentId)
         {
-            var groupMember = (await _unitOfWork.GroupMembers
-                .GetAsync(gm => gm.GroupId == groupId && gm.StudentId == studentId))
-                .FirstOrDefault();
+            var groupExists = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            var studentExists = await _unitOfWork.Students.GetByIDAsync(studentId);
 
-            if (groupMember != null)
+            if (groupExists == null || studentExists == null)
             {
-                _unitOfWork.GroupMembers.Delete(groupMember);
-                _unitOfWork.Save();
-                return true;
+                return false;
             }
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                var groupMember = (await _unitOfWork.GroupMembers
+                    .GetAsync(gm => gm.GroupId == groupId && gm.StudentId == studentId))
+                    .FirstOrDefault();
 
-            return false; 
+                if (groupMember != null)
+                {
+                    _unitOfWork.GroupMembers.Delete(groupMember);
+                    _unitOfWork.Save();
+                    var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
+                    if (chatGroup == null) throw new Exception();
+                    var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroup.ChatGroupId, studentExists.UserId);
+                    if (isUserInChatGroup)
+                    {
+                        var chatGroupWithUsers = await _unitOfWork.ChatGroups.GetChatGroupWithUsersByChatGroupIdAsync(chatGroup.ChatGroupId);
+                        if (chatGroupWithUsers == null) throw new Exception();
+                        var userToRemove = chatGroupWithUsers.Users.FirstOrDefault(c => c.UserId == studentExists.UserId);
+
+                        if (userToRemove != null)
+                        {
+                            chatGroupWithUsers.Users.Remove(userToRemove);
+                            _unitOfWork.ChatGroups.Update(chatGroupWithUsers);
+                            _unitOfWork.Save();
+                        }
+                    }
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                return false;
+               
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                return false;
+            }
         }
 
         public async Task<bool> DeleteGroupMember(int groupId)

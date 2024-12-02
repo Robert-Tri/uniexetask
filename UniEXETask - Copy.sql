@@ -1,5 +1,4 @@
-﻿
-USE master
+﻿USE master
 GO
 CREATE DATABASE UniEXETask
 GO
@@ -92,6 +91,18 @@ CREATE TABLE STUDENT (
 	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id)
 );
 
+-- Tạo bảng GROUP
+CREATE TABLE [GROUP] (
+    group_id INT PRIMARY KEY IDENTITY(1,1),
+	group_name NVARCHAR(250) NOT NULL,
+	subject_id INT NOT NULL,
+	hasMentor BIT NOT NULL,
+	isCurrentPeriod BIT NOT NULL DEFAULT 1,
+	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
+	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
+	isDeleted BIT NOT NULL DEFAULT 0,
+);
+
 -- Tạo bảng CHAT_GROUP
 CREATE TABLE CHAT_GROUP (
     chat_group_id INT PRIMARY KEY IDENTITY(1,1),
@@ -100,9 +111,10 @@ CREATE TABLE CHAT_GROUP (
     created_date DATETIME DEFAULT GETDATE() NOT NULL,
 	created_by INT NOT NULL,
 	owner_id INT NOT NULL,
-	group_id INT,
+	group_id INT NULL,
 	latest_activity DATETIME DEFAULT GETDATE() NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
+	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
 );
@@ -144,18 +156,6 @@ CREATE TABLE TOPIC (
 	topic_code NVARCHAR(50) NOT NULL,
 	topic_name NVARCHAR(100) NOT NULL,
 	description NVARCHAR(MAX) NOT NULL
-);
-
--- Tạo bảng GROUP
-CREATE TABLE [GROUP] (
-    group_id INT PRIMARY KEY IDENTITY(1,1),
-	group_name NVARCHAR(250) NOT NULL,
-	subject_id INT NOT NULL,
-	hasMentor BIT NOT NULL,
-	isCurrentPeriod BIT NOT NULL DEFAULT 1,
-	status NVARCHAR(20) CHECK (status IN ('Initialized', 'Eligible', 'Approved', 'Overdue')) NOT NULL,
-	FOREIGN KEY (subject_id) REFERENCES SUBJECT(subject_id),
-	isDeleted BIT NOT NULL DEFAULT 0,
 );
 
 -- Tạo bảng PROJECT
@@ -230,21 +230,6 @@ CREATE TABLE TASK_DETAIL (
     FOREIGN KEY (task_id) REFERENCES TASK(task_id)
 );
 
--- Tạo bảng LABEL
-CREATE TABLE LABEL (
-    label_id INT PRIMARY KEY IDENTITY(1,1),
-    label_name NVARCHAR(50) NOT NULL
-);
-
--- Tạo bảng PROJECT_LABEL
-CREATE TABLE PROJECT_LABEL (
-    project_id INT NOT NULL,
-    label_id INT NOT NULL,
-    PRIMARY KEY (project_id, label_id),
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-    FOREIGN KEY (label_id) REFERENCES LABEL(label_id)
-);
-
 -- Tạo bảng DOCUMENT
 CREATE TABLE DOCUMENT (
     document_id INT PRIMARY KEY IDENTITY(1,1),
@@ -273,39 +258,6 @@ CREATE TABLE DOCUMENT (
     isDeleted BIT NOT NULL DEFAULT 0
 );
 
--- Tạo bảng FUNDING
-CREATE TABLE FUNDING (
-    funding_id INT PRIMARY KEY IDENTITY(1,1),
-    project_id INT NOT NULL,
-    amount_money FLOAT,
-    approved_date DATETIME NOT NULL,
-    document_id INT,
-    status NVARCHAR(20) CHECK (status IN ('Pending', 'Approved', 'Rejected')) NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES PROJECT(project_id),
-	FOREIGN KEY (document_id) REFERENCES DOCUMENT(document_id)
-);
-
--- Tạo bảng USAGE_PLAN
-CREATE TABLE USAGE_PLAN (
-    usage_plan_id INT PRIMARY KEY IDENTITY(1,1),
-    funding_id INT NOT NULL,
-    title NVARCHAR(255) NOT NULL,
-    amount FLOAT NOT NULL,
-    description NVARCHAR(MAX) NOT NULL,
-    status NVARCHAR(20) CHECK (status IN ('Planned', 'Spent', 'Not_Achieved')) NOT NULL,
-    FOREIGN KEY (funding_id) REFERENCES FUNDING(funding_id)
-);
-
--- Tạo bảng EXPENSE_REPORT
-CREATE TABLE EXPENSE_REPORT (
-    expense_report_id INT PRIMARY KEY IDENTITY(1,1),
-    usage_plan_id INT NOT NULL,
-    spent_amount FLOAT NOT NULL,
-    spent_date DATETIME NOT NULL,
-    receipt_url NVARCHAR(500) NOT NULL,
-    description NVARCHAR(MAX) NOT NULL,
-    FOREIGN KEY (usage_plan_id) REFERENCES USAGE_PLAN(usage_plan_id)
-);
 
 -- Tạo bảng MENTOR_GROUP
 CREATE TABLE MENTOR_GROUP (
@@ -319,6 +271,7 @@ CREATE TABLE MENTOR_GROUP (
 -- Tạo bảng MEETING_SCHEDULE
 CREATE TABLE MEETING_SCHEDULE (
     schedule_id INT PRIMARY KEY IDENTITY(1,1),
+	meeting_schedule_name NVARCHAR(250) NOT NULL,
     group_id INT NOT NULL,
     mentor_id INT NOT NULL,
 	location NVARCHAR(MAX) NOT NULL,
@@ -326,6 +279,7 @@ CREATE TABLE MEETING_SCHEDULE (
 	duration INT NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Offline', 'Online')) NOT NULL,
 	content NVARCHAR(250) NOT NULL,
+	url NVARCHAR(250),
 	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
@@ -482,6 +436,7 @@ CREATE TABLE TOPIC_FOR_MENTOR (
 	topic_name NVARCHAR(100) NOT NULL,
 	description NVARCHAR(MAX) NOT NULL,
 	isRegistered BIT NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (mentor_id) REFERENCES MENTOR(mentor_id)
 );
 
@@ -636,7 +591,8 @@ VALUES
 (8, 1),
 (9, 1),
 (10, 1),
-(11, 1);
+(11, 1),
+(4, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)

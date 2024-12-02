@@ -23,8 +23,6 @@ public partial class Document
 
     public bool IsDeleted { get; set; }
 
-    public virtual ICollection<Funding> Fundings { get; set; } = new List<Funding>();
-
     public virtual User? ModifiedByNavigation { get; set; }
 
     public virtual Project Project { get; set; } = null!;

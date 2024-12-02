@@ -11,6 +11,7 @@ using System;
 using System.Security.Claims;
 using uniexetask.core.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static uniexetask.services.GroupService;
 
 namespace uniexetask.api.Controllers
@@ -54,6 +55,43 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
             response.Data = groups;
             return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet("search-group")]
+        public async Task<IActionResult> SearchGroupByGroupName([FromQuery] string query)
+        {
+            ApiResponse<IEnumerable<GroupModel>> response = new ApiResponse<IEnumerable<GroupModel>>();
+            try
+            {
+
+                List<GroupModel> groupList = new List<GroupModel>();
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    throw new Exception("Query parameter is required.");
+                }
+
+                var groups = await _groupService.SearchGroupsByGroupNameAsync(query);
+
+                if (groups.Count() == 0)
+                {
+                    throw new Exception("No matching group name found.");
+                }
+
+                foreach (var group in groups)
+                {
+                    groupList.Add(_mapper.Map<GroupModel>(group));
+                }
+                response.Data = groupList;
+
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.ErrorMessage = e.Message;
+                return Ok(response);
+            }
         }
 
         [HttpGet("getapprovedgroup")]

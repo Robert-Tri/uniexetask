@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -18,16 +20,25 @@ namespace uniexetask.api.Controllers
         private readonly IChatGroupService _chatGroupService;
         private readonly IUserService _userService;
         private readonly IStudentService _studentService;
-        private readonly IGroupService _groupService;
+        private readonly IMentorService _mentorService;
         private readonly IMapper _mapper;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatGroupController(IChatGroupService chatGroupService, IUserService userService, IGroupService groupService, IStudentService studentService, IMapper mapper)
+        public ChatGroupController(
+            IChatGroupService chatGroupService, 
+            IUserService userService, 
+            IStudentService studentService, 
+            IMentorService mentorService, 
+            IMapper mapper, 
+            IHubContext<ChatHub> hubContext)
         {
             _chatGroupService = chatGroupService;
             _userService = userService;
-            _groupService = groupService;
             _studentService = studentService;
+            _mentorService = mentorService;
             _mapper = mapper;
+            _hubContext = hubContext;
+
         }
 
         [HttpGet("user")]
@@ -50,6 +61,7 @@ namespace uniexetask.api.Controllers
                 foreach (var chatgroup in chatgroups)
                 {
                     Student? student = null;
+                    int? userIdForPersonalChat = null;
                     if (chatgroup.Type == nameof(ChatGroupType.Personal))
                     {
                         var chatGroupWithUsers = await _chatGroupService.GetChatGroupWithUsersByChatGroupId(chatgroup.ChatGroupId);
@@ -58,6 +70,7 @@ namespace uniexetask.api.Controllers
                             foreach (var user in chatGroupWithUsers.Users)
                             {
                                 if (user.UserId == userId) continue;
+                                userIdForPersonalChat = user.UserId;
                                 student = await _studentService.GetStudentByUserId(user.UserId);
                             }
                         }
@@ -69,6 +82,7 @@ namespace uniexetask.api.Controllers
                         LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]",
                         SendDatetime = latestMessage != null ? latestMessage.SendDatetime : null,
                         Student = student != null ? _mapper.Map<StudentModel>(student) : null,
+                        UserId = userIdForPersonalChat != null ? userIdForPersonalChat : null
                     });
                 }
                 response.Data = list;
@@ -147,13 +161,14 @@ namespace uniexetask.api.Controllers
                 foreach (var user in chatGroup.Users)
                 {
                     if (user == null) continue;
-
+                    var mentor = await _mentorService.GetMentorByUserId(user.UserId);
                     list.Add(new MemberInChatGroupResponse
                     {
                         UserId = user.UserId,
                         FullName = user.FullName,
                         Email = user.Email,
                         IsOwner = (user.UserId == chatGroup.OwnerId) ? true : false,
+                        IsMentor = mentor != null ? true : false
                     });
                 }
                 response.Data = list;
@@ -192,23 +207,26 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpPost("personal/contact")]
-        public async Task<IActionResult> SendMessageToGroupLeader([FromBody] CreatePersonalChatGroupModal request)
+        public async Task<IActionResult> CreatePersonalChatGroup([FromBody] CreatePersonalChatGroupModal request)
         {
             ApiResponse<string> response = new ApiResponse<string>();
             try
             {
-                if (string.IsNullOrEmpty(request.LeaderId) || !int.TryParse(request.LeaderId, out int leaderId) ||
-                    string.IsNullOrEmpty(request.UserId) || !int.TryParse(request.UserId, out int userId) ||
+                if (string.IsNullOrEmpty(request.ContactedUserId) || !int.TryParse(request.ContactedUserId, out int contactedUserId) ||
+                    string.IsNullOrEmpty(request.ContactUserId) || !int.TryParse(request.ContactUserId, out int contactUserId) ||
                     string.IsNullOrEmpty(request.Message))
                 {
                     throw new Exception("Invalid data.");
                 }
+                
+                if (contactedUserId == contactUserId) throw new Exception("You can't contact yourself...");
 
-                var result = await _chatGroupService.SendMessageToGroupLeader(leaderId, userId, request.Message);
+                var result = await _chatGroupService.CreatePersonalChatGroup(contactedUserId, contactUserId, request.Message);
 
                 if (result)
                 {
                     response.Data = "Send successfully, please wait for response from group leader.";
+                    await _hubContext.Clients.All.SendAsync("UpdateChatGroupWhenContact", contactUserId);
                     return Ok(response);
                 }
                 else
@@ -220,27 +238,7 @@ namespace uniexetask.api.Controllers
             {
                     response.Success = false;
                     response.ErrorMessage = ex.Message;
-                    return BadRequest(response);
-            }
-        }
-
-
-        [HttpDelete("remove")]
-        public async Task<IActionResult> RemoveMemberOutOfGroupChat([FromBody] RemoveMemberOutOfChatGroupModel request)
-        {
-            ApiResponse<string> response = new ApiResponse<string>();
-            var result = await _chatGroupService.RemoveMemberOutOfGroupChat(request.UserId, request.ChatGroupId);
-
-            if (result)
-            {
-                response.Data = "Member has been kicked out.";
-                return Ok(response);
-            }
-            else
-            {
-                response.Success = false;
-                response.ErrorMessage = "Failed to add members.";
-                return BadRequest(response);
+                    return Ok(response);
             }
         }
     }

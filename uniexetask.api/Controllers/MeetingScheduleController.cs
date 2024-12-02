@@ -1,7 +1,12 @@
 ﻿using AutoMapper;
+using Google.Api.Gax;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Security.Claims;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -24,6 +29,8 @@ namespace uniexetask.api.Controllers
         private readonly IProjectService _projectService;
         private readonly IStudentService _studentService;
         private readonly IGroupMemberService _groupMemberService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public MeetingScheduleController(
             IMapper mapper,
@@ -34,7 +41,9 @@ namespace uniexetask.api.Controllers
             IMentorService mentorService,
             IProjectService projectService,
             IStudentService studentService,
-            IGroupMemberService groupMemberService)
+            IGroupMemberService groupMemberService,
+            INotificationService notificationService,
+            IHubContext<NotificationHub> hubContext)
         {
             _mapper = mapper;
             _meetingScheduleService = meetingScheduleService;
@@ -45,15 +54,17 @@ namespace uniexetask.api.Controllers
             _projectService = projectService;
             _studentService = studentService;
             _groupMemberService = groupMemberService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
-        [HttpGet("prepare-data")]
-        public async Task<IActionResult> GetPrepareData()
+        [HttpGet("events")]
+        public async Task<IActionResult> GetEvents()
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-            ApiResponse<IEnumerable<MeetingSchedulePrepareDataResponse>> response = new ApiResponse<IEnumerable<MeetingSchedulePrepareDataResponse>>();
-            List<MeetingSchedulePrepareDataResponse> list = new List<MeetingSchedulePrepareDataResponse>();
+            ApiResponse<IEnumerable<MeetingScheduleResponse>> response = new ApiResponse<IEnumerable<MeetingScheduleResponse>>();
+            List<MeetingScheduleResponse> list = new List<MeetingScheduleResponse>();
             try
             {
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
@@ -67,30 +78,20 @@ namespace uniexetask.api.Controllers
                 if (role == nameof(EnumRole.Mentor))
                 {
                     var mentorWithGroups = await _mentorService.GetMentorWithGroupAsync(userId);
-                    if (mentorWithGroups == null) throw new Exception("There is no mentor with the provided user id.");
+                    if (mentorWithGroups == null) throw new Exception("There is no mentor with the provided user id."); 
                     foreach (var group in mentorWithGroups.Groups)
                     {
                         if (group.IsDeleted) continue;
                         var project = await _projectService.GetProjectWithTopicByGroupId(group.GroupId);
-                        if (project == null) 
+                        var meetingSchedules = await _meetingScheduleService.GetMeetingSchedulesByGroupId(group.GroupId);
+                        if (meetingSchedules == null) continue;
+                        foreach (var meeting in meetingSchedules)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Project not found with group id = {group.GroupId}");
-                            continue;
-                        } 
-                        if (project.Topic == null)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Topic not found with project id = {project.ProjectId}");
-                            continue;
+                            if (meeting.MentorId != mentorWithGroups.MentorId) continue;
+                            var user = await _userService.GetUserById(mentorWithGroups.UserId);
+                            if (user == null) throw new Exception("user not found from mentor.");
+                            list.Add(GetMeetingScheduleResponse(meeting, project, group, user));
                         }
-                        list.Add(new MeetingSchedulePrepareDataResponse
-                        {
-                            GroupId = group.GroupId,
-                            GroupName = group.GroupName,
-                            TopicCode = project.Topic.TopicCode,
-                            TopicName = project.Topic.TopicName,
-                            TopicDescription = project.Topic.Description
-                        });
-
                     }
                 }
                 else if (role == nameof(EnumRole.Student))
@@ -104,32 +105,25 @@ namespace uniexetask.api.Controllers
                     if (!group.IsDeleted)
                     {
                         var project = await _projectService.GetProjectWithTopicByGroupId(group.GroupId);
-                        if (project == null)
+                        var meetingSchedules = await _meetingScheduleService.GetMeetingSchedulesByGroupId(group.GroupId);
+                        if (meetingSchedules == null) throw new Exception("Load data failed.");
+                        foreach (var meeting in meetingSchedules)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Project not found with group id = {group.GroupId}");
-                        }
-                        else
-                        {
-                            if (project.Topic == null)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Topic not found with project id = {project.ProjectId}");
+                            var mentor = await _mentorService.GetMentorById(meeting.MentorId);
+                            if (mentor == null) 
+                            { 
+                                System.Diagnostics.Debug.WriteLine($"Mentor not found from mentorid = {meeting.GroupId} in schedule.");
+                                continue;
                             }
-                            else 
+                            var user = await _userService.GetUserById(mentor.UserId);
+                            if (user == null) 
                             {
-                                list.Add(new MeetingSchedulePrepareDataResponse
-                                {
-                                    GroupId = group.GroupId,
-                                    GroupName = group.GroupName,
-                                    TopicCode = project.Topic.TopicCode,
-                                    TopicName = project.Topic.TopicName,
-                                    TopicDescription = project.Topic.Description
-                                });
+                                System.Diagnostics.Debug.WriteLine($"User not found from mentorid = {mentor.UserId}");
+                                continue;
                             }
-                            
+                            list.Add(GetMeetingScheduleResponse(meeting, project, group, user));
                         }
-
                     }
-                    
                 }
                 response.Data = list;
                 return Ok(response);
@@ -138,51 +132,160 @@ namespace uniexetask.api.Controllers
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
-        [HttpGet("{groupId}")]
-        public async Task<IActionResult> GetMeetingSchedules(int groupId)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateMeeting([FromBody] MeetingScheduleModel model)
         {
-            ApiResponse<IEnumerable<MeetingScheduleModel>> response = new ApiResponse<IEnumerable<MeetingScheduleModel>>();
-            List<MeetingScheduleModel> list = new List<MeetingScheduleModel>();
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            ApiResponse<MeetingScheduleResponse> response = new ApiResponse<MeetingScheduleResponse>();
             try
             {
-                var meetingSchedules = await _meetingScheduleService.GetMeetingSchedulesByGroupId(groupId);
-                foreach (var schedule in meetingSchedules) 
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    list.Add(_mapper.Map<MeetingScheduleModel>(schedule));
+                    throw new Exception("Invalid User Id");
                 }
-                response.Data = list;
+                if (model.MeetingDate < DateTime.Now) throw new Exception("Cannot create event in past time.");
+                if (role != nameof(EnumRole.Mentor)) throw new Exception("You are not a mentor.");
+                var mentor = await _mentorService.GetMentorByUserId(userId);
+                if (mentor == null) throw new Exception("There is no mentor corresponding to the provided user.");
+                model.MentorId = mentor.MentorId;
+                var meetingSchedule = _mapper.Map<MeetingSchedule>(model);
+                if (meetingSchedule == null) throw new Exception("Invalid model.");
+                var group = await _groupService.GetGroupById(meetingSchedule.GroupId);
+                if (group == null) throw new Exception("You are creating an meeting for a group that does not exist.");
+                if (group.Status == nameof(GroupStatus.Initialized)) throw new Exception($"{group.GroupName} Group is in newly created state and has not been assigned a mentor yet.");
+                var newMeetingSchedule = await _meetingScheduleService.CreateMeetingSchedule(meetingSchedule);
+                if (newMeetingSchedule == null) throw new Exception("Create meeting failed");
+                var users = await _groupMemberService.GetUsersByGroupId(group.GroupId);
+                foreach (var user in users)
+                {
+                    string formattedDate = newMeetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
+                    var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
+                            $"A meeting schedule with your group has been created at {formattedDate}, please go to meeting schedule to view it.");
+                    await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                }
+                var project = await _projectService.GetProjectWithTopicByGroupId(newMeetingSchedule.GroupId);
+                group = await _groupService.GetGroupById(newMeetingSchedule.GroupId);
+                var userWithRoleMentor = await _userService.GetUserById(mentor.UserId);
+                response.Data = GetMeetingScheduleResponse(newMeetingSchedule, project, group, userWithRoleMentor);
                 return Ok(response);
+
             }
             catch (Exception ex)
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
-        [HttpGet("details/{meetingScheduleId}")]
-        public async Task<IActionResult> GetMeetingScheduleDetais(int meetingScheduleId)
+        [HttpPost("edit/{meetingScheduleIdStr}")]
+        public async Task<IActionResult> EditMeeting(string meetingScheduleIdStr, [FromBody] MeetingScheduleModel model)
         {
-            ApiResponse<MeetingScheduleModel> response = new ApiResponse<MeetingScheduleModel>();
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            ApiResponse<MeetingScheduleResponse> response = new ApiResponse<MeetingScheduleResponse>();
             try
             {
-                var meetingSchedule = await _meetingScheduleService.GetMeetingScheduleByMeetingScheduleId(meetingScheduleId);
-                if (meetingSchedule == null) throw new Exception("Get data failed.");
-                var meetingScheduleModel = _mapper.Map<MeetingScheduleModel>(meetingSchedule);
-                response.Data = meetingScheduleModel;
+                if (string.IsNullOrEmpty(meetingScheduleIdStr) || !int.TryParse(meetingScheduleIdStr, out int meetingScheduleId))
+                {
+                    throw new Exception("Invalid Meeting schedule Id");
+                }
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid User Id");
+                }
+                if (model.MeetingDate < DateTime.Now) throw new Exception("Cannot select date in past time!");
+                if (model.Duration <= 0) throw new Exception("Duration cannot be negative or zero.");
+                var meetingSchedule = _mapper.Map<MeetingSchedule>(model);
+                var editedMeetingSchedule = await _meetingScheduleService.EditMeetingSchedule(meetingScheduleId, meetingSchedule);
+                if (editedMeetingSchedule == null) throw new Exception("Edit meeting failed");
+                var project = await _projectService.GetProjectWithTopicByGroupId(editedMeetingSchedule.GroupId);
+                var group = await _groupService.GetGroupById(editedMeetingSchedule.GroupId);
+                var userWithRoleMentor = await _userService.GetUserById(userId);
+                response.Data = GetMeetingScheduleResponse(editedMeetingSchedule, project, group, userWithRoleMentor);
+                var users = await _groupMemberService.GetUsersByGroupId(group.GroupId);
+                foreach (var user in users)
+                {
+                    string formattedDate = editedMeetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
+                    var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
+                            $"A meeting schedule with your group has been edit to {formattedDate}, please go to meeting schedule to view it.");
+                    await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                }
                 return Ok(response);
+
             }
             catch (Exception ex)
             {
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
-                return BadRequest(response);
+                return Ok(response);
             }
         }
+
+        [HttpDelete("delete/{meetingScheduleIdStr}")]
+        public async Task<IActionResult> DeleteMeeting(string meetingScheduleIdStr)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                if (string.IsNullOrEmpty(meetingScheduleIdStr) || !int.TryParse(meetingScheduleIdStr, out int meetingScheduleId))
+                {
+                    throw new Exception("Invalid Meeting Schedule Id");
+                }
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid User Id");
+                }
+                var meetingSchedule = await _meetingScheduleService.GetMeetingScheduleByMeetingScheduleId(meetingScheduleId);
+                if (meetingSchedule == null) throw new Exception($"Meeting not found with id = {meetingScheduleId}");
+                var result = await _meetingScheduleService.DeleteMeetingSchedule(meetingScheduleId);
+                if (result)
+                {
+                    var users = await _groupMemberService.GetUsersByGroupId(meetingSchedule.GroupId);
+                    foreach (var user in users)
+                    {
+                        string formattedDate = meetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
+                                $"There was a meeting scheduled with your group at {formattedDate} that was deleted.");
+                        await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                    }
+                    response.Data = "Meeting deleted successfully!";
+                    return Ok(response);
+                }
+                throw new Exception("Delete meeting failed.");
+
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+        }
+
+        private MeetingScheduleResponse GetMeetingScheduleResponse(MeetingSchedule meetingSchedule, Project? project, Group group, User user)
+        {
+            return new MeetingScheduleResponse
+            {
+                ScheduleId = meetingSchedule.ScheduleId,
+                MeetingScheduleName = meetingSchedule.MeetingScheduleName,
+                Content = meetingSchedule.Content,
+                StartDate = meetingSchedule.MeetingDate,
+                EndDate = meetingSchedule.MeetingDate.AddMinutes(meetingSchedule.Duration),
+                TopicName = project?.Topic?.TopicName != null ? project.Topic.TopicName : "The group has no topic yet.",
+                GroupName = group.GroupName,
+                Location = meetingSchedule.Location,
+                MentorName = user.FullName,
+                Type = meetingSchedule.Type,
+                Url = meetingSchedule.Url,
+                IsDeleted = meetingSchedule.IsDeleted
+            };
+        }
+
     }
 }

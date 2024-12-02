@@ -17,5 +17,7 @@ public partial class TopicForMentor
 
     public bool IsRegistered { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Mentor Mentor { get; set; } = null!;
 }

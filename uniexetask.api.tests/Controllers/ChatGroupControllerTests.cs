@@ -9,6 +9,10 @@ using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using FluentAssertions;
 using uniexetask.api.Models.Request;
+using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
+using uniexetask.api.Hubs;
+using Task = System.Threading.Tasks.Task;
 
 namespace uniexetask.api.tests.Controllers
 {
@@ -16,8 +20,12 @@ namespace uniexetask.api.tests.Controllers
     {
         private readonly Mock<IChatGroupService> _chatGroupServiceMock;
         private readonly Mock<IUserService> _userServiceMock;
+        private readonly Mock<IStudentService> _studentServiceMock;
+        private readonly Mock<IMentorService> _mentorServiceMock;
         private readonly ChatGroupController _controller;
         private readonly IFixture _fixture;
+        private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<IHubContext<ChatHub>> _hubContextMock;
 
         public ChatGroupControllerTests()
         {
@@ -25,6 +33,7 @@ namespace uniexetask.api.tests.Controllers
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _fixture.Customize<ChatGroup>(composer => composer
+            .Without(x => x.Group)
             .Without(x => x.Users)
             .Without(x => x.ChatMessages)
             .Without(x => x.Owner)
@@ -32,10 +41,61 @@ namespace uniexetask.api.tests.Controllers
             _fixture.Customize<ChatMessage>(composer => composer
             .Without(x => x.User)
             .Without(x => x.ChatGroup));
-            _chatGroupServiceMock = _fixture.Freeze<Mock<IChatGroupService>>();
-            _userServiceMock = _fixture.Freeze<Mock<IUserService>>();
+            _fixture.Customize<User>(composer => composer
+            .Without(x => x.Campus)
+            .Without(x => x.ChatGroupCreatedByNavigations)
+            .Without(x => x.ChatGroupOwners)
+            .Without(x => x.ChatMessages)
+            .Without(x => x.DocumentModifiedByNavigations)
+            .Without(x => x.DocumentUploadByNavigations)
+            .Without(x => x.Mentors)
+            .Without(x => x.NotificationReceivers)
+            .Without(x => x.NotificationSenders)
+            .Without(x => x.ProjectScores)
+            .Without(x => x.RefreshTokens)
+            .Without(x => x.Role)
+            .Without(x => x.Students)
+            .Without(x => x.ChatGroups));
+            _fixture.Customize<Student>(composer => composer
+            .Without(x => x.GroupMembers)
+            .Without(x => x.Lecturer)
+            .Without(x => x.MemberScores)
+            .Without(x => x.Subject)
+            .Without(x => x.TaskAssigns)
+            .Without(x => x.User));
+            _mapperMock = new Mock<IMapper>();
+            _fixture.Inject(_mapperMock);
 
-            _controller = new ChatGroupController(_chatGroupServiceMock.Object, _userServiceMock.Object);
+            _studentServiceMock = new Mock<IStudentService>();
+            _fixture.Inject(_studentServiceMock);
+
+            _userServiceMock = new Mock<IUserService>();
+            _fixture.Inject(_userServiceMock);
+
+            _chatGroupServiceMock = new Mock<IChatGroupService>();
+            _fixture.Inject(_chatGroupServiceMock);
+
+            _mentorServiceMock = new Mock<IMentorService>();
+            _fixture.Inject(_mentorServiceMock);
+
+            _hubContextMock = new Mock<IHubContext<ChatHub>>();
+            _fixture.Inject(_hubContextMock);
+            var mockClients = new Mock<IHubClients>();
+            var mockClientProxy = new Mock<IClientProxy>();
+
+            // Thiết lập Clients.All trả về mock của IClientProxy
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+            _hubContextMock.Setup(context => context.Clients).Returns(mockClients.Object);
+
+            // Thiết lập SendAsync trả về Task.CompletedTask để mô phỏng hành vi thành công
+            mockClientProxy
+                .Setup(proxy => proxy.SendCoreAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<object[]>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _controller = new ChatGroupController(_chatGroupServiceMock.Object, _userServiceMock.Object, _studentServiceMock.Object, _mentorServiceMock.Object, _mapperMock.Object, _hubContextMock.Object);
             // Set User Claims (mock authenticated user)
             _controller.ControllerContext = new ControllerContext
             {
@@ -391,21 +451,21 @@ namespace uniexetask.api.tests.Controllers
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnOkResult_WhenValidData()
+        public async System.Threading.Tasks.Task CreatePersonalChatGroup_ShouldReturnOkResult_WhenValidData()
         {
             // Arrange
             var modal = new CreatePersonalChatGroupModal 
             {
-                LeaderId = "1",
-                UserId = "2",
+                ContactedUserId = "1",
+                ContactUserId = "2",
                 Message = "Sample message"
             };
             _chatGroupServiceMock
-                .Setup(s => s.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message))
+                .Setup(s => s.CreatePersonalChatGroup(int.Parse(modal.ContactedUserId), int.Parse(modal.ContactUserId), modal.Message))
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.SendMessageToGroupLeader(modal);
+            var result = await _controller.CreatePersonalChatGroup(modal);
 
             // Assert
             result.Should().NotBeNull();
@@ -419,7 +479,7 @@ namespace uniexetask.api.tests.Controllers
             response.Success.Should().BeTrue();
             response.Data.Should().NotBeNull();
             response.Data.Should().Be("Send successfully, please wait for response from group leader.");
-            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message), Times.Once());
+            _chatGroupServiceMock.Verify(x => x.CreatePersonalChatGroup(int.Parse(modal.ContactedUserId), int.Parse(modal.ContactUserId), modal.Message), Times.Once());
         }
 
         [Theory]
@@ -433,24 +493,24 @@ namespace uniexetask.api.tests.Controllers
         [InlineData("a", "a", "")]
         [InlineData("a", "a", null)]
         [InlineData(null, null, null)]
-        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnBadRequest_WhenInvalidData(string leaderId, string userId, string message)
+        public async System.Threading.Tasks.Task CreatePersonalChatGroup_ShouldReturnBadRequest_WhenInvalidData(string leaderId, string userId, string message)
         {
             // Arrange
             var modal = new CreatePersonalChatGroupModal
             {
-                LeaderId = leaderId,
-                UserId = userId,
+                ContactedUserId = leaderId,
+                ContactUserId = userId,
                 Message = message
             };
 
             // Act
-            var result = await _controller.SendMessageToGroupLeader(modal);
+            var result = await _controller.CreatePersonalChatGroup(modal);
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<BadRequestObjectResult>();
+            result.Should().BeOfType<OkObjectResult>();
 
-            var okResult = result as BadRequestObjectResult;
+            var okResult = result as OkObjectResult;
             okResult.Should().NotBeNull();
 
             var response = okResult.Value as ApiResponse<string>;
@@ -459,31 +519,31 @@ namespace uniexetask.api.tests.Controllers
             response.Data.Should().BeNull();
             response.ErrorMessage.Should().NotBeNull();
             response.ErrorMessage.Should().Be("Invalid data.");
-            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
+            _chatGroupServiceMock.Verify(x => x.CreatePersonalChatGroup(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task SendMessageToGroupLeader_ShouldReturnBadRequest_WhenServiceReturnsFalse()
+        public async System.Threading.Tasks.Task CreatePersonalChatGroup_ShouldReturnBadRequest_WhenServiceReturnsFalse()
         {
             // Arrange
             var modal = new CreatePersonalChatGroupModal
             {
-                LeaderId = "1",
-                UserId = "2",
+                ContactedUserId = "1",
+                ContactUserId = "2",
                 Message = "Sample message"
             };
             _chatGroupServiceMock
-                .Setup(s => s.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message))
+                .Setup(s => s.CreatePersonalChatGroup(int.Parse(modal.ContactedUserId), int.Parse(modal.ContactUserId), modal.Message))
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.SendMessageToGroupLeader(modal);
+            var result = await _controller.CreatePersonalChatGroup(modal);
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<BadRequestObjectResult>();
+            result.Should().BeOfType<OkObjectResult>();
 
-            var okResult = result as BadRequestObjectResult;
+            var okResult = result as OkObjectResult;
             okResult.Should().NotBeNull();
 
             var response = okResult.Value as ApiResponse<string>;
@@ -492,7 +552,7 @@ namespace uniexetask.api.tests.Controllers
             response.Data.Should().BeNull();
             response.ErrorMessage.Should().NotBeNull();
             response.ErrorMessage.Should().Be("Failed to send message.");
-            _chatGroupServiceMock.Verify(x => x.SendMessageToGroupLeader(int.Parse(modal.LeaderId), int.Parse(modal.UserId), modal.Message), Times.Once());
+            _chatGroupServiceMock.Verify(x => x.CreatePersonalChatGroup(int.Parse(modal.ContactedUserId), int.Parse(modal.ContactUserId), modal.Message), Times.Once());
         }
     }
 }

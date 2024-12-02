@@ -47,6 +47,15 @@ namespace uniexetask.infrastructure.Repositories
                             .SelectMany(cg => cg.GroupMembers)
                             .AnyAsync(u => u.StudentId == studentId);
         }
+
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        {
+            return await dbSet
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%"))
+                        .Take(5)
+                        .ToListAsync();
+        }
+        
         public async Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor()
         {
             return await dbSet.Include(g => g.GroupMembers).ThenInclude(gm => gm.Student).ThenInclude(s => s.User).Include(g => g.Mentors).ThenInclude(m => m.User).Where(g => g.IsCurrentPeriod && !g.IsDeleted).AsNoTracking().ToListAsync();
