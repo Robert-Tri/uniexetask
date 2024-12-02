@@ -21,5 +21,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> UpdateGroupApproved(int groupId);
         Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query);
         Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors();
+        Task<bool> DeleteGroup(int groupId);
     }
 }

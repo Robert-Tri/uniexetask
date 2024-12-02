@@ -91,9 +91,9 @@ namespace uniexetask.api.Controllers
             }
 
             var reqMembersList = await _reqMemberService.GetAllReqMember();
-            if (reqMembersList == null || !reqMembersList.Any())
+            if (reqMembersList == null )
             {
-                return NotFound(new ApiResponse<object> { Success = false, ErrorMessage = "No member requests available." });
+                reqMembersList = new List<RegMemberForm>(); 
             }
 
             var responseData = reqMembersList
