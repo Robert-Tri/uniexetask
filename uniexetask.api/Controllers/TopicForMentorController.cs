@@ -353,5 +353,37 @@ namespace uniexetask.api.Controllers
 
             return Ok(new { Url = signedUrl });
         }
+
+        [Authorize(Roles = nameof(EnumRole.Mentor))]
+        [HttpPut("DeleteTopicMentor")]
+        public async Task<IActionResult> DeleteTopicMentor([FromBody] int TopicForMentorId)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var reqNew = await _topicMentorService.GetTopicMentorById(TopicForMentorId);
+            reqNew.IsDeleted = true;
+            var isReqUpdated = await _topicMentorService.UpdateTopicMentor(reqNew);
+            ApiResponse<object> response = new ApiResponse<object>
+            {
+                Data = new
+                {
+                    TopicName = reqNew.TopicName,
+                    Description = reqNew.Description
+                }
+            };
+
+            if (isReqUpdated)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest("Không thể cập nhật Description.");
+            }
+        }
     }
 }

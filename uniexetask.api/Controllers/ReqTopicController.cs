@@ -199,6 +199,7 @@ namespace uniexetask.api.Controllers
         }
 
 
+        [Authorize(Roles = "Mentor")]
         [HttpPost("ApproveTopic")]
         public async Task<IActionResult> ApproveTopic([FromBody] ReqTopicModel reqTopic)
         {
