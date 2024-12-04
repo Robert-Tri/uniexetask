@@ -76,10 +76,15 @@ namespace uniexetask.api.Controllers
                         }
                     }
                     var latestMessage = await _chatGroupService.GetLatestMessageInChatGroup(chatgroup.ChatGroupId);
+                    string messageContent = latestMessage != null ? latestMessage.MessageContent : "[No Message]";
+                    if (messageContent.Length > 50)
+                    {
+                        messageContent = messageContent.Substring(0, 50) + "...";
+                    }
                     list.Add(new ChatGroupResponse
                     {
                         ChatGroup = chatgroup,
-                        LatestMessage = latestMessage != null ? latestMessage.MessageContent : "[No Message]",
+                        LatestMessage = messageContent,
                         SendDatetime = latestMessage != null ? latestMessage.SendDatetime : null,
                         Student = student != null ? _mapper.Map<StudentModel>(student) : null,
                         UserId = userIdForPersonalChat != null ? userIdForPersonalChat : null

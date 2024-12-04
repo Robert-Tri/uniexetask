@@ -51,7 +51,7 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
         {
             return await dbSet
-                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%"))
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && !u.IsDeleted)
                         .Take(5)
                         .ToListAsync();
         }

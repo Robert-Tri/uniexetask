@@ -485,10 +485,12 @@ INSERT INTO FEATURE (name, description)
 VALUES 
 ('User Management', 'Feature to manage (view, create, update, delete, import) users'),
 ('Project Management', 'Feature to manage (view, create, update, delete) projects'),
-('Event Management', 'Feature to manage (view, create, update, delete) events'),
-('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the project'),
+('Workshop Management', 'Feature to manage (view, create, update, delete) workshops'),
+('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the group'),
 ('Group Management', 'Feature to manage (view, create, update, delete) group'),
-('Resource Management', 'Feature to manage (view, upload, update, delete, download) resources in the project');
+('Syllabus Management', 'Feature to manage (view) syllabus'),
+('Timeline Management', 'Feature to manage (view, update) timeline'),
+('Document Management', 'Feature to manage (view, upload, update, delete, download) document in the project');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
 INSERT INTO PERMISSION (feature_id, name, description)
@@ -502,10 +504,10 @@ VALUES
 (2, 'create_project', 'Permission to create projects'),
 (2, 'edit_project', 'Permission to edit projects'),
 (2, 'delete_project', 'Permission to delete projects'),
-(3, 'view_event', 'Permission to view events'),
-(3, 'create_event', 'Permission to create events'),
-(3, 'edit_event', 'Permission to edit events'),
-(3, 'delete_event', 'Permission to delete events'),
+(3, 'view_workshop', 'Permission to view workshops'),
+(3, 'create_workshop', 'Permission to create workshops'),
+(3, 'edit_workshop', 'Permission to edit workshops'),
+(3, 'delete_workshop', 'Permission to delete workshops'),
 (4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
 (4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
 (4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
@@ -514,11 +516,14 @@ VALUES
 (5, 'create_group', 'Permission to create group'),
 (5, 'edit_group', 'Permission to edit group'),
 (5, 'delete_group', 'Permission to delete group'),
-(6, 'view_resource', 'Permission to view resources'),
-(6, 'upload_resource', 'Permission to create resources'),
-(6, 'edit_resource', 'Permission to edit resources'),
-(6, 'delete_resource', 'Permission to delete resources'),
-(6, 'download_resource', 'Permission to delete resources');
+(5, 'view_syllabus', 'Permission to view syllabus'),
+(5, 'view_timeline', 'Permission to view timeline'),
+(5, 'edit_timeline', 'Permission to edit timeline'),
+(6, 'view_document', 'Permission to view documents'),
+(6, 'upload_document', 'Permission to create documents'),
+(6, 'edit_document', 'Permission to edit documents'),
+(6, 'delete_document', 'Permission to delete documents'),
+(6, 'download_document', 'Permission to delete documents');
 
 -- Thêm dữ liệu mẫu cho bảng User
 -- Default password: Uniexetask123456
