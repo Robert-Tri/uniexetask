@@ -16,6 +16,13 @@ namespace uniexetask.services
             var studentList = await _unitOfWork.Students.GetAsync();
             return studentList;
         }
+        public async Task<bool> CheckDuplicateStudentCode(string studentCode)
+        {
+            var students = await _unitOfWork.Students.GetAsync(filter: s => s.StudentCode == studentCode);
+            if (students.Any())
+                return true;
+            return false;
+        }
 
         public async Task<bool> CreateStudent(Student student)
         {
