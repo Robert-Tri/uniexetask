@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 
@@ -12,11 +15,13 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class RoleController : ControllerBase
     {
+        private readonly IGroupMemberService _groupMemberService;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
 
-        public RoleController(IRoleService roleService, IMapper mapper)
+        public RoleController(IGroupMemberService groupMemberService, IRoleService roleService, IMapper mapper)
         {
+            _groupMemberService = groupMemberService;
             _roleService = roleService;
             _mapper = mapper;
         }
@@ -43,6 +48,25 @@ namespace uniexetask.api.Controllers
                 return NotFound(); // Trả về 404 nếu không tìm thấy role
             }
             ApiResponse<Role> response = new ApiResponse<Role>
+            {
+                Data = role
+            };
+            return Ok(response); // Trả về role nếu tìm thấy
+        }
+
+        [Authorize]
+        [HttpGet("GetRoleByUserId")]
+        public async Task<IActionResult> GetRoleByUserId()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            ApiResponse<object> response = new ApiResponse<object>
             {
                 Data = role
             };

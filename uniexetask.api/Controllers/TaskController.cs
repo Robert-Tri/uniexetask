@@ -61,21 +61,30 @@ namespace uniexetask.api.Controllers
         [HttpGet("{taskId}")]
         public async Task<IActionResult> GetTasksById(int taskId)
         {
-            var task = await _taskService.GetTaskById(taskId);
-            if (task == null)
-            {
-                return NotFound();
-            }
-            var taskAssign = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
-            var taskDetail = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
-            var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(taskId);
-
-            task.TaskAssigns = taskAssign.ToList();
-            task.TaskDetails = taskDetail.ToList();
-
             ApiResponse<core.Models.Task> response = new ApiResponse<core.Models.Task>();
-            response.Data = task;
-            return Ok(response);
+            try
+            {
+                var task = await _taskService.GetTaskById(taskId);
+                if (task == null)
+                {
+                    return NotFound();
+                }
+                var taskAssign = await _taskAssignService.GetTaskAssignsByTaskId(taskId);
+                var taskDetail = await _taskDetailService.GetTaskDetailListByTaskId(taskId);
+                var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(taskId);
+
+                task.TaskAssigns = taskAssign.ToList();
+                task.TaskDetails = taskDetail.ToList();
+
+                response.Data = task;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
         }
 
         [HttpGet("byProject/{projectId}")]

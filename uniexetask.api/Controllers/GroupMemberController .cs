@@ -531,6 +531,59 @@ namespace uniexetask.api.Controllers
 
 
         [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpDelete("DeleteGroup")]
+        public async Task<IActionResult> DeleteGroup(int groupId)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
+
+            var group = await _groupService.GetGroupById(groupId);
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot delete." });
+            }
+
+            var deleteStatus = await _groupService.DeleteGroup(groupId);
+            if (deleteStatus != true) 
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Fail to delete group ."
+                });
+            }
+
+            bool isDeleted = await _groupMemberService.DeleteGroupMember(groupId);
+
+            if (isDeleted)
+            {
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Data = new { Message = "Group successfully deleted." }
+                });
+            }
+            else
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Group delete fail."
+                });
+            }
+        }
+
+        [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpDelete("DeleteMember")]
         public async Task<IActionResult> DeleteMember([FromBody] DeleteGroupMemberModel model)
         {
@@ -548,7 +601,7 @@ namespace uniexetask.api.Controllers
             }
 
             var checkLeader = await _groupMemberService.GetGroupByStudentId(model.StudentId);
-            if (checkLeader.Role == "Leader") 
+            if (checkLeader.Role == "Leader")
             {
                 return BadRequest(new ApiResponse<object>
                 {
