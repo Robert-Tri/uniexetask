@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using uniexetask.api.BackgroundServices;
-using uniexetask.api.Extensions;
 using uniexetask.api.Hubs;
 using uniexetask.api.Middleware;
 using uniexetask.infrastructure.ServiceExtension;
