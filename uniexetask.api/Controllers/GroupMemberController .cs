@@ -356,18 +356,14 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetGroupMemberByUserID")]
         public async Task<IActionResult> GetGroupMemberByUserID()
         {
-            // Retrieve user ID from the claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Validate and parse user ID
             if (int.TryParse(userIdString, out int userId))
             {
-                // Fetch GroupMember by userId
                 var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
 
                 if (groupMember != null)
                 {
-                    // Prepare successful response
                     var response = new ApiResponse<GroupMember>
                     {
                         Data = groupMember
@@ -389,10 +385,8 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetRoleByUserId")]
         public async Task<IActionResult> GetRoleByUserId()
         {
-            // Lấy userId từ claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Kiểm tra và chuyển userId sang kiểu int
             if (int.TryParse(userIdString, out int userId))
             {
                 var role = await _groupMemberService.GetRoleByUserId(userId);
