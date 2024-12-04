@@ -1,4 +1,4 @@
-﻿namespace uniexetask.api.Extensions
+﻿namespace uniexetask.services.Interfaces
 {
     public interface IEmailService
     {

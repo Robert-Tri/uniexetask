@@ -237,6 +237,7 @@ namespace uniexetask.services
                 _unitOfWork.Groups.Update(group);
                 _unitOfWork.Save();
             }
+            
         }
 
         public async Task<IEnumerable<Group>> GetAllGroup()
