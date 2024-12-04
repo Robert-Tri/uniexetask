@@ -328,6 +328,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("download")]
         public async Task<IActionResult> DownloadTopicMentor(int topicForMentorId)
         {
