@@ -75,6 +75,7 @@ namespace uniexetask.api.Controllers
                 
                 foreach (var user in memberGroup)
                 {
+                    int numberOfTaskNotStarted = 0;
                     int numberOfTaskInProgress = 0;
                     int numberOfTaskCompleted = 0;
                     int numberOfTaskOverdue = 0;
@@ -82,7 +83,11 @@ namespace uniexetask.api.Controllers
                     var taskOfUser = await _taskService.GetTasksByUserId(user.UserId);
                     foreach (var task in taskOfUser)
                     {
-                        if (task.Status == nameof(TasksStatus.In_Progress))
+                        if (task.Status == nameof(TasksStatus.Not_Started))
+                        {
+                            numberOfTaskNotStarted++;
+                        }
+                        else if(task.Status == nameof(TasksStatus.In_Progress))
                         {
                             numberOfTaskInProgress++;
                         }
@@ -100,6 +105,7 @@ namespace uniexetask.api.Controllers
                         FullName = user.FullName,
                         Email = user.Email,
                         Avatar = user.Avatar,
+                        NumberOfTaskNotStarted = numberOfTaskNotStarted,
                         NumberOfTaskInProgress = numberOfTaskInProgress,
                         NumberOfTaskCompleted = numberOfTaskCompleted,
                         NumberOfTaskOverdue = numberOfTaskOverdue,

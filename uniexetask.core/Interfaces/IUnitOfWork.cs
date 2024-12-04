@@ -26,7 +26,6 @@
         INotificationRepository Notifications { get; }
         IProjectProgressRepository ProjectProgresses { get; }
         ITaskProgressRepository TaskProgresses { get; }
-        IUsagePlanRepository UsagePlans { get; }
         IMemberScoreRepository MemberScores { get; }
         IMilestoneRepository Milestones { get; }
         IProjectScoreRepository ProjectScores { get; }

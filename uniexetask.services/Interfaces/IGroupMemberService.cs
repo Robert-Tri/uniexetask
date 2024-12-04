@@ -20,5 +20,6 @@ namespace uniexetask.services.Interfaces
         Task<string?> GetRoleByUserId(int userId);
         Task<bool> DeleteMember(int groupId, int studentId);
         Task<IEnumerable<GroupMember>> GetGroupMemberByProjectId(int projectId);
+        Task<bool> DeleteGroupMember(int groupId);
     }
 }

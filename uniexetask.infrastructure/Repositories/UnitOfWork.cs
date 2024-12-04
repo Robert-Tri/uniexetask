@@ -36,7 +36,6 @@ namespace uniexetask.infrastructure.Repositories
         public INotificationRepository Notifications { get; }
         public IProjectProgressRepository ProjectProgresses { get; }
         public ITaskProgressRepository TaskProgresses { get; }
-        public IUsagePlanRepository UsagePlans { get; }
         public IMemberScoreRepository MemberScores { get; }
         public IMilestoneRepository Milestones { get; }
         public IProjectScoreRepository ProjectScores { get; }
@@ -72,7 +71,6 @@ namespace uniexetask.infrastructure.Repositories
                             INotificationRepository notifications,
                             IProjectProgressRepository projectProgresses,
                             ITaskProgressRepository taskProgresses,
-                            IUsagePlanRepository usagePlans,
                             IMemberScoreRepository memberScores,
                             IMilestoneRepository milestones,
                             IProjectScoreRepository projectScores,
@@ -108,7 +106,6 @@ namespace uniexetask.infrastructure.Repositories
             Notifications = notifications;
             ProjectProgresses = projectProgresses;
             TaskProgresses = taskProgresses;
-            UsagePlans = usagePlans;
             MemberScores = memberScores;
             Milestones = milestones;
             ProjectScores = projectScores;

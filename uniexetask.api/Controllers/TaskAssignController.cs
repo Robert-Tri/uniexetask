@@ -22,7 +22,7 @@ namespace uniexetask.api.Controllers
         }
 
         [HttpGet("byStudent/{studentId}")]
-        public async Task<IActionResult> GetTasksByStudent(string studentId)
+        public async Task<IActionResult> GetTaskAssignsByStudent(string studentId)
         {
             var tasksList = await _taskAssignService.GetTaskAssignsByStudent(int.Parse(studentId));
             if (tasksList == null)

@@ -19,6 +19,6 @@ namespace uniexetask.services.Interfaces
         System.Threading.Tasks.Task MarkAsReadAsync(string chatGroupId, string userId, int lastReadMessageId);
         Task<bool> RemoveMemberOutOfGroupChat(int userId, int chatGroupId);
         Task<ChatMessage?> SaveMessageAsync(int chatGroupId, int userId, string message);
-        Task<bool> SendMessageToGroupLeader(int leaderId, int userId, string message);
+        Task<bool> CreatePersonalChatGroup(int leaderId, int userId, string message);
     }
 }

@@ -14,6 +14,7 @@ using Google.Apis.Auth;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
 using uniexetask.api.Extensions;
+using uniexetask.services;
 
 namespace uniexetask.api.Controllers
 {
@@ -25,13 +26,22 @@ namespace uniexetask.api.Controllers
         private readonly IAuthService _authService;
         private readonly IRoleService _roleService;
         private readonly IRolePermissionService _rolePermissionService;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration, IAuthService authService, IRoleService roleService, IRolePermissionService rolePermissionService)
+        public AuthController(IConfiguration configuration,
+            IAuthService authService,
+            IRoleService roleService,
+            IRolePermissionService rolePermissionService,
+            IEmailService emailService,
+            IUserService userService)
         {
             _configuration = configuration;
             _authService = authService;
             _roleService = roleService;
             _rolePermissionService = rolePermissionService;
+            _emailService = emailService;
+            _userService = userService;
         }
 
         [HttpPost("login")]
@@ -273,6 +283,151 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = "Invalid Google token.";
                 return Unauthorized(response);
             }
+        }
+
+
+        private static Dictionary<string, string> VerificationCodes = new Dictionary<string, string>();
+
+        [HttpPost("forgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            try
+            {
+                // Tạo mã ngẫu nhiên 5 chữ số
+                string randomCode = GenerateRandomCode(5);
+
+                // Lưu mã vào bộ nhớ (có thể lưu theo email hoặc một số nhận dạng khác)
+                VerificationCodes[email] = randomCode;
+
+                // Nội dung email bao gồm mã ngẫu nhiên
+                var contentEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff;
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <p>We have received your request to reset your password. Please use the following code to proceed:</p>
+    <p><strong>{randomCode}</strong></p>
+    <p>You should not share this code with anyone.</p>
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+    <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
+</body>
+</html>
+";
+
+                var emailTask = _emailService.SendEmailAsync(email, "Password Reset Request", contentEmail);
+
+                if (emailTask != null)
+                {
+                    return Ok(new { message = "Password reset email sent successfully." });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Failed to send email." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+            }
+        }
+
+        [HttpPost("verifyCode")]
+        public IActionResult VerifyCode([FromBody] VerifyCodeModel request)
+        {
+            try
+            {
+                // Kiểm tra mã xác minh có tồn tại trong bộ nhớ không
+                if (VerificationCodes.ContainsKey(request.Email))
+                {
+                    // Kiểm tra mã xác minh có khớp không
+                    if (VerificationCodes[request.Email] == request.Code)
+                    {
+                        return Ok(new { message = "Code verified successfully." });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Invalid code." });
+                    }
+                }
+                else
+                {
+                    return BadRequest(new { message = "No code found for this email." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+            }
+        }
+
+
+        private string GenerateRandomCode(int length)
+        {
+            const string digits = "0123456789";
+
+            var random = new Random();
+
+            var code = new List<char>();
+
+            for (int i = 0; i < length; i++)
+            {
+                code.Add(digits[random.Next(digits.Length)]);
+            }
+
+            return new string(code.ToArray());
+        }
+
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel passwordModel, string email)
+        {
+            var user = await _userService.GetUserByEmail(email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (passwordModel.newPassword != null)
+            {
+                user.Password = PasswordHasher.HashPassword(passwordModel.newPassword);
+                var isUserUpdated = await _userService.UpdateUser(user);
+
+                ApiResponse<object> response = new ApiResponse<object>
+                {
+                    Data = new
+                    {
+                        Password = user.Password
+                    }
+                };
+                if (isUserUpdated)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest("Không thể cập nhật mật khẩu.");
+                }
+            }
+            return BadRequest("New Password is null.");
+
         }
     }
 }

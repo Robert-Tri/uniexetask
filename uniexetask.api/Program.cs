@@ -60,7 +60,6 @@ builder.Services.AddScoped<IReqMemberService, ReqMemberService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IProjectProgressService, ProjectProgressService>();
 builder.Services.AddScoped<ITaskProgressService, TaskProgressService>();
-builder.Services.AddScoped<IUsagePlanService, UsagePlanService>();
 builder.Services.AddScoped<IMemberScoreService, MemberScoreService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
