@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.Marshalling;
-using uniexetask.core.Interfaces;
+﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -14,23 +13,19 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
-        private async Task<int> CheckDuplicateUser(string email, string phone)
+        public async Task<bool> CheckDuplicateUser(string email, string phone)
         {
-            var existedEmailandPhone = (await _unitOfWork.Users.GetAsync(filter: u => u.Email == email && u.Phone == phone)).FirstOrDefault();
-            if (existedEmailandPhone != null)
+            var users = (await _unitOfWork.Users.GetAsync(filter: u => (u.Email == email || u.Phone == phone) && u.IsDeleted == false));
+            if (users.Any())
             {
-                return 1;
+                return true;
             }
-            return 0;
+            return false;
         } 
 
-        public async Task<bool> CreateUser(User user)
+        public async Task<User> CreateUser(User user)
         {
             var existedUser = await CheckDuplicateUser(user.Email, user.Phone);
-            if (existedUser == 1) 
-            {
-                throw new Exception("Email or phone number already exists.");
-            }
             if (user != null)
             {
                 await _unitOfWork.Users.InsertAsync(user);
@@ -38,17 +33,15 @@ namespace uniexetask.services
                 var result = _unitOfWork.Save();
 
                 if (result > 0)
-                    return true;
-                else
-                    return false;
+                    return user;
             }
-            return false;
+            throw new Exception("Failed to create user.");
         }
 
         public async Task<User> CreateUserExcel(User user)
         {
             var existedUser = await CheckDuplicateUser(user.Email, user.Phone);
-            if (existedUser == 1)
+            if (existedUser)
             {
                 throw new Exception("Email or phone number already exists.");
             }

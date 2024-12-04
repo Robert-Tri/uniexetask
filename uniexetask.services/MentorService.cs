@@ -63,7 +63,7 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Mentor>> GetMentorsAsync()
         {
-            var mentors = await _unitOfWork.Mentors.GetAsync();
+            var mentors = await _unitOfWork.Mentors.GetAsync(includeProperties: "User");
             return mentors;
         }
         public async Task<Mentor?> GetMentorByUserId(int userId)
@@ -73,7 +73,6 @@ namespace uniexetask.services
 
         public async Task<Mentor?> GetMentorByEmail(string email)
         {
-            // Tìm kiếm User dựa trên email
             var user = (await _unitOfWork.Users.GetAsync(
                 filter: u => u.Email == email && u.IsDeleted == false,
                 includeProperties: "Mentors")).FirstOrDefault();
@@ -93,6 +92,18 @@ namespace uniexetask.services
             var mentors = await _unitOfWork.Mentors.GetAsync(filter: m => userIds.Contains(m.UserId), includeProperties: "User");
             return mentors;
         }
-
+        public async Task<bool> CreateMetor(Mentor mentor)
+        {
+            if(mentor != null)
+            {
+                await _unitOfWork.Mentors.InsertAsync(mentor);
+                var result = _unitOfWork.Save();
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
     }
 }

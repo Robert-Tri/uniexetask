@@ -10,6 +10,7 @@ namespace uniexetask.services.Interfaces
     public interface IStudentService
     {
         Task<IEnumerable<Student>> GetAllStudent();
+        Task<bool> CheckDuplicateStudentCode(string studentCode);
         Task<Student?> GetStudentById(int studentId);
         Task<Student?> GetStudentByCode(string studentCode);
         Task<IEnumerable<Student>> GetEligibleStudentsWithUser();

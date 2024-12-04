@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using uniexetask.api.Extensions;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models.Enums;
+using uniexetask.services.Interfaces;
 
 namespace uniexetask.services.BackgroundServices
 {

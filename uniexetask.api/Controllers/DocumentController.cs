@@ -193,7 +193,7 @@ namespace uniexetask.api.Controllers
 
 
         [HttpDelete("documentid")]
-        public async Task<IActionResult> DeleteFile(int documentId)
+        public async Task<IActionResult> DeleteDocument(int documentId)
         {
             var documentToDelete = await _documentService.DeleteDocumentById(documentId);
             if (documentToDelete == null)

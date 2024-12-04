@@ -1,10 +1,7 @@
-﻿using uniexetask.core.Models;
-
-namespace uniexetask.api.Models.Request
+﻿namespace uniexetask.api.Models.Request
 {
-    public class CreateUserModel
+    public class CreateMentorModel
     {
-      
         public string FullName { get; set; } = null!;
 
         public string Email { get; set; } = null!;
@@ -13,6 +10,6 @@ namespace uniexetask.api.Models.Request
 
         public int CampusId { get; set; }
 
-        public int RoleId { get; set; }
+        public string Specialty { get; set; } = null!;
     }
 }
