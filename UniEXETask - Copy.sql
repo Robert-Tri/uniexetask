@@ -477,20 +477,15 @@ VALUES
 ('Admin', 'Administrator with full access'),
 ('Manager', 'Manager with project management privileges'),
 ('Student', 'Student participating in projects'),
-('Mentor', 'Mentor providing guidance to projects'),
-('Sponsor', 'Sponsor investing in projects');
+('Mentor', 'Mentor providing guidance to projects');
 
 -- Thêm dữ liệu mẫu cho bảng feature
 INSERT INTO FEATURE (name, description)
 VALUES 
 ('User Management', 'Feature to manage (view, create, update, delete, import) users'),
-('Project Management', 'Feature to manage (view, create, update, delete) projects'),
 ('Workshop Management', 'Feature to manage (view, create, update, delete) workshops'),
 ('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the group'),
-('Group Management', 'Feature to manage (view, create, update, delete) group'),
-('Syllabus Management', 'Feature to manage (view) syllabus'),
-('Timeline Management', 'Feature to manage (view, update) timeline'),
-('Document Management', 'Feature to manage (view, upload, update, delete, download) document in the project');
+('Timeline Management', 'Feature to manage (view, update) timeline');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
 INSERT INTO PERMISSION (feature_id, name, description)
@@ -500,30 +495,16 @@ VALUES
 (1, 'edit_user', 'Permission to edit users'),
 (1, 'delete_user', 'Permission to delete users'),
 (1, 'import_user', 'Permission to import users from ecel file'),
-(2, 'view_project', 'Permission to view projects'),
-(2, 'create_project', 'Permission to create projects'),
-(2, 'edit_project', 'Permission to edit projects'),
-(2, 'delete_project', 'Permission to delete projects'),
-(3, 'view_workshop', 'Permission to view workshops'),
-(3, 'create_workshop', 'Permission to create workshops'),
-(3, 'edit_workshop', 'Permission to edit workshops'),
-(3, 'delete_workshop', 'Permission to delete workshops'),
-(4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
-(4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
-(4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
-(4, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
-(5, 'view_group', 'Permission to view group'),
-(5, 'create_group', 'Permission to create group'),
-(5, 'edit_group', 'Permission to edit group'),
-(5, 'delete_group', 'Permission to delete group'),
-(5, 'view_syllabus', 'Permission to view syllabus'),
-(5, 'view_timeline', 'Permission to view timeline'),
-(5, 'edit_timeline', 'Permission to edit timeline'),
-(6, 'view_document', 'Permission to view documents'),
-(6, 'upload_document', 'Permission to create documents'),
-(6, 'edit_document', 'Permission to edit documents'),
-(6, 'delete_document', 'Permission to delete documents'),
-(6, 'download_document', 'Permission to delete documents');
+(2, 'view_workshop', 'Permission to view workshops'),
+(2, 'create_workshop', 'Permission to create workshops'),
+(2, 'edit_workshop', 'Permission to edit workshops'),
+(2, 'delete_workshop', 'Permission to delete workshops'),
+(3, 'view_meeting_schedule', 'Permission to view meeting schedules'),
+(3, 'create_meeting_schedule', 'Permission to create meeting schedules'),
+(3, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
+(3, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
+(4, 'view_timeline', 'Permission to view timeline'),
+(4, 'edit_timeline', 'Permission to edit timeline');
 
 -- Thêm dữ liệu mẫu cho bảng User
 -- Default password: Uniexetask123456
@@ -579,11 +560,9 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
-(1, 1), (1, 2), (1, 3),
-(2, 1), (2, 2),
-(3, 1),
-(4, 1),
-(5, 1);
+(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 14), (2, 15), (2, 6), (2, 7), (2, 8), (2, 9),
+(3, 10), (3, 6),
+(4, 6), (4, 10), (4, 11), (4, 12), (4, 13);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)

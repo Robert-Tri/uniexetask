@@ -230,7 +230,7 @@ namespace uniexetask.api.Controllers
 
                 if (result)
                 {
-                    response.Data = "Send successfully, please wait for response from group leader.";
+                    response.Data = "Message has been sent, please go to Chat session to check..";
                     await _hubContext.Clients.All.SendAsync("UpdateChatGroupWhenContact", contactUserId);
                     return Ok(response);
                 }

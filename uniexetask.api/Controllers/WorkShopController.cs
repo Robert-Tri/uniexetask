@@ -23,6 +23,8 @@ namespace uniexetask.api.Controllers
             _emailService = emailService;
             _studentService = studentService;
         }
+
+        [Authorize(Policy = "CanViewWorkshop")]
         [HttpGet]
         public async Task<IActionResult> GetWorkShops()
         {
@@ -31,7 +33,8 @@ namespace uniexetask.api.Controllers
             respone.Data = workShops;
             return Ok(respone);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanCreateWorkshop")]
         [HttpPost]
         public async Task<IActionResult> CreateWorkShop(Workshop workshop)
         {
@@ -97,7 +100,8 @@ namespace uniexetask.api.Controllers
             };
             return Ok(response);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanEditWorkshop")]
         [HttpPut]
         public async Task<IActionResult> UpdateWorkShop(Workshop workShop)
         {
@@ -106,7 +110,8 @@ namespace uniexetask.api.Controllers
             respone.Data = workShop;
             return Ok(respone);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanDeleteWorkshop")]
         [HttpDelete("{workShopId}")]
         public IActionResult DeleteWorkShop(int workShopId)
         {

@@ -58,6 +58,7 @@ namespace uniexetask.api.Controllers
             _hubContext = hubContext;
         }
 
+        [Authorize(Policy = "CanViewMeetingSchedule")]
         [HttpGet("events")]
         public async Task<IActionResult> GetMeetingSchedules()
         {
@@ -136,6 +137,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanCreateMeetingSchedule")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateMeetingSchedule([FromBody] MeetingScheduleModel model)
         {
@@ -184,6 +186,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanEditMeetingSchedule")]
         [HttpPost("edit/{meetingScheduleIdStr}")]
         public async Task<IActionResult> EditMeetingSchedule(string meetingScheduleIdStr, [FromBody] MeetingScheduleModel model)
         {
@@ -227,6 +230,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanDeleteMeetingSchedule")]
         [HttpDelete("delete/{meetingScheduleIdStr}")]
         public async Task<IActionResult> DeleteMeetingSchedule(string meetingScheduleIdStr)
         {

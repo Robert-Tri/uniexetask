@@ -108,6 +108,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
+    //User
     options.AddPolicy("CanViewUser", policy =>
         policy.RequireAssertion(context =>
             context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_user")));
@@ -123,6 +124,75 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CanDeleteUser", policy =>
         policy.RequireAssertion(context =>
             context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_user")));
+    options.AddPolicy("CanImportUser", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "import_user")));
+
+    //Meeting Schedule
+    options.AddPolicy("CanViewMeetingSchedule", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_meeting_schedule")));
+
+    options.AddPolicy("CanCreateMeetingSchedule", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "create_meeting_schedule")));
+
+    options.AddPolicy("CanEditMeetingSchedule", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_meeting_schedule")));
+
+    options.AddPolicy("CanDeleteMeetingSchedule", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_meeting_schedule")));
+
+    // Document
+    options.AddPolicy("CanViewDocument", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_document")));
+    options.AddPolicy("CanUploadDocument", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "upload_document")));
+
+    options.AddPolicy("CanEditDocument", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_document")));
+
+    options.AddPolicy("CanDeleteDocument", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_document")));
+
+    options.AddPolicy("CanDownloadDocument", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "download_document")));
+
+    // TimeLine
+    options.AddPolicy("CanViewTimeline", policy =>
+    policy.RequireAssertion(context =>
+        context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_timeline")));
+
+    options.AddPolicy("CanEditTimeline", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_timeline")));
+
+    // Workshop
+    options.AddPolicy("CanViewWorkshop", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "view_workshop")));
+
+    options.AddPolicy("CanCreateWorkshop", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "create_workshop")));
+
+    options.AddPolicy("CanEditWorkshop", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "edit_workshop")));
+
+    options.AddPolicy("CanDeleteWorkshop", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "permissions" && c.Value == "delete_workshop")));
+
+    //Group
+    //Project
 });
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
