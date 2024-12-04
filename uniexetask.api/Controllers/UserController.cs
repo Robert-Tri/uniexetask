@@ -209,6 +209,7 @@ namespace uniexetask.api.Controllers
             var excelList = new List<ExcelModel>();
             var emailList = new HashSet<string>();
             var phoneList = new HashSet<string>();
+            var studentCodeList = new HashSet<string>();
 
             var campusesList = await _campusService.GetAllCampus();
             var subjectList = await _subjectService.GetSubjects();
@@ -270,6 +271,17 @@ namespace uniexetask.api.Controllers
                             return BadRequest(response);
                         }
                         emailList.Add(emailUser);
+
+                        if (studentCodeList.Contains(studentCode))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate student code found: {studentCode}"
+                            };
+                            return BadRequest(response);
+                        }
+                        studentCodeList.Add(studentCode);
 
                         if (!emailUser.Contains("@"))
                         {
@@ -408,7 +420,6 @@ namespace uniexetask.api.Controllers
         <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
     </ul>
     <p>We recommend that you change your password after logging in for the first time.</p>
-    <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>
     <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
 </body>
