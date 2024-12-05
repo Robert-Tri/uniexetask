@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
@@ -49,6 +50,7 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("download")]
         public async Task<IActionResult> DownloadTopic(int TopicId)
         {

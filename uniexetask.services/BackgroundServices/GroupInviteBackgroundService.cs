@@ -36,7 +36,7 @@ namespace uniexetask.services.BackgroundServices
 
                 var pendingInvites = await groupInviteService.GetPendingInvitesAsync();
 
-                var now = DateTime.UtcNow;
+                var now = DateTime.Now;
 
                 foreach (var invite in pendingInvites)
                 {

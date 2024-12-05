@@ -7,6 +7,7 @@ using System.Security.Claims;
 using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -39,13 +40,13 @@ namespace uniexetask.api.Controllers
                 List<NotificationModel> list = new List<NotificationModel>();
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    throw new Exception("User Id not found");
+                    throw new Exception("Invalid User Id");
                 }
                 var notifications = await _notificationService.GetNotificationsWithGroupInviteByUserId(userId, notificationIndex, limit, keyword);
                 var numberOfUnreadNotification = await _notificationService.GetNumberOfUnreadNotificationByUserId(userId);
                 if (notifications == null)
                 {
-                    throw new Exception("Empty");
+                    throw new Exception("Load data failed");
                 }
                 foreach (var notification in notifications)
                 {
@@ -139,7 +140,6 @@ namespace uniexetask.api.Controllers
                     throw new Exception("User Id not found");
                 }
 
-                // Kiểm tra lựa chọn
                 if (string.IsNullOrEmpty(request.Choice) || request.NotificationId <= 0 ||
                             request.GroupId <= 0 || request.InviteeId <= 0)
                 {
@@ -152,12 +152,15 @@ namespace uniexetask.api.Controllers
 
                 if (groupInvite != null)
                 {
-                    var user = await _userService.GetUserById(request.InviteeId);
-                    if (user != null) 
+                    if (groupInvite.Status == nameof(GroupInviteStatus.Accepted)) 
                     {
-                        var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"{user.FullName} has joined the group");
-                        await _hubContext.Clients.User(groupInvite.InviterId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        var user = await _userService.GetUserById(request.InviteeId);
+                        if (user != null)
+                        {
+                            var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"{user.FullName} has joined the group");
+                            await _hubContext.Clients.User(groupInvite.InviterId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
+                        }
                     }
                     response.Data = $"You have {groupInvite.Status.ToLower()} to join the group!";
                     return Ok(response);

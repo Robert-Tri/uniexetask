@@ -23,6 +23,8 @@ namespace uniexetask.api.Controllers
             _emailService = emailService;
             _studentService = studentService;
         }
+
+        [Authorize(Policy = "CanViewWorkshop")]
         [HttpGet]
         public async Task<IActionResult> GetWorkShops()
         {
@@ -31,7 +33,8 @@ namespace uniexetask.api.Controllers
             respone.Data = workShops;
             return Ok(respone);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanCreateWorkshop")]
         [HttpPost]
         public async Task<IActionResult> CreateWorkShop(Workshop workshop)
         {
@@ -71,6 +74,7 @@ namespace uniexetask.api.Controllers
     <p><strong>Time:</strong> {workshop.StartDate.ToString("hh:mm tt")} to {workshop.EndDate.ToString("hh:mm tt")}</p>
     <p><strong>Location:</strong> {workshop.Location}</p>
     <p><strong>Description:</strong> {workshop.Description}</p>
+    <p><strong>Registration link:</strong> {workshop.RegUrl}</p>
 
     <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>
@@ -97,7 +101,8 @@ namespace uniexetask.api.Controllers
             };
             return Ok(response);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanEditWorkshop")]
         [HttpPut]
         public async Task<IActionResult> UpdateWorkShop(Workshop workShop)
         {
@@ -106,7 +111,8 @@ namespace uniexetask.api.Controllers
             respone.Data = workShop;
             return Ok(respone);
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+
+        [Authorize(Policy = "CanDeleteWorkshop")]
         [HttpDelete("{workShopId}")]
         public IActionResult DeleteWorkShop(int workShopId)
         {

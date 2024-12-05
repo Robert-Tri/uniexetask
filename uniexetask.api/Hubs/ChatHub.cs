@@ -46,11 +46,15 @@ namespace uniexetask.api.Hubs
             var user = await _userService.GetUserById(newMessage.UserId);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (user == null) throw new HubException("User not found");
-
+            string messageContent = newMessage.MessageContent;
+            if (newMessage.MessageContent.Length > 50)
+            {
+                messageContent = messageContent.Substring(0, 50) + "...";
+            }
             ChatGroupResponse chatGroupResponse = new ChatGroupResponse
             {
                 ChatGroup = chatgroup,
-                LatestMessage = newMessage.MessageContent,
+                LatestMessage = messageContent,
                 SendDatetime = newMessage.SendDatetime
             };
 
