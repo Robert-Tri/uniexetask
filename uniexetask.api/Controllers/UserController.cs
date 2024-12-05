@@ -426,7 +426,7 @@ namespace uniexetask.api.Controllers
 </html>
 ";
 
-                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account", userEmail);
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
                 emailTasks.Add(emailTask);
             }
 
