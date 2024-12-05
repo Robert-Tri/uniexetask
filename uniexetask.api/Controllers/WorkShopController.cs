@@ -74,6 +74,7 @@ namespace uniexetask.api.Controllers
     <p><strong>Time:</strong> {workshop.StartDate.ToString("hh:mm tt")} to {workshop.EndDate.ToString("hh:mm tt")}</p>
     <p><strong>Location:</strong> {workshop.Location}</p>
     <p><strong>Description:</strong> {workshop.Description}</p>
+    <p><strong>Registration link:</strong> {workshop.RegUrl}</p>
 
     <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>

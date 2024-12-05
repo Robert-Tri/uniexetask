@@ -561,8 +561,8 @@ VALUES
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
 (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 14), (2, 15), (2, 6), (2, 7), (2, 8), (2, 9),
-(3, 10), (3, 6),
-(4, 6), (4, 10), (4, 11), (4, 12), (4, 13);
+(3, 10), (3, 6), (3, 14),
+(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
