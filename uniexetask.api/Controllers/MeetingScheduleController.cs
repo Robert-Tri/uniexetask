@@ -58,8 +58,9 @@ namespace uniexetask.api.Controllers
             _hubContext = hubContext;
         }
 
+        [Authorize(Policy = "CanViewMeetingSchedule")]
         [HttpGet("events")]
-        public async Task<IActionResult> GetEvents()
+        public async Task<IActionResult> GetMeetingSchedules()
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -84,12 +85,12 @@ namespace uniexetask.api.Controllers
                         if (group.IsDeleted) continue;
                         var project = await _projectService.GetProjectWithTopicByGroupId(group.GroupId);
                         var meetingSchedules = await _meetingScheduleService.GetMeetingSchedulesByGroupId(group.GroupId);
-                        if (meetingSchedules == null) continue;
+                        if (meetingSchedules == null) throw new Exception("Load data failed.");
                         foreach (var meeting in meetingSchedules)
                         {
                             if (meeting.MentorId != mentorWithGroups.MentorId) continue;
                             var user = await _userService.GetUserById(mentorWithGroups.UserId);
-                            if (user == null) throw new Exception("user not found from mentor.");
+                            if (user == null) throw new Exception("User not found from mentor.");
                             list.Add(GetMeetingScheduleResponse(meeting, project, group, user));
                         }
                     }
@@ -136,8 +137,9 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanCreateMeetingSchedule")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateMeeting([FromBody] MeetingScheduleModel model)
+        public async Task<IActionResult> CreateMeetingSchedule([FromBody] MeetingScheduleModel model)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -150,11 +152,12 @@ namespace uniexetask.api.Controllers
                 }
                 if (model.MeetingDate < DateTime.Now) throw new Exception("Cannot create event in past time.");
                 if (role != nameof(EnumRole.Mentor)) throw new Exception("You are not a mentor.");
-                var mentor = await _mentorService.GetMentorByUserId(userId);
+                var mentor = await _mentorService.GetMentorWithGroupAsync(userId);
                 if (mentor == null) throw new Exception("There is no mentor corresponding to the provided user.");
                 model.MentorId = mentor.MentorId;
                 var meetingSchedule = _mapper.Map<MeetingSchedule>(model);
                 if (meetingSchedule == null) throw new Exception("Invalid model.");
+                if (!mentor.Groups.Any(m => m.GroupId == meetingSchedule.GroupId)) throw new Exception("You are not the mentor of this group.");
                 var group = await _groupService.GetGroupById(meetingSchedule.GroupId);
                 if (group == null) throw new Exception("You are creating an meeting for a group that does not exist.");
                 if (group.Status == nameof(GroupStatus.Initialized)) throw new Exception($"{group.GroupName} Group is in newly created state and has not been assigned a mentor yet.");
@@ -183,8 +186,9 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanEditMeetingSchedule")]
         [HttpPost("edit/{meetingScheduleIdStr}")]
-        public async Task<IActionResult> EditMeeting(string meetingScheduleIdStr, [FromBody] MeetingScheduleModel model)
+        public async Task<IActionResult> EditMeetingSchedule(string meetingScheduleIdStr, [FromBody] MeetingScheduleModel model)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<MeetingScheduleResponse> response = new ApiResponse<MeetingScheduleResponse>();
@@ -226,8 +230,9 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize(Policy = "CanDeleteMeetingSchedule")]
         [HttpDelete("delete/{meetingScheduleIdStr}")]
-        public async Task<IActionResult> DeleteMeeting(string meetingScheduleIdStr)
+        public async Task<IActionResult> DeleteMeetingSchedule(string meetingScheduleIdStr)
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<string> response = new ApiResponse<string>();

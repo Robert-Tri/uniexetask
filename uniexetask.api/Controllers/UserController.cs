@@ -99,6 +99,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewUser")]
+        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {
@@ -191,7 +192,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CanImportUser")]
         [HttpPost]
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
@@ -595,6 +596,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanCreateUser")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel user)
         {
@@ -661,6 +663,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanEditUser")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
@@ -830,6 +833,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanDeleteUser")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteProduct(int userId)
         {
