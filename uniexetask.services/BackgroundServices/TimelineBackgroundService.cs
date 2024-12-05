@@ -31,7 +31,7 @@ namespace uniexetask.api.BackgroundServices
                 var timelines = await timeLineService.GetTimeLines();
                 foreach (var timeline in timelines) 
                 {
-                    if(timeline.EndDate.Date == DateTime.Today.Date)
+                    if (timeline.EndDate.Date == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")).Date)
                     {
                         switch ((TimelineType)timeline.TimelineId)
                         {

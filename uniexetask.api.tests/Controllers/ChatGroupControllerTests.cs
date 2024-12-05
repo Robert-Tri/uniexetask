@@ -478,7 +478,7 @@ namespace uniexetask.api.tests.Controllers
             response.Should().NotBeNull();
             response.Success.Should().BeTrue();
             response.Data.Should().NotBeNull();
-            response.Data.Should().Be("Send successfully, please wait for response from group leader.");
+            response.Data.Should().Be("Message has been sent, please go to Chat session to check..");
             _chatGroupServiceMock.Verify(x => x.CreatePersonalChatGroup(int.Parse(modal.ContactedUserId), int.Parse(modal.ContactUserId), modal.Message), Times.Once());
         }
 

@@ -19,6 +19,7 @@ namespace uniexetask.api.Controllers
             _timeLineService = timeLineService;
         }
 
+        [Authorize(Policy = "CanViewTimeline")]
         [HttpGet]
         public async Task<IActionResult> GetTimeLines()
         {
@@ -36,7 +37,7 @@ namespace uniexetask.api.Controllers
             response.Data = timeLine;
             return Ok(response);
         }*/
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [Authorize(Policy = "CanEditTimeline")]
         [HttpPut("updatemaintimeline")]
         public async Task<IActionResult> UpdateMainTimeLine(MainTimelineUpdateModel timeLine)
         {
@@ -44,7 +45,7 @@ namespace uniexetask.api.Controllers
             ApiResponse<Timeline> response = new ApiResponse<Timeline>();
             return Ok();
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [Authorize(Policy = "CanEditTimeline")]
         [HttpPut("updatespecifictimeline")]
         public async Task<IActionResult> UpdateSpecificTimeline(SpecificTimelineUpdateModel timeline)
         {

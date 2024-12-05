@@ -99,6 +99,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewUser")]
+        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {
@@ -191,7 +192,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CanImportUser")]
         [HttpPost]
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
@@ -209,6 +210,7 @@ namespace uniexetask.api.Controllers
             var excelList = new List<ExcelModel>();
             var emailList = new HashSet<string>();
             var phoneList = new HashSet<string>();
+            var studentCodeList = new HashSet<string>();
 
             var campusesList = await _campusService.GetAllCampus();
             var subjectList = await _subjectService.GetSubjects();
@@ -270,6 +272,17 @@ namespace uniexetask.api.Controllers
                             return BadRequest(response);
                         }
                         emailList.Add(emailUser);
+
+                        if (studentCodeList.Contains(studentCode))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate student code found: {studentCode}"
+                            };
+                            return BadRequest(response);
+                        }
+                        studentCodeList.Add(studentCode);
 
                         if (!emailUser.Contains("@"))
                         {
@@ -408,7 +421,6 @@ namespace uniexetask.api.Controllers
         <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
     </ul>
     <p>We recommend that you change your password after logging in for the first time.</p>
-    <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>
     <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
 </body>
@@ -419,7 +431,9 @@ namespace uniexetask.api.Controllers
                 emailTasks.Add(emailTask);
             }
 
-            await System.Threading.Tasks.Task.WhenAll(emailTasks);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            System.Threading.Tasks.Task.WhenAll(emailTasks);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             var successResponse = new ApiResponse<string>
             {
@@ -582,14 +596,59 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanCreateUser")]
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel users)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel user)
         {
-            var obj = _mapper.Map<User>(users);
+            var isUserExisted = await _userService.CheckDuplicateUser(user.Email, user.Phone);
+            if (isUserExisted)
+                return Conflict("Email or phone has already been registered!");
+            var obj = _mapper.Map<User>(user);
+            string password = GenerateRandomPassword(10);
+            obj.Password = PasswordHasher.HashPassword(password);
+            obj.Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg";
             var isUserCreated = await _userService.CreateUser(obj);
 
-            if (isUserCreated)
+            if (isUserCreated != null)
             {
+                var userEmail = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #ffffff;
+        }}
+        h2 {{
+            color: #333;
+        }}
+        p {{
+            margin: 0 0 10px;
+        }}
+    </style>
+</head>
+<body>
+    <h2>Dear {user.FullName},</h2>
+    <p>We are sending you the following login account information:</p>
+    <ul>
+        <li><strong>Account:</strong> {user.Email}</li>
+        <li><strong>Password: </strong><em>{password}</em>.</li>
+    </ul>
+    <p>We recommend that you change your password after logging in for the first time.</p>
+    <p>This is an automated email. Please do not reply to this email.</p>
+    <p>Looking forward to your participation.</p>
+    <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
+</body>
+</html>
+";
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _emailService.SendEmailAsync(user.Email, "Account UniEXETask", userEmail);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 return Ok(isUserCreated);
             }
             else
@@ -604,6 +663,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanEditUser")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
@@ -773,6 +833,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanDeleteUser")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteProduct(int userId)
         {

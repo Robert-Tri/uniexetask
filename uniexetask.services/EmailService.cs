@@ -1,8 +1,9 @@
 ﻿using System.Net.Mail;
 using System.Net;
 using Microsoft.Extensions.Configuration;
+using uniexetask.services.Interfaces;
 
-namespace uniexetask.api.Extensions
+namespace uniexetask.services
 {
     public class EmailService : IEmailService
     {
@@ -28,7 +29,7 @@ namespace uniexetask.api.Extensions
                     From = new MailAddress(mail),
                     Subject = subject,
                     Body = message,
-                    IsBodyHtml = true // Đặt nội dung là HTML
+                    IsBodyHtml = true 
                 };
                 mailMessage.To.Add(email);
 

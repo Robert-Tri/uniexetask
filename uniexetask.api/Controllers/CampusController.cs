@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/campus")]
     [ApiController]
     public class CampusController : ControllerBase
