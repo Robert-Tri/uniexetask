@@ -437,7 +437,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        
+
 
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
@@ -445,15 +445,31 @@ namespace uniexetask.api.Controllers
         {
             var users = await _groupMemberService.GetUsersByGroupId(groupId);
 
+            var mentor = await _mentorService.GetMentorNameByGroupId(groupId);
+
             if (users != null && users.Any())
             {
-                return Ok(users); 
+                var groupMemberDetails = users.Select(user => new GroupMemberDetailsModel
+                {
+                    userId = user.UserId,
+                    fullName = user.FullName,
+                    mentorName = mentor,
+                    email = user.Email,
+                    phone = user.Phone ?? "N/A",
+                    major = user.Students.FirstOrDefault()?.Major ?? "N/A",
+                    studentCode = user.Students.FirstOrDefault()?.StudentCode ?? "N/A",
+                    role = user.Students.FirstOrDefault()?.GroupMembers
+                                .FirstOrDefault(gm => gm.GroupId == groupId)?.Role ?? "N/A"
+                }).ToList();
+
+                return Ok(groupMemberDetails);
             }
             else
             {
                 return NotFound("No members found in this group.");
             }
         }
+
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpGet("MyGroup")]
