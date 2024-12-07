@@ -9,6 +9,7 @@ namespace uniexetask.services.Interfaces
 {
     public interface IProjectProgressService
     {
+        Task<ProjectProgress> GetProjectProgressByProjectId(int projectId);
         Task<bool> LoadProgressUpdateProjectProgressByProjectId(int projectId);
         Task<ProjectProgress> CreateProjectProgress(ProjectProgress projectProgress);
     }

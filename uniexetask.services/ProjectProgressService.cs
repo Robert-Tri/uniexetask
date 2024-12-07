@@ -18,6 +18,19 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<ProjectProgress> GetProjectProgressByProjectId(int projectId)
+        {
+            if (projectId > 0)
+            {
+                var projectProgress = await _unitOfWork.ProjectProgresses.GetProjectProgressByProjectId(projectId);
+                if (projectProgress != null)
+                {
+                    return projectProgress;
+                }
+            }
+            return null;
+        }
+
         public async Task<ProjectProgress> CreateProjectProgress(ProjectProgress projectProgress)
         {
             if (projectProgress != null)

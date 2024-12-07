@@ -22,5 +22,6 @@ namespace uniexetask.services.Interfaces
         Task<List<RegTopicForm>> GetReqTopicByDescription(string description);
         Task<List<RegTopicForm>> GetReqTopicByUserId(int userId);
         Task<List<RegTopicForm>> GetReqTopicByMentorId(int mentorId);
+        Task<List<RegTopicForm>> GetAllReqTopicByMentorId(int mentorId);
     }
 }
