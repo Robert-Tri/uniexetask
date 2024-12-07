@@ -5,8 +5,10 @@ using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using uniexetask.api.Hubs;
 using uniexetask.api.Models.Request;
 using uniexetask.api.Models.Response;
 using uniexetask.core.Models;
@@ -33,6 +35,7 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public TopicForMentorController(
             StorageClient storageClient,
@@ -46,6 +49,7 @@ namespace uniexetask.api.Controllers
             IGroupMemberService groupMemberService,
             IMentorService mentorService,
             ITopicForMentorService topicMentorService,
+            IHubContext<NotificationHub> hubContext,
             INotificationService notificationService)
         {
             _projectProgressService = projectProgressService;
@@ -60,6 +64,7 @@ namespace uniexetask.api.Controllers
             _notificationService = notificationService;
             _mentorService = mentorService;
             _topicMentorService = topicMentorService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -129,8 +134,19 @@ namespace uniexetask.api.Controllers
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
+            var role = await _groupMemberService.GetRoleByUserId(userId);
+
+            if (role != "Leader")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
+            }
 
             var group = await _groupService.GetGroupByUserId(userId);
+
+            if (group.Status == "Approved")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group Approved. You cannot register topics." });
+            }
 
             var topic = new TopicModel
             {
@@ -140,7 +156,6 @@ namespace uniexetask.api.Controllers
             };
 
             var objTopic = _mapper.Map<Topic>(topic);
-            //var objTopicMentor = _mapper.Map<TopicForMentor>(topicMentor);
 
             var topicList = await _topicService.GetAllTopics();
 
@@ -199,6 +214,9 @@ namespace uniexetask.api.Controllers
 
             if (topicId > 0 && createProject != null)
             {
+                var mentor = await _mentorService.GetMentorByGroupId(group.GroupId);
+                var newNotification = await _notificationService.CreateNotification(userId, mentor.UserId, $"{group.GroupName} group's has registered for topic \"{topicMentor.TopicName}\" .");
+                await _hubContext.Clients.User(mentor.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 var response = new ApiResponse<object>
                 {
                     Data = new { Message = "Topic and Project created successfully!", TopicId = topicId }
