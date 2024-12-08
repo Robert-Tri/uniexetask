@@ -38,7 +38,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var studentList = await _studentsService.GetAllStudent();
-                if (studentList == null)
+                if (studentList != null)
                 {
                     response.Data = studentList;
                     response.Success = true;
