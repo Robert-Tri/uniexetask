@@ -601,7 +601,46 @@ VALUES
 (N'Trần Quang AH', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangah@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000096', 2, 3),
 (N'Trần Quang BB', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangbb@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000097', 2, 3),
 (N'Trần Quang BC', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangbc@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000098', 2, 3),
-(N'Trần Quang BD', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangbd@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000099', 2, 3);
+(N'Trần Quang BD', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangbd@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000099', 2, 3),
+
+(N'Lê Minh BD', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'leminhbd@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000100', 2, 3),
+(N'Hoàng Sơn BE', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'hoangsonbe@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000101', 2, 3),
+(N'Phạm Thị BF', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phamthibf@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000102', 2, 3),
+(N'Nguyễn Văn BG', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenvanbg@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000103', 2, 3),
+(N'Bùi Thị BH', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'buibh@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000104', 2, 3),
+(N'Trần Văn BI', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranvanbi@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000105', 2, 3),
+(N'Vũ Tiến BJ', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'vutienbj@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000106', 2, 3),
+(N'Nguyễn Thiện BK', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenbk@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000107', 2, 3),
+(N'Nguyễn Tấn BL', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyentanbl@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000108', 2, 3),
+(N'Phạm Hữu BM', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phamhuubm@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000109', 2, 3),
+(N'Lê Minh BN', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'leminhbn@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000110', 2, 3),
+(N'Vũ Trí BO', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'vutribo@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000111', 2, 3),
+(N'Nguyễn Thảo BP', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenthaobp@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000112', 2, 3),
+(N'Phan Thiết BQ', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phanbq@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000113', 2, 3),
+(N'Trần Thị BR', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranbr@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000114', 2, 3),
+(N'Nguyễn Quốc BS', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenqbs@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000115', 2, 3),
+
+(N'Phan Thiết DQ', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phandq@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000116', 2, 3),
+(N'Trần Thị DR', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'trandr@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000117', 2, 3),
+(N'Nguyễn Quốc DS', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenqds@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000118', 2, 3),
+(N'Lê Thanh DT', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'lethandt@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000119', 2, 3),
+(N'Vũ Lê DU', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'vuledu@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000120', 2, 3),
+(N'Nguyễn Thi DV', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyendv@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000121', 2, 3),
+(N'Trần Quang DW', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'trandw@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000122', 2, 3),
+(N'Phan Hữu DX', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phandx@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000123', 2, 3),
+(N'Nguyễn Hữu DY', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyendy@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000124', 2, 3),
+(N'Phan Thị DZ', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phanzdt@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000125', 2, 3),
+
+(N'Phan Thiết XM', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phanthietxm@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000126', 2, 3),
+(N'Lê Quang XN', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'lequangxn@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000127', 2, 3),
+(N'Vũ Đan XO', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'vudanxo@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000128', 2, 3),
+(N'Nguyễn Thanh XP', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyenthanhxp@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000129', 2, 3),
+(N'Phan Ngọc XQ', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phanngocxq@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '09010001230', 2, 3),
+(N'Trần Quang XR', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'tranquangxr@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000131', 2, 3),
+(N'Nguyễn Trí XS', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'nguyentrixs@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000132', 2, 3),
+(N'Phan Thiến XT', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'phanthienxt@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000133', 2, 3),
+(N'Lê Minh XU', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'leminhxu@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000134', 2, 3),
+(N'Vũ Phúc XV', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'vuphucxv@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000135', 2, 3);
 
 -- Thêm dữ liệu mẫu cho bảng MENTOR
 INSERT INTO MENTOR (user_id, specialty)
@@ -702,8 +741,46 @@ VALUES
 (88, 3,'SE162117', 'Software Engineering', 1, 1),
 (89, 3,'SE162118', 'Software Engineering', 1, 1),
 (90, 3,'SE162119', 'Software Engineering', 1, 1),
-(91, 3,'SE162120', 'Software Engineering', 1, 1);
+(91, 3,'SE162120', 'Software Engineering', 1, 1),
 
+(92, 2,'SE162201', 'Software Engineering', 1, 1),
+(93, 2,'SE162202', 'Software Engineering', 1, 1),
+(94, 2,'SE162203', 'Software Engineering', 1, 1),
+(95, 2,'SE162204', 'Software Engineering', 1, 1),
+(96, 2,'SE162205', 'Software Engineering', 1, 1),
+(97, 2,'SE162206', 'Software Engineering', 1, 1),
+(98, 2,'SE162207', 'Software Engineering', 1, 1),
+(99, 2,'SE162208', 'Software Engineering', 1, 1),
+(100, 2,'SE162209', 'Software Engineering', 2, 1),
+(101, 2,'SE162210', 'Software Engineering', 2, 1),
+(102, 3,'SE162211', 'Software Engineering', 2, 1),
+(103, 3,'SE162212', 'Software Engineering', 2, 1),
+(104, 3,'SE162213', 'Software Engineering', 2, 1),
+(105, 3,'SE162214', 'Software Engineering', 1, 1),
+(106, 3,'SE162215', 'Software Engineering', 1, 1),
+(107, 3,'SE162216', 'Software Engineering', 1, 1),
+
+(108, 2,'IB171208', 'International Business', 1, 1),
+(109, 2,'IB171209', 'International Business', 1, 1),
+(110, 3,'IB171210', 'International Business', 1, 1),
+(111, 3,'IB172211', 'International Business', 1, 1),
+(112, 3,'IB172212', 'International Business', 1, 1),
+(113, 3,'IB172213', 'International Business', 1, 1),
+(114, 3,'IB172214', 'International Business', 1, 1),
+(115, 2,'IB172208', 'International Business', 2, 1),
+(116, 2,'IB172209', 'International Business', 2, 1),
+(117, 3,'IB172210', 'International Business', 2, 1),
+
+(118, 2,'SE171208', 'Software Engineering', 2, 1),
+(119, 2,'SE171209', 'Software Engineering', 2, 1),
+(120, 3,'SE171210', 'Software Engineering', 2, 1),
+(121, 3,'SS172211', 'Digital Marketing', 2, 1),
+(122, 3,'SS172212', 'Digital Marketing', 2, 1),
+(123, 3,'SS172213', 'Digital Marketing', 2, 1),
+(124, 3,'IB172314', 'International Business', 2, 1),
+(125, 2,'IB172308', 'International Business', 2, 1),
+(126, 2,'IB172309', 'International Business', 2, 1),
+(127, 3,'IB172310', 'International Business', 2, 1);
 
 -- Thêm dữ liệu mẫu cho bảng GROUP
 INSERT INTO [GROUP] (group_name, subject_id, hasMentor, status, isCurrentPeriod)
@@ -717,7 +794,12 @@ VALUES
 ('Group No 06', 1, 1, 'Eligible', 1),
 ('Group No 07', 2, 0, 'Initialized', 1),
 ('Group No 08', 2, 0, 'Initialized', 1),
-('Group No 09', 2, 0, 'Initialized', 1);
+('Group No 09', 2, 0, 'Initialized', 1),
+('Group No 10', 1, 0, 'Initialized', 1),
+('Group No 11', 1, 1, 'Eligible', 1),
+('Group No 12', 1, 0, 'Initialized', 1),
+('Group No 13', 2, 1, 'Approved', 1),
+('Group No 14', 2, 0, 'Initialized', 1);
 
 -- Thêm dữ liệu mẫu cho bảng GROUP_MEMBER
 INSERT INTO GROUP_MEMBER (group_id, student_id, role)
@@ -730,61 +812,93 @@ VALUES
 (2, 5, 'Leader'), 
 (2, 20, 'Member'),
 (2, 35, 'Member'), 
-(2, 65, 'Member'),
-(2, 66, 'Member'), 
+(2, 50, 'Member'),
+(2, 65, 'Member'), 
 
 (3, 6, 'Leader'),
-(3, 7, 'Member'), 
-(3, 67, 'Member'),
-(3, 68, 'Member'), 
+(3, 21, 'Member'), 
+(3, 51, 'Member'),
+(3, 66, 'Member'), 
 
-(4, 8, 'Leader'),
-(4, 21, 'Member'), 
-(4, 69, 'Member'),
-(4, 70, 'Member'), 
+(4, 7, 'Leader'),
+(4, 22, 'Member'), 
+(4, 52, 'Member'),
+(4, 67, 'Member'), 
 
-(5, 9, 'Leader'),
-(5, 10, 'Member'), 
-(5, 22, 'Member'),
-(5, 71, 'Member'), 
-(5, 78, 'Member'),
+(5, 8, 'Leader'),
+(5, 28, 'Member'), 
+(5, 36, 'Member'),
+(5, 58, 'Member'), 
+(5, 68, 'Member'),
 
-(6, 11, 'Leader'), 
-(6, 12, 'Member'),
-(6, 23, 'Member'), 
-(6, 24, 'Member'),
-(6, 79, 'Member'), 
-(6, 80, 'Member'),
+(6, 9, 'Leader'), 
+(6, 10, 'Member'),
+(6, 29, 'Member'), 
+(6, 37, 'Member'),
+(6, 59, 'Member'), 
+(6, 69, 'Member'),
 
-(7, 13, 'Leader'), 
-(7, 25, 'Member'),
-(7, 26, 'Member'), 
-(7, 81, 'Member'),
-(7, 82, 'Member'), 
+(7, 11, 'Leader'), 
+(7, 30, 'Member'),
+(7, 60, 'Member'), 
+(7, 70, 'Member'),
+(7, 71, 'Member'), 
 
-(8, 14, 'Leader'),
-(8, 15, 'Member'), 
-(8, 27, 'Member'),
-(8, 36, 'Member'), 
-(8, 50, 'Member'),
-(8, 72, 'Member'), 
-(8, 73, 'Member'),
+(8, 13, 'Leader'),
+(8, 23, 'Member'), 
+(8, 42, 'Member'),
+(8, 53, 'Member'), 
+(8, 72, 'Member'),
+(8, 73, 'Member'), 
+(8, 93, 'Member'),
 
-(9, 16, 'Leader'),
-(9, 17, 'Member'), 
-(9, 28, 'Member'),
-(9, 37, 'Member'), 
+(9, 14, 'Leader'),
+(9, 24, 'Member'), 
+(9, 43, 'Member'),
+(9, 54, 'Member'), 
 (9, 74, 'Member'),
-(9, 75, 'Member'),
+(9, 94, 'Member'),
 
-(10, 18, 'Leader'),
-(10, 19, 'Member'),
-(10, 29, 'Member'), 
-(10, 30, 'Member'),
-(10, 38, 'Member'), 
-(10, 51, 'Member'),
-(10, 76, 'Member'), 
-(10, 77, 'Member');
+(10, 15, 'Leader'),
+(10, 16, 'Member'),
+(10, 25, 'Member'), 
+(10, 44, 'Member'),
+(10, 55, 'Member'), 
+(10, 75, 'Member'),
+(10, 95, 'Member'), 
+(10, 108, 'Member'),
+
+(11, 12, 'Leader'),
+(11, 31, 'Member'), 
+(11, 61, 'Member'),
+(11, 78, 'Member'), 
+
+(12, 17, 'Leader'),
+(12, 32, 'Member'), 
+(12, 38, 'Member'),
+(12, 62, 'Member'), 
+(12, 79, 'Member'),
+
+(13, 18, 'Leader'), 
+(13, 19, 'Member'),
+(13, 33, 'Member'), 
+(13, 39, 'Member'),
+(13, 63, 'Member'), 
+(13, 80, 'Member'),
+
+(14, 109, 'Leader'),
+(14, 26, 'Member'), 
+(14, 45, 'Member'),
+(14, 56, 'Member'), 
+(14, 76, 'Member'),
+(14, 96, 'Member'), 
+
+(15, 110, 'Leader'), 
+(15, 27, 'Member'),
+(15, 46, 'Member'), 
+(15, 57, 'Member'),
+(15, 77, 'Member'), 
+(15, 97, 'Member');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
 INSERT INTO MENTOR_GROUP (group_id, mentor_id)
@@ -796,9 +910,8 @@ VALUES
 (5, 2),
 (6, 3),
 (7, 3),
-(8, 3),
-(9, 2),
-(10, 2);
+(12, 2),
+(14, 2);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
@@ -810,7 +923,9 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
 VALUES 
-('UniExETask', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 8, 8, 1, 'Group');
+('UniExETask', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 8, 8, 1, 'Group'),
+('Group Number 2', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 12, 12, 2, 'Group'),
+('Group Number 14', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 116, 116, 14, 'Group');
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
@@ -819,24 +934,43 @@ VALUES
 (9, 1),
 (10, 1),
 (11, 1),
-(3, 1);
+(4, 1),
+
+(12, 2),
+(27, 2),
+(42, 2),
+(57, 2),
+(72, 2),
+(4, 2),
+
+(116, 3),
+(33, 3),
+(52, 3),
+(63, 3),
+(83, 3),
+(103, 3),
+(4, 3);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
 VALUES 
-(1, 8, 'Welcome to the UniExETask Group!');
+(1, 8, 'Welcome to the UniExETask Group!'),
+(2, 12, 'Welcome to the Number 2 Group!'),
+(3, 116, 'Welcome to the Number 14 Group!');
 
 -- Thêm dữ liệu mẫu cho bảng TOPIC
 INSERT INTO TOPIC (topic_code, topic_name, description)
 VALUES 
 ('TP000', 'Uni EXE Task', 'Platform to manage and support the Experiential Entrepreneurship subject of FPT University.'),
-('TP500', 'Topic No 01', 'This is topic number 01.');
+('TP500', 'Topic No 02', 'This is topic number 02.'),
+('TP501', 'Topic No 14', 'This is topic number 14.');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
 VALUES 
 (1, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
-(2, 2, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1);
+(2, 2, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
+(14, 3, '2024-09-01', '2025-01-01', 2, 'In_Progress', 1);
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
