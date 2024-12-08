@@ -215,5 +215,16 @@ namespace uniexetask.services
                 }
             }
         }
+
+        public async Task<ChatMessage> DeleteMessage(int userId, int messageId)
+        {
+            var messege = await _unitOfWork.ChatMessages.GetByIDAsync(messageId);
+            if (messege == null) throw new Exception("Messege not found.");
+            if (userId != messege.UserId) throw new Exception("You can only delete your own messages.");
+            messege.IsDeleted = true;
+            _unitOfWork.ChatMessages.Update(messege);
+            _unitOfWork.Save();
+            return messege;
+        }
     }
 }
