@@ -126,6 +126,8 @@ CREATE TABLE CHAT_MESSAGE (
 	user_id INT NOT NULL,
 	message_content NVARCHAR(4000) NOT NULL,
 	send_datetime DATETIME DEFAULT GETDATE() NOT NULL,
+	isFile BIT NOT NULL DEFAULT 0,
+    isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id),
     FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
@@ -990,7 +992,8 @@ VALUES
 (1, 20.00, '2024-09-15', 'Research phase started', 1),
 (1, 35.00, '2024-10-15', 'Requirements collected and documented', 1),
 (1, 45.00, '2024-10-23', 'System design initiated', 0),
-(2, 0.00, '2024-10-23', 'System design initiated', 0);
+(2, 0.00, '2024-10-23', 'System design initiated', 0),
+(3, 0.00, '2024-10-23', 'System design initiated', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
