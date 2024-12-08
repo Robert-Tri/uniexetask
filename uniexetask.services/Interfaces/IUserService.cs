@@ -12,7 +12,7 @@ namespace uniexetask.services.Interfaces
         Task<User> CreateUser(User user);
         Task<User> CreateUserExcel(User user);
         Task<bool> CheckDuplicateUser(string email, string phone);
-
+        Task<bool> CheckDuplicateUserForUpdate(int userId, string email, string phone);
         Task<IEnumerable<User>> GetAllUsers();
 
         Task<User?> GetUserById(int userId);
