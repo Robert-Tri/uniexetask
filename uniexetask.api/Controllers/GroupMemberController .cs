@@ -603,6 +603,9 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
+            var student = await _studentService.GetStudentById(model.StudentId);
+            if (student == null) return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Student with id = {model.StudentId} not found." });
+
             var role = await _groupMemberService.GetRoleByUserId(userId);
 
             if (role != "Leader")
@@ -624,6 +627,8 @@ namespace uniexetask.api.Controllers
 
             if (isDeleted)
             {
+                var newNotification = await _notificationService.CreateNotification(userId, student.UserId, $"You have been kicked out of the {checkLeader.Group.GroupName} group.");
+                await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 return Ok(new ApiResponse<object>
                 {
                     Success = true,
