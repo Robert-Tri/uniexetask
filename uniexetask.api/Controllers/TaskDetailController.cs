@@ -9,6 +9,8 @@ using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using uniexetask.core.Models.Enums;
+using Microsoft.AspNetCore.SignalR;
+using uniexetask.api.Hubs;
 
 namespace uniexetask.api.Controllers
 {
@@ -24,6 +26,8 @@ namespace uniexetask.api.Controllers
         private readonly IGroupMemberService _groupMemberService;
         private readonly IProjectProgressService _projectProgressService;
         private readonly IProjectService _projectService;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationService _notificationService;
 
         public TaskDetailController(ITaskDetailService taskDetailService,
             ITaskService taskService,
@@ -31,7 +35,9 @@ namespace uniexetask.api.Controllers
             IEmailService emailService,
             IGroupMemberService groupMemberService,
             IProjectProgressService projectProgressService,
-            IProjectService projectService)
+            IProjectService projectService,
+            IHubContext<NotificationHub> hubContext,
+            INotificationService notificationService)
         {
             _taskDetailService = taskDetailService;
             _taskService = taskService;
@@ -40,6 +46,8 @@ namespace uniexetask.api.Controllers
             _groupMemberService = groupMemberService;
             _projectProgressService = projectProgressService;
             _projectService = projectService;
+            _hubContext = hubContext;
+            _notificationService = notificationService;
         }
 
         [HttpGet("byTask/{taskId}")]
@@ -233,6 +241,9 @@ namespace uniexetask.api.Controllers
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                                 _emailService.SendEmailAsync(user.Email, "Task of Project", taskEmail);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                                var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Task {checkComplete.TaskName} has been completed.");
+                                await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
                             }
 

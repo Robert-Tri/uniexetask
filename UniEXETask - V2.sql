@@ -992,7 +992,8 @@ VALUES
 (1, 20.00, '2024-09-15', 'Research phase started', 1),
 (1, 35.00, '2024-10-15', 'Requirements collected and documented', 1),
 (1, 45.00, '2024-10-23', 'System design initiated', 0),
-(2, 0.00, '2024-10-23', 'System design initiated', 0);
+(2, 0.00, '2024-10-23', 'System design initiated', 0),
+(3, 0.00, '2024-10-23', 'System design initiated', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)
