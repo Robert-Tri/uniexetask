@@ -157,7 +157,7 @@ namespace uniexetask.api.Controllers
                         var user = await _userService.GetUserById(request.InviteeId);
                         if (user != null)
                         {
-                            var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"{user.FullName} has joined the group");
+                            var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"<b>{user.FullName}</b> has joined the group");
                             await _hubContext.Clients.User(groupInvite.InviterId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
                         }

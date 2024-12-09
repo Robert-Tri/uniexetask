@@ -127,7 +127,7 @@ CREATE TABLE CHAT_MESSAGE (
 	message_content NVARCHAR(4000) NOT NULL,
 	send_datetime DATETIME DEFAULT GETDATE() NOT NULL,
 	isFile BIT NOT NULL DEFAULT 0,
-    isDeleted BIT NOT NULL DEFAULT 0,
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id),
     FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
@@ -487,7 +487,8 @@ VALUES
 ('User Management', 'Feature to manage (view, create, update, delete, import) users'),
 ('Workshop Management', 'Feature to manage (view, create, update, delete) workshops'),
 ('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the group'),
-('Timeline Management', 'Feature to manage (view, update) timeline');
+('Timeline Management', 'Feature to manage (view, update) timeline'),
+('Syllabus', 'Feature to manage (view) syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
 INSERT INTO PERMISSION (feature_id, name, description)
@@ -506,7 +507,8 @@ VALUES
 (3, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
 (3, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
 (4, 'view_timeline', 'Permission to view timeline'),
-(4, 'edit_timeline', 'Permission to edit timeline');
+(4, 'edit_timeline', 'Permission to edit timeline'),
+(5, 'view_syllabus', 'Permission to edit syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng User
 -- Default password: Uniexetask123456
@@ -919,8 +921,8 @@ VALUES
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
 (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 14), (2, 15), (2, 6), (2, 7), (2, 8), (2, 9),
-(3, 10), (3, 6), (3, 14),
-(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14);
+(3, 10), (3, 6), (3, 14), (3, 16),
+(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14), (4, 16);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
