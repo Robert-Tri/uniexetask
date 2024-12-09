@@ -81,20 +81,20 @@ namespace uniexetask.api.Controllers
         [HttpGet("ReqTopicByMentorId")]
         public async Task<IActionResult> GetReqTopicListByMentorId(int groupId)
         {
-            var topic = await _topicService.GetTopicsByMentorAsync(groupId);
+            //var topic = await _topicService.GetTopicsByMentorAsync(groupId);
 
             //var mentor = await _mentorService.GetMentorWithGroupAsync(groupId);
 
-            //var mentor = await _mentorService.GetMentorByGroupId(groupId);
+           var mentor = await _mentorService.GetMentorByGroupId(groupId);
 
             //var reqTopicList = await _reqTopicService.GetReqTopicByMentorId(mentor.MentorId);
 
-            if (topic == null)
+            if (mentor == null)
             {
                 return NotFound("Mentor not found");
             }
 
-            return Ok(topic);
+            return Ok(mentor);
         }
 
         [Authorize(Roles = "Mentor")]
@@ -364,6 +364,14 @@ namespace uniexetask.api.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
+            var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
+            var group = await _groupService.GetGroupById(groupMember.GroupId);
+
+            if (group.Status == "Approved")
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group Approved. You cannot add topics." });
+            }
+
             var existedTopics = await _reqTopicService.GetReqTopicByDescription($"Topic{groupCheck.GroupId}/{file.FileName}");
             if (existedTopics.Any())
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Description with the same name already exists."});
@@ -394,13 +402,7 @@ namespace uniexetask.api.Controllers
 
             var topicCode = $"TP{nextCodeNumber:D3}";
 
-            var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
-            var group = await _groupService.GetGroupById(groupMember.GroupId);
-
-            if (group.Status == "Approved")
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group Approved. You cannot add topics." });
-            }
+            
 
             var reqTopic = new ReqTopicModel
             {
@@ -435,6 +437,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("download")]
         public async Task<IActionResult> DownloadReqTopic(int regTopicId)
         {
@@ -569,7 +572,7 @@ namespace uniexetask.api.Controllers
             var reqTopicList = await _reqTopicService.GetAllReqTopic();
             if (reqTopicList == null)
             {
-                reqTopicList = new List<RegTopicForm>(); // Khởi tạo danh sách rỗng nếu là null
+                reqTopicList = new List<RegTopicForm>(); 
             }
 
             var responseData = reqTopicList

@@ -69,14 +69,17 @@ namespace uniexetask.services
             var permissions = roleWithPermission.Permissions.ToList();
             foreach (var permission in permissions)
             {
-                role.Permissions.Remove(permission);  
+                roleWithPermission.Permissions.Remove(permission);
             }
+            _unitOfWork.Roles.Update(roleWithPermission);
+            _unitOfWork.Save();
             foreach (var permissionId in permissionIds)
             {
                 var permission = await _unitOfWork.Permissions.GetByIDAsync(permissionId);
                 if (permission == null) return false;
                 roleWithPermission.Permissions.Add(permission);
             }
+            _unitOfWork.Roles.Update(roleWithPermission);
             _unitOfWork.Save();
             return true;
         }

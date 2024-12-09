@@ -356,18 +356,14 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetGroupMemberByUserID")]
         public async Task<IActionResult> GetGroupMemberByUserID()
         {
-            // Retrieve user ID from the claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Validate and parse user ID
             if (int.TryParse(userIdString, out int userId))
             {
-                // Fetch GroupMember by userId
                 var groupMember = await _groupMemberService.GetGroupMemberByUserId(userId);
 
                 if (groupMember != null)
                 {
-                    // Prepare successful response
                     var response = new ApiResponse<GroupMember>
                     {
                         Data = groupMember
@@ -389,10 +385,8 @@ namespace uniexetask.api.Controllers
         [HttpGet("GetRoleByUserId")]
         public async Task<IActionResult> GetRoleByUserId()
         {
-            // Lấy userId từ claims
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Kiểm tra và chuyển userId sang kiểu int
             if (int.TryParse(userIdString, out int userId))
             {
                 var role = await _groupMemberService.GetRoleByUserId(userId);
@@ -443,7 +437,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        
+
 
 
         [HttpGet("GetUsersByGroupId/{groupId}")]
@@ -451,15 +445,31 @@ namespace uniexetask.api.Controllers
         {
             var users = await _groupMemberService.GetUsersByGroupId(groupId);
 
+            var mentor = await _mentorService.GetMentorNameByGroupId(groupId);
+
             if (users != null && users.Any())
             {
-                return Ok(users); 
+                var groupMemberDetails = users.Select(user => new GroupMemberDetailsModel
+                {
+                    userId = user.UserId,
+                    fullName = user.FullName,
+                    mentorName = mentor,
+                    email = user.Email,
+                    phone = user.Phone ?? "N/A",
+                    major = user.Students.FirstOrDefault()?.Major ?? "N/A",
+                    studentCode = user.Students.FirstOrDefault()?.StudentCode ?? "N/A",
+                    role = user.Students.FirstOrDefault()?.GroupMembers
+                                .FirstOrDefault(gm => gm.GroupId == groupId)?.Role ?? "N/A"
+                }).ToList();
+
+                return Ok(groupMemberDetails);
             }
             else
             {
                 return NotFound("No members found in this group.");
             }
         }
+
 
         [Authorize(Roles = nameof(EnumRole.Student))]
         [HttpGet("MyGroup")]
@@ -593,6 +603,9 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
+            var student = await _studentService.GetStudentById(model.StudentId);
+            if (student == null) return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Student with id = {model.StudentId} not found." });
+
             var role = await _groupMemberService.GetRoleByUserId(userId);
 
             if (role != "Leader")
@@ -614,6 +627,8 @@ namespace uniexetask.api.Controllers
 
             if (isDeleted)
             {
+                var newNotification = await _notificationService.CreateNotification(userId, student.UserId, $"You have been kicked out of the {checkLeader.Group.GroupName} group.");
+                await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 return Ok(new ApiResponse<object>
                 {
                     Success = true,

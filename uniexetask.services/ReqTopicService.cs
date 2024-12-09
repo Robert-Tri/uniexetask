@@ -97,7 +97,28 @@ namespace uniexetask.services
         }
 
 
+        public async Task<List<RegTopicForm>> GetAllReqTopicByMentorId(int mentorId)
+        {
+            var mentorWithGroups = await _unitOfWork.Mentors.GetMentorWithGroupAsync(mentorId);
 
+            if (mentorWithGroups == null || mentorWithGroups.Groups == null || !mentorWithGroups.Groups.Any())
+            {
+                return new List<RegTopicForm>();
+            }
+
+            var reqTopicList = new List<RegTopicForm>();
+
+            foreach (var group in mentorWithGroups.Groups)
+            {
+                var topics = await _unitOfWork.ReqTopic.GetAsync(
+                    filter: rm => rm.GroupId == group.GroupId
+                );
+
+                reqTopicList.AddRange(topics);
+            }
+
+            return reqTopicList;
+        }
 
 
 

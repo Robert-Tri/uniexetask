@@ -38,7 +38,8 @@ namespace uniexetask.api.Controllers
             try
             {
                 var studentList = await _studentsService.GetAllStudent();
-                if (studentList == null)
+
+                if (studentList != null && studentList.Any()) 
                 {
                     response.Data = studentList;
                     response.Success = true;
@@ -46,7 +47,10 @@ namespace uniexetask.api.Controllers
                 }
                 else
                 {
-                    throw new Exception("Student not found");
+                    response.Data = null;
+                    response.Success = false;
+                    response.ErrorMessage = "No students found.";
+                    return NotFound(response); 
                 }
             }
             catch (Exception ex)
@@ -56,6 +60,7 @@ namespace uniexetask.api.Controllers
                 return BadRequest(response);
             }
         }
+
 
         [HttpGet("bystudentcode")]
         public async Task<IActionResult> GetStudentByStudentCode(string studentCode)

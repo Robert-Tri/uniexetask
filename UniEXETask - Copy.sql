@@ -477,18 +477,16 @@ VALUES
 ('Admin', 'Administrator with full access'),
 ('Manager', 'Manager with project management privileges'),
 ('Student', 'Student participating in projects'),
-('Mentor', 'Mentor providing guidance to projects'),
-('Sponsor', 'Sponsor investing in projects');
+('Mentor', 'Mentor providing guidance to projects');
 
 -- Thêm dữ liệu mẫu cho bảng feature
 INSERT INTO FEATURE (name, description)
 VALUES 
 ('User Management', 'Feature to manage (view, create, update, delete, import) users'),
-('Project Management', 'Feature to manage (view, create, update, delete) projects'),
-('Event Management', 'Feature to manage (view, create, update, delete) events'),
-('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the project'),
-('Group Management', 'Feature to manage (view, create, update, delete) group'),
-('Resource Management', 'Feature to manage (view, upload, update, delete, download) resources in the project');
+('Workshop Management', 'Feature to manage (view, create, update, delete) workshops'),
+('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the group'),
+('Timeline Management', 'Feature to manage (view, update) timeline'),
+('Syllabus', 'Feature to manage (view) syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
 INSERT INTO PERMISSION (feature_id, name, description)
@@ -498,35 +496,25 @@ VALUES
 (1, 'edit_user', 'Permission to edit users'),
 (1, 'delete_user', 'Permission to delete users'),
 (1, 'import_user', 'Permission to import users from ecel file'),
-(2, 'view_project', 'Permission to view projects'),
-(2, 'create_project', 'Permission to create projects'),
-(2, 'edit_project', 'Permission to edit projects'),
-(2, 'delete_project', 'Permission to delete projects'),
-(3, 'view_event', 'Permission to view events'),
-(3, 'create_event', 'Permission to create events'),
-(3, 'edit_event', 'Permission to edit events'),
-(3, 'delete_event', 'Permission to delete events'),
-(4, 'view_meeting_schedule', 'Permission to view meeting schedules'),
-(4, 'create_meeting_schedule', 'Permission to create meeting schedules'),
-(4, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
-(4, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
-(5, 'view_group', 'Permission to view group'),
-(5, 'create_group', 'Permission to create group'),
-(5, 'edit_group', 'Permission to edit group'),
-(5, 'delete_group', 'Permission to delete group'),
-(6, 'view_resource', 'Permission to view resources'),
-(6, 'upload_resource', 'Permission to create resources'),
-(6, 'edit_resource', 'Permission to edit resources'),
-(6, 'delete_resource', 'Permission to delete resources'),
-(6, 'download_resource', 'Permission to delete resources');
+(2, 'view_workshop', 'Permission to view workshops'),
+(2, 'create_workshop', 'Permission to create workshops'),
+(2, 'edit_workshop', 'Permission to edit workshops'),
+(2, 'delete_workshop', 'Permission to delete workshops'),
+(3, 'view_meeting_schedule', 'Permission to view meeting schedules'),
+(3, 'create_meeting_schedule', 'Permission to create meeting schedules'),
+(3, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
+(3, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
+(4, 'view_timeline', 'Permission to view timeline'),
+(4, 'edit_timeline', 'Permission to edit timeline'),
+(5, 'view_syllabus', 'Permission to edit syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng User
 -- Default password: Uniexetask123456
 INSERT INTO [USER] (full_name, [password], email, avatar, phone, campus_id, role_id)
 VALUES 
-('Admin User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'admin@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
-('Manager User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'manager@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
-('Mentor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor1@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
+('Admin User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'uniexetask.it@gmail.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000001', 1, 1),
+('Manager User', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'uniexetask.manager@gmail.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000002', 2, 2),
+('Mentor User 1', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'uniexetask.mentor1@gmail.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000012', 1, 4),
 ('Mentor User 2', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor2@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000013', 2, 4),
 ('Mentor User 3', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor3@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000014', 2, 4),
 ('Mentor User 4', '$2a$11$1IReM3Zy6rfe7ObrWPzuZONAoB/3BxCXPFNIt/AgKCq9KXVZM0DQy', 'mentor4@uniexetask.com', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', '0901000015', 3, 4),
@@ -569,16 +557,14 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng PROJECT_MENTOR
 INSERT INTO MENTOR_GROUP (group_id, mentor_id)
 VALUES 
-(1, 2);
+(1, 1);
 
 -- Thêm dữ liệu mẫu cho bảng ROLE_PERMISSION
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
-(1, 1), (1, 2), (1, 3),
-(2, 1), (2, 2),
-(3, 1),
-(4, 1),
-(5, 1);
+(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 14), (2, 15), (2, 6), (2, 7), (2, 8), (2, 9),
+(3, 10), (3, 6), (3, 14), (3, 16),
+(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14), (4, 16);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
@@ -592,7 +578,7 @@ VALUES
 (9, 1),
 (10, 1),
 (11, 1),
-(4, 1);
+(3, 1);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)

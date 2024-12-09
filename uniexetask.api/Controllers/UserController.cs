@@ -99,6 +99,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <returns></returns>
         //[Authorize(Policy = "CanViewUser")]
+        [Authorize(Policy = "CanViewUser")]
         [HttpGet]
         public async Task<IActionResult> GetUserList()
         {
@@ -191,7 +192,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CanImportUser")]
         [HttpPost]
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
@@ -209,6 +210,7 @@ namespace uniexetask.api.Controllers
             var excelList = new List<ExcelModel>();
             var emailList = new HashSet<string>();
             var phoneList = new HashSet<string>();
+            var studentCodeList = new HashSet<string>();
 
             var campusesList = await _campusService.GetAllCampus();
             var subjectList = await _subjectService.GetSubjects();
@@ -270,6 +272,17 @@ namespace uniexetask.api.Controllers
                             return BadRequest(response);
                         }
                         emailList.Add(emailUser);
+
+                        if (studentCodeList.Contains(studentCode))
+                        {
+                            var response = new ApiResponse<bool>
+                            {
+                                Success = false,
+                                ErrorMessage = $"Duplicate student code found: {studentCode}"
+                            };
+                            return BadRequest(response);
+                        }
+                        studentCodeList.Add(studentCode);
 
                         if (!emailUser.Contains("@"))
                         {
@@ -408,14 +421,13 @@ namespace uniexetask.api.Controllers
         <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
     </ul>
     <p>We recommend that you change your password after logging in for the first time.</p>
-    <p>This is an automated email. Please do not reply to this email.</p>
     <p>Looking forward to your participation.</p>
     <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
 </body>
 </html>
 ";
 
-                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account", userEmail);
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
                 emailTasks.Add(emailTask);
             }
 
@@ -584,6 +596,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanCreateUser")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel user)
         {
@@ -650,6 +663,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="users"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanEditUser")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
@@ -819,6 +833,7 @@ namespace uniexetask.api.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        [Authorize(Policy = "CanDeleteUser")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteProduct(int userId)
         {

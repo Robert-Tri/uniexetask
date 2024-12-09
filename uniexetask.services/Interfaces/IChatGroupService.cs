@@ -20,5 +20,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> RemoveMemberOutOfGroupChat(int userId, int chatGroupId);
         Task<ChatMessage?> SaveMessageAsync(int chatGroupId, int userId, string message);
         Task<bool> CreatePersonalChatGroup(int leaderId, int userId, string message);
+        Task<ChatMessage> DeleteMessage(int userId, int messageId);
     }
 }
