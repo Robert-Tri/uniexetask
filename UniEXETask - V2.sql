@@ -126,6 +126,8 @@ CREATE TABLE CHAT_MESSAGE (
 	user_id INT NOT NULL,
 	message_content NVARCHAR(4000) NOT NULL,
 	send_datetime DATETIME DEFAULT GETDATE() NOT NULL,
+	isFile BIT NOT NULL DEFAULT 0,
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id),
     FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
