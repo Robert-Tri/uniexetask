@@ -1,4 +1,5 @@
-﻿using uniexetask.core.Interfaces;
+﻿using Microsoft.Net.Http.Headers;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
@@ -8,13 +9,15 @@ namespace uniexetask.services
     public class GroupService : IGroupService
     {
         public IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
         private readonly int _min_member_exe101;
         private readonly int _max_member_exe101;
         private readonly int _min_member_exe201;
         private readonly int _max_member_exe201;
-        public GroupService(IUnitOfWork unitOfWork)
+        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
             _min_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE101)?.Number ?? 4;
             _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
             _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 8;
@@ -236,6 +239,97 @@ namespace uniexetask.services
                 group.HasMentor = true;
                 _unitOfWork.Groups.Update(group);
                 _unitOfWork.Save();
+                var groupMembers = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(groupId);
+                var leader = groupMembers.FirstOrDefault(gm => gm.Role == "Leader");
+                var student = await _unitOfWork.Students.GetByIDAsync(leader.StudentId);
+                var userStudent = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+                var userMentor = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
+                string emailContent = $@"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }}
+        .email-container {{
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            border-radius: 8px 8px 0 0;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 24px;
+        }}
+        .content {{
+            padding: 20px;
+        }}
+        .content h2 {{
+            color: #4CAF50;
+            font-size: 20px;
+        }}
+        .content p {{
+            margin: 10px 0;
+        }}
+        .footer {{
+            text-align: center;
+            font-size: 12px;
+            color: #777777;
+            margin-top: 20px;
+        }}
+        .footer a {{
+            color: #4CAF50;
+            text-decoration: none;
+        }}
+    </style>
+</head>
+<body>
+    <div class='email-container'>
+        <div class='header'>
+            <h1>Mentor Assignment Notification</h1>
+        </div>
+        <div class='content'>
+            <p>Dear Team <strong>{group.GroupName}</strong>,</p>
+            <p>We are pleased to announce that your group has been assigned a mentor to support and guide you throughout the project.</p>
+            <h2>Group Details:</h2>
+            <p><strong>Group Name:</strong> {group.GroupName}</p>
+            <p><strong>Group Leader:</strong> {userStudent.FullName}</p>
+            <h2>Assigned Mentor:</h2>
+            <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+            <p>Your mentor will assist you with project planning, provide constructive feedback, and help ensure that you achieve your goals effectively. Please feel free to reach out to your mentor to schedule an initial meeting and discuss the next steps.</p>
+            <p>If you have any questions or need further assistance, do not hesitate to contact us.</p>
+            <p>Wishing you all the best for your project!</p>
+        </div>
+        <div class='footer'>
+            <p>Best regards,</p>
+            <p>[Your Name] | [Your Position] | [Organization Name]</p>
+            <p><a href='mailto:support@example.com'>Contact Support</a></p>
+        </div>
+    </div>
+</body>
+</html>
+";
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _emailService.SendEmailAsync(userStudent.Email, "Mentor Allocation Notification", emailContent);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
             
         }
@@ -460,9 +554,11 @@ namespace uniexetask.services
             var groupDictionary = new Dictionary<Group, int>();
             foreach (var (groupSize, index) in distributedGroups.Select((value, i) => (value, i)))
             {
+                var campus = await _unitOfWork.Campus.GetByIDAsync(campusId);
+                var subject = await _unitOfWork.Subjects.GetByIDAsync(subjectId);
                 var groupToAdd = new Group
                 {
-                    GroupName = $"Group {campusId}-{subjectId}-{index + 1}",
+                    GroupName = $"Group {index + 1}-{campus.CampusName}-{subject.SubjectCode}-{DateTime.Now.Month.ToString("MMMM")} {DateTime.Now.Year}",
                     SubjectId = subjectId,
                     HasMentor = false,
                     IsCurrentPeriod = true,

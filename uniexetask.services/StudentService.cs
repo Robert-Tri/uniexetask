@@ -24,6 +24,15 @@ namespace uniexetask.services
             return false;
         }
 
+        public async Task<bool> CheckDuplicateStudenCodeForUpdate(int userId, string newStudentCode)
+        {
+            var students = await _unitOfWork.Students.GetAsync(filter: s => s.UserId != userId);
+            var existedStudent = students.Where(s => s.StudentCode == newStudentCode);
+            if(existedStudent.Any())
+                return true;
+            return false;
+        }
+
         public async Task<bool> CreateStudent(Student student)
         {
             if (student != null)
@@ -94,6 +103,30 @@ namespace uniexetask.services
         public async Task<IEnumerable<Student>> GetEligibleStudentsWithUser()
         {
             return await _unitOfWork.Students.GetEligibleStudentsWithUser();
+        }
+        public async Task<Student?> GetUserRoleStudent(int userId)
+        {
+            return (await _unitOfWork.Students.GetAsync(filter: s => s.UserId == userId, includeProperties: "User")).FirstOrDefault();
+        }
+        public async Task<bool> UpdateStudent(Student student)
+        {
+            if(student != null)
+            {
+                var updateStudent = (await _unitOfWork.Students.GetAsync(filter: s => s.UserId == student.UserId)).FirstOrDefault();
+                if(updateStudent != null)
+                {
+                    student.SubjectId = student.SubjectId;
+                    student.Major = student.Major;
+                    student.LecturerId = student.LecturerId;
+                    student.StudentCode = student.StudentCode;
+                    _unitOfWork.Students.Update(updateStudent);
+                    var result = _unitOfWork.Save();
+                    if(result > 0)
+                        return true;
+                    return false;
+                }
+            }
+            return false;
         }
     }
 }

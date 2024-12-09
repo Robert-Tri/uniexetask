@@ -22,6 +22,15 @@ namespace uniexetask.services
             }
             return false;
         } 
+        
+        public async Task<bool> CheckDuplicateUserForUpdate(int userId, string email, string phone)
+        {
+            var users = await _unitOfWork.Users.GetAsync(filter: u => u.UserId != userId);
+            var existedUser = users.Where(u => (u.Email == email || u.Phone == phone) && u.IsDeleted == false);
+            if (existedUser.Any())
+                return true;
+            return false;
+        }
 
         public async Task<User> CreateUser(User user)
         {
@@ -126,16 +135,13 @@ namespace uniexetask.services
             if (user != null)
             {
                 var updatedUser = await _unitOfWork.Users.GetByIDAsync(user.UserId);
-                if (user != null)
+                if (updatedUser != null)
                 {
                     updatedUser.FullName = user.FullName;
                     updatedUser.Email = user.Email;
                     updatedUser.Password = user.Password;
-                    updatedUser.CampusId = user.CampusId;
                     updatedUser.Phone = user.Phone;
-                    updatedUser.IsDeleted = user.IsDeleted;
-                    updatedUser.RoleId = user.RoleId;
-
+                    updatedUser.CampusId = user.CampusId;
 
                     _unitOfWork.Users.Update(updatedUser);
 

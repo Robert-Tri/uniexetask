@@ -12,7 +12,7 @@
 
         public string Url { get; set; } = null!;
 
-        public string UploadBy { get; set; }
+        public string? UploadBy { get; set; }
 
         public string? ModifiedBy { get; set; }
 
