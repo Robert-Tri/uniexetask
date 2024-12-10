@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services;
@@ -45,13 +45,13 @@ namespace uniexetask.api.Controllers
             var role = await _roleService.GetRoleById(roleId);
             if (role == null)
             {
-                return NotFound(); // Trả về 404 nếu không tìm thấy role
+                return NotFound();
             }
             ApiResponse<Role> response = new ApiResponse<Role>
             {
                 Data = role
             };
-            return Ok(response); // Trả về role nếu tìm thấy
+            return Ok(response);
         }
 
         [Authorize]
@@ -70,7 +70,7 @@ namespace uniexetask.api.Controllers
             {
                 Data = role
             };
-            return Ok(response); // Trả về role nếu tìm thấy
+            return Ok(response);
         }
 
     }

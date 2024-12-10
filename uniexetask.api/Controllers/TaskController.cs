@@ -3,10 +3,8 @@ using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using uniexetask.api.Extensions;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
@@ -94,7 +92,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -165,7 +163,7 @@ namespace uniexetask.api.Controllers
                 var myTaskAssignList = await _taskAssignService.GetTaskAssignsByStudent(studentId.Value);
 
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -238,7 +236,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -305,7 +303,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByUserId(userId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
