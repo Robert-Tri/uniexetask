@@ -215,7 +215,7 @@ namespace uniexetask.api.Controllers
             if (topicId > 0 && createProject != null)
             {
                 var mentor = await _mentorService.GetMentorByGroupId(group.GroupId);
-                var newNotification = await _notificationService.CreateNotification(userId, mentor.UserId, $"{group.GroupName} group's has registered for topic \"{topicMentor.TopicName}\" .");
+                var newNotification = await _notificationService.CreateNotification(userId, mentor.UserId, $"<b>{group.GroupName}</b> group's has registered for topic <b>{topicMentor.TopicName}</b> .");
                 await _hubContext.Clients.User(mentor.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 var response = new ApiResponse<object>
                 {

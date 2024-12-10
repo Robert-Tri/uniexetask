@@ -627,7 +627,7 @@ namespace uniexetask.api.Controllers
 
             if (isDeleted)
             {
-                var newNotification = await _notificationService.CreateNotification(userId, student.UserId, $"You have been kicked out of the {checkLeader.Group.GroupName} group.");
+                var newNotification = await _notificationService.CreateNotification(userId, student.UserId, $"You have been kicked out of the <b>{checkLeader.Group.GroupName}</b> group.");
                 await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 return Ok(new ApiResponse<object>
                 {

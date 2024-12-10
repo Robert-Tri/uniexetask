@@ -43,7 +43,7 @@ namespace uniexetask.services
                 {
                     SenderId = senderId,
                     ReceiverId = receiverId,
-                    Message = $"You received an invitation to join the {groupName} group.",
+                    Message = $"You received an invitation to join the <b>{groupName}</b> group.",
                     Type = "Group_Request",
                     CreatedAt = DateTime.Now,
                     Status = "Sent"

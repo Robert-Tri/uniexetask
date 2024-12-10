@@ -168,7 +168,7 @@ namespace uniexetask.api.Controllers
                 {
                     string formattedDate = newMeetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
                     var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
-                            $"A meeting schedule with your group has been created at {formattedDate}, please go to meeting schedule to view it.");
+                            $"A meeting schedule with your group has been created at <b>{formattedDate}</b>, please go to meeting schedule to view it.");
                     await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 }
                 var project = await _projectService.GetProjectWithTopicByGroupId(newMeetingSchedule.GroupId);
@@ -216,7 +216,7 @@ namespace uniexetask.api.Controllers
                 {
                     string formattedDate = editedMeetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
                     var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
-                            $"A meeting schedule with your group has been edit to {formattedDate}, please go to meeting schedule to view it.");
+                            $"A meeting schedule with your group has been edit to <b>{formattedDate}</b>, please go to meeting schedule to view it.");
                     await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 }
                 return Ok(response);
@@ -256,7 +256,7 @@ namespace uniexetask.api.Controllers
                     {
                         string formattedDate = meetingSchedule.MeetingDate.ToString("hh:mm tt on MM/dd");
                         var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
-                                $"There was a meeting scheduled with your group at {formattedDate} that was deleted.");
+                                $"There was a meeting scheduled with your group at <b>{formattedDate}</b> that was deleted.");
                         await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                     }
                     response.Data = "Meeting deleted successfully!";
