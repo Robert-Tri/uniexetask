@@ -207,9 +207,13 @@ namespace uniexetask.services
                 var userToAdd = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
                 if (userToAdd != null && chatGroup != null) 
                 {
-                    chatGroup.Users.Add(userToAdd);
-                    _unitOfWork.ChatGroups.Update(chatGroup);
-                    _unitOfWork.Save();
+                    var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroup.ChatGroupId, userToAdd.UserId);
+                    if (!isUserInChatGroup)
+                    {
+                        chatGroup.Users.Add(userToAdd);
+                        _unitOfWork.ChatGroups.Update(chatGroup);
+                        _unitOfWork.Save();
+                    }
                 }
                 await _unitOfWork.Groups.RemoveMentorFromGroup(groupId);
                 group.Mentors.Add(mentor);
