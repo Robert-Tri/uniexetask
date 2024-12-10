@@ -94,7 +94,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -165,7 +165,7 @@ namespace uniexetask.api.Controllers
                 var myTaskAssignList = await _taskAssignService.GetTaskAssignsByStudent(studentId.Value);
 
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -238,7 +238,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByProjectId(projectId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
@@ -305,7 +305,7 @@ namespace uniexetask.api.Controllers
             try
             {
                 var tasksList = await _taskService.GetTasksByUserId(userId);
-                if (tasksList == null)
+                if (tasksList == null || !tasksList.Any())
                 {
                     throw new Exception("TasksList not found");
                 }
