@@ -239,7 +239,7 @@ namespace uniexetask.api.Controllers
                                 _emailService.SendEmailAsync(user.Email, "Task of Project", taskEmail);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-                                var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Task {checkComplete.TaskName} has been completed.");
+                                var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"Task <b>{checkComplete.TaskName}</b> has been completed.");
                                 await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
                             }
