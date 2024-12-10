@@ -124,12 +124,16 @@ namespace uniexetask.infrastructure.Repositories
 
         public void Commit()
         {
+            if (_transaction == null)
+                throw new InvalidOperationException("Transaction has not been started.");
             _transaction.Commit();
             _transaction.Dispose();
         }
 
         public void Rollback()
         {
+            if (_transaction == null)
+                throw new InvalidOperationException("Transaction has not been started.");
             _transaction.Rollback();
             _transaction.Dispose();
         }

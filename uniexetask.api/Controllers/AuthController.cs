@@ -5,16 +5,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
-using Azure;
 using Google.Apis.Auth;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity;
-using uniexetask.api.Extensions;
-using uniexetask.services;
+using uniexetask.shared.Extensions;
 
 namespace uniexetask.api.Controllers
 {
