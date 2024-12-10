@@ -1,4 +1,5 @@
 ﻿using Microsoft.Net.Http.Headers;
+using System.Globalization;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
@@ -562,7 +563,7 @@ namespace uniexetask.services
                 var subject = await _unitOfWork.Subjects.GetByIDAsync(subjectId);
                 var groupToAdd = new Group
                 {
-                    GroupName = $"Group {index + 1}-{campus.CampusName}-{subject.SubjectCode}-{DateTime.Now.Month.ToString("MMMM")} {DateTime.Now.Year}",
+                    GroupName = $"Group {index + 1}-{campus.CampusName}-{subject.SubjectCode}-{DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture)} {DateTime.Now.Year}",
                     SubjectId = subjectId,
                     HasMentor = false,
                     IsCurrentPeriod = true,

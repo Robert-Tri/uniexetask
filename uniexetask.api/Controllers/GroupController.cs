@@ -209,5 +209,20 @@ namespace uniexetask.api.Controllers
             respone.Data = await _groupService.GetCurrentGroupsWithMembersAndMentors();
             return Ok(respone);
         }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPost("assignmentortogroupautomatically")]
+        public async Task<IActionResult> AssignMentorToGroupAutomatically()
+        {
+            await _groupService.AddMentorToGroupAutomatically();
+            return Ok();
+        }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPost("assigngroupsautomatically")]
+        public async Task<IActionResult> AssignGroupsAutomatically()
+        {
+            await _groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
+            await _groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE201);
+            return Ok();
+        }
     }
 }
