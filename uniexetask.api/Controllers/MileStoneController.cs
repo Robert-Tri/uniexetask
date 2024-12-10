@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 

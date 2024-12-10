@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Models;
+using uniexetask.shared.Models.Request;
 
 namespace uniexetask.services.Interfaces
 {
@@ -24,5 +26,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
         Task<IEnumerable<User>> SearchStudentByStudentCodeAsync(string query);
         Task<User?> GetUserByEmail(string email);
+        Task<bool> ImportStudentFromExcel(int userId, IFormFile excelFile);
     }
 }

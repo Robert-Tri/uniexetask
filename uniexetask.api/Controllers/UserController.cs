@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using OfficeOpenXml;
 using System.Security.Claims;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
-using uniexetask.api.Extensions;
+using uniexetask.shared.Extensions;
+using Microsoft.AspNetCore.SignalR;
+using uniexetask.services.Hubs;
 
 namespace uniexetask.api.Controllers
 {
@@ -29,7 +29,8 @@ namespace uniexetask.api.Controllers
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
         private readonly Cloudinary _cloudinary;
-        public UserController(IRoleService roleService, ISubjectService subjectService, ICampusService campusService, IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService)
+        private readonly IHubContext<UserHub> _hubContext;
+        public UserController(IRoleService roleService, ISubjectService subjectService, ICampusService campusService, IUserService userService, IMentorService mentorService, IMapper mapper, IEmailService emailService, IStudentService studentsService, IHubContext<UserHub> hubContext)
         {
             _roleService = roleService;
             _subjectService = subjectService;
@@ -39,6 +40,7 @@ namespace uniexetask.api.Controllers
             _userService = userService;
             _emailService = emailService;
             _mapper = mapper;
+            _hubContext = hubContext;
 
             var cloudinaryAccount = new Account(
                "dan0stbfi",   // Cloud Name
@@ -197,251 +199,29 @@ namespace uniexetask.api.Controllers
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
         {
-            if (excelFile == null || excelFile.Length == 0)
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
             {
-                var response = new ApiResponse<bool>
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    Success = false,
-                    ErrorMessage = "File is not selected or is empty."
-                };
+                    return BadRequest("Invalid User Id");
+                }
+                if (excelFile == null || excelFile.Length == 0)
+                {
+                    throw new Exception("File is not selected or is empty.");
+                }
+                var importStudent = await _userService.ImportStudentFromExcel(userId, excelFile);
+
+                response.Data = "All users were successfully created.";
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.ErrorMessage = e.Message;
                 return BadRequest(response);
             }
-         
-            var excelList = new List<ExcelModel>();
-            var emailList = new HashSet<string>();
-            var phoneList = new HashSet<string>();
-            var studentCodeList = new HashSet<string>();
-
-            var campusesList = await _campusService.GetAllCampus();
-            var subjectList = await _subjectService.GetSubjects();
-            var rolesList = await _roleService.GetAllRole();
-
-            using (var stream = new MemoryStream())
-            {
-                await excelFile.CopyToAsync(stream);
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-                using (var package = new ExcelPackage(stream))
-                {
-                    var worksheet = package.Workbook.Worksheets[0];
-                    int rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        var campusCode = worksheet.Cells[row, 6].Text;
-                        var roleName = worksheet.Cells[row, 7].Text;
-                        var khoiText = worksheet.Cells[row, 8].Text;
-                        var subjectCode = worksheet.Cells[row, 9].Text;
-                        string studentCode = worksheet.Cells[row, 10].Text;
-                        string major = worksheet.Cells[row,11].Text;
-                        string lecturer = worksheet.Cells[row, 12].Text;
-
-                        var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
-
-                        int campusId = campusesList
-                        .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
-                        .Select(c => c.CampusId)
-                        .FirstOrDefault();
-
-
-                        int subjectId = subjectList
-                        .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
-                        .Select(s => s.SubjectId)
-                        .FirstOrDefault();
-
-
-                        int roleId = rolesList
-                        .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
-                        .Select(r => r.RoleId)
-                        .FirstOrDefault();
-
-
-                        string fullname = worksheet.Cells[row, 2].Text;
-                        string password = worksheet.Cells[row, 3].Text;
-                        string emailUser = worksheet.Cells[row, 4].Text;
-                        string phoneUser = worksheet.Cells[row, 5].Text;
-                        int khoiNumber = int.Parse(khoiText.Substring(1));
-
-                        if (emailList.Contains(emailUser))
-                        {
-                            var response = new ApiResponse<bool>
-                            {
-                                Success = false,
-                                ErrorMessage = $"Duplicate email found: {emailUser}"
-                            };
-                            return BadRequest(response);
-                        }
-                        emailList.Add(emailUser);
-
-                        if (studentCodeList.Contains(studentCode))
-                        {
-                            var response = new ApiResponse<bool>
-                            {
-                                Success = false,
-                                ErrorMessage = $"Duplicate student code found: {studentCode}"
-                            };
-                            return BadRequest(response);
-                        }
-                        studentCodeList.Add(studentCode);
-
-                        if (!emailUser.Contains("@"))
-                        {
-                            var response = new ApiResponse<bool>
-                            {
-                                Success = false,
-                                ErrorMessage = $"Invalid email format: {emailUser}. Email must contain '@'."
-                            };
-                            return BadRequest(response);
-                        }
-
-                        if (phoneList.Contains(phoneUser))
-                        {
-                            var response = new ApiResponse<bool>
-                            {
-                                Success = false,
-                                ErrorMessage = $"Duplicate phone number found: {phoneUser}"
-                            };
-                            return BadRequest(response);
-                        }
-                        phoneList.Add(phoneUser);
-
-                        if (!long.TryParse(phoneUser, out _))
-                        {
-                            var response = new ApiResponse<bool>
-                            {
-                                Success = false,
-                                ErrorMessage = $"Invalid phone number (should be numeric): {phoneUser}"
-                            };
-                            return BadRequest(response);
-                        }
-
-                        if (khoiNumber >= 19)
-                        {
-                            password = GenerateRandomPassword(8);
-                        }
-
-                        var excel = new ExcelModel
-                        {
-                            FullName = fullname,
-                            Password = password,
-                            Email = emailUser,
-                            Phone = phoneUser,
-                            CampusId = campusId,
-                            IsDeleted = false,
-                            RoleId = roleId,
-                            LecturerId = lecturerUser.MentorId,
-                            StudentCode = studentCode,
-                            Major = major,
-                            SubjectId = subjectId,
-                            IsCurrentPeriod = true
-                        };
-
-                        excelList.Add(excel);
-
-
-                    }
-                }
-            }
-
-            var emailTasks = new List<System.Threading.Tasks.Task>();
-
-            foreach (var excelModel in excelList)
-            {
-                string rawPassword = excelModel.Password;
-
-                excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
-
-                var userModel = new UserModel
-                {
-                    FullName = excelModel.FullName,
-                    Password = excelModel.Password,
-                    Email = excelModel.Email,
-                    Phone = excelModel.Phone,
-                    CampusId = excelModel.CampusId,
-                    IsDeleted = false,
-                    RoleId = excelModel.RoleId,
-                    Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
-                };
-
-                var userEntity = _mapper.Map<User>(userModel);
-
-                var isUserCreated = await _userService.CreateUserExcel(userEntity);
-
-                var studentModel = new StudentModel
-                {
-                    UserId = isUserCreated.UserId,
-                    LecturerId = excelModel.LecturerId,
-                    StudentCode = excelModel.StudentCode,
-                    Major = excelModel.Major,
-                    SubjectId = excelModel.SubjectId,
-                    IsCurrentPeriod = true
-                };
-
-                var studentEntity = _mapper.Map<Student>(studentModel);
-
-                var isStudentCreated = await _studentsService.CreateStudent(studentEntity);
-
-
-                if (isUserCreated == null)
-                {
-                    var response = new ApiResponse<bool>
-                    {
-                        Success = false,
-                        ErrorMessage = $"Failed to create user: {userModel.Email}"
-                    };
-                    return BadRequest(response);
-                }
-
-                var userEmail = $@"
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            background-color: #ffffff;
-        }}
-        h2 {{
-            color: #333;
-        }}
-        p {{
-            margin: 0 0 10px;
-        }}
-    </style>
-</head>
-<body>
-    <h2>Dear {userModel.FullName},</h2>
-    <p>We are sending you the following login account information:</p>
-    <ul>
-        <li><strong>Account:</strong> {userModel.Email}</li>
-        <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
-    </ul>
-    <p>We recommend that you change your password after logging in for the first time.</p>
-    <p>Looking forward to your participation.</p>
-    <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
-</body>
-</html>
-";
-
-                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
-                emailTasks.Add(emailTask);
-            }
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            System.Threading.Tasks.Task.WhenAll(emailTasks);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-            var successResponse = new ApiResponse<string>
-            {
-                Success = true,
-                Data = "All users were successfully created."
-            };
-
-            return Ok(successResponse);
         }
 
 

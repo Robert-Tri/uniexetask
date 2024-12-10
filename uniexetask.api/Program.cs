@@ -5,13 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using uniexetask.api.BackgroundServices;
-using uniexetask.api.Hubs;
+using uniexetask.services.Hubs;
 using uniexetask.api.Middleware;
 using uniexetask.infrastructure.ServiceExtension;
 using uniexetask.services;
 using uniexetask.services.BackgroundServices;
 using uniexetask.services.Interfaces;
-using Unitask.Api.Extensions;
+using Unitask.shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -225,4 +225,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<NotificationHub>("/notificationHub");
+app.MapHub<UserHub>("/userHub");
 app.Run();

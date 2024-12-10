@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using uniexetask.api.Extensions;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
 using uniexetask.services.Interfaces;
 using uniexetask.core.Models.Enums;
 using Microsoft.AspNetCore.SignalR;
-using uniexetask.api.Hubs;
+using uniexetask.services.Hubs;
 
 namespace uniexetask.api.Controllers
 {
