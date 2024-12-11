@@ -16,12 +16,9 @@ namespace uniexetask.services.Interfaces
         Task<bool> CheckDuplicateUser(string email, string phone);
         Task<bool> CheckDuplicateUserForUpdate(int userId, string email, string phone);
         Task<IEnumerable<User>> GetAllUsers();
-
         Task<User?> GetUserById(int userId);
         Task<User?> GetUserByIdWithCampusAndRoleAndStudents(int userId);
-
         Task<bool> UpdateUser(User userDetails);
-
         Task<bool> DeleteUser(int userId);
         Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
         Task<IEnumerable<User>> SearchStudentByStudentCodeAsync(string query);

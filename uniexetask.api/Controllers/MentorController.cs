@@ -7,6 +7,7 @@ using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
+using uniexetask.services;
 
 namespace uniexetask.api.Controllers
 {
@@ -35,6 +36,13 @@ namespace uniexetask.api.Controllers
         {
             ApiResponse<IEnumerable<Mentor>> respone = new ApiResponse<IEnumerable<Mentor>>();
             respone.Data = await _mentorService.GetMentorsAsync();
+            return Ok(respone);
+        }
+        [HttpGet("getusermentor")]
+        public async Task<IActionResult> GetMentorByUserId(int userId)
+        {
+            ApiResponse<Mentor> respone = new ApiResponse<Mentor>();
+            respone.Data = await _mentorService.GetUserMentor(userId);
             return Ok(respone);
         }
         [HttpGet("getmentorsbycampusid")]
@@ -122,6 +130,24 @@ namespace uniexetask.api.Controllers
                 ApiResponse<Mentor> respone = new ApiResponse<Mentor>();
                 respone.Data = mentorModel;
                 respone.Success = result;
+                return Ok(respone);
+            }
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMentorByUserId(UpdateMentorModel mentorModel)
+        {
+            var isExistedUser = await _userService.CheckDuplicateUserForUpdate(mentorModel.UserId, mentorModel.Email, mentorModel.Phone);
+            if (isExistedUser)
+                return Conflict("Email or phone has already been registered!");
+            var resultUpdateUser = await _userService.UpdateUser(new User { UserId = mentorModel.UserId, Email = mentorModel.Email, Phone = mentorModel.Phone, FullName = mentorModel.FullName, CampusId = 0 });
+            if (resultUpdateUser)
+            {
+                var resultUpdateMentor = await _mentorService.UpdateMentor(new Mentor { Specialty = mentorModel.Specialty});
+                ApiResponse<bool> respone = new ApiResponse<bool>();
+                respone.Success = true;
+                respone.Data = resultUpdateMentor;
                 return Ok(respone);
             }
             return BadRequest();
