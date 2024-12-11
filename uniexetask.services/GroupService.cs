@@ -187,6 +187,7 @@ namespace uniexetask.services
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
             var mentor = await _unitOfWork.Mentors.GetByIDAsync(mentorId);
             var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
+
             if (group.HasMentor == true)
             {
                 var mentorInGroup = await _unitOfWork.Groups.GetMentorInGroup(group.GroupId);
@@ -203,18 +204,21 @@ namespace uniexetask.services
                             _unitOfWork.Save();
                         }
                     }
-
                 }
+
                 var userToAdd = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
-                if (userToAdd != null && chatGroup != null) 
+                if (userToAdd != null && chatGroup != null)
                 {
                     chatGroup.Users.Add(userToAdd);
                     _unitOfWork.ChatGroups.Update(chatGroup);
                     _unitOfWork.Save();
                 }
+
                 await _unitOfWork.Groups.RemoveMentorFromGroup(groupId);
                 group.Mentors.Add(mentor);
                 _unitOfWork.Save();
+
+                await SendEmailNotification(group, mentor, true);
             }
             else if (group.HasMentor == false)
             {
@@ -236,22 +240,51 @@ namespace uniexetask.services
                         }
                     }
                 }
+
                 group.Mentors.Add(mentor);
                 group.HasMentor = true;
                 _unitOfWork.Groups.Update(group);
                 _unitOfWork.Save();
-                var groupMembers = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(groupId);
-                var leader = groupMembers.FirstOrDefault(gm => gm.Role == "Leader");
-                var student = await _unitOfWork.Students.GetByIDAsync(leader.StudentId);
-                var userStudent = await _unitOfWork.Users.GetByIDAsync(student.UserId);
-                var userMentor = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
-                string emailContent = $@"
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <style>
+
+                await SendEmailNotification(group, mentor, false);
+            }
+        }
+
+        private async System.Threading.Tasks.Task SendEmailNotification(Group group, Mentor mentor, bool isChangeMentor)
+        {
+            var groupMembers = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(group.GroupId);
+            var leader = groupMembers.FirstOrDefault(gm => gm.Role == "Leader");
+            var student = await _unitOfWork.Students.GetByIDAsync(leader.StudentId);
+            var userStudent = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+            var userMentor = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
+
+            string emailSubject;
+            string emailContent;
+
+            if (isChangeMentor)
+            {
+                emailSubject = "Mentor Change Notification";
+                emailContent = $@"
+        <p>Dear Team <strong>{group.GroupName}</strong>,</p>
+        <p>Your group's mentor has been updated.</p>
+        <p><strong>New Mentor Name:</strong> {userMentor.FullName}</p>
+        <p>Please reach out to your new mentor for guidance.</p>";
+            }
+            else
+            {
+                emailSubject = "Mentor Assignment Notification";
+                emailContent = $@"
+        <p>Dear Team <strong>{group.GroupName}</strong>,</p>
+        <p>We are pleased to announce that a mentor has been assigned to your group.</p>
+        <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+        <p>Your mentor will assist with project planning and provide feedback. Please schedule a meeting with your mentor.</p>";
+            }
+
+            emailContent = $@"
+    <!DOCTYPE html>
+    <html lang='en'>
+    <head>
+        <style>
         body {{
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -300,40 +333,17 @@ namespace uniexetask.services
             text-decoration: none;
         }}
     </style>
-</head>
-<body>
-    <div class='email-container'>
-        <div class='header'>
-            <h1>Mentor Assignment Notification</h1>
-        </div>
-        <div class='content'>
-            <p>Dear Team <strong>{group.GroupName}</strong>,</p>
-            <p>We are pleased to announce that your group has been assigned a mentor to support and guide you throughout the project.</p>
-            <h2>Group Details:</h2>
-            <p><strong>Group Name:</strong> {group.GroupName}</p>
-            <p><strong>Group Leader:</strong> {userStudent.FullName}</p>
-            <h2>Assigned Mentor:</h2>
-            <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
-            <p>Your mentor will assist you with project planning, provide constructive feedback, and help ensure that you achieve your goals effectively. Please feel free to reach out to your mentor to schedule an initial meeting and discuss the next steps.</p>
-            <p>If you have any questions or need further assistance, do not hesitate to contact us.</p>
-            <p>Wishing you all the best for your project!</p>
-        </div>
-        <div class='footer'>
-            <p>Best regards,</p>
-            <p>[Your Name] | [Your Position] | [Organization Name]</p>
-            <p><a href='mailto:support@example.com'>Contact Support</a></p>
-        </div>
-    </div>
-</body>
-</html>
-";
+    </head>
+    <body>
+        <div>{emailContent}</div>
+    </body>
+    </html>";
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _emailService.SendEmailAsync(userStudent.Email, "Mentor Allocation Notification", emailContent);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-            
+#pragma warning disable CS4014
+            _emailService.SendEmailAsync(userStudent.Email, emailSubject, emailContent);
+#pragma warning restore CS4014
         }
+
 
         public async Task<IEnumerable<Group>> GetAllGroup()
         {
