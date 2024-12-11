@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore.Internal;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.api.Controllers
 {
@@ -87,12 +88,19 @@ namespace uniexetask.api.Controllers
                 }
 
                 var mentorGroups = await _mentorService.GetMentorWithGroupAsync(userId);
-
+                if (mentorGroups == null || mentorGroups.Groups == null)
+                {
+                    return NotFound("No groups found for the mentor.");
+                }
                 // Chuẩn bị dữ liệu Dashboard
                 var groupDashboardModels = new List<GroupDashboardModel>();
+                var projectDashboardModels = new List<ProjectDashboardModel>();
 
                 foreach (var group in mentorGroups.Groups)
                 {
+                    if (group == null) continue;
+
+
                     // Lấy danh sách thành viên của nhóm
                     var groupMembers = await _groupMemberService.GetUsersByGroupId(group.GroupId);
 
@@ -130,48 +138,53 @@ namespace uniexetask.api.Controllers
                         GroupMembers = groupMemberModels,
                         MeetingSchedules = meetingScheduleModels
                     });
-                }
 
-                var projectDashboardModels = new List<ProjectDashboardModel>();
-
-                foreach (var group in mentorGroups.Groups)
-                {
-                    var projects = await _projectService.GetAllProjectsByGroupId(group.GroupId);
-
-                    foreach (var project in projects)
+                    if(group.Status == nameof(GroupStatus.Approved))
                     {
-                        var tasks = await _taskService.GetTasksByProjectId(project.ProjectId);
-                        var taskDashboardModels = new List<TaskDashboardModel>();
+                        var projects = await _projectService.GetAllProjectsByGroupId(group.GroupId) ?? new List<Project>();
 
-                        foreach (var task in tasks)
+                        foreach (var project in projects)
                         {
-                            var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
-                            taskDashboardModels.Add(new TaskDashboardModel
+                            if (project == null) continue;
+
+                            var tasks = await _taskService.GetTasksByProjectId(project.ProjectId);
+                            var taskDashboardModels = new List<TaskDashboardModel>();
+
+                            foreach (var task in tasks)
                             {
-                                TaskId = task.TaskId,
-                                Status = task.Status,
-                                ProgressPercentage = taskProgress?.ProgressPercentage ?? 0
+                                if (task == null) continue;
+
+                                var taskProgress = await _taskProgressService.GetTaskProgressByTaskId(task.TaskId);
+                                taskDashboardModels.Add(new TaskDashboardModel
+                                {
+                                    TaskId = task.TaskId,
+                                    Status = task.Status,
+                                    ProgressPercentage = taskProgress?.ProgressPercentage ?? 0
+                                });
+                            }
+
+                            Topic topic = await _topicService.GetTopicById(project.TopicId);
+                            if (topic == null) continue;
+
+                            ProjectProgress projectProgress = await _projectProgressService.GetProjectProgressByProjectId(project.ProjectId);
+                            projectDashboardModels.Add(new ProjectDashboardModel
+                            {
+                                ProjectId = project.ProjectId,
+                                TopicId = project.TopicId,
+                                TopicName = topic.TopicName,
+                                StartDate = project.StartDate,
+                                EndDate = project.EndDate,
+                                ProgressPercentage = projectProgress.ProgressPercentage,
+                                SubjectId = project.SubjectId,
+                                IsCurrentPeriod = project.IsCurrentPeriod,
+                                Status = project.Status,
+                                IsDeleted = project.IsDeleted,
+                                TaskDashboards = taskDashboardModels
                             });
                         }
-
-                        Topic topic = await _topicService.GetTopicById(project.TopicId);
-                        ProjectProgress projectProgress = await _projectProgressService.GetProjectProgressByProjectId(project.ProjectId);
-                        projectDashboardModels.Add(new ProjectDashboardModel
-                        {
-                            ProjectId = project.ProjectId,
-                            TopicId = project.TopicId,
-                            TopicName = topic.TopicName,
-                            StartDate = project.StartDate,
-                            EndDate = project.EndDate,
-                            ProgressPercentage = projectProgress.ProgressPercentage,
-                            SubjectId = project.SubjectId,
-                            IsCurrentPeriod = project.IsCurrentPeriod,
-                            Status = project.Status,
-                            IsDeleted = project.IsDeleted,
-                            TaskDashboards = taskDashboardModels
-                        });
                     }
                 }
+
 
                 var regTopics = await _reqTopicService.GetAllReqTopicByMentorId(mentorGroups.MentorId);
                 var regTopicDashboardModels = regTopics.Select(topic => new RegTopicDashboardModel

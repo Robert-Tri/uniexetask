@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
 using uniexetask.api.Controllers;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using FluentAssertions;
-using uniexetask.api.Models.Request;
+using uniexetask.shared.Models.Request;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
-using uniexetask.api.Hubs;
+using uniexetask.services.Hubs;
 using Task = System.Threading.Tasks.Task;
 
 namespace uniexetask.api.tests.Controllers

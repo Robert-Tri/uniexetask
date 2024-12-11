@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using uniexetask.api.Extensions;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Extensions;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;

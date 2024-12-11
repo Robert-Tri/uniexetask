@@ -126,6 +126,8 @@ CREATE TABLE CHAT_MESSAGE (
 	user_id INT NOT NULL,
 	message_content NVARCHAR(4000) NOT NULL,
 	send_datetime DATETIME DEFAULT GETDATE() NOT NULL,
+	isFile BIT NOT NULL DEFAULT 0,
+	isDeleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (chat_group_id) REFERENCES CHAT_GROUP(chat_group_id),
     FOREIGN KEY (user_id) REFERENCES [USER](user_id)
 );
@@ -485,7 +487,8 @@ VALUES
 ('User Management', 'Feature to manage (view, create, update, delete, import) users'),
 ('Workshop Management', 'Feature to manage (view, create, update, delete) workshops'),
 ('Meeting Schedule Management', 'Feature to manage (view, create, update, delete) meeting schedules in the group'),
-('Timeline Management', 'Feature to manage (view, update) timeline');
+('Timeline Management', 'Feature to manage (view, update) timeline'),
+('Syllabus', 'Feature to manage (view) syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng Permission
 INSERT INTO PERMISSION (feature_id, name, description)
@@ -504,7 +507,8 @@ VALUES
 (3, 'edit_meeting_schedule', 'Permission to edit meeting schedules'),
 (3, 'delete_meeting_schedule', 'Permission to delete meeting schedules'),
 (4, 'view_timeline', 'Permission to view timeline'),
-(4, 'edit_timeline', 'Permission to edit timeline');
+(4, 'edit_timeline', 'Permission to edit timeline'),
+(5, 'view_syllabus', 'Permission to edit syllabus session');
 
 -- Thêm dữ liệu mẫu cho bảng User
 -- Default password: Uniexetask123456
@@ -917,8 +921,8 @@ VALUES
 INSERT INTO ROLE_PERMISSION (role_id, permission_id)
 VALUES 
 (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 14), (2, 15), (2, 6), (2, 7), (2, 8), (2, 9),
-(3, 10), (3, 6), (3, 14),
-(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14);
+(3, 10), (3, 6), (3, 14), (3, 16),
+(4, 6), (4, 10), (4, 11), (4, 12), (4, 13), (4, 14), (4, 16);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
@@ -975,14 +979,14 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
 VALUES 
-(1, 'Research Phase', 'Complete the research phase of the project', '2024-09-03', '2024-09-17', 'Completed'),
-(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-15', '2024-09-28', 'Completed'),
-(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-09-25', '2024-10-15', 'Overdue'),
-(1, 'System Design', 'Create system architecture and design documents', '2024-11-10', '2024-11-30', 'In_Progress'),
-(1, 'Database Design', 'Design database schema and relationships', '2024-11-15', '2024-12-5', 'In_Progress'),
-(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-11-17', '2024-12-10', 'In_Progress'),
-(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-12-12', '2024-12-23', 'Not_Started'),
-(1, 'Frontend Development', 'Implement client-side user interface', '2024-12-14', '2024-12-28', 'Not_Started');
+(1, 'Research Phase', 'Complete the research phase of the project', '2024-09-03', '2024-09-27', 'Completed'),
+(1, 'Project Initiation', 'Define project scope and objectives', '2024-09-17', '2024-10-19', 'Completed'),
+(1, 'Requirements Gathering', 'Collect and document project requirements', '2024-10-25', '2024-11-15', 'Overdue'),
+(1, 'System Design', 'Create system architecture and design documents', '2024-11-21', '2024-12-22', 'In_Progress'),
+(1, 'Database Design', 'Design database schema and relationships', '2024-11-22', '2024-12-25', 'In_Progress'),
+(1, 'UI/UX Design', 'Create user interface mockups and prototypes', '2024-11-25', '2024-12-27', 'In_Progress'),
+(1, 'Backend Development', 'Implement server-side logic and APIs', '2024-12-22', '2024-12-29', 'Not_Started'),
+(1, 'Frontend Development', 'Implement client-side user interface', '2024-12-25', '2024-12-30', 'Not_Started');
 
 -- Thêm dữ liệu mẫu cho bảng PROJECT_PROGRESS
 INSERT INTO PROJECT_PROGRESS (project_id, progress_percentage, updated_date, note, isDeleted)
@@ -990,7 +994,8 @@ VALUES
 (1, 20.00, '2024-09-15', 'Research phase started', 1),
 (1, 35.00, '2024-10-15', 'Requirements collected and documented', 1),
 (1, 45.00, '2024-10-23', 'System design initiated', 0),
-(2, 0.00, '2024-10-23', 'System design initiated', 0);
+(2, 0.00, '2024-10-23', 'System design initiated', 0),
+(3, 0.00, '2024-10-23', 'System design initiated', 0);
 
 -- Thêm dữ liệu mẫu cho bảng TASK_PROGRESS
 INSERT INTO TASK_PROGRESS (task_id, progress_percentage, updated_date, note)

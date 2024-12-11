@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using uniexetask.api.Hubs;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.services.Hubs;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services;
@@ -215,7 +215,7 @@ namespace uniexetask.api.Controllers
             if (topicId > 0 && createProject != null)
             {
                 var mentor = await _mentorService.GetMentorByGroupId(group.GroupId);
-                var newNotification = await _notificationService.CreateNotification(userId, mentor.UserId, $"{group.GroupName} group's has registered for topic \"{topicMentor.TopicName}\" .");
+                var newNotification = await _notificationService.CreateNotification(userId, mentor.UserId, $"<b>{group.GroupName}</b> group's has registered for topic <b>{topicMentor.TopicName}</b> .");
                 await _hubContext.Clients.User(mentor.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 var response = new ApiResponse<object>
                 {

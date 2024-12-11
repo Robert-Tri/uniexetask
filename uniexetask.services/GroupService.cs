@@ -1,4 +1,6 @@
-﻿using uniexetask.core.Interfaces;
+﻿using Microsoft.Net.Http.Headers;
+using System.Globalization;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
@@ -8,13 +10,15 @@ namespace uniexetask.services
     public class GroupService : IGroupService
     {
         public IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
         private readonly int _min_member_exe101;
         private readonly int _max_member_exe101;
         private readonly int _min_member_exe201;
         private readonly int _max_member_exe201;
-        public GroupService(IUnitOfWork unitOfWork)
+        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
             _min_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE101)?.Number ?? 4;
             _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
             _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 8;
@@ -183,6 +187,7 @@ namespace uniexetask.services
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
             var mentor = await _unitOfWork.Mentors.GetByIDAsync(mentorId);
             var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(groupId);
+
             if (group.HasMentor == true)
             {
                 var mentorInGroup = await _unitOfWork.Groups.GetMentorInGroup(group.GroupId);
@@ -199,18 +204,25 @@ namespace uniexetask.services
                             _unitOfWork.Save();
                         }
                     }
+                }
 
-                }
                 var userToAdd = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
-                if (userToAdd != null && chatGroup != null) 
+                if (userToAdd != null && chatGroup != null)
                 {
-                    chatGroup.Users.Add(userToAdd);
-                    _unitOfWork.ChatGroups.Update(chatGroup);
-                    _unitOfWork.Save();
+                    var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroup.ChatGroupId, userToAdd.UserId);
+                    if (!isUserInChatGroup)
+                    {
+                        chatGroup.Users.Add(userToAdd);
+                        _unitOfWork.ChatGroups.Update(chatGroup);
+                        _unitOfWork.Save();
+                    }
                 }
+
                 await _unitOfWork.Groups.RemoveMentorFromGroup(groupId);
                 group.Mentors.Add(mentor);
                 _unitOfWork.Save();
+
+                await SendEmailNotification(group, mentor, true);
             }
             else if (group.HasMentor == false)
             {
@@ -232,13 +244,113 @@ namespace uniexetask.services
                         }
                     }
                 }
+
                 group.Mentors.Add(mentor);
                 group.HasMentor = true;
                 _unitOfWork.Groups.Update(group);
                 _unitOfWork.Save();
+
+                await SendEmailNotification(group, mentor, false);
             }
-            
         }
+
+        private async System.Threading.Tasks.Task SendEmailNotification(Group group, Mentor mentor, bool isChangeMentor)
+        {
+            var groupMembers = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(group.GroupId);
+            var leader = groupMembers.FirstOrDefault(gm => gm.Role == "Leader");
+            var student = await _unitOfWork.Students.GetByIDAsync(leader.StudentId);
+            var userStudent = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+            var userMentor = await _unitOfWork.Users.GetByIDAsync(mentor.UserId);
+
+            string emailSubject;
+            string emailContent;
+
+            if (isChangeMentor)
+            {
+                emailSubject = "Mentor Change Notification";
+                emailContent = $@"
+        <p>Dear Team <strong>{group.GroupName}</strong>,</p>
+        <p>Your group's mentor has been updated.</p>
+        <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+        <p><strong>Mentor Email:</strong> {userMentor.Email}</p>
+        <p>Please reach out to your new mentor for guidance.</p>";
+            }
+            else
+            {
+                emailSubject = "Mentor Assignment Notification";
+                emailContent = $@"
+        <p>Dear Team <strong>{group.GroupName}</strong>,</p>
+        <p>We are pleased to announce that a mentor has been assigned to your group.</p>
+        <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+        <p><strong>Mentor Email:</strong> {userMentor.Email}</p>
+        <p>Your mentor will assist with project planning and provide feedback. Please schedule a meeting with your mentor.</p>";
+            }
+
+            emailContent = $@"
+    <!DOCTYPE html>
+    <html lang='en'>
+    <head>
+        <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }}
+        .email-container {{
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }}
+        .header {{
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            border-radius: 8px 8px 0 0;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 24px;
+        }}
+        .content {{
+            padding: 20px;
+        }}
+        .content h2 {{
+            color: #4CAF50;
+            font-size: 20px;
+        }}
+        .content p {{
+            margin: 10px 0;
+        }}
+        .footer {{
+            text-align: center;
+            font-size: 12px;
+            color: #777777;
+            margin-top: 20px;
+        }}
+        .footer a {{
+            color: #4CAF50;
+            text-decoration: none;
+        }}
+    </style>
+    </head>
+    <body>
+        <div>{emailContent}</div>
+        <p>Best regards,<br>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
+    </body>
+    </html>";
+
+#pragma warning disable CS4014
+            _emailService.SendEmailAsync(userStudent.Email, emailSubject, emailContent);
+#pragma warning restore CS4014
+        }
+
 
         public async Task<IEnumerable<Group>> GetAllGroup()
         {
@@ -325,7 +437,7 @@ namespace uniexetask.services
                 maxGroupSize = _max_member_exe201;
             }
 
-            if(numStudents < minGroupSize)
+            if (numStudents < minGroupSize)
             {
                 return new List<int>();
             }
@@ -399,7 +511,7 @@ namespace uniexetask.services
                         }
                         group.IsDeleted = true;
                         await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
-                        
+
                         _unitOfWork.Groups.Update(group);
                     }
                 }
@@ -460,9 +572,11 @@ namespace uniexetask.services
             var groupDictionary = new Dictionary<Group, int>();
             foreach (var (groupSize, index) in distributedGroups.Select((value, i) => (value, i)))
             {
+                var campus = await _unitOfWork.Campus.GetByIDAsync(campusId);
+                var subject = await _unitOfWork.Subjects.GetByIDAsync(subjectId);
                 var groupToAdd = new Group
                 {
-                    GroupName = $"Group {campusId}-{subjectId}-{index + 1}",
+                    GroupName = $"Group {index + 1}-{campus.CampusName}-{subject.SubjectCode}-{DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture)} {DateTime.Now.Year}",
                     SubjectId = subjectId,
                     HasMentor = false,
                     IsCurrentPeriod = true,
@@ -533,7 +647,7 @@ namespace uniexetask.services
         {
             return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
         }
-        
+
         public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()
         {
             var groups = await _unitOfWork.Groups.GetCurrentPeriodGroupsWithMembersAndMentor();
@@ -557,7 +671,7 @@ namespace uniexetask.services
                     MentorId = group.Mentors.First().MentorId,
                     FullName = group.Mentors.First().User.FullName,
                     Specialty = group.Mentors.First().Specialty
-                } : null 
+                } : null
             }).ToList();
 
             return formattedGroups;

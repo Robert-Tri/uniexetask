@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Mvc;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -37,27 +37,15 @@ namespace uniexetask.api.Controllers
             var documents = await _documentService.GetDocumentsByProjectId(project.ProjectId);
             var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
 
-            string GetFileExtension(string mimeType)
-            {
-                return mimeType switch
-                {
-                    "application/pdf" => "pdf",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
-                    "application/msword" => "doc",
-                    "image/jpeg" => "jpg",
-                    "image/png" => "png",
-                    _ => "unknown"
-                };
-            }
+            var documentResponses = new List<DocumentRespone>();
 
-            var documentResponses = await System.Threading.Tasks.Task.WhenAll(documents.Select(async doc =>
+            foreach (var doc in documents)
             {
                 var uploadUser = await _userSerivce.GetUserById(doc.UploadBy);
                 var modifyUser = doc.ModifiedBy.HasValue ? await _userSerivce.GetUserById(doc.ModifiedBy.Value) : null;
-
                 var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
 
-                return new DocumentRespone
+                var documentResponse = new DocumentRespone
                 {
                     DocumentId = doc.DocumentId,
                     ProjectId = doc.ProjectId,
@@ -69,7 +57,8 @@ namespace uniexetask.api.Controllers
                     ModifiedDate = doc.ModifiedDate,
                     Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
                 };
-            }));
+                documentResponses.Add(documentResponse);
+            }
 
             ApiResponse<IEnumerable<DocumentRespone>> response = new ApiResponse<IEnumerable<DocumentRespone>>
             {

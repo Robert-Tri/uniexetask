@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata.Ecma335;
-using uniexetask.api.Extensions;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Extensions;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
-using uniexetask.services;
 using uniexetask.services.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace uniexetask.api.Controllers
 {
@@ -76,6 +72,14 @@ namespace uniexetask.api.Controllers
                 return BadRequest();
             }
 
+        }
+        [HttpGet("getuserrolestudent")]
+        public async Task<IActionResult> GetUserRoleStudent(int userId)
+        {
+            var student = await _studentsService.GetUserRoleStudent(userId);
+            ApiResponse<Student?> response = new ApiResponse<Student?>();
+            response.Data = student;
+            return Ok(response);
         }
 
         [HttpGet("byuserid")]
@@ -213,6 +217,28 @@ namespace uniexetask.api.Controllers
                 return Ok(respone);
             }
 
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateStudentByUserId(UpdateStudentModel studentModel)
+        {
+            var isExistedUser = await _userService.CheckDuplicateUserForUpdate(studentModel.UserId, studentModel.Email, studentModel.Phone);
+            if(isExistedUser)
+                return Conflict("Email or phone has already been registered!");
+            var isExistedStudent = await _studentsService.CheckDuplicateStudenCodeForUpdate(studentModel.UserId, studentModel.StudentCode);
+            if (isExistedStudent)
+                return Conflict("Student code already exists!");
+
+            var resultUpdateUser = await _userService.UpdateUser(new User { UserId = studentModel.UserId, Email = studentModel.Email, Phone = studentModel.Phone, FullName = studentModel.FullName, CampusId = studentModel.CampusId });
+            if (resultUpdateUser)
+            {
+                var resultUpdateStudent = await _studentsService.UpdateStudent(new Student { StudentCode = studentModel.StudentCode, LecturerId = studentModel.LectureId, Major = studentModel.Major, SubjectId = studentModel.SubjectId });
+                ApiResponse<bool> respone = new ApiResponse<bool>();
+                respone.Success = true;
+                respone.Data = resultUpdateStudent;
+                return Ok(respone);
+            }
             return BadRequest();
         }
     }

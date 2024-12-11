@@ -9,9 +9,9 @@ using Google.Cloud.Storage.V1;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Security.Claims;
-using uniexetask.api.Hubs;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.services.Hubs;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services;
@@ -273,7 +273,7 @@ namespace uniexetask.api.Controllers
                 var users = await _groupMemberService.GetUsersByGroupId(reqTopic.GroupId);
                 foreach (var user in users)
                 {
-                    var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"{group.GroupName} group's topic \"{reqTopic.TopicName}\" was approved. Please go to your project to view it.");
+                    var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"<b>{group.GroupName}</b> group's topic <b>{reqTopic.TopicName}</b> was approved. Please go to your project to view it.");
                     await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 }
                 var response = new ApiResponse<object>
@@ -316,7 +316,7 @@ namespace uniexetask.api.Controllers
                     var users = await _groupMemberService.GetUsersByGroupId(regTopicForm.GroupId);
                     foreach (var user in users)
                     {
-                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"{group.GroupName} group's topic was rejected for the reason: " +
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId, $"<b>{group.GroupName}</b> group's topic <b>{regTopicForm.TopicName}</b> was rejected for the reason: " +
                             $"{(reqTopic.RejectionReason != null ? reqTopic.RejectionReason : "No Reason")}");
                         await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                     }

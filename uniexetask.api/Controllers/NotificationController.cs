@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using uniexetask.api.Hubs;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.services.Hubs;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
@@ -157,7 +157,7 @@ namespace uniexetask.api.Controllers
                         var user = await _userService.GetUserById(request.InviteeId);
                         if (user != null)
                         {
-                            var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"{user.FullName} has joined the group");
+                            var newNotification = await _notificationService.CreateNotification(userId, groupInvite.InviterId, $"<b>{user.FullName}</b> has joined the group");
                             await _hubContext.Clients.User(groupInvite.InviterId.ToString()).SendAsync("ReceiveNotification", newNotification);
 
                         }

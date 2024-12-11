@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Generic;
 using System.Security.Claims;
-using uniexetask.api.Hubs;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.services.Hubs;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
+using uniexetask.services;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
@@ -244,6 +246,47 @@ namespace uniexetask.api.Controllers
                     response.Success = false;
                     response.ErrorMessage = ex.Message;
                     return Ok(response);
+            }
+        }
+
+        [HttpDelete("{messageIdStr}")]
+        public async Task<IActionResult> DeleteMessage(string messageIdStr)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                if (string.IsNullOrEmpty(messageIdStr) || !int.TryParse(messageIdStr, out int messageId))
+                {
+                    throw new Exception("Invalid Meeting Schedule Id");
+                }
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid User Id");
+                }
+                var deletedMessage = await _chatGroupService.DeleteMessage(userId, messageId);
+                if (deletedMessage != null)
+                {
+                    response.Data = "Message deleted successfully!";
+                    var user = await _userService.GetUserById(deletedMessage.UserId);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    await _hubContext.Clients.All.SendAsync("UpdateMessageWhenChangeOccur", new ChatMessageResponse
+                    {
+                        ChatMessage = deletedMessage,
+                        Avatar = user.Avatar,
+                        SenderName = user.FullName
+                    });
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    return Ok(response);
+                }
+                throw new Exception("Delete message failed.");
+
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
             }
         }
     }

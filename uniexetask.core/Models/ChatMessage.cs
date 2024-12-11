@@ -15,6 +15,10 @@ public partial class ChatMessage
 
     public DateTime SendDatetime { get; set; }
 
+    public bool IsFile { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual ChatGroup ChatGroup { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

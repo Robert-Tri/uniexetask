@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 ﻿using Microsoft.AspNetCore.Http;
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
@@ -208,6 +208,21 @@ namespace uniexetask.api.Controllers
             ApiResponse<IEnumerable<GroupDetailsResponseModel>> respone = new ApiResponse<IEnumerable<GroupDetailsResponseModel>>();
             respone.Data = await _groupService.GetCurrentGroupsWithMembersAndMentors();
             return Ok(respone);
+        }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPost("assignmentortogroupautomatically")]
+        public async Task<IActionResult> AssignMentorToGroupAutomatically()
+        {
+            await _groupService.AddMentorToGroupAutomatically();
+            return Ok();
+        }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPost("assigngroupsautomatically")]
+        public async Task<IActionResult> AssignGroupsAutomatically()
+        {
+            await _groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
+            await _groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE201);
+            return Ok();
         }
     }
 }

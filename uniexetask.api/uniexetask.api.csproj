@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\uniexetask.infrastructure\uniexetask.infrastructure.csproj" />
     <ProjectReference Include="..\uniexetask.services\uniexetask.services.csproj" />
+    <ProjectReference Include="..\uniexetask.shared\uniexetask.shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

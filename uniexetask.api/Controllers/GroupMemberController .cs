@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using uniexetask.api.Hubs;
-using uniexetask.api.Models.Request;
-using uniexetask.api.Models.Response;
+using uniexetask.services.Hubs;
+using uniexetask.shared.Models.Request;
+using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services;
@@ -612,6 +612,9 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
             }
 
+            var student = await _studentService.GetStudentById(model.StudentId);
+            if (student == null) return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Student with id = {model.StudentId} not found." });
+
             var role = await _groupMemberService.GetRoleByUserId(userId);
 
             if (role != "Leader")
@@ -633,6 +636,8 @@ namespace uniexetask.api.Controllers
 
             if (isDeleted)
             {
+                var newNotification = await _notificationService.CreateNotification(userId, student.UserId, $"You have been kicked out of the <b>{checkLeader.Group.GroupName}</b> group.");
+                await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
                 return Ok(new ApiResponse<object>
                 {
                     Success = true,
