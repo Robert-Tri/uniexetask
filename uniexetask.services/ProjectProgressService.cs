@@ -50,17 +50,21 @@ namespace uniexetask.services
         public async Task<bool> LoadProgressUpdateProjectProgressByProjectId(int projectId)
         {
             var taskList = await _unitOfWork.Tasks.GetTasksByProjectAsync(projectId);
-            int countCompleted = 0;
+
             int totalTasks = 0;
+            decimal totalProgress = 0;
+
             foreach (var task in taskList)
             {
-                if(task.Status == nameof(TasksStatus.Completed))
+                var taskProgress = await _unitOfWork.TaskProgresses.GetTaskProgressByTaskIdAsync(task.TaskId);
+                if (taskProgress != null)
                 {
-                    countCompleted++;
+                    totalProgress += taskProgress.ProgressPercentage;
                 }
+
                 totalTasks++;
             }
-            var progress = countCompleted * 100 / totalTasks;
+            var progress = totalProgress / totalTasks;
 
             var project = await _unitOfWork.ProjectProgresses.GetProjectProgressByProjectId(projectId);
             project.IsDeleted = true;

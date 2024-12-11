@@ -13,11 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.services", "unie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8C79112E-F75B-415B-A186-855A5F5A1195}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.api.tests", "uniexetask.api.tests\uniexetask.api.tests.csproj", "{DFE7CBB8-4A34-4388-88A9-E2511902096A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.api.tests", "uniexetask.api.tests\uniexetask.api.tests.csproj", "{DFE7CBB8-4A34-4388-88A9-E2511902096A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.infrastructure.tests", "uniexetask.infrastructure.tests\uniexetask.infrastructure.tests.csproj", "{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.infrastructure.tests", "uniexetask.infrastructure.tests\uniexetask.infrastructure.tests.csproj", "{8CD59C6B-10F1-4722-9C65-3E3142BEF3A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.services.tests", "uniexetask.services.tests\uniexetask.services.tests.csproj", "{8E3AA290-20D4-472B-852D-176CF14DC6F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "uniexetask.services.tests", "uniexetask.services.tests\uniexetask.services.tests.csproj", "{8E3AA290-20D4-472B-852D-176CF14DC6F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uniexetask.shared", "uniexetask.shared\uniexetask.shared.csproj", "{A3781986-AEAD-41A3-9A5F-D29E13337E66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E3AA290-20D4-472B-852D-176CF14DC6F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3781986-AEAD-41A3-9A5F-D29E13337E66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3781986-AEAD-41A3-9A5F-D29E13337E66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3781986-AEAD-41A3-9A5F-D29E13337E66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3781986-AEAD-41A3-9A5F-D29E13337E66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
