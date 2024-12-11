@@ -271,7 +271,8 @@ namespace uniexetask.services
                 emailContent = $@"
         <p>Dear Team <strong>{group.GroupName}</strong>,</p>
         <p>Your group's mentor has been updated.</p>
-        <p><strong>New Mentor Name:</strong> {userMentor.FullName}</p>
+        <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+        <p><strong>Mentor Email:</strong> {userMentor.Email}</p>
         <p>Please reach out to your new mentor for guidance.</p>";
             }
             else
@@ -281,6 +282,7 @@ namespace uniexetask.services
         <p>Dear Team <strong>{group.GroupName}</strong>,</p>
         <p>We are pleased to announce that a mentor has been assigned to your group.</p>
         <p><strong>Mentor Name:</strong> {userMentor.FullName}</p>
+        <p><strong>Mentor Email:</strong> {userMentor.Email}</p>
         <p>Your mentor will assist with project planning and provide feedback. Please schedule a meeting with your mentor.</p>";
             }
 
@@ -340,6 +342,7 @@ namespace uniexetask.services
     </head>
     <body>
         <div>{emailContent}</div>
+        <p>Best regards,<br>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
     </body>
     </html>";
 
@@ -434,7 +437,7 @@ namespace uniexetask.services
                 maxGroupSize = _max_member_exe201;
             }
 
-            if(numStudents < minGroupSize)
+            if (numStudents < minGroupSize)
             {
                 return new List<int>();
             }
@@ -508,7 +511,7 @@ namespace uniexetask.services
                         }
                         group.IsDeleted = true;
                         await _unitOfWork.GroupMembers.DeleteGroupMembers(group.GroupId);
-                        
+
                         _unitOfWork.Groups.Update(group);
                     }
                 }
@@ -644,7 +647,7 @@ namespace uniexetask.services
         {
             return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
         }
-        
+
         public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()
         {
             var groups = await _unitOfWork.Groups.GetCurrentPeriodGroupsWithMembersAndMentor();
@@ -668,7 +671,7 @@ namespace uniexetask.services
                     MentorId = group.Mentors.First().MentorId,
                     FullName = group.Mentors.First().User.FullName,
                     Specialty = group.Mentors.First().Specialty
-                } : null 
+                } : null
             }).ToList();
 
             return formattedGroups;
