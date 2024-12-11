@@ -230,7 +230,7 @@ namespace uniexetask.api.Controllers
             if (isExistedStudent)
                 return Conflict("Student code already exists!");
 
-            var resultUpdateUser = await _userService.UpdateUser(new core.Models.User { UserId = studentModel.UserId, Email = studentModel.Email, Phone = studentModel.Phone, FullName = studentModel.FullName, CampusId = studentModel.CampusId });
+            var resultUpdateUser = await _userService.UpdateUser(new User { UserId = studentModel.UserId, Email = studentModel.Email, Phone = studentModel.Phone, FullName = studentModel.FullName, CampusId = studentModel.CampusId });
             if (resultUpdateUser)
             {
                 var resultUpdateStudent = await _studentsService.UpdateStudent(new Student { StudentCode = studentModel.StudentCode, LecturerId = studentModel.LectureId, Major = studentModel.Major, SubjectId = studentModel.SubjectId });

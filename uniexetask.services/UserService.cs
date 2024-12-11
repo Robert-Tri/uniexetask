@@ -173,9 +173,9 @@ namespace uniexetask.services
                 {
                     updatedUser.FullName = user.FullName;
                     updatedUser.Email = user.Email;
-                    updatedUser.Password = user.Password;
                     updatedUser.Phone = user.Phone;
-                    updatedUser.CampusId = user.CampusId;
+                    if(user.CampusId != 0)
+                        updatedUser.CampusId = user.CampusId;
 
                     _unitOfWork.Users.Update(updatedUser);
 
@@ -183,8 +183,7 @@ namespace uniexetask.services
 
                     if (result > 0)
                         return true;
-                    else
-                        return false;
+                    return false;
                 }
             }
             return false;

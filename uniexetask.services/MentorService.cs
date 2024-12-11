@@ -79,11 +79,10 @@ namespace uniexetask.services
 
             if (user == null)
             {
-                return null; // Trả về null nếu không tìm thấy user
+                return null; 
             }
 
-            // Trả về mentor của user, nếu có
-            return user.Mentors.FirstOrDefault(); // Giả sử mỗi user có một mentor
+            return user.Mentors.FirstOrDefault(); 
         }
 
         public async Task<IEnumerable<Mentor>> GetMentorByCampusId(int campusId)
@@ -102,6 +101,29 @@ namespace uniexetask.services
                     return true;
                 else
                     return false;
+            }
+            return false;
+        }
+
+        public async Task<Mentor?> GetUserMentor(int userId)
+        {
+            return (await _unitOfWork.Mentors.GetAsync(filter: m => m.UserId == userId, includeProperties: "User")).FirstOrDefault();
+        }
+
+        public async Task<bool> UpdateMentor(Mentor mentor)
+        {
+            if(mentor != null)
+            {
+                var existedMentor = await _unitOfWork.Mentors.GetByIDAsync(mentor.UserId);
+                if(existedMentor != null)
+                {
+                    existedMentor.Specialty = mentor.Specialty;
+                    _unitOfWork.Mentors.Update(existedMentor);
+                    int result = _unitOfWork.Save();
+                    if(result > 0) 
+                        return true;
+                    return false;
+                }
             }
             return false;
         }

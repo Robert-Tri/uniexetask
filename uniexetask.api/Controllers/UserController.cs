@@ -425,6 +425,9 @@ namespace uniexetask.api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UserUpdateModel user)
         {
+            var isExistedUser = await _userService.CheckDuplicateUserForUpdate(user.UserId, user.Email, user.Phone);
+            if (isExistedUser)
+                return Conflict("Email or phone has already been registered!");
             ApiResponse<bool> respone = new ApiResponse<bool>();
             var isUserUpdated = await _userService.UpdateUser(_mapper.Map<User>(user));
             if (isUserUpdated)
@@ -535,7 +538,6 @@ namespace uniexetask.api.Controllers
 
             if (file != null && file.Length > 0)
             {
-                // Xử lý upload ảnh mới nếu file được chọn
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, file.OpenReadStream())
@@ -548,7 +550,6 @@ namespace uniexetask.api.Controllers
                     return BadRequest(new ApiResponse<bool> { Success = false, ErrorMessage = uploadResult.Error.Message });
                 }
 
-                // Lưu ảnh mới và xóa ảnh cũ nếu có
                 string oldAvatar = user.Avatar;
                 user.Avatar = uploadResult.SecureUri.ToString();
 
