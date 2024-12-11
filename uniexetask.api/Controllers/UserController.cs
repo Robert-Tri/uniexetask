@@ -199,21 +199,24 @@ namespace uniexetask.api.Controllers
         [Route("upload-excel")]
         public async Task<IActionResult> CreateUser(IFormFile excelFile)
         {
-            ApiResponse<string> response = new ApiResponse<string>();
+            ApiResponse<IEnumerable<string>> response = new ApiResponse<IEnumerable<string>>();
             try
             {
                 var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    return BadRequest("Invalid User Id");
+                    throw new Exception("Invalid User Id.");
                 }
                 if (excelFile == null || excelFile.Length == 0)
                 {
                     throw new Exception("File is not selected or is empty.");
                 }
-                var importStudent = await _userService.ImportStudentFromExcel(userId, excelFile);
+                var errors = await _userService.ImportStudentFromExcel(userId, excelFile);
 
-                response.Data = "All users were successfully created.";
+                if (errors != null)
+                {
+                    response.Data = errors;
+                }
                 return Ok(response);
             }
             catch (Exception e)
@@ -222,31 +225,6 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = e.Message;
                 return BadRequest(response);
             }
-        }
-
-
-        private string GenerateRandomPassword(int length)
-        {
-            const string upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const string lowerChars = "abcdefghijklmnopqrstuvwxyz";
-            const string digits = "0123456789";
-
-            var random = new Random();
-
-            var password = new List<char>
-            {
-                upperChars[random.Next(upperChars.Length)], 
-                lowerChars[random.Next(lowerChars.Length)], 
-                digits[random.Next(digits.Length)],
-            };
-
-            const string allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (int i = password.Count; i < length; i++)
-            {
-                password.Add(allChars[random.Next(allChars.Length)]);
-            }
-
-            return new string(password.OrderBy(c => random.Next()).ToArray());
         }
 
         private bool IsPasswordValid(string password)
@@ -384,7 +362,7 @@ namespace uniexetask.api.Controllers
             if (isUserExisted)
                 return Conflict("Email or phone has already been registered!");
             var obj = _mapper.Map<User>(user);
-            string password = GenerateRandomPassword(10);
+            string password = PasswordHasher.GenerateRandomPassword(10);
             obj.Password = PasswordHasher.HashPassword(password);
             obj.Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg";
             var isUserCreated = await _userService.CreateUser(obj);

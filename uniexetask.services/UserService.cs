@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using OfficeOpenXml;
+using System.Text.RegularExpressions;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Hubs;
@@ -22,6 +23,7 @@ namespace uniexetask.services
         private readonly ICampusService _campusService;
         private readonly ISubjectService _subjectService;
         private readonly IMentorService _mentorService;
+        private readonly IStudentService _studentService;
 
         public UserService(
             IUnitOfWork unitOfWork, 
@@ -31,7 +33,8 @@ namespace uniexetask.services
             IRoleService roleService, 
             ISubjectService subjectService, 
             ICampusService campusService,
-            IMentorService mentorService)
+            IMentorService mentorService,
+            IStudentService studentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -41,6 +44,7 @@ namespace uniexetask.services
             _subjectService = subjectService;
             _campusService = campusService;
             _mentorService = mentorService;
+            _studentService = studentService;
         }
 
         public async Task<bool> CheckDuplicateUser(string email, string phone)
@@ -204,12 +208,14 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<bool> ImportStudentFromExcel(int userId, IFormFile excelFile)
+        public async Task<IEnumerable<string>?> ImportStudentFromExcel(int userId, IFormFile excelFile)
         {
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            var errors = new List<string>();
+            var excelList = new List<ExcelModel>();
             try
             {
                 _unitOfWork.BeginTransaction();
-                var excelList = new List<ExcelModel>();
                 var emailList = new HashSet<string>();
                 var phoneList = new HashSet<string>();
                 var studentCodeList = new HashSet<string>();
@@ -217,6 +223,8 @@ namespace uniexetask.services
                 var campusesList = await _campusService.GetAllCampus();
                 var subjectList = await _subjectService.GetSubjects();
                 var rolesList = await _roleService.GetAllRole();
+                var usersInDatabase = await GetAllUsers();
+                var studentsInDatabase = await _studentService.GetAllStudent();
 
                 using (var stream = new MemoryStream())
                 {
@@ -230,72 +238,101 @@ namespace uniexetask.services
 
                         for (int row = 2; row <= rowCount; row++)
                         {
-                            var campusCode = worksheet.Cells[row, 6].Text;
-                            var roleName = worksheet.Cells[row, 7].Text;
-                            var khoiText = worksheet.Cells[row, 8].Text;
-                            var subjectCode = worksheet.Cells[row, 9].Text;
-                            string studentCode = worksheet.Cells[row, 10].Text;
-                            string major = worksheet.Cells[row, 11].Text;
-                            string lecturer = worksheet.Cells[row, 12].Text;
-
-                            var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
-
-                            int campusId = campusesList
-                            .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
-                            .Select(c => c.CampusId)
-                            .FirstOrDefault();
-
-
-                            int subjectId = subjectList
-                            .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
-                            .Select(s => s.SubjectId)
-                            .FirstOrDefault();
-
-
-                            int roleId = rolesList
-                            .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
-                            .Select(r => r.RoleId)
-                            .FirstOrDefault();
-
-
                             string fullname = worksheet.Cells[row, 2].Text;
                             string password = worksheet.Cells[row, 3].Text;
                             string emailUser = worksheet.Cells[row, 4].Text;
                             string phoneUser = worksheet.Cells[row, 5].Text;
-                            int khoiNumber = int.Parse(khoiText.Substring(1));
+                            string campusCode = worksheet.Cells[row, 6].Text;
+                            string roleName = worksheet.Cells[row, 7].Text;
+                            string khoiText = worksheet.Cells[row, 8].Text;
+                            string subjectCode = worksheet.Cells[row, 9].Text;
+                            string studentCode = worksheet.Cells[row, 10].Text;
+                            string major = worksheet.Cells[row, 11].Text;
+                            string lecturer = worksheet.Cells[row, 12].Text;
 
-                            if (emailList.Contains(emailUser))
+                            //Check campus code
+                            int campusId = campusesList
+                            .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
+                            .Select(c => c.CampusId)
+                            .FirstOrDefault();
+                            if (campusId == 0) errors.Add($"Line {row} | Campus Code | {campusCode} | Invalid campus code (Ex: FPT-HN, FPT-HCM)");
+
+                            //Check subject code
+                            int subjectId = subjectList
+                            .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
+                            .Select(s => s.SubjectId)
+                            .FirstOrDefault();
+                            if (subjectId == 0) errors.Add($"Line {row} | Subject Code | {subjectCode} | Invalid subject code (Ex: EXE101, EXE201)");
+
+                            //Check role name
+                            int roleId = rolesList
+                            .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
+                            .Select(r => r.RoleId)
+                            .FirstOrDefault();
+                            if (roleId == 0) errors.Add($"Line {row} | Role | {roleName} | Invalid role (Ex: student)");
+
+                            //Check class
+                            if (!string.IsNullOrEmpty(khoiText) && khoiText.Length > 1 && int.TryParse(khoiText.Substring(1), out int khoiNumber))
                             {
-                                throw new Exception($"Duplicate email found: {emailUser}");
+                                if (khoiNumber >= 19)
+                                {
+                                    password = PasswordHasher.GenerateRandomPassword(8);
+                                }
+                            }
+                            else
+                            {
+                                errors.Add($"Line {row} | Class | {khoiText} | Invalid class (Ex: K18, K19)");
+                            }
+
+                            //Check email
+                            if (!Regex.IsMatch(emailUser, emailPattern))
+                            {
+                                errors.Add($"Line {row} | Email | {emailUser} | Invalid email format");
+                                if (emailList.Contains(emailUser))
+                                {
+                                    errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in file");
+                                }
+                                if (usersInDatabase.Any(user => user.Email == emailUser))
+                                {
+                                    errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in database");
+                                }
                             }
                             emailList.Add(emailUser);
 
+                            //Check student code
                             if (studentCodeList.Contains(studentCode))
                             {
-                                throw new Exception($"Duplicate student code found: {studentCode}");
+                                errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in file");
+                            }
+                            if (studentsInDatabase.Any(student => student.StudentCode == studentCode))
+                            {
+                                errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in database");
                             }
                             studentCodeList.Add(studentCode);
 
-                            if (!emailUser.Contains("@"))
-                            {
-                                throw new Exception($"Invalid email format: {emailUser}. Email must contain '@'.");
-                            }
-
-                            if (phoneList.Contains(phoneUser))
-                            {
-                                throw new Exception($"Duplicate phone number found: {phoneUser}");
-                            }
-                            phoneList.Add(phoneUser);
-
+                            //Check number phone
                             if (!long.TryParse(phoneUser, out _))
                             {
-                                throw new Exception($"Invalid phone number (should be numeric): {phoneUser}");
+                                errors.Add($"Line {row} | Phone | {phoneUser} | Invalid phone number (should be numeric)");
+                                if (phoneList.Contains(phoneUser))
+                                {
+                                    errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in file");
+                                }
+                                if (usersInDatabase.Any(user => user.Phone == phoneUser))
+                                {
+                                    errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in database");
+                                }
                             }
 
-                            if (khoiNumber >= 19)
-                            {
-                                password = PasswordHasher.GenerateRandomPassword(8);
-                            }
+                            var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
+                            if (lecturerUser == null) errors.Add($"Line {row} | Leaturer | {campusCode} | Leatuter not found");
+
+                            if (errors.Any())
+                                continue;
+
+                            emailList.Add(emailUser);
+                            studentCodeList.Add(studentCode);
+                            phoneList.Add(phoneUser);
 
                             var excel = new ExcelModel
                             {
@@ -318,8 +355,14 @@ namespace uniexetask.services
                     }
                 }
 
+                if (errors.Any())
+                {
+                    return errors;
+                }
+
                 var emailTasks = new List<System.Threading.Tasks.Task>();
                 int count = 1;
+                var userList = new List<User>();
                 foreach (var excelModel in excelList)
                 {
                     string rawPassword = excelModel.Password;
@@ -407,13 +450,18 @@ namespace uniexetask.services
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 _unitOfWork.Save();
                 _unitOfWork.Commit();
-                return true;
+                return null;
             }
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
-                return false;
+                throw new Exception(ex.Message);
             }
+        }
+
+        private async Task<IEnumerable<string>> GetAllEmais()
+        {
+            return await _unitOfWork.Users.GetAllEmails();
         }
     }
 }
