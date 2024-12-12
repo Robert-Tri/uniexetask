@@ -5,18 +5,23 @@ using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
+using uniexetask.services;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/timeline")]
     [ApiController]
     public class TimeLineController : ControllerBase
     {
         private readonly ITimeLineService _timeLineService;
+        private readonly IProjectService _projectService;
+        private readonly IGroupService _groupService;
 
-        public TimeLineController(ITimeLineService timeLineService)
+        public TimeLineController(ITimeLineService timeLineService, IProjectService projectService)
         {
             _timeLineService = timeLineService;
+            _projectService = projectService;
         }
 
         [Authorize(Policy = "CanViewTimeline")]
@@ -70,6 +75,14 @@ namespace uniexetask.api.Controllers
         {
             _timeLineService.DeleteTimeLine(timeLineId);
             return NoContent();
+        }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPut("activateenddurationtimeline")]
+        public async Task<IActionResult> ActivateEndDuration()
+        {
+            await _projectService.UpdateEndDurationEXE101();
+            await _projectService.UpdateEndDurationEXE201();
+            return Ok();
         }
     }
 }
