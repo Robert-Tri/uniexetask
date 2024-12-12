@@ -397,7 +397,7 @@ namespace uniexetask.services
 
             if (groupMember == null || !groupMember.Any())
             {
-                return null; // Trả về null nếu không tìm thấy nhóm nào
+                return null;
             }
 
             var groupId = groupMember.FirstOrDefault()?.GroupId;
@@ -409,7 +409,7 @@ namespace uniexetask.services
 
             var group = await _unitOfWork.Groups.GetByIDAsync(groupId.Value);
 
-            return group; // Trả về nhóm tìm được
+            return group; 
         }
 
 

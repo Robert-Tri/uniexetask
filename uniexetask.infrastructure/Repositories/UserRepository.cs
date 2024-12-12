@@ -74,5 +74,12 @@ namespace uniexetask.infrastructure.Repositories
                     .Take(5)
                     .ToListAsync();
         }
+
+        public async Task<IEnumerable<string>> GetAllEmails()
+        {
+            return await dbSet
+                .Select(u => u.Email)
+                .ToListAsync();
+        }
     }
 }

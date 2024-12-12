@@ -2,9 +2,9 @@
 {
     public class PasswordHasher
     {
-        public static string HashPassword(string password)
+        public static string HashPassword(string password, int workFactor = 8)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor);
         }
 
         public static bool VerifyPassword(string password, string hashedPassword)

@@ -10,6 +10,7 @@ namespace uniexetask.core.Interfaces
     public interface IUserRepository : IGenericRepository<User>
     {
         Task<User?> AuthenticateAsync(string email, string password);
+        Task<IEnumerable<string>> GetAllEmails();
         Task<User?> GetByIDAsync(int id);
         Task<User?> GetByIDWithCampusAndRoleAndStudents(int id);
         Task<User?> GetUserByEmailAsync(string email);

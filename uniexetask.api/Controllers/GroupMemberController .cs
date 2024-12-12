@@ -206,6 +206,15 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have a group and cannot create a new one." });
             }
 
+            var groups = await _groupService.GetGroupAndSubject();
+            foreach (var group in groups)
+            {
+                if (request.Group.GroupName == group.GroupName)
+                {
+                    return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Group with name {request.Group.GroupName} already exists." });
+                }
+            }
+
             var usersCount = request.StudentCodes.Count;
 
             var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
@@ -499,7 +508,6 @@ namespace uniexetask.api.Controllers
 
                 var group = await _groupService.GetGroupByUserId(userId);
 
-                // Khai báo biến mentorName
                 string mentorName = null;
 
                 if (group.HasMentor == true)
@@ -507,7 +515,6 @@ namespace uniexetask.api.Controllers
                     mentorName = await _mentorService.GetMentorNameByGroupId(group.GroupId);
                 }
 
-                // Kiểm tra nếu mentorName là null thì gán giá trị mặc định
                 if (string.IsNullOrEmpty(mentorName))
                 {
                     mentorName = "The group has no Mentor";
@@ -525,7 +532,8 @@ namespace uniexetask.api.Controllers
                     Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
                     GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
                     GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName,
-                    MentorName = mentorName
+                    MentorName = mentorName,
+                    Status = group.Status
                 }).ToList();
 
                 response.Data = userDetails;

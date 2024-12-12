@@ -49,7 +49,8 @@ namespace uniexetask.api.Controllers
                     GroupName = group.GroupName,
                     SubjectName = group.Subject.SubjectName,
                     SubjectCode = group.Subject.SubjectCode,
-                    HasMentor = group.HasMentor
+                    HasMentor = group.HasMentor,
+                    Status = group.Status
                 });
             }
             ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
