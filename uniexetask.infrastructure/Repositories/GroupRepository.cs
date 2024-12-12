@@ -48,10 +48,10 @@ namespace uniexetask.infrastructure.Repositories
                             .AnyAsync(u => u.StudentId == studentId);
         }
 
-        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query)
         {
             return await dbSet
-                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && !u.IsDeleted)
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && u.Mentors.Any(m => m.MentorId == mentorId) && !u.IsDeleted)
                         .Take(5)
                         .ToListAsync();
         }

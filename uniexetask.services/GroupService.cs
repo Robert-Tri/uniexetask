@@ -643,9 +643,11 @@ namespace uniexetask.services
             await AssignStudentsToGroups(studentIdSet, subjectType);
         }
 
-        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int userId, string query)
         {
-            return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
+            var mentor = await _unitOfWork.Mentors.GetMentorByUserId(userId);
+            if (mentor == null) throw new Exception("Mentor not found");
+            return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(mentor.MentorId, query);
         }
 
         public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()
