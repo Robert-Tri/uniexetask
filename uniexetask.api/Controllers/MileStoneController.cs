@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MileStoneController : ControllerBase

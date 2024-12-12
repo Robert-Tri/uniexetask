@@ -10,5 +10,6 @@ namespace uniexetask.core.Interfaces
     public interface IReqMemberRepository : IGenericRepository<RegMemberForm>
     {
         public System.Threading.Tasks.Task DeleteReqMemberForm(int groupId);
+        System.Threading.Tasks.Task DeleteRegMemberForm(int groupId);
     }
 }

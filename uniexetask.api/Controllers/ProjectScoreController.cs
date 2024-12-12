@@ -9,7 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/projectscore")]
     [ApiController]
     public class ProjectScoreController : ControllerBase

@@ -19,5 +19,6 @@ namespace uniexetask.services.Interfaces
         Task<Project> GetProjectById(int projectId);
         Task<Project> GetProjectWithAllDataById(int projectId);
         Task<Project?> GetProjectWithTopicByGroupId(int groupId);
+        System.Threading.Tasks.Task UpdateEndDurationEXE101();
     }
 }

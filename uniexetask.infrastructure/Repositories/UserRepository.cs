@@ -48,7 +48,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<IEnumerable<User>> GetUsersWithCampusAndRole()
         {
-            return await dbSet.Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
+            return await dbSet.Where(u => u.IsDeleted == false).Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
         }
 
         public async Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId)
