@@ -508,7 +508,6 @@ namespace uniexetask.api.Controllers
 
                 var group = await _groupService.GetGroupByUserId(userId);
 
-                // Khai báo biến mentorName
                 string mentorName = null;
 
                 if (group.HasMentor == true)
@@ -516,7 +515,6 @@ namespace uniexetask.api.Controllers
                     mentorName = await _mentorService.GetMentorNameByGroupId(group.GroupId);
                 }
 
-                // Kiểm tra nếu mentorName là null thì gán giá trị mặc định
                 if (string.IsNullOrEmpty(mentorName))
                 {
                     mentorName = "The group has no Mentor";
@@ -534,7 +532,8 @@ namespace uniexetask.api.Controllers
                     Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
                     GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
                     GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName,
-                    MentorName = mentorName
+                    MentorName = mentorName,
+                    Status = group.Status
                 }).ToList();
 
                 response.Data = userDetails;
