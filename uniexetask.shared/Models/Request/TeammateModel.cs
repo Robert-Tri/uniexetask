@@ -13,5 +13,6 @@
         public int? GroupId { get; set; }
         public string GroupName { get; set; }
         public string MentorName { get; set; }
+        public string Status { get; set; }
     }
 }
