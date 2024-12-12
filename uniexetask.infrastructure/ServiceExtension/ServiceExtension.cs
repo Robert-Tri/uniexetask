@@ -54,6 +54,7 @@ namespace uniexetask.infrastructure.ServiceExtension
             services.AddScoped<IMeetingScheduleRepository, MeetingScheduleRepository>();
             services.AddScoped<IConfigSystemRepository, ConfigSystemRepository>();
             services.AddScoped<ITopicForMentorRepository, TopicForMentorRepsitory>();
+            services.AddScoped<ICriterionRepository, CriterionRepository>();
 
             return services;
         }

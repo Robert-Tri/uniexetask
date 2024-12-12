@@ -12,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> SubmitProjecScore(List<ProjectScore> projectScores);
         Task<MilestoneScoreResult> GetMileStoneScore(int projectId, int mileStoneId);
         Task<ProjectScoreResult> GetTotalProjectScore(int projectId);
+        Task<ProjectScoreResult> GetTotalProjectScoreV2(int projectId);
     }
 }

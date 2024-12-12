@@ -40,6 +40,14 @@ namespace uniexetask.api.Controllers
             return Ok(respone);
         }
 
+        [HttpGet("getprojectscorev2")]
+        public async Task<IActionResult> GetProjectScorev2(int projectId)
+        {
+            ApiResponse<ProjectScoreResult> respone = new ApiResponse<ProjectScoreResult>();
+            respone.Data = await _projectScoreService.GetTotalProjectScoreV2(projectId);
+            return Ok(respone);
+        }
+
         [Authorize(Roles = "Mentor")]
         [HttpPost("submitprojectscore")]
         public async Task<IActionResult> SubmitProjectScore(AddProjectScoreModel addProjectScoreModel)
