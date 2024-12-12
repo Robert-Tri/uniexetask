@@ -26,6 +26,12 @@ namespace uniexetask.services
             return project;
         }
 
+        public async Task<IEnumerable<Project>> GetAllDocuments()
+        {
+            var projects = await _unitOfWork.Projects.GetAsync();
+            return projects;
+        }
+
         public async Task<IEnumerable<Project>> GetAllProjectsByGroupId(int groupId)
         {
             var projects = await _unitOfWork.Projects.GetAsync(
@@ -132,7 +138,6 @@ namespace uniexetask.services
                 }
             }
             var isCurrentProject = await _unitOfWork.Projects.GetAsync();
-
         }
     }
 }

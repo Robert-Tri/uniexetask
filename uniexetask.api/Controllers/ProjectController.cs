@@ -293,8 +293,6 @@ namespace uniexetask.api.Controllers
                 response.ErrorMessage = ex.Message;
                 return BadRequest(response);
             }
-
-
         }
     }
 }
