@@ -6,6 +6,8 @@ using uniexetask.shared.Models.Request;
 using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
+using uniexetask.core.Models.Enums;
+using System.Security.Claims;
 
 namespace uniexetask.api.Controllers
 {
@@ -85,6 +87,42 @@ namespace uniexetask.api.Controllers
         [HttpGet("byuserid")]
         public async Task<IActionResult> GetStudentByUserId(int userId)
         {
+            ApiResponse<Student> response = new ApiResponse<Student>();
+            try
+            {
+                var student = await _studentsService.GetStudentByUserId(userId);
+
+                if (student != null)
+                {
+                    response.Data = student;
+                    response.Success = true;
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception("Student not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
+            }
+
+        }
+
+        [Authorize]
+        [HttpGet("byLogin")]
+        public async Task<IActionResult> GetStudentByLogin()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
             ApiResponse<Student> response = new ApiResponse<Student>();
             try
             {

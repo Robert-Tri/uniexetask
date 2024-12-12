@@ -8,6 +8,7 @@
 
         public string SubjectName { get; set; }
         public string SubjectCode { get; set; } = null!;
+        public string Status { get; set; } = null!;
 
         public bool HasMentor { get; set; }
     }

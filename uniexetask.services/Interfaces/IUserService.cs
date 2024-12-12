@@ -23,6 +23,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<User>> SearchUsersByEmailAsync(string query);
         Task<IEnumerable<User>> SearchStudentByStudentCodeAsync(string query);
         Task<User?> GetUserByEmail(string email);
-        Task<bool> ImportStudentFromExcel(int userId, IFormFile excelFile);
+        Task<IEnumerable<string>?> ImportStudentFromExcel(int userId, IFormFile excelFile);
     }
 }

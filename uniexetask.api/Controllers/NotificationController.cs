@@ -19,14 +19,12 @@ namespace uniexetask.api.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IUserService _userService;
-        private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationController(INotificationService notificationService, IUserService userService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public NotificationController(INotificationService notificationService, IUserService userService, IHubContext<NotificationHub> hubContext)
         {
             _notificationService = notificationService;
             _userService = userService;
-            _mapper = mapper;
             _hubContext = hubContext;
         }
 
@@ -37,26 +35,12 @@ namespace uniexetask.api.Controllers
             try
             {
                 var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                List<NotificationModel> list = new List<NotificationModel>();
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
                     throw new Exception("Invalid User Id");
                 }
                 var notifications = await _notificationService.GetNotificationsWithGroupInviteByUserId(userId, notificationIndex, limit, keyword);
-                var numberOfUnreadNotification = await _notificationService.GetNumberOfUnreadNotificationByUserId(userId);
-                if (notifications == null)
-                {
-                    throw new Exception("Load data failed");
-                }
-                foreach (var notification in notifications)
-                {
-                    list.Add(_mapper.Map<NotificationModel>(notification));
-                }
-                response.Data = new NotificationResponse
-                {
-                    Notifications = list,
-                    UnreadNotifications = numberOfUnreadNotification
-                };
+                response.Data = notifications;
                 return Ok(response);
             }
             catch (Exception ex)
@@ -81,11 +65,13 @@ namespace uniexetask.api.Controllers
                     throw new Exception("Invalid Data");
                 }
 
-                var newNotification = await _notificationService.CreateGroupInvite(senderId, receiverId, groupId, request.GroupName);
-
-                await _hubContext.Clients.User(request.ReceiverId).SendAsync("ReceiveNotification", newNotification);
-                response.Data = "Group invitation sent successfully. Group invitations are valid for 24 hours from the time the invitation is created.";
-                return Ok(response);
+                var result = await _notificationService.CreateGroupInvite(senderId, receiverId, groupId, request.GroupName);
+                if (result)
+                {
+                    response.Data = "Group invitation sent successfully. Group invitations are valid for 24 hours from the time the invitation is created.";
+                    return Ok(response);
+                }
+                throw new Exception("Creating a group invitation has failed.");
             }
             catch (Exception ex)
             {
@@ -115,10 +101,7 @@ namespace uniexetask.api.Controllers
                     response.Data = "Notifications marked as read";
                     return Ok(response);
                 }
-                else
-                {
-                    throw new Exception("Failed to mark notifications as read");
-                }
+                throw new Exception("Failed to mark notifications as read");
             }
             catch (Exception ex)
             {

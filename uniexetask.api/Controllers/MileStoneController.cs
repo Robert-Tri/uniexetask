@@ -5,9 +5,11 @@ using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using System.Security.Claims;
 using uniexetask.services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace uniexetask.api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MileStoneController : ControllerBase
