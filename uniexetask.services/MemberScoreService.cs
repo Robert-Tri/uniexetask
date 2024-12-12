@@ -1,4 +1,6 @@
-﻿using uniexetask.core.Interfaces;
+﻿using AutoMapper.Execution;
+using System.Collections.Generic;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 
@@ -142,6 +144,80 @@ namespace uniexetask.services
                 Members = result
             };
         }
+
+        public async Task<TotalMemberScoreResult> GetTotalMemberScoreV2(int projectId)
+        {
+            var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+            if (project == null)
+            {
+                return new TotalMemberScoreResult
+                {
+                    Members = new List<MemberTotalScoreDetail>()
+                };
+            }
+            var members = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(project.GroupId);
+            if (members == null || !members.Any())
+            {
+                return new TotalMemberScoreResult
+                {
+                    Members = new List<MemberTotalScoreDetail>()
+                };
+            }
+            // Lấy toàn bộ điểm của thành viên dựa trên projectId
+            var allMemberScores = await _unitOfWork.MemberScores.GetAsync(ms => ms.ProjectId == projectId);
+
+            // Lấy danh sách milestone liên quan
+            var milestoneIds = allMemberScores.Select(ms => ms.MilestoneId).Distinct().ToList();
+            var milestones = await _unitOfWork.Milestones.GetAsync(m => milestoneIds.Contains(m.MilestoneId));
+
+            List<Milestone> milestoneList = new List<Milestone>();
+            foreach (var item in milestoneIds)
+            {
+                var milestone = await _unitOfWork.Milestones.GetByIDAsync(item);
+                milestone.MemberScores = null;
+                milestoneList.Add(milestone);
+            }
+
+            // Tính điểm từng thành viên
+            var memberScores = members.Select(student => {
+                var memberScoresForStudent = allMemberScores.Where(ms => ms.StudentId == student.StudentId).ToList();
+
+                // Tính điểm cho từng milestone
+                var milestoneScores = milestones.Select(milestone => {
+                    var scoreRecord = memberScoresForStudent.FirstOrDefault(ms => ms.MilestoneId == milestone.MilestoneId);
+                    return new MemberMilestoneScore
+                    {
+                        MilestoneId = milestone.MilestoneId,
+                        Score = scoreRecord != null ? scoreRecord.Score : -1, // -1 nếu không có điểm
+                        Percentage = milestone.Percentage
+                    };
+                }).ToList();
+
+                // Tổng điểm của thành viên (bỏ qua milestone không có điểm)
+                double totalScore = milestoneScores
+                    .Where(ms => ms.Score != -1)
+                    .Sum(ms => ms.Score * (ms.Percentage / 100.0));
+
+                return new MemberTotalScoreDetail
+                {
+                    StudentId = student.Student.StudentId,
+                    StudentName = student.Student.User.FullName,
+                    StudentCode = student.Student.StudentCode,
+                    Role = student.Role,
+                    MilestoneScores = milestoneScores,
+                    TotalScore = Math.Round(totalScore, 2)
+                };
+            }).ToList();
+
+            // Kết quả cuối cùng
+            return new TotalMemberScoreResult
+            {
+                Members = memberScores,
+                MilestoneIds = milestoneList
+            };
+        }
+
+
     }
 
     public class MemberScoreResult
@@ -161,6 +237,7 @@ namespace uniexetask.services
     public class TotalMemberScoreResult
     {
         public List<MemberTotalScoreDetail> Members { get; set; }
+        public List<Milestone>? MilestoneIds { get; set; }
     }
 
     public class MemberTotalScoreDetail

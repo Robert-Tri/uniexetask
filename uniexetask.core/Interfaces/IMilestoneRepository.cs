@@ -10,5 +10,9 @@ namespace uniexetask.core.Interfaces
     public interface IMilestoneRepository : IGenericRepository<Milestone>
     {
         Task<Milestone?> GetMileStoneWithCriteria(int id);
+        Task<Milestone?> GetUndeleteMileStoneWithCriteria(int id);
+        Task<IEnumerable<Milestone>> GetAllUndeleteMileStoneAsync();
+        Task<int> GetMaxIdAsync();
+
     }
 }

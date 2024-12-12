@@ -9,7 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/workshop")]
     [ApiController]
     public class WorkShopController : ControllerBase
@@ -34,7 +34,7 @@ namespace uniexetask.api.Controllers
             return Ok(respone);
         }
 
-        [Authorize(Policy = "CanCreateWorkshop")]
+        //[Authorize(Policy = "CanCreateWorkshop")]
         [HttpPost]
         public async Task<IActionResult> CreateWorkShop(Workshop workshop)
         {
@@ -80,9 +80,7 @@ namespace uniexetask.api.Controllers
     <p>Looking forward to your participation.</p>
 
     <p>Best regards,<br />
-    [Your Name]<br />
-    [Your Position]<br />
-    [Your Contact Information]</p>
+    UniEXETask</p>
 </body>
 </html>
 ";
@@ -91,7 +89,7 @@ namespace uniexetask.api.Controllers
             foreach (var student in students)
             {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            _emailService.SendEmailAsync(student.User.Email, "Workshop Invitation", workshopEmail);
+                _emailService.SendEmailAsync(student.User.Email, "Workshop Invitation", workshopEmail);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
 
@@ -114,9 +112,9 @@ namespace uniexetask.api.Controllers
 
         [Authorize(Policy = "CanDeleteWorkshop")]
         [HttpDelete("{workShopId}")]
-        public IActionResult DeleteWorkShop(int workShopId)
+        public async Task<IActionResult> DeleteWorkShop(int workShopId)
         {
-            _workShopService.DeleteWorkShop(workShopId);
+            var result = await _workShopService.DeleteWorkShop(workShopId);
             return NoContent();
         }
     }

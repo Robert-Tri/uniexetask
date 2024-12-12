@@ -12,7 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Workshop>> GetWorkShops();
         System.Threading.Tasks.Task CreateWorkShop(Workshop workShop);
         System.Threading.Tasks.Task UpdateWorkShop(Workshop workShop);
-        void DeleteWorkShop(int workShopId);
-
+        Task<bool> DeleteWorkShop(int workShopId);
     }
 }

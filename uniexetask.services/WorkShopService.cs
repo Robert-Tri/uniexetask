@@ -27,16 +27,26 @@ namespace uniexetask.services
             return;
         }
 
-        public void DeleteWorkShop(int workShopId)
+        public async Task<bool> DeleteWorkShop(int workShopId)
         {
-            _unitOfWork.WorkShops.Delete(workShopId);
-            _unitOfWork.Save();
-            return;
+            
+            var workShop = await _unitOfWork.WorkShops.GetByIDAsync(workShopId);
+
+            if (workShop != null) 
+            {
+                workShop.IsDeleted = true;
+                _unitOfWork.WorkShops.Update(workShop);
+                var result = _unitOfWork.Save();
+                if (result > 0)
+                    return true;
+                return false;
+            }
+            return false;
         }
 
         public async Task<IEnumerable<Workshop>> GetWorkShops()
         {
-            return await _unitOfWork.WorkShops.GetAsync();
+            return await _unitOfWork.WorkShops.GetAsync(filter: ws => ws.IsDeleted == false);
         }
 
         public async System.Threading.Tasks.Task UpdateWorkShop(Workshop workShop)

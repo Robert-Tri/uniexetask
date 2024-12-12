@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,8 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Milestone>> GetMileStones();
         Task<IEnumerable<Milestone>> GetMileStonesBySubjectId(int subjectId);
         Task<Milestone?> GetMilestoneWithCriteria(int id);
+        Task<IEnumerable<Milestone>> GetUndeleteMileStonesBySubjectId(int subjectId);
+        Task<Milestone?> GetUndeleteMilestoneWithCriteria(int id);
+        Task<bool> ImportMilestoneWithCriteriaFromExcel(IFormFile excelFile);
     }
 }
