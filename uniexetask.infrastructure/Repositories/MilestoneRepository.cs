@@ -20,5 +20,22 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet.Include(m => m.Criteria).FirstOrDefaultAsync(m => m.MilestoneId == id);
         }
+
+        public async Task<Milestone?> GetUndeleteMileStoneWithCriteria(int id)
+        {
+            return await dbSet.Include(m => m.Criteria).FirstOrDefaultAsync(m => m.MilestoneId == id && !m.IsDeleted);
+        }
+
+        public async Task<IEnumerable<Milestone>> GetAllUndeleteMileStoneAsync()
+        {
+            return await dbSet
+                .Where(m => !m.IsDeleted)
+                .ToListAsync();
+        }
+        public async Task<int> GetMaxIdAsync()
+        {
+            return await dbSet.MaxAsync(m => m.MilestoneId);
+        }
+
     }
 }
