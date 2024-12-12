@@ -1,5 +1,4 @@
-﻿using Microsoft.Net.Http.Headers;
-using System.Globalization;
+﻿using System.Globalization;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
@@ -21,8 +20,8 @@ namespace uniexetask.services
             _emailService = emailService;
             _min_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE101)?.Number ?? 4;
             _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
-            _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 8;
-            _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 10;
+            _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 6;
+            _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 8;
         }
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
@@ -248,7 +247,7 @@ namespace uniexetask.services
                 group.Mentors.Add(mentor);
                 group.HasMentor = true;
                 _unitOfWork.Groups.Update(group);
-                var regMemberForm = _unitOfWork.ReqMembers.DeleteRegMemberForm(groupId);
+                await _unitOfWork.ReqMembers.DeleteRegMemberForm(groupId);
                 _unitOfWork.Save();
 
                 await SendEmailNotification(group, mentor, false);
@@ -434,7 +433,7 @@ namespace uniexetask.services
             }
             else if (SubjectType.EXE201 == subjectType)
             {
-                minGroupSize = _min_member_exe101;
+                minGroupSize = _min_member_exe201;
                 maxGroupSize = _max_member_exe201;
             }
 
