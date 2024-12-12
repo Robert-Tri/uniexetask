@@ -26,5 +26,18 @@ namespace uniexetask.infrastructure.Repositories
                 }
             }
         }
+
+        public async System.Threading.Tasks.Task DeleteRegMemberForm(int groupId)
+        {
+            var reqMemberForms = await dbSet.Where(r => r.GroupId == groupId).ToListAsync();
+            if (reqMemberForms.Any())
+            {
+                foreach(var reqMemberForm in reqMemberForms)
+                {
+                    reqMemberForm.Status = false;
+                    dbSet.Update(reqMemberForm);
+                }
+            }
+        }
     }
 }

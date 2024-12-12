@@ -248,6 +248,7 @@ namespace uniexetask.services
                 group.Mentors.Add(mentor);
                 group.HasMentor = true;
                 _unitOfWork.Groups.Update(group);
+                var regMemberForm = _unitOfWork.ReqMembers.DeleteRegMemberForm(groupId);
                 _unitOfWork.Save();
 
                 await SendEmailNotification(group, mentor, false);

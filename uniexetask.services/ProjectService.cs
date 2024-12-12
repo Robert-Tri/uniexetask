@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using OfficeOpenXml.Drawing.Chart.ChartEx;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -114,6 +116,23 @@ namespace uniexetask.services
         public async Task<Project?> GetProjectWithTopicByGroupId(int groupId)
         {
             return await _unitOfWork.Projects.GetProjectWithTopicByGroupId(groupId);
+        }
+
+        public async System.Threading.Tasks.Task UpdateEndDurationEXE101()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false);
+            foreach (var group in groups) 
+            {
+                var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
+                if(project != null)
+                {
+                    project.Status = nameof(ProjectStatus.Completed);
+                    _unitOfWork.Projects.Update(project);
+                    _unitOfWork.Save();
+                }
+            }
+            var isCurrentProject = await _unitOfWork.Projects.GetAsync();
+
         }
     }
 }
