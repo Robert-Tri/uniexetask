@@ -18,6 +18,7 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<ChatGroup?> GetChatGroupByGroupId(int groupId)
         {
             return await dbSet
+                .Include(c => c.Users)
                 .FirstOrDefaultAsync(u => u.GroupId == groupId);
         }
 

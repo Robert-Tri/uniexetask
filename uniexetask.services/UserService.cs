@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using System.Text.RegularExpressions;
+using System.Transactions;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.services.Hubs;
@@ -10,6 +12,8 @@ using uniexetask.services.Interfaces;
 using uniexetask.shared.Extensions;
 using uniexetask.shared.Models.Request;
 using uniexetask.shared.Models.Response;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Task = System.Threading.Tasks.Task;
 
 namespace uniexetask.services
 {
@@ -209,69 +213,129 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<string>?> ImportStudentFromExcel(int userId, IFormFile excelFile)
         {
-            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
-            var errors = new List<string>();
-            var excelList = new List<ExcelModel>();
             try
             {
                 _unitOfWork.BeginTransaction();
-                var emailList = new HashSet<string>();
-                var phoneList = new HashSet<string>();
-                var studentCodeList = new HashSet<string>();
+                var validationContext = await PrepareValidationContext();
 
-                var campusesList = await _campusService.GetAllCampus();
-                var subjectList = await _subjectService.GetSubjects();
-                var rolesList = await _roleService.GetAllRole();
-                var usersInDatabase = await GetAllUsers();
-                var studentsInDatabase = await _studentService.GetAllStudent();
+                var (excelList, validationErrors) = await ValidateExcelData(excelFile, validationContext);
 
-                using (var stream = new MemoryStream())
+                if (validationErrors.Any())
                 {
-                    await excelFile.CopyToAsync(stream);
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    return validationErrors;
+                }
 
-                    using (var package = new ExcelPackage(stream))
+                await ProcessImportedStudents(userId, excelList);
+
+                _unitOfWork.Commit();
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private async Task<ValidationImportUserContext> PrepareValidationContext()
+        {
+            return new ValidationImportUserContext
+            {
+                Campuses = await _campusService.GetAllCampus(),
+                Subjects = await _subjectService.GetSubjects(),
+                Roles = await _roleService.GetAllRole(),
+                ExistingUsers = await GetAllUsers(),
+                ExistingStudents = await _studentService.GetAllStudent()
+            };
+        }
+
+        private async Task<(List<ExcelModel> ExcelList, List<string> Errors)> ValidateExcelData(
+            IFormFile excelFile,
+            ValidationImportUserContext context)
+        {
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            var errors = new List<string>();
+            var excelList = new List<ExcelModel>();
+
+            var emailList = new HashSet<string>();
+            var phoneList = new HashSet<string>();
+            var studentCodeList = new HashSet<string>();
+
+            using (var stream = new MemoryStream())
+            {
+                await excelFile.CopyToAsync(stream);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
                     {
-                        var worksheet = package.Workbook.Worksheets[0];
-                        int rowCount = worksheet.Dimension.Rows;
+                        string fullname = worksheet.Cells[row, 2].Text;
+                        string password = worksheet.Cells[row, 3].Text;
+                        string emailUser = worksheet.Cells[row, 4].Text;
+                        string phoneUser = worksheet.Cells[row, 5].Text;
+                        string campusCode = worksheet.Cells[row, 6].Text;
+                        string roleName = worksheet.Cells[row, 7].Text;
+                        string khoiText = worksheet.Cells[row, 8].Text;
+                        string subjectCode = worksheet.Cells[row, 9].Text;
+                        string studentCode = worksheet.Cells[row, 10].Text;
+                        string major = worksheet.Cells[row, 11].Text;
+                        string lecturer = worksheet.Cells[row, 12].Text;
 
-                        for (int row = 2; row <= rowCount; row++)
+                        //Check campus code
+                        int campusId = context.Campuses
+                        .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
+                        .Select(c => c.CampusId)
+                        .FirstOrDefault();
+                        if (string.IsNullOrWhiteSpace(campusCode))
                         {
-                            string fullname = worksheet.Cells[row, 2].Text;
-                            string password = worksheet.Cells[row, 3].Text;
-                            string emailUser = worksheet.Cells[row, 4].Text;
-                            string phoneUser = worksheet.Cells[row, 5].Text;
-                            string campusCode = worksheet.Cells[row, 6].Text;
-                            string roleName = worksheet.Cells[row, 7].Text;
-                            string khoiText = worksheet.Cells[row, 8].Text;
-                            string subjectCode = worksheet.Cells[row, 9].Text;
-                            string studentCode = worksheet.Cells[row, 10].Text;
-                            string major = worksheet.Cells[row, 11].Text;
-                            string lecturer = worksheet.Cells[row, 12].Text;
-
-                            //Check campus code
-                            int campusId = campusesList
-                            .Where(c => c.CampusCode.Equals(campusCode, StringComparison.OrdinalIgnoreCase))
-                            .Select(c => c.CampusId)
-                            .FirstOrDefault();
+                            errors.Add($"Line {row} | Campus Code | {campusCode} | Campus Code cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
                             if (campusId == 0) errors.Add($"Line {row} | Campus Code | {campusCode} | Invalid campus code (Ex: FPT-HN, FPT-HCM)");
+                        }
 
-                            //Check subject code
-                            int subjectId = subjectList
-                            .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
-                            .Select(s => s.SubjectId)
-                            .FirstOrDefault();
+                        //Check subject code
+                        int subjectId = context.Subjects
+                        .Where(s => s.SubjectCode.Equals(subjectCode, StringComparison.OrdinalIgnoreCase))
+                        .Select(s => s.SubjectId)
+                        .FirstOrDefault();
+                        if (string.IsNullOrWhiteSpace(subjectCode))
+                        {
+                            errors.Add($"Line {row} | Subject Code | {subjectCode} | Subject Code cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
                             if (subjectId == 0) errors.Add($"Line {row} | Subject Code | {subjectCode} | Invalid subject code (Ex: EXE101, EXE201)");
+                        }
 
-                            //Check role name
-                            int roleId = rolesList
-                            .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
-                            .Select(r => r.RoleId)
-                            .FirstOrDefault();
+                        //Check role name
+                        int roleId = context.Roles
+                        .Where(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase))
+                        .Select(r => r.RoleId)
+                        .FirstOrDefault();
+                        if (string.IsNullOrWhiteSpace(roleName))
+                        {
+                            errors.Add($"Line {row} | Role | {roleName} | Role cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
                             if (roleId == 0) errors.Add($"Line {row} | Role | {roleName} | Invalid role (Ex: student)");
+                        }
 
-                            //Check class
-                            if (!string.IsNullOrEmpty(khoiText) && khoiText.Length > 1 && int.TryParse(khoiText.Substring(1), out int khoiNumber))
+                        //Check class
+                        if (string.IsNullOrWhiteSpace(khoiText))
+                        {
+                            errors.Add($"Line {row} | Class | {khoiText} | Class cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
+                            if (khoiText.Length > 1 && int.TryParse(khoiText.Substring(1), out int khoiNumber))
                             {
                                 if (khoiNumber >= 19)
                                 {
@@ -282,34 +346,50 @@ namespace uniexetask.services
                             {
                                 errors.Add($"Line {row} | Class | {khoiText} | Invalid class (Ex: K18, K19)");
                             }
+                        }
 
-                            //Check email
-                            if (!Regex.IsMatch(emailUser, emailPattern))
+                        //Check email
+                        if (string.IsNullOrWhiteSpace(emailUser))
+                        {
+                            errors.Add($"Line {row} | Email | {emailUser} | Email cannot be blank or contain only white-space characters");
+                        }
+                        else if (!Regex.IsMatch(emailUser, emailPattern))
+                        {
+                            errors.Add($"Line {row} | Email | {emailUser} | Invalid email format");
+                            if (emailList.Contains(emailUser))
                             {
-                                errors.Add($"Line {row} | Email | {emailUser} | Invalid email format");
-                                if (emailList.Contains(emailUser))
-                                {
-                                    errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in file");
-                                }
-                                if (usersInDatabase.Any(user => user.Email == emailUser))
-                                {
-                                    errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in database");
-                                }
+                                errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in file");
                             }
-                            emailList.Add(emailUser);
+                            if (context.ExistingUsers.Any(user => user.Email == emailUser))
+                            {
+                                errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in database");
+                            }
+                        }
 
-                            //Check student code
+                        //Check student code
+                        if (string.IsNullOrWhiteSpace(studentCode))
+                        {
+                            errors.Add($"Line {row} | Student Code | {studentCode} | Student Code cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
                             if (studentCodeList.Contains(studentCode))
                             {
                                 errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in file");
                             }
-                            if (studentsInDatabase.Any(student => student.StudentCode == studentCode))
+                            if (context.ExistingStudents.Any(student => student.StudentCode == studentCode))
                             {
                                 errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in database");
                             }
-                            studentCodeList.Add(studentCode);
+                        }
 
-                            //Check number phone
+                        //Check number phone
+                        if (string.IsNullOrWhiteSpace(studentCode))
+                        {
+                            errors.Add($"Line {row} | Phone | {phoneUser} | Phone cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
                             if (!long.TryParse(phoneUser, out _))
                             {
                                 errors.Add($"Line {row} | Phone | {phoneUser} | Invalid phone number (should be numeric)");
@@ -317,95 +397,103 @@ namespace uniexetask.services
                                 {
                                     errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in file");
                                 }
-                                if (usersInDatabase.Any(user => user.Phone == phoneUser))
+                                if (context.ExistingUsers.Any(user => user.Phone == phoneUser))
                                 {
                                     errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in database");
                                 }
                             }
-
-                            var lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
-                            if (lecturerUser == null) errors.Add($"Line {row} | Leaturer | {campusCode} | Leatuter not found");
-
-                            if (errors.Any())
-                                continue;
-
-                            emailList.Add(emailUser);
-                            studentCodeList.Add(studentCode);
-                            phoneList.Add(phoneUser);
-
-                            var excel = new ExcelModel
-                            {
-                                FullName = fullname,
-                                Password = password,
-                                Email = emailUser,
-                                Phone = phoneUser,
-                                CampusId = campusId,
-                                IsDeleted = false,
-                                RoleId = roleId,
-                                LecturerId = lecturerUser.MentorId,
-                                StudentCode = studentCode,
-                                Major = major,
-                                SubjectId = subjectId,
-                                IsCurrentPeriod = true
-                            };
-
-                            excelList.Add(excel);
                         }
+
+                        Mentor? lecturerUser = null;
+                        if (string.IsNullOrWhiteSpace(lecturer))
+                        {
+                            errors.Add($"Line {row} | Leaturer | {lecturer} | Leaturer cannot be blank or contain only white-space characters");
+                        }
+                        else
+                        {
+                            lecturerUser = await _mentorService.GetMentorByEmail(lecturer);
+                            if (lecturerUser == null) errors.Add($"Line {row} | Leaturer | {lecturer} | Leatuter not found");
+                        }
+
+                        if (errors.Any())
+                            continue;
+
+                        emailList.Add(emailUser);
+                        studentCodeList.Add(studentCode);
+                        phoneList.Add(phoneUser);
+
+                        var excel = new ExcelModel
+                        {
+                            FullName = fullname,
+                            Password = password,
+                            Email = emailUser,
+                            Phone = phoneUser,
+                            CampusId = campusId,
+                            IsDeleted = false,
+                            RoleId = roleId,
+                            LecturerId = lecturerUser.MentorId,
+                            StudentCode = studentCode,
+                            Major = major,
+                            SubjectId = subjectId,
+                            IsCurrentPeriod = true
+                        };
+                        excelList.Add(excel);
                     }
                 }
+            }
 
-                if (errors.Any())
+            return (excelList, errors);
+        }
+
+        private async Task ProcessImportedStudents(int userId, List<ExcelModel> excelList)
+        {
+            var emailTasks = new List<System.Threading.Tasks.Task>();
+            int count = 1;
+            var userList = new List<User>();
+            foreach (var excelModel in excelList)
+            {
+                string rawPassword = excelModel.Password;
+
+                excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
+
+                var userModel = new UserModel
                 {
-                    return errors;
+                    FullName = excelModel.FullName,
+                    Password = excelModel.Password,
+                    Email = excelModel.Email,
+                    Phone = excelModel.Phone,
+                    CampusId = excelModel.CampusId,
+                    IsDeleted = false,
+                    RoleId = excelModel.RoleId,
+                    Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
+                };
+
+                var userEntity = _mapper.Map<User>(userModel);
+
+                var existedUser = await CheckDuplicateUser(userEntity.Email, userEntity.Phone);
+                if (existedUser)
+                {
+                    throw new Exception("Email or phone number already exists.");
                 }
-
-                var emailTasks = new List<System.Threading.Tasks.Task>();
-                int count = 1;
-                var userList = new List<User>();
-                foreach (var excelModel in excelList)
+                await _unitOfWork.Users.InsertAsync(userEntity);
+                _unitOfWork.Save();
+                var studentModel = new StudentModel
                 {
-                    string rawPassword = excelModel.Password;
+                    UserId = userEntity.UserId,
+                    LecturerId = excelModel.LecturerId,
+                    StudentCode = excelModel.StudentCode,
+                    Major = excelModel.Major,
+                    SubjectId = excelModel.SubjectId,
+                    IsCurrentPeriod = true
+                };
 
-                    excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
+                var studentEntity = _mapper.Map<Student>(studentModel);
 
-                    var userModel = new UserModel
-                    {
-                        FullName = excelModel.FullName,
-                        Password = excelModel.Password,
-                        Email = excelModel.Email,
-                        Phone = excelModel.Phone,
-                        CampusId = excelModel.CampusId,
-                        IsDeleted = false,
-                        RoleId = excelModel.RoleId,
-                        Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
-                    };
+                await _unitOfWork.Students.InsertAsync(studentEntity);
 
-                    var userEntity = _mapper.Map<User>(userModel);
+                await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveImportUserProgress", count++, excelList.Count);
 
-                    var existedUser = await CheckDuplicateUser(userEntity.Email, userEntity.Phone);
-                    if (existedUser)
-                    {
-                        throw new Exception("Email or phone number already exists.");
-                    }
-                    await _unitOfWork.Users.InsertAsync(userEntity);
-                    _unitOfWork.Save();
-                    var studentModel = new StudentModel
-                    {
-                        UserId = userEntity.UserId,
-                        LecturerId = excelModel.LecturerId,
-                        StudentCode = excelModel.StudentCode,
-                        Major = excelModel.Major,
-                        SubjectId = excelModel.SubjectId,
-                        IsCurrentPeriod = true
-                    };
-
-                    var studentEntity = _mapper.Map<Student>(studentModel);
-
-                    await _unitOfWork.Students.InsertAsync(studentEntity);
-
-                    await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveImportUserProgress", count++, excelList.Count);
-
-                    var userEmail = $@"
+                var userEmail = $@"
                     <!DOCTYPE html>
                     <html lang='en'>
                     <head>
@@ -440,27 +528,28 @@ namespace uniexetask.services
                     </html>
                     ";
 
-                    var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
-                    emailTasks.Add(emailTask);
-                }
+                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
+                emailTasks.Add(emailTask);
+            }
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                System.Threading.Tasks.Task.WhenAll(emailTasks);
+            System.Threading.Tasks.Task.WhenAll(emailTasks);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _unitOfWork.Save();
-                _unitOfWork.Commit();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                throw new Exception(ex.Message);
-            }
+            _unitOfWork.Save();
         }
 
         private async Task<IEnumerable<string>> GetAllEmais()
         {
             return await _unitOfWork.Users.GetAllEmails();
         }
+    }
+
+    public class ValidationImportUserContext
+    {
+        public required IEnumerable<Campus> Campuses { get; set; }
+        public required IEnumerable<Subject> Subjects { get; set; }
+        public required IEnumerable<Role> Roles { get; set; }
+        public required IEnumerable<User> ExistingUsers { get; set; }
+        public required IEnumerable<Student> ExistingStudents { get; set; }
     }
 }
