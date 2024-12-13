@@ -48,7 +48,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<IEnumerable<User>> GetUsersWithCampusAndRole()
         {
-            return await dbSet.Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
+            return await dbSet.Where(u => u.IsDeleted == false).Include(u => u.Campus).Include(u => u.Role).AsNoTracking().ToListAsync();
         }
 
         public async Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId)
@@ -73,6 +73,13 @@ namespace uniexetask.infrastructure.Repositories
                     .Where(u => u.Students.Any(s => EF.Functions.Like(s.StudentCode, $"%{query}%"))) // Lọc theo StudentCode
                     .Take(5)
                     .ToListAsync();
+        }
+
+        public async Task<IEnumerable<string>> GetAllEmails()
+        {
+            return await dbSet
+                .Select(u => u.Email)
+                .ToListAsync();
         }
     }
 }

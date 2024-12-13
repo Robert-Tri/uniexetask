@@ -31,6 +31,7 @@ namespace Unitask.shared.Extensions
             CreateMap<ProjectModel, Project>().ReverseMap();
             CreateMap<ProjectProgressModel, ProjectProgress>().ReverseMap();
             CreateMap<MeetingScheduleModel, MeetingSchedule>().ReverseMap();
+            CreateMap<MilestoneWithCriteriaModel, Milestone>().ReverseMap();
 
         }
     }

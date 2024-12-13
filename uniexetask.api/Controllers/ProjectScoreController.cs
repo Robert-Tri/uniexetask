@@ -9,7 +9,7 @@ using uniexetask.services.Interfaces;
 
 namespace uniexetask.api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/projectscore")]
     [ApiController]
     public class ProjectScoreController : ControllerBase
@@ -37,6 +37,14 @@ namespace uniexetask.api.Controllers
         {
             ApiResponse<ProjectScoreResult> respone = new ApiResponse<ProjectScoreResult>();
             respone.Data = await _projectScoreService.GetTotalProjectScore(projectId);
+            return Ok(respone);
+        }
+
+        [HttpGet("getprojectscorev2")]
+        public async Task<IActionResult> GetProjectScorev2(int projectId)
+        {
+            ApiResponse<ProjectScoreResult> respone = new ApiResponse<ProjectScoreResult>();
+            respone.Data = await _projectScoreService.GetTotalProjectScoreV2(projectId);
             return Ok(respone);
         }
 

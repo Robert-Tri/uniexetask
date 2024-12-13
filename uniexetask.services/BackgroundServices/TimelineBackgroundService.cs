@@ -28,6 +28,7 @@ namespace uniexetask.api.BackgroundServices
             {
                 var timeLineService = scope.ServiceProvider.GetRequiredService<ITimeLineService>();
                 var groupService = scope.ServiceProvider.GetRequiredService<IGroupService>();
+                var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
                 var timelines = await timeLineService.GetTimeLines();
                 foreach (var timeline in timelines) 
                 {
@@ -35,6 +36,12 @@ namespace uniexetask.api.BackgroundServices
                     {
                         switch ((TimelineType)timeline.TimelineId)
                         {
+                            case TimelineType.CurrentTermDurationEXE101:
+                                await projectService.UpdateEndDurationEXE101();
+                                break;
+                            case TimelineType.CurrentTermDurationEXE201:
+                                await projectService.UpdateEndDurationEXE201();
+                                break;
                             case TimelineType.FinalizeGroupEXE101:
                                 await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
                                 break;

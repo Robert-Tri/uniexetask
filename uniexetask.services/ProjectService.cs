@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Interfaces;
+﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -22,6 +17,12 @@ namespace uniexetask.services
         {
             var project = await _unitOfWork.Projects.GetAsync(includeProperties: "Topic,Subject");
             return project;
+        }
+
+        public async Task<IEnumerable<Project>> GetAllDocuments()
+        {
+            var projects = await _unitOfWork.Projects.GetAsync();
+            return projects;
         }
 
         public async Task<IEnumerable<Project>> GetAllProjectsByGroupId(int groupId)
@@ -114,6 +115,50 @@ namespace uniexetask.services
         public async Task<Project?> GetProjectWithTopicByGroupId(int groupId)
         {
             return await _unitOfWork.Projects.GetProjectWithTopicByGroupId(groupId);
+        }
+
+        public async System.Threading.Tasks.Task UpdateEndDurationEXE101()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE101);
+            foreach (var group in groups) 
+            {
+                var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
+                if(project != null)
+                {
+                    project.Status = nameof(ProjectStatus.Completed);
+                    project.IsCurrentPeriod = false;
+                    _unitOfWork.Projects.Update(project);
+                }
+                var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
+                foreach(var groupMember in groupMembers)
+                {
+                    _unitOfWork.GroupMembers.Delete(groupMember);
+                }
+                group.IsCurrentPeriod = false;
+                _unitOfWork.Save();
+            }
+        }
+
+        public async System.Threading.Tasks.Task UpdateEndDurationEXE201()
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE201);
+            foreach (var group in groups)
+            {
+                var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
+                if (project != null)
+                {
+                    project.Status = nameof(ProjectStatus.Completed);
+                    project.IsCurrentPeriod = false;
+                    _unitOfWork.Projects.Update(project);
+                }
+                var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
+                foreach (var groupMember in groupMembers)
+                {
+                    _unitOfWork.GroupMembers.Delete(groupMember);
+                }
+                group.IsCurrentPeriod = false;
+                _unitOfWork.Save();
+            }
         }
     }
 }

@@ -164,17 +164,85 @@ namespace uniexetask.services
             };
         }
 
+
+        public async Task<ProjectScoreResult> GetTotalProjectScoreV2(int projectId)
+        {
+            var allProjectScores = await _unitOfWork.ProjectScores.GetAsync(ps => ps.ProjectId == projectId);
+
+            var criteriaIds = allProjectScores.Select(ps => ps.CriteriaId).Distinct().ToList();
+            var criteria = await _unitOfWork.Criterion.GetAsync(c => criteriaIds.Contains(c.CriteriaId));
+
+            var milestoneIds = criteria.Select(c => c.MilestoneId).Distinct().ToList();
+            var milestones = await _unitOfWork.Milestones.GetAsync(m => milestoneIds.Contains(m.MilestoneId));
+
+            List<Milestone> milestoneList = new List<Milestone>();
+            foreach (var item in milestoneIds)
+            {
+                var milestone = await _unitOfWork.Milestones.GetByIDAsync(item);
+                milestone.MemberScores = null;
+                milestoneList.Add(milestone);
+            }
+
+            var milestoneScores = milestones.Select(milestone => {
+                var relatedCriteria = criteria.Where(c => c.MilestoneId == milestone.MilestoneId).ToList();
+                var relatedScores = allProjectScores.Where(ps => relatedCriteria.Any(c => c.CriteriaId == ps.CriteriaId)).ToList();
+
+                double totalMilestoneScore = 0;
+                foreach (var criterion in relatedCriteria)
+                {
+                    var projectScore = relatedScores.FirstOrDefault(ps => ps.CriteriaId == criterion.CriteriaId);
+                    if (projectScore != null)
+                    {
+                        totalMilestoneScore += projectScore.Score * (criterion.Percentage / 100.0);
+                    }
+                }
+
+                return new MilestoneScoreResult
+                {
+                    MilestoneId = milestone.MilestoneId,
+                    Percentage = milestone.Percentage,
+                    TotalScore = relatedCriteria.Any() ? Math.Round(totalMilestoneScore, 2) : -1, // Nếu không có điểm, trả về -1
+                    CriterionScores = relatedScores.Select(ps => new CriterionScore
+                    {
+                        CriteriaId = ps.CriteriaId,
+                        CriteriaName = criteria.First(c => c.CriteriaId == ps.CriteriaId).CriteriaName,
+                        Score = ps.Score
+                    }).ToList()
+                };
+            }).ToList();
+
+            // Tính tổng điểm của toàn bộ project (bỏ qua milestones không có điểm)
+            double totalProjectScore = 0;
+            foreach (var milestone in milestoneScores)
+            {
+                if (milestone.TotalScore != -1)
+                {
+                    var milestoneEntity = milestones.First(m => m.MilestoneId == milestone.MilestoneId);
+                    totalProjectScore += milestone.TotalScore * (milestoneEntity.Percentage / 100.0);
+                }
+            }
+
+            return new ProjectScoreResult
+            {
+                TotalScore = Math.Round(totalProjectScore, 2),
+                MilestoneScores = milestoneScores,
+                MilestoneIds = milestoneList
+            };
+        }
     }
 
     public class ProjectScoreResult
     {
         public double TotalScore { get; set; }  
-        public List<MilestoneScoreResult> MilestoneScores { get; set; }  
+        public List<MilestoneScoreResult> MilestoneScores { get; set; }
+        public List<Milestone>? MilestoneIds { get; set; }
+
     }
 
     public class MilestoneScoreResult
     {
         public int MilestoneId { get; set; }
+        public double Percentage { get; set; }
         public double TotalScore { get; set; }
         public List<CriterionScore> CriterionScores { get; set; }
     }

@@ -36,6 +36,7 @@
         IMeetingScheduleRepository MeetingSchedules { get; }
         IConfigSystemRepository ConfigSystems { get; }
         ITopicForMentorRepository TopicForMentor { get; }
+        ICriterionRepository Criterion { get; }
 
         int Save();
 

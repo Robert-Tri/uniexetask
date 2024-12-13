@@ -12,5 +12,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> AddMemberScore(List<MemberScore> memberScores);
         Task<MemberScoreResult> GetMemberScores(int projectId, int milestoneId);
         Task<TotalMemberScoreResult> GetTotalMemberScore(int projectId);
+        Task<TotalMemberScoreResult> GetTotalMemberScoreV2(int projectId);
     }
 }

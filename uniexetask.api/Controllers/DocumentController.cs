@@ -204,5 +204,30 @@ namespace uniexetask.api.Controllers
                 return StatusCode(500, $"Error deleting file: {ex.Message}");
             }
         }
+
+        [HttpGet("getallprojectdocumentstorage")]
+        public async Task<IActionResult> GetAllProjectDocumentsStorage()
+        {
+            var projects = await _projectService.GetAllProjects();
+            List<ProjectDocumentsStorageRespone> projectDocumentsStorageRespones = new List<ProjectDocumentsStorageRespone>();
+            foreach (var project in projects) 
+            {
+                var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
+                long total = 0;
+                foreach (var storageObject in storageObjects) 
+                {
+                    total += storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0;
+                }
+                projectDocumentsStorageRespones.Add(new ProjectDocumentsStorageRespone
+                {
+                    Project = project,
+                    TotalStorage = total,
+                });
+            }
+            ApiResponse<IEnumerable<ProjectDocumentsStorageRespone>> respone = new ApiResponse<IEnumerable<ProjectDocumentsStorageRespone>>();
+            respone.Data = projectDocumentsStorageRespones;
+
+            return Ok(respone);
+        }
     }
 }
