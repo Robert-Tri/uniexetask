@@ -6,6 +6,7 @@ using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.api.Controllers
 {
@@ -19,14 +20,16 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly IUserService _userService;
         private readonly IStudentService _studentService;
+        private readonly ITimeLineService _timelineService;
 
-        public ProjectController(IProjectService projectService, IGroupService groupService, IMentorService mentorService, IUserService userService, IStudentService studentService)
+        public ProjectController(IProjectService projectService, IGroupService groupService, IMentorService mentorService, IUserService userService, IStudentService studentService, ITimeLineService timelineService)
         {
             _projectService = projectService;
             _mentorService = mentorService;
             _groupService = groupService;
             _userService = userService;
             _studentService = studentService;
+            _timelineService = timelineService;
         }
 
         [HttpGet]
@@ -294,5 +297,23 @@ namespace uniexetask.api.Controllers
                 return BadRequest(response);
             }
         }
+        /*[Authorize(nameof(EnumRole.Student))]
+        [HttpPut("continueproject")]
+        public async Task<IActionResult> ContinueProject(int userId)
+        {
+            var timeLineEndDurationEXE101 = await _timelineService.GetTimelineById((int)TimelineType.CurrentTermDurationEXE101);
+            if (DateTime.Today.Date < timeLineEndDurationEXE101.EndDate.AddDays(-14))
+            {
+                return BadRequest(new ApiResponse<Project> { Success = false, ErrorMessage = "It is not yet the scheduled date to update the status of the group and project." });
+            }
+            else if (DateTime.Today.Date > timeLineEndDurationEXE101.EndDate)
+            {
+                return BadRequest(new ApiResponse<Project> { Success = false, ErrorMessage = "The scheduled date to update the status of the group and project has passed." });
+            }
+            var result = await _projectService.ContinueProject(userId);
+            ApiResponse<bool> respone = new ApiResponse<bool>();
+            respone.Data = result;
+            return Ok(respone);
+        }*/
     }
 }

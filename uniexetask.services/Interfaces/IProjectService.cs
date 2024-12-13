@@ -17,5 +17,6 @@ namespace uniexetask.services.Interfaces
         Task<Project?> GetProjectWithTopicByGroupId(int groupId);
         System.Threading.Tasks.Task UpdateEndDurationEXE101();
         System.Threading.Tasks.Task UpdateEndDurationEXE201();
+        //Task<bool> ContinueProject(int userId);
     }
 }
