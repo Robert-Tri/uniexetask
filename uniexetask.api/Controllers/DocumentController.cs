@@ -98,7 +98,7 @@ namespace uniexetask.api.Controllers
 
             var project = await _projectService.GetProjectByUserId(userId);
             if (project == null)
-                return NotFound("Project not found for the given student.");
+                return NotFound(new ApiResponse<Document>() { Success = false, ErrorMessage = "Project not found for the given student." });
 
             var existedDocument = await _documentService.GetDocumentByName($"Project{project.ProjectId}/{file.FileName}");
             if (existedDocument != null)
