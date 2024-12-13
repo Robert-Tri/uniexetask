@@ -390,7 +390,7 @@ namespace uniexetask.api.Controllers
             }
         }
 
-        [Authorize(Roles = nameof(EnumRole.Student))]
+        [Authorize]
         [HttpGet("GetRoleByUserId")]
         public async Task<IActionResult> GetRoleByUserId()
         {
