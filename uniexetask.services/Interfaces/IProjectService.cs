@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using uniexetask.core.Models;
+﻿using uniexetask.core.Models;
 
 namespace uniexetask.services.Interfaces
 {
@@ -21,5 +16,6 @@ namespace uniexetask.services.Interfaces
         Task<Project> GetProjectWithAllDataById(int projectId);
         Task<Project?> GetProjectWithTopicByGroupId(int groupId);
         System.Threading.Tasks.Task UpdateEndDurationEXE101();
+        System.Threading.Tasks.Task UpdateEndDurationEXE201();
     }
 }

@@ -39,6 +39,9 @@ namespace uniexetask.api.BackgroundServices
                             case TimelineType.CurrentTermDurationEXE101:
                                 await projectService.UpdateEndDurationEXE101();
                                 break;
+                            case TimelineType.CurrentTermDurationEXE201:
+                                await projectService.UpdateEndDurationEXE201();
+                                break;
                             case TimelineType.FinalizeGroupEXE101:
                                 await groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE101);
                                 break;

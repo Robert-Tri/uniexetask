@@ -12,6 +12,7 @@ using uniexetask.core.Models;
 using uniexetask.services;
 using uniexetask.services.Interfaces;
 using uniexetask.core.Models.Enums;
+using Azure;
 
 namespace uniexetask.api.Controllers
 {
@@ -215,7 +216,32 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("manager")]
+        public async Task<IActionResult> GetDashboardManager()
+        {
+            ApiResponse<DashboardManagerModel> response = new ApiResponse<DashboardManagerModel>();
 
+            var users = await _userService.GetAllUsers();
+
+            var dashboardManagerModel = new DashboardManagerModel
+            {
+                userHN = users.Count(u => u.CampusId == 1),
+                userHCM = users.Count(u => u.CampusId == 2),
+                userHD = users.Count(u => u.CampusId == 3),
+
+                studentHN = users.Count(u => u.CampusId == 1 && u.RoleId == 3),
+                studentHCM = users.Count(u => u.CampusId == 2 && u.RoleId == 3),
+                studentHD = users.Count(u => u.CampusId == 3 && u.RoleId == 3),
+
+                mentorHN = users.Count(u => u.CampusId == 1 && u.RoleId == 4),
+                mentorHCM = users.Count(u => u.CampusId == 2 && u.RoleId == 4),
+                mentorHD = users.Count(u => u.CampusId == 3 && u.RoleId == 4)
+            };
+
+            response.Data = dashboardManagerModel;
+            response.Success = true;
+            return Ok(response);
+        }
 
     }
 }
