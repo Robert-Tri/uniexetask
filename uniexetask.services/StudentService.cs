@@ -128,5 +128,15 @@ namespace uniexetask.services
             }
             return false;
         }
+        public async Task<IEnumerable<Student>> GetStudentWithoutGroup()
+        {
+            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true, includeProperties: "Lecturer.User,User.Campus");
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync();
+            var studentsWithoutGroup = allStudents
+                .Where(s => !groupMembers.Any(gm => gm.StudentId == s.StudentId))
+                .ToList();
+
+            return studentsWithoutGroup;
+        }
     }
 }
