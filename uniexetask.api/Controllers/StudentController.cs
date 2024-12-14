@@ -279,5 +279,13 @@ namespace uniexetask.api.Controllers
             }
             return BadRequest();
         }
+        [HttpGet("getstudentwithoutgroup")]
+        public async Task<IActionResult> GetStudentWithoutGroup()
+        {
+            var studentsWithoutGroup = await _studentsService.GetStudentWithoutGroup();
+            ApiResponse<IEnumerable<Student>> response = new ApiResponse<IEnumerable<Student>>();
+            response.Data = studentsWithoutGroup;
+            return Ok(response);
+        }
     }
 }
