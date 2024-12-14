@@ -1,4 +1,5 @@
-﻿using uniexetask.core.Interfaces;
+﻿using Microsoft.Identity.Client;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
@@ -106,11 +107,31 @@ namespace uniexetask.services
             return await _unitOfWork.Projects.GetProjectByGroupId((int)groupId);
         }
 
-        public async Task<Project?> GetProjectByUserId(int userId) =>
-    await _unitOfWork.Students.GetAsync(filter: s => s.UserId == userId)
-        .ContinueWith(async studentTask => studentTask.Result.FirstOrDefault() is var student && student != null
-            ? await _unitOfWork.Projects.GetProjectByGroupId((int)await _unitOfWork.GroupMembers.GetGroupIdByStudentId(student.StudentId))
-            : null).Unwrap();
+        public async Task<Project?> GetProjectByUserId(int userId)
+        {
+            var student = await _unitOfWork.Students.GetAsync(filter: s => s.UserId == userId);
+
+            if (student == null || !student.Any())
+            {
+                return null;
+            }
+
+            var studentEntity = student.FirstOrDefault();
+            if (studentEntity == null)
+            {
+                return null;
+            }
+
+            var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentEntity.StudentId);
+            if (groupId == -1)
+            {
+                return null;
+            }
+
+            var project = await _unitOfWork.Projects.GetProjectByGroupId((int)groupId);
+
+            return project;
+        }
 
         public async Task<Project?> GetProjectWithTopicByGroupId(int groupId)
         {
@@ -122,6 +143,7 @@ namespace uniexetask.services
             var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE101);
             foreach (var group in groups) 
             {
+                
                 var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
                 if(project != null)
                 {
@@ -132,6 +154,18 @@ namespace uniexetask.services
                 var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
                 foreach(var groupMember in groupMembers)
                 {
+                    var student = await _unitOfWork.Students.GetByIDAsync(groupMember.StudentId);
+                    if(student != null)
+                    {
+                        student.IsCurrentPeriod = false;
+                        _unitOfWork.Students.Update(student);
+                        var user = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+                        if(user != null)
+                        {
+                            _unitOfWork.Users.Update(user);
+                            user.IsDeleted = true;
+                        }
+                    }
                     _unitOfWork.GroupMembers.Delete(groupMember);
                 }
                 group.IsCurrentPeriod = false;
@@ -154,11 +188,45 @@ namespace uniexetask.services
                 var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
                 foreach (var groupMember in groupMembers)
                 {
+                    var student = await _unitOfWork.Students.GetByIDAsync(groupMember.StudentId);
+                    if(student != null)
+                    {
+                        student.IsCurrentPeriod = false;
+                        _unitOfWork.Students.Update(student);
+                        var user = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+                        if (user != null)
+                        {
+                            user.IsDeleted = true;
+                            _unitOfWork.Users.Update(user);
+                        }
+                    }
                     _unitOfWork.GroupMembers.Delete(groupMember);
                 }
                 group.IsCurrentPeriod = false;
                 _unitOfWork.Save();
             }
         }
+
+        /*public async Task<bool> ContinueProject(int userId)
+        {
+            var project = await GetProjectByUserId(userId);
+            if(project != null)
+            {
+                project.SubjectId = (int)SubjectType.EXE201;
+                var group = await _unitOfWork.Groups.GetByIDAsync(project.GroupId);
+                if(group != null)
+                {
+                    group.Status = nameof(GroupStatus.Initialized);
+                    group.SubjectId = (int)SubjectType.EXE201;
+                    group.HasMentor = false;
+                    await _unitOfWork.Groups.RemoveMentorFromGroup(group.GroupId);
+                    var result = _unitOfWork.Save();
+                    if (result > 0)
+                        return true;
+                    return false;
+                }
+            }
+            return false;
+        }*/
     }
 }

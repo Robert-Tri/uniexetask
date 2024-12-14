@@ -474,9 +474,9 @@ namespace uniexetask.services
         {
             int minMembers = 0;
             if (1 == (int)subjectType)
-                minMembers = 4;
+                minMembers = _min_member_exe101;
             else if (2 == (int)subjectType)
-                minMembers = 6;
+                minMembers = _min_member_exe201;
             HashSet<int> studentIdSet = new HashSet<int>();
             var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.IsDeleted == false && g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())

@@ -26,7 +26,14 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<int> GetGroupIdByStudentId(int studentId)
         {
-            return (await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId && g.Group.IsCurrentPeriod)).GroupId;
+            var groupMember = await dbSet.FirstOrDefaultAsync(g => g.StudentId == studentId && g.Group.IsCurrentPeriod);
+
+            if (groupMember == null)
+            {
+                return -1;
+            }
+
+            return groupMember.GroupId;
         }
 
         public async Task<IEnumerable<GroupMember>> GetGroupMembersWithStudentAndUser(int groupId)
