@@ -60,19 +60,18 @@ namespace uniexetask.api.Controllers
 
         [Authorize]
         [HttpGet("search-group")]
-        public async Task<IActionResult> SearchGroupByGroupName([FromQuery] string query)
+        public async Task<IActionResult> SearchGroupByGroupName([FromQuery] string query = "")
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<IEnumerable<GroupModel>> response = new ApiResponse<IEnumerable<GroupModel>>();
             try
             {
-
-                List<GroupModel> groupList = new List<GroupModel>();
-                if (string.IsNullOrWhiteSpace(query))
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    throw new Exception("Query parameter is required.");
+                    throw new Exception("Invalid UserId");
                 }
-
-                var groups = await _groupService.SearchGroupsByGroupNameAsync(query);
+                List<GroupModel> groupList = new List<GroupModel>();
+                var groups = await _groupService.SearchGroupsByGroupNameAsync(userId, query);
 
                 if (groups.Count() == 0)
                 {

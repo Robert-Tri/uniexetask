@@ -185,12 +185,14 @@ namespace uniexetask.services
                     if (meetingSchedules == null) throw new Exception("Load data failed.");
                     foreach (var meeting in meetingSchedules)
                     {
-                        var mentor = await _mentorService.GetMentorById(meeting.MentorId);
-                        if (mentor == null)
+                        var mentor = await _unitOfWork.Mentors.GetByIDAsync(meeting.MentorId);
+                        var mentorInGroup = await _unitOfWork.Groups.GetMentorInGroup(groupMember.GroupId);
+                        if (mentor == null || mentorInGroup == null)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Mentor not found from mentorid = {meeting.GroupId} in schedule.");
+                            System.Diagnostics.Debug.WriteLine($"Mentor not found.");
                             continue;
                         }
+                        if (mentor.MentorId != mentorInGroup.MentorId) continue;
                         var user = await _userService.GetUserById(mentor.UserId);
                         if (user == null)
                         {
