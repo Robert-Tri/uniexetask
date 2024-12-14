@@ -40,14 +40,6 @@ namespace uniexetask.infrastructure.Repositories
                                   .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> IsUserInGroup(int studentId, int groupId)
-        {
-            return await dbSet
-                            .Where(cg => cg.GroupId == groupId)
-                            .SelectMany(cg => cg.GroupMembers)
-                            .AnyAsync(u => u.StudentId == studentId);
-        }
-
         public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query)
         {
             return await dbSet
