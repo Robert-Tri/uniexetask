@@ -114,6 +114,7 @@ CREATE TABLE CHAT_GROUP (
 	group_id INT NULL,
 	latest_activity DATETIME DEFAULT GETDATE() NOT NULL,
 	type NVARCHAR(20) CHECK (type IN ('Personal', 'Group')) NOT NULL,
+	isDeleted BIT NOT NULL DEFAULT 0,
 	FOREIGN KEY (group_id) REFERENCES [GROUP](group_id),
 	FOREIGN KEY (created_by) REFERENCES [USER](user_id),
 	FOREIGN KEY (owner_id) REFERENCES [USER](user_id)
@@ -928,8 +929,21 @@ VALUES
 INSERT INTO CHAT_GROUP (chat_group_name, chat_group_avatar, created_by, owner_id, group_id, type)
 VALUES 
 ('UniExETask', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 8, 8, 1, 'Group'),
-('Group Number 2', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 12, 12, 2, 'Group'),
-('Group Number 14', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 116, 116, 14, 'Group');
+('Group No 01', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 12, 12, 2, 'Group'),
+('Group No 02', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 13, 13, 3, 'Group'),
+('Group No 03', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 14, 14, 4, 'Group'),
+('Group No 04', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 15, 15, 5, 'Group'),
+('Group No 05', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 16, 16, 6, 'Group'),
+('Group No 06', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 18, 18, 7, 'Group'),
+('Group No 07', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 20, 20, 8, 'Group'),
+('Group No 08', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 21, 21, 9, 'Group'),
+('Group No 09', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 22, 22, 10, 'Group'),
+('Group No 10', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 19, 19, 11, 'Group'),
+('Group No 11', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 24, 24, 12, 'Group'),
+('Group No 12', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 25, 25, 13, 'Group'),
+('Group No 13', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 116, 116, 14, 'Group'),
+('Group No 14', 'https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg', 117, 117, 15, 'Group');
+
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_GROUP
 INSERT INTO USER_CHAT_GROUP (user_id, chat_group_id)
@@ -947,13 +961,97 @@ VALUES
 (72, 2),
 (4, 2),
 
-(116, 3),
-(33, 3),
-(52, 3),
-(63, 3),
-(83, 3),
-(103, 3),
-(4, 3);
+(13, 3),
+(28, 3),
+(58, 3),
+(73, 3),
+(4, 3),
+
+(14, 4),
+(29, 4),
+(59, 4),
+(74, 4),
+(4, 4),
+
+(15, 5),
+(35, 5),
+(43, 5),
+(65, 5),
+(75, 5),
+(4, 5),
+
+(16, 6),
+(17, 6),
+(36, 6),
+(44, 6),
+(66, 6),
+(76, 6),
+(5, 6),
+
+(18, 7),
+(37, 7),
+(67, 7),
+(77, 7),
+(78, 7),
+(5, 7),
+
+(20, 8),
+(30, 8),
+(49, 8),
+(60, 8),
+(79, 8),
+(80, 8),
+(100, 8),
+
+(21, 9),
+(31, 9),
+(50, 9),
+(61, 9),
+(81, 9),
+(101, 9),
+
+(22, 10),
+(23, 10),
+(32, 10),
+(51, 10),
+(62, 10),
+(82, 10),
+(102, 10),
+(115, 10),
+
+(19, 11),
+(38, 11),
+(68, 11),
+(85, 11),
+
+(24, 12),
+(39, 12),
+(45, 12),
+(69, 12),
+(86, 12),
+(4, 12),
+
+(25, 13),
+(26, 13),
+(40, 13),
+(46, 13),
+(70, 13),
+(87, 13),
+
+(116, 14),
+(33, 14),
+(52, 14),
+(63, 14),
+(83, 14),
+(103, 14),
+(4, 14),
+
+(117, 15),
+(34, 15),
+(53, 15),
+(64, 15),
+(84, 15),
+(104, 15);
 
 -- Thêm dữ liệu mẫu cho bảng CHAT_MESSAGE
 INSERT INTO CHAT_MESSAGE (chat_group_id, user_id, message_content)
