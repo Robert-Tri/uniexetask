@@ -224,5 +224,24 @@ namespace uniexetask.api.Controllers
             await _groupService.UpdateAndAssignStudentsToGroups(SubjectType.EXE201);
             return Ok();
         }
+        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [HttpPost("addstudenttogroup")]
+        public async Task<IActionResult> AddStudentToGroup(int groupId, string studentCode)
+        {
+            try
+            {
+                var student = await _studentService.GetStudentByCode(studentCode);
+                if(student == null) 
+                    return NotFound(new ApiResponse<Student> { Success = false, ErrorMessage = "Student Not Found"});
+                var isAdded = await _groupService.AddStudentToGroup(groupId, student.StudentId);
+                if(isAdded)
+                    return Ok(new ApiResponse<bool> { Success = true, Data = isAdded });
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<Group> { Success = false, ErrorMessage = ex.Message});
+            }
+        }
     }
 }
