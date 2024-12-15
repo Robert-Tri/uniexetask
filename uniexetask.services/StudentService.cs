@@ -37,6 +37,7 @@ namespace uniexetask.services
         {
             if (student != null)
             {
+                student.IsCurrentPeriod = true;
                 await _unitOfWork.Students.InsertAsync(student);
 
                 var result = _unitOfWork.Save();
