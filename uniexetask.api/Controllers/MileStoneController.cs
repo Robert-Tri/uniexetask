@@ -30,6 +30,15 @@ namespace uniexetask.api.Controllers
             respone.Data = await _milestoneService.GetMileStones();
             return Ok(respone);
         }
+
+        [HttpGet("getallmilestoneswithcriteria")]
+        public async Task<IActionResult> GetMileStonesWithCriteria()
+        {
+            ApiResponse<IEnumerable<Milestone>> respone = new ApiResponse<IEnumerable<Milestone>>();
+            respone.Data = await _milestoneService.GetAllUndeleteMilestoneWithCriteria();
+            return Ok(respone);
+        }
+
         [HttpGet("getmilestonesbysubjectid")] 
         public async Task<IActionResult> GetMileStonesBySubjectId(int subjectId)
         {

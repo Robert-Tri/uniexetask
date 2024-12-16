@@ -32,6 +32,15 @@ namespace uniexetask.infrastructure.Repositories
                 .Where(m => !m.IsDeleted)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Milestone>> GetAllUndeleteMileStoneWithCriteriaAsync()
+        {
+            return await dbSet
+                .Include(m => m.Criteria)
+                .Where(m => !m.IsDeleted)
+                .ToListAsync();
+        }
+
         public async Task<int> GetMaxIdAsync()
         {
             return await dbSet.MaxAsync(m => m.MilestoneId);

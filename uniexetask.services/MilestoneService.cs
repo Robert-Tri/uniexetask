@@ -36,6 +36,11 @@ namespace uniexetask.services
             return await _unitOfWork.Milestones.GetAsync();
         }
 
+        public async Task<IEnumerable<Milestone>> GetAllUndeleteMilestoneWithCriteria()
+        {
+            return await _unitOfWork.Milestones.GetAllUndeleteMileStoneWithCriteriaAsync();
+        }
+
         public async Task<IEnumerable<Milestone>> GetMileStonesBySubjectId(int subjectId)
         {
             return await _unitOfWork.Milestones.GetAsync(filter: m => m.SubjectId == subjectId && m.IsDeleted == false);
