@@ -524,6 +524,7 @@ namespace uniexetask.api.Controllers
                     StudentId = u.Students.FirstOrDefault()?.StudentId,
                     StudentCode = u.Students.FirstOrDefault()?.StudentCode,
                     SubjectName = u.Students.FirstOrDefault()?.Subject?.SubjectName,
+                    SubjectCode = u.Students.FirstOrDefault()?.Subject?.SubjectCode,
                     Role = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Role,
                     GroupId = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.GroupId,
                     GroupName = u.Students.FirstOrDefault()?.GroupMembers.FirstOrDefault()?.Group?.GroupName,
@@ -557,6 +558,16 @@ namespace uniexetask.api.Controllers
             {
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot change group name." });
             }
+
+            var groups = await _groupService.GetGroupAndSubject();
+            foreach (var groupCheck in groups)
+            {
+                if (groupName == groupCheck.GroupName)
+                {
+                    return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Group with name {groupName} already exists." });
+                }
+            }
+
             var updateGroupName = await _groupService.UpdateGroupName(groupName, group.GroupId);
             if (updateGroupName)
             {
