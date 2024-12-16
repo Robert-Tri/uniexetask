@@ -125,6 +125,7 @@ public partial class UniExetaskContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created_date");
             entity.Property(e => e.GroupId).HasColumnName("group_id");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.LatestActivity)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")

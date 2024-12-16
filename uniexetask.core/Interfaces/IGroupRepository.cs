@@ -9,8 +9,7 @@ namespace uniexetask.core.Interfaces
         Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent();
         Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent();
         Task<Mentor?> GetMentorInGroup(int groupId);
-        Task<bool> IsUserInGroup(int studentId, int groupId);
-        Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query);
+        Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query);
         Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor();
         System.Threading.Tasks.Task RemoveMentorFromGroup(int groupId);
     }

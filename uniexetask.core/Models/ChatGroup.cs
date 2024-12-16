@@ -23,6 +23,8 @@ public partial class ChatGroup
 
     public string Type { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
 
     public virtual User CreatedByNavigation { get; set; } = null!;
