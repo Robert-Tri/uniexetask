@@ -10,11 +10,12 @@ namespace uniexetask.services
     {
         public IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly IChatGroupService _chatGroupService;
         private readonly int _min_member_exe101;
         private readonly int _max_member_exe101;
         private readonly int _min_member_exe201;
         private readonly int _max_member_exe201;
-        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService)
+        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService, IChatGroupService chatGroupService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
@@ -22,6 +23,7 @@ namespace uniexetask.services
             _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
             _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 6;
             _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 8;
+            _chatGroupService = chatGroupService;
         }
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
@@ -691,6 +693,7 @@ namespace uniexetask.services
                 {
                     throw new Exception("The member already belongs to a group.");
                 }
+                var existingChatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
                 if (group.SubjectId == (int)SubjectType.EXE101)
                 {
                     var leader = await _unitOfWork.Students.GetByIDAsync(groupMembers.FirstOrDefault(gm => gm.Role == "Leader").StudentId);
@@ -705,7 +708,15 @@ namespace uniexetask.services
                     }
                     else
                     {
-                         await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
+                        if (existingChatGroup != null)
+                        {
+                            var addUserToChatGroup = await _chatGroupService.AddUserToChatGroup(student.UserId, existingChatGroup.ChatGroupId);
+                        }
+                        else
+                        {
+                            throw new Exception("No group chat found for this group.");
+                        }
+                        await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
                         {
                             GroupId = group.GroupId,
                             StudentId = student.StudentId,
@@ -721,6 +732,14 @@ namespace uniexetask.services
                     }
                     else
                     {
+                        if (existingChatGroup != null)
+                        {
+                            var addUserToChatGroup = await _chatGroupService.AddUserToChatGroup(student.UserId, existingChatGroup.ChatGroupId);
+                        }
+                        else
+                        {
+                            throw new Exception("No group chat found for this group.");
+                        }
                         await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
                         {
                             GroupId = group.GroupId,

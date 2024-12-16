@@ -11,6 +11,7 @@ namespace uniexetask.services.Interfaces
     public interface IMilestoneService
     {
         Task<IEnumerable<Milestone>> GetMileStones();
+        Task<IEnumerable<Milestone>> GetAllUndeleteMilestoneWithCriteria();
         Task<IEnumerable<Milestone>> GetMileStonesBySubjectId(int subjectId);
         Task<Milestone?> GetMilestoneWithCriteria(int id);
         Task<IEnumerable<Milestone>> GetUndeleteMileStonesBySubjectId(int subjectId);
