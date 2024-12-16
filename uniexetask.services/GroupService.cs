@@ -66,6 +66,24 @@ namespace uniexetask.services
             return false;
         }
 
+        public async Task<bool> UpdateGroupName(string name, int groupId)
+        {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            if (group != null)
+            {
+                group.GroupName = name;
+                _unitOfWork.Groups.Update(group);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         public async Task<IEnumerable<object>> GetApprovedGroupsAsync()
         {
             var groups = await _unitOfWork.Groups.GetApprovedGroupsWithGroupMembersAndStudent();

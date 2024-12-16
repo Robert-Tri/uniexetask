@@ -19,7 +19,7 @@ namespace uniexetask.api.Controllers
         {
             _configSystemService = configSystemService;
         }
-        [Authorize(Roles = nameof(EnumRole.Manager))]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetConfigSystems() 
         {
