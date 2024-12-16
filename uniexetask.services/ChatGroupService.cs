@@ -226,5 +226,30 @@ namespace uniexetask.services
             _unitOfWork.Save();
             return messege;
         }
+
+        public async Task<bool> AddUserToChatGroup(int userId, int chatGroupId)
+        {
+            var existingChatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
+            if (existingChatGroup == null) throw new Exception("Chat group not found.");
+            var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroupId, userId);
+            if (!isUserInChatGroup)
+            {
+                var user = await _unitOfWork.Users.GetByIDAsync(userId);
+                if (user != null)
+                {
+                    existingChatGroup.Users.Add(user);
+                    _unitOfWork.ChatGroups.Update(existingChatGroup);
+                    _unitOfWork.Save();
+                    return true;
+                } else
+                {
+                    throw new Exception("User not found.");
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 }
