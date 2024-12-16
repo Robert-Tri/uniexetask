@@ -1272,6 +1272,48 @@ VALUES
 ('Business Model Explanation', 'Clearly articulate the business model and its scalability', 35, 6, GETDATE(), GETDATE(), 0),
 ('Investor Q&A', 'Respond effectively to investor questions and concerns', 25, 6, GETDATE(), GETDATE(), 0);
 
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 7
+('Advanced Market Analysis Report', 'Prepare a detailed report with segmentation and competitive insights', 40, 7, GETDATE(), GETDATE(), 0),
+('Market Trends Report', 'Identify and evaluate major market trends', 60, 7, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 8
+('Financial Plan', 'Develop a comprehensive financial plan for the business', 40, 8, GETDATE(), GETDATE(), 0),
+('Funding Sources Identification', 'Identify potential funding sources and strategies', 30, 8, GETDATE(), GETDATE(), 0),
+('Break-even Analysis', 'Perform break-even analysis for financial sustainability', 30, 8, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 9
+('Scalable Process Design', 'Develop processes that support business growth', 40, 9, GETDATE(), GETDATE(), 0),
+('Resource Allocation', 'Identify and allocate critical resources effectively', 30, 9, GETDATE(), GETDATE(), 0),
+('Growth Strategy', 'Define strategies for sustainable scaling of operations', 30, 9, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 10
+('User Feedback Report', 'Collect and analyze feedback from targeted users', 40, 10, GETDATE(), GETDATE(), 0),
+('Product Iteration', 'Improve product/service offerings based on feedback', 30, 10, GETDATE(), GETDATE(), 0),
+('Post-feedback Assessment', 'Assess the impact of changes and improvements', 30, 10, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 11
+('Compliance Checklist', 'Ensure all legal and compliance requirements are met', 65, 11, GETDATE(), GETDATE(), 0),
+('Certification Acquisition', 'Obtain necessary business certifications', 35, 11, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 12
+('Pitch Deck Quality', 'Create a professional and compelling pitch deck', 40, 12, GETDATE(), GETDATE(), 0),
+('Investor Engagement', 'Present effectively and engage with potential investors', 35, 12, GETDATE(), GETDATE(), 0),
+('Follow-up Plan', 'Develop a plan for post-presentation follow-up with investors', 25, 12, GETDATE(), GETDATE(), 0);
+
+
+
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
