@@ -12,6 +12,7 @@ namespace uniexetask.core.Interfaces
         Task<Milestone?> GetMileStoneWithCriteria(int id);
         Task<Milestone?> GetUndeleteMileStoneWithCriteria(int id);
         Task<IEnumerable<Milestone>> GetAllUndeleteMileStoneAsync();
+        Task<IEnumerable<Milestone>> GetAllUndeleteMileStoneWithCriteriaAsync();
         Task<int> GetMaxIdAsync();
 
     }
