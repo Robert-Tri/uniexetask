@@ -43,9 +43,9 @@ namespace uniexetask.api.Controllers
             _hubContext = hubContext;
 
             var cloudinaryAccount = new Account(
-               "dan0stbfi",   // Cloud Name
-               "687237422157452",      // API Key
-               "XQbEo1IhkXxbC24rHvpdNJ5BHNw"    // API Secret
+               "dan0stbfi",  
+               "687237422157452",
+               "XQbEo1IhkXxbC24rHvpdNJ5BHNw"   
            );
             _cloudinary = new Cloudinary(cloudinaryAccount);
 
@@ -245,13 +245,10 @@ namespace uniexetask.api.Controllers
         {
             try
             {
-                // Tạo mã ngẫu nhiên 5 chữ số
                 string randomCode = GenerateRandomCode(5);
 
-                // Lưu mã vào bộ nhớ (có thể lưu theo email hoặc một số nhận dạng khác)
                 VerificationCodes[email] = randomCode;
 
-                // Nội dung email bao gồm mã ngẫu nhiên
                 var contentEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -306,10 +303,8 @@ namespace uniexetask.api.Controllers
         {
             try
             {
-                // Kiểm tra mã xác minh có tồn tại trong bộ nhớ không
                 if (VerificationCodes.ContainsKey(request.Email))
                 {
-                    // Kiểm tra mã xác minh có khớp không
                     if (VerificationCodes[request.Email] == request.Code)
                     {
                         return Ok(new { message = "Code verified successfully." });

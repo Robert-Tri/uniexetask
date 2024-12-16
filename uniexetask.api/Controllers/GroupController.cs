@@ -58,6 +58,8 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        
+
         [Authorize]
         [HttpGet("search-group")]
         public async Task<IActionResult> SearchGroupByGroupName([FromQuery] string query = "")

@@ -282,7 +282,6 @@ namespace uniexetask.api.Controllers
                 }
             }
 
-            // All conditions are valid, proceed with group creation
             request.Group.SubjectId = studentLeader.SubjectId;
             request.Group.HasMentor = false;
             request.Group.IsCurrentPeriod = true;
@@ -300,7 +299,6 @@ namespace uniexetask.api.Controllers
 
             var createdGroupId = objGroup.GroupId;
 
-            // Add leader to the group
             var leaderMember = new GroupMemberModel
             {
                 GroupId = createdGroupId,
@@ -316,7 +314,6 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Failed to add the Leader to the group." });
             }
 
-            // Send group invite notifications to other members
             var memberCreationResults = new List<object>();
             foreach (var studentCode in request.StudentCodes)
             {
@@ -402,7 +399,6 @@ namespace uniexetask.api.Controllers
 
                 if (role != null)
                 {
-                    // Chuẩn bị phản hồi thành công với Role
                     var response = new ApiResponse<string>
                     {
                         Data = role
@@ -433,7 +429,6 @@ namespace uniexetask.api.Controllers
 
             if (groupMember != null)
             {
-                // Prepare successful response
                 var response = new ApiResponse<List<User>>
                 {
                     Data = groupMember
@@ -544,6 +539,40 @@ namespace uniexetask.api.Controllers
                 response.Success = false;
                 response.ErrorMessage = ex.Message;
                 return BadRequest(response);
+            }
+        }
+
+        [Authorize]
+        [HttpPut("UpdateGroup")]
+        public async Task<IActionResult> UpdateGroup(string groupName)
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var group = await _groupService.GetGroupByUserId(userId);
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot change group name." });
+            }
+            var updateGroupName = await _groupService.UpdateGroupName(groupName, group.GroupId);
+            if (updateGroupName)
+            {
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Data = new { Message = "Group name change successfully." }
+                });
+            }
+            else
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Group name change fail."
+                });
             }
         }
 
