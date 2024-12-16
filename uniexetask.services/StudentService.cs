@@ -37,6 +37,7 @@ namespace uniexetask.services
         {
             if (student != null)
             {
+                student.IsCurrentPeriod = true;
                 await _unitOfWork.Students.InsertAsync(student);
 
                 var result = _unitOfWork.Save();
@@ -128,5 +129,41 @@ namespace uniexetask.services
             }
             return false;
         }
+        public async Task<IEnumerable<StudentsWithGroup>> GetStudentWithoutGroup()
+        {
+            List<StudentsWithGroup> students = new List<StudentsWithGroup>();
+            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true, includeProperties: "Lecturer.User,User.Campus");
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync();
+            var studentsWithoutGroup = allStudents
+                .Where(s => !groupMembers.Any(gm => gm.StudentId == s.StudentId))
+                .ToList();
+            foreach (var studentWithoutGroup in studentsWithoutGroup) 
+            {
+                students.Add(new StudentsWithGroup
+                {
+                    UserId = studentWithoutGroup.UserId,
+                    FullName = studentWithoutGroup.User.FullName,
+                    Phone = studentWithoutGroup.User.Phone,
+                    Email = studentWithoutGroup.User.Email,
+                    StudentCode = studentWithoutGroup.StudentCode,
+                    CampusCode = studentWithoutGroup.User.Campus.CampusCode,
+                    Major = studentWithoutGroup.Major,
+                    Lecturer = studentWithoutGroup.Lecturer.User.FullName,
+                });
+            }
+
+            return students;
+        }
+    }
+    public class StudentsWithGroup
+    {
+        public int UserId {  get; set; }
+        public string? FullName { get; set; } = null;
+        public string? Email { get; set; } = null;
+        public string? Phone { get; set; } = null;
+        public string? StudentCode {  get; set; } = null;
+        public string? CampusCode { get; set; } = null;
+        public string? Major { get; set; } = null;
+        public string? Lecturer { get; set; } = null;
     }
 }

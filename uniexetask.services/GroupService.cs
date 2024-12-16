@@ -465,8 +465,14 @@ namespace uniexetask.services
             while (numStudents > 0)
             {
                 int groupSize = Math.Min(maxGroupSize, numStudents);
+                if (groupSize < minGroupSize) 
+                {
+                    numStudents -= groupSize;
+                    continue;
+                }
                 groups.Add(groupSize);
                 numStudents -= groupSize;
+
             }
 
             for (int i = 0; i < groups.Count; i++)
@@ -492,9 +498,9 @@ namespace uniexetask.services
         {
             int minMembers = 0;
             if (1 == (int)subjectType)
-                minMembers = 4;
+                minMembers = _min_member_exe101;
             else if (2 == (int)subjectType)
-                minMembers = 6;
+                minMembers = _min_member_exe201;
             HashSet<int> studentIdSet = new HashSet<int>();
             var initializedGroup = await _unitOfWork.Groups.GetAsync(filter: g => g.IsDeleted == false && g.Status == "Initialized" && g.SubjectId == (int)subjectType);
             if (initializedGroup.Any())
@@ -661,9 +667,74 @@ namespace uniexetask.services
             await AssignStudentsToGroups(studentIdSet, subjectType);
         }
 
-        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(string query)
+        public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int userId, string query)
         {
-            return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(query);
+            var mentor = await _unitOfWork.Mentors.GetMentorByUserId(userId);
+            if (mentor == null) throw new Exception("Mentor not found");
+            return await _unitOfWork.Groups.SearchGroupsByGroupNameAsync(mentor.MentorId, query);
+        }
+
+        public async Task<bool> AddStudentToGroup(int groupId, int studentId)
+        {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            var student = await _unitOfWork.Students.GetByIDAsync(studentId);
+            var user = await _unitOfWork.Users.GetByIDAsync(student.UserId);
+            if(group != null)
+            {
+                if (group.SubjectId != student.SubjectId)
+                {
+                    throw new Exception("The student's subject does not match the group's subject.");
+                }
+                var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == groupId);
+                var existedStudent = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.StudentId == studentId);
+                if(existedStudent.Any())
+                {
+                    throw new Exception("The member already belongs to a group.");
+                }
+                if (group.SubjectId == (int)SubjectType.EXE101)
+                {
+                    var leader = await _unitOfWork.Students.GetByIDAsync(groupMembers.FirstOrDefault(gm => gm.Role == "Leader").StudentId);
+                    var userLeader = await _unitOfWork.Users.GetByIDAsync(leader.UserId);
+                    if(userLeader.CampusId != user.CampusId)
+                    {
+                        throw new Exception("The student's campus does not match the group's campus.");
+                    }
+                    if (groupMembers.Count() == _max_member_exe101)
+                    {
+                        throw new Exception("Exceeded the maximum number of members for EXE101.");
+                    }
+                    else
+                    {
+                         await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
+                        {
+                            GroupId = group.GroupId,
+                            StudentId = student.StudentId,
+                            Role = "Member"
+                        });
+                    }
+                }
+                else if (group.SubjectId == (int)SubjectType.EXE201)
+                {
+                    if (groupMembers.Count() == _max_member_exe201)
+                    {
+                        throw new Exception("Exceeded the maximum number of members for EXE201.");
+                    }
+                    else
+                    {
+                        await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
+                        {
+                            GroupId = group.GroupId,
+                            StudentId = student.StudentId,
+                            Role = "Member"
+                        });
+                    }
+                }
+                var result = _unitOfWork.Save();
+                if (result > 0)
+                    return true;
+                return false;
+            }
+            return false;
         }
 
         public async Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors()

@@ -8,6 +8,7 @@ using uniexetask.core.Models;
 using uniexetask.services.Interfaces;
 using uniexetask.core.Models.Enums;
 using System.Security.Claims;
+using uniexetask.services;
 
 namespace uniexetask.api.Controllers
 {
@@ -278,6 +279,14 @@ namespace uniexetask.api.Controllers
                 return Ok(respone);
             }
             return BadRequest();
+        }
+        [HttpGet("getstudentwithoutgroup")]
+        public async Task<IActionResult> GetStudentWithoutGroup()
+        {
+            var studentsWithoutGroup = await _studentsService.GetStudentWithoutGroup();
+            ApiResponse<IEnumerable<StudentsWithGroup>> response = new ApiResponse<IEnumerable<StudentsWithGroup>>();
+            response.Data = studentsWithoutGroup;
+            return Ok(response);
         }
     }
 }

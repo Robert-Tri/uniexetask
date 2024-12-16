@@ -20,5 +20,6 @@ namespace uniexetask.services.Interfaces
         Task<bool> CreateStudent(Student student);
         Task<Student?> GetUserRoleStudent(int userId);
         Task<bool> UpdateStudent(Student student);
+        Task<IEnumerable<StudentsWithGroup>> GetStudentWithoutGroup();
     }
 }
