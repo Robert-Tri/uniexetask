@@ -85,6 +85,32 @@ namespace uniexetask.api.Controllers
             }
         }
 
+        [HttpGet("checkingtask")]
+        public async Task<IActionResult> CheckingTaskOfUser(int taskId)
+        {
+            ApiResponse<Boolean> response = new ApiResponse<Boolean>();
+            try
+            {
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var studentId = await _studentService.GetStudentIdByUserId(Int32.Parse(userIdString));
+                if (!studentId.HasValue)
+                {
+                    return NotFound();
+                }
+
+                var check = await _taskService.CheckingTaskOfUser(taskId, studentId.Value);
+
+                response.Data = check;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+        }
+
         [HttpGet("byProject/{projectId}")]
         public async Task<IActionResult> GetTasksByProjectId(int projectId)
         {

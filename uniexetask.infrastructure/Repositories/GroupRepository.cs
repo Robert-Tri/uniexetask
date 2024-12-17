@@ -26,7 +26,7 @@ namespace uniexetask.infrastructure.Repositories
         }
         public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false).AsNoTracking().ToListAsync();
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false && g.IsCurrentPeriod).AsNoTracking().ToListAsync();
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {
@@ -43,7 +43,7 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query)
         {
             return await dbSet
-                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && u.Mentors.Any(m => m.MentorId == mentorId) && !u.IsDeleted)
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && u.Mentors.Any(m => m.MentorId == mentorId) && !u.IsDeleted && u.IsCurrentPeriod)
                         .Take(5)
                         .ToListAsync();
         }

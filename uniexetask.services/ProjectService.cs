@@ -1,4 +1,5 @@
 ﻿using Microsoft.Identity.Client;
+using System.Text.RegularExpressions;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
@@ -17,6 +18,15 @@ namespace uniexetask.services
 
         {
             var project = await _unitOfWork.Projects.GetAsync(includeProperties: "Topic,Subject");
+            return project;
+        }
+
+        public async Task<IEnumerable<Project>> GetAllProjectsIsCurrentPeriod()
+
+        {
+            var project = await _unitOfWork.Projects.GetAsync(
+                includeProperties: "Topic,Subject",
+                filter: rm => rm.IsDeleted == false && rm.IsCurrentPeriod == true);
             return project;
         }
 
@@ -76,7 +86,7 @@ namespace uniexetask.services
         }
 
 
-        public async Task<Project?> GetProjectPendingByGroupAsync(Group group)
+        public async Task<Project?> GetProjectPendingByGroupAsync(core.Models.Group group)
         {
             var project = await _unitOfWork.Projects.GetProjectPendingByGroupId(group.GroupId);
             return project;
