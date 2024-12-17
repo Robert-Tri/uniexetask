@@ -35,7 +35,7 @@ namespace uniexetask.api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProjectList()
         {
-            var projectsList = await _projectService.GetAllProjects();
+            var projectsList = await _projectService.GetAllProjectsIsCurrentPeriod();
             if (projectsList == null)
             {
                 return NotFound();
