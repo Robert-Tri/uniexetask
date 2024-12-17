@@ -28,9 +28,60 @@ namespace uniexetask.services
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject", filter: q => q.IsDeleted == false);
+            var groups = await _unitOfWork.Groups.GetAsync(
+                includeProperties: "Subject",
+                filter: q => q.IsDeleted == false && q.IsCurrentPeriod == true
+            );
             return groups;
         }
+
+        public async Task<IEnumerable<Group>> GetGroupAndSubjecByCampus(List<int> groupIds)
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(
+                includeProperties: "Subject",
+                filter: q => q.IsDeleted == false && q.IsCurrentPeriod == true && groupIds.Contains(q.GroupId)
+            );
+            return groups;
+        }
+
+
+        public async Task<IEnumerable<int>> GetLeaderGroupIdsByCampusAndRole(int userId)
+        {
+            // Lấy thông tin user dựa vào userId
+            var currentUser = await _unitOfWork.Users.GetByIDAsync(userId);
+
+            if (currentUser == null)
+                return new List<int>(); // Trả về danh sách rỗng nếu user không tồn tại
+
+            int campusId = currentUser.CampusId; // Lấy CampusId của user
+
+            // Lọc tất cả user có cùng CampusId và RoleId = 3
+            var users = await _unitOfWork.Users.GetAsync(
+                filter: u => u.CampusId == campusId && u.RoleId == 3 && !u.IsDeleted
+            );
+
+            // Lấy userId từ danh sách user
+            var userIds = users.Select(u => u.UserId).ToList();
+
+            // Lọc danh sách student dựa trên userIds
+            var students = await _unitOfWork.Students.GetAsync(
+                filter: s => userIds.Contains(s.UserId)
+            );
+
+            // Lấy studentId từ danh sách student
+            var studentIds = students.Select(s => s.StudentId).ToList();
+
+            // Lọc GroupMember có studentId nằm trong danh sách và role = "Leader"
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync(
+                filter: gm => studentIds.Contains(gm.StudentId) && gm.Role == "Leader"
+            );
+
+            // Lấy danh sách groupId từ GroupMember
+            var groupIds = groupMembers.Select(gm => gm.GroupId).Distinct().ToList();
+
+            return groupIds;
+        }
+
 
         public async Task<bool> UpdateGroupApproved(int groupId)
         {

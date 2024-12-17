@@ -17,26 +17,42 @@ namespace uniexetask.api.Controllers
     [ApiController]
     public class ReqMemberController : ControllerBase
     {
+        private readonly IGroupService _groupService;
         private readonly IGroupMemberService _groupMemberService;
         private readonly IReqMemberService _reqMemberService;
         private readonly IStudentService _studentService;
         private readonly IMapper _mapper;
         private readonly IMentorService _mentorService;
 
-        public ReqMemberController(IReqMemberService reqMemberService, IMentorService mentorService, IStudentService studentService, IMapper mapper, IGroupMemberService groupMemberService)
+        public ReqMemberController(
+            IGroupService groupService, 
+            IReqMemberService reqMemberService, 
+            IMentorService mentorService, 
+            IStudentService studentService, 
+            IMapper mapper, 
+            IGroupMemberService groupMemberService
+            )
         {
+            _groupService = groupService;
             _mentorService = mentorService;
             _reqMemberService = reqMemberService;
             _groupMemberService = groupMemberService;
             _studentService = studentService;
             _mapper = mapper;
         }
-   
 
+        [Authorize(Roles = "Student")]
         [HttpGet]
         public async Task<IActionResult> GetReqMembersList()
         {
-            var reqMembersList = await _reqMemberService.GetAllReqMember();
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var groupsListUser = await _groupService.GetLeaderGroupIdsByCampusAndRole(userId);
+            var reqMembersList = await _reqMemberService.GetAllReqMemberByCampus(groupsListUser.ToList());
             if (reqMembersList == null || !reqMembersList.Any())
             {
                 return NotFound();
@@ -116,7 +132,7 @@ namespace uniexetask.api.Controllers
                     SubjectCode = reqMember.Group.Subject.SubjectCode,
                     MemberCount = reqMember.Group.GroupMembers.Count(),
                     Role = reqMember.Group.GroupMembers
-                        .Where(gm => gm.Student.UserId == userId) // Lấy role của thành viên hiện tại
+                        .Where(gm => gm.Student.UserId == userId) 
                         .Select(gm => gm.Role)
                         .FirstOrDefault()
                 });

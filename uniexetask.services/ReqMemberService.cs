@@ -20,6 +20,14 @@ namespace uniexetask.services
             return reqMemberList;
         }
 
+        public async Task<IEnumerable<RegMemberForm>> GetAllReqMemberByCampus(List<int> groupIds)
+        {
+            var reqMemberList = await _unitOfWork.ReqMembers.GetAsync(
+                filter: rm => rm.Status == true && groupIds.Contains(rm.GroupId),
+                includeProperties: "Group,Group.GroupMembers,Group.Subject,Group.GroupMembers.Student.User"
+            );
+            return reqMemberList;
+        }
 
         public async Task<bool> CreateReqMember(RegMemberForm reqMember)
         {

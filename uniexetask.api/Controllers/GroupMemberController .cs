@@ -206,7 +206,9 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have a group and cannot create a new one." });
             }
 
-            var groups = await _groupService.GetGroupAndSubject();
+            var groupsListUser = await _groupService.GetLeaderGroupIdsByCampusAndRole(userId);
+            var groups = await _groupService.GetGroupAndSubjecByCampus(groupsListUser.ToList());
+
             foreach (var group in groups)
             {
                 if (request.Group.GroupName == group.GroupName)
@@ -559,7 +561,8 @@ namespace uniexetask.api.Controllers
                 return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot change group name." });
             }
 
-            var groups = await _groupService.GetGroupAndSubject();
+            var groupsListUser = await _groupService.GetLeaderGroupIdsByCampusAndRole(userId);
+            var groups = await _groupService.GetGroupAndSubjecByCampus(groupsListUser.ToList());
             foreach (var groupCheck in groups)
             {
                 if (groupName == groupCheck.GroupName)
