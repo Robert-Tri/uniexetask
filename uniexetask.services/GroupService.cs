@@ -518,11 +518,6 @@ namespace uniexetask.services
             while (numStudents > 0)
             {
                 int groupSize = Math.Min(maxGroupSize, numStudents);
-                if (groupSize < minGroupSize) 
-                {
-                    numStudents -= groupSize;
-                    continue;
-                }
                 groups.Add(groupSize);
                 numStudents -= groupSize;
 
@@ -744,15 +739,24 @@ namespace uniexetask.services
                 {
                     throw new Exception("The member already belongs to a group.");
                 }
+                var project = await _unitOfWork.Projects.GetProjectByGroupId(groupId);
+                if (project != null)
+                {
+                    var projectScore = await _unitOfWork.ProjectScores.GetAsync(filter: ps => ps.ProjectId == project.ProjectId);
+                    var memberScore = await _unitOfWork.MemberScores.GetAsync(filter: ms => ms.ProjectId == project.ProjectId);
+                    if (projectScore.Any() || memberScore.Any())
+                        throw new Exception("The group already has a score and cannot be added to this group.");
+                }
+
                 var existingChatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
+                var leader = await _unitOfWork.Students.GetByIDAsync(groupMembers.FirstOrDefault(gm => gm.Role == "Leader").StudentId);
+                var userLeader = await _unitOfWork.Users.GetByIDAsync(leader.UserId);
+                if (userLeader.CampusId != user.CampusId)
+                {
+                    throw new Exception("The student's campus does not match the group's campus.");
+                }
                 if (group.SubjectId == (int)SubjectType.EXE101)
                 {
-                    var leader = await _unitOfWork.Students.GetByIDAsync(groupMembers.FirstOrDefault(gm => gm.Role == "Leader").StudentId);
-                    var userLeader = await _unitOfWork.Users.GetByIDAsync(leader.UserId);
-                    if(userLeader.CampusId != user.CampusId)
-                    {
-                        throw new Exception("The student's campus does not match the group's campus.");
-                    }
                     if (groupMembers.Count() == _max_member_exe101)
                     {
                         throw new Exception("Exceeded the maximum number of members for EXE101.");
@@ -816,6 +820,8 @@ namespace uniexetask.services
                 GroupId = group.GroupId,
                 GroupName = group.GroupName,
                 Status = group.Status,
+                SubjectCode = group.Subject.SubjectCode,
+                CampusCode = group.GroupMembers.FirstOrDefault(gm => gm.Role == "Leader").Student.User.Campus.CampusCode,
                 GroupMembers = group.GroupMembers.Select(gm => new GroupMemberResponseModel
                 {
                     StudentId = gm.StudentId,
@@ -840,6 +846,8 @@ namespace uniexetask.services
             public int GroupId { get; set; }
             public string GroupName { get; set; }
             public string Status { get; set; }
+            public string SubjectCode { get; set; }
+            public string CampusCode { get; set; }
             public List<GroupMemberResponseModel> GroupMembers { get; set; }
             public MentorResponseModel Mentor { get; set; }
         }

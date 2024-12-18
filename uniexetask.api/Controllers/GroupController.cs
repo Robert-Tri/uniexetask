@@ -23,13 +23,15 @@ namespace uniexetask.api.Controllers
         private readonly IGroupService _groupService;
         private readonly IMentorService _mentorService;
         private readonly IStudentService _studentService;
+        private readonly IProjectService _projectService;
         private readonly IMapper _mapper;
-        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper, IStudentService studentService)
+        public GroupController(IGroupService groupService, IMentorService mentorService, IMapper mapper, IStudentService studentService, IProjectService projectService)
         {
             _groupService = groupService;
             _mentorService = mentorService;
             _mapper = mapper;
             _studentService = studentService;
+            _projectService = projectService;
         }
 
         [HttpGet("group-subject")]
@@ -258,7 +260,7 @@ namespace uniexetask.api.Controllers
             }
         }
         [Authorize(Roles = nameof(EnumRole.Manager))]
-        [HttpGet("getcurrentgroupswithmembersandMentor")]
+        [HttpGet("getcurrentgroupswithmembersandmentor")]
         public async Task<IActionResult> GetCurrentGroupsWithMemberAndMentor()
         {
             ApiResponse<IEnumerable<GroupDetailsResponseModel>> respone = new ApiResponse<IEnumerable<GroupDetailsResponseModel>>();
