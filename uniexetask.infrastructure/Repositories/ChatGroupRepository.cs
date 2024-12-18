@@ -19,20 +19,20 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Include(c => c.Users)
-                .FirstOrDefaultAsync(u => u.GroupId == groupId);
+                .FirstOrDefaultAsync(u => u.GroupId == groupId && !u.IsDeleted);
         }
 
         public async Task<ChatGroup?> GetChatGroupWithUsersByChatGroupIdAsync(int chatGroupId)
         {
             return await dbSet
                 .Include(x => x.Users)
-                .FirstOrDefaultAsync(u => u.ChatGroupId == chatGroupId);
+                .FirstOrDefaultAsync(u => u.ChatGroupId == chatGroupId && !u.IsDeleted);
         }
 
         public async Task<bool> IsUserInChatGroup(int chatGroupId, int userId)
         {
             return await dbSet
-                .Where(cg => cg.ChatGroupId == chatGroupId)
+                .Where(cg => cg.ChatGroupId == chatGroupId && !cg.IsDeleted)
                 .SelectMany(cg => cg.Users)
                 .AnyAsync(u => u.UserId == userId); // Kiểm tra UserId
         }
