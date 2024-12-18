@@ -21,6 +21,30 @@ namespace uniexetask.services
             _unitOfWork = unitOfWork;
             _taskProgressService = taskProgressService;
         }
+        public async Task<Boolean> CheckingTaskOfUser(int taskId, int studentId)
+        {
+            try
+            {
+                if (taskId > 0 && studentId > 0)
+                {
+                    var task = await _unitOfWork.Tasks.GetByIDAsync(taskId);
+                    var project = await _unitOfWork.Projects.GetByIDAsync(task.ProjectId);
+                    if (task != null)
+                    {
+                        var groupId = await _unitOfWork.GroupMembers.GetGroupIdByStudentId(studentId);
+                        if (groupId == project.GroupId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex) 
+            {
+                return false;
+            }
+        }
 
         public async Task<core.Models.Task?> GetTaskById(int taskId)
         {

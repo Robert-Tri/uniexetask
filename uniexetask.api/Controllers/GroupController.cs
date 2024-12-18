@@ -58,7 +58,62 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
-        
+        [Authorize(Roles = nameof(EnumRole.Student))]
+        [HttpGet("group-campus")]
+        public async Task<IActionResult> GetGroupAndSubjectByCampus()
+        {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
+            }
+
+            var groupsListUser = await _groupService.GetLeaderGroupIdsByCampusAndRole(userId);
+            var groupsList = await _groupService.GetGroupAndSubjecByCampus(groupsListUser.ToList());
+            if (groupsList == null)
+            {
+                return NotFound();
+            }
+            List<GroupListModel> groups = new List<GroupListModel>();
+            foreach (var group in groupsList)
+            {
+                if (group != null) groups.Add(new GroupListModel
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    SubjectName = group.Subject.SubjectName,
+                    SubjectCode = group.Subject.SubjectCode,
+                    HasMentor = group.HasMentor,
+                    Status = group.Status
+                });
+            }
+            ApiResponse<IEnumerable<GroupListModel>> response = new ApiResponse<IEnumerable<GroupListModel>>();
+            response.Data = groups;
+            return Ok(response);
+        }
+
+
+        [HttpGet("GetLeaderGroupsByCampus")]
+        public async Task<IActionResult> GetLeaderGroupsByCampus(int userId)
+        {
+            var groupIds = await _groupService.GetLeaderGroupIdsByCampusAndRole(userId);
+
+            if (groupIds == null || !groupIds.Any())
+            {
+                return NotFound(new ApiResponse<IEnumerable<int>>
+                {
+                    Success = false,
+                    ErrorMessage = "No groups found for the user"
+                });
+            }
+
+            ApiResponse<IEnumerable<int>> response = new ApiResponse<IEnumerable<int>>();
+            response.Data = groupIds;
+            return Ok(response);
+        }
+
+
 
         [Authorize]
         [HttpGet("search-group")]

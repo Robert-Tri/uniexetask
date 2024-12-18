@@ -474,7 +474,6 @@ namespace uniexetask.api.Controllers
         [HttpPut("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel passwordModel)
         {
-
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
@@ -489,7 +488,16 @@ namespace uniexetask.api.Controllers
 
             if (user.Password != null && !PasswordHasher.VerifyPassword(passwordModel.oldPassword, user.Password))
             {
-                return BadRequest("Old password is incorrect.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Old password is incorrect." });
+            }
+
+            if (!IsPasswordValid(passwordModel.newPassword))
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number."
+                });
             }
 
             user.Password = PasswordHasher.HashPassword(passwordModel.newPassword);

@@ -38,7 +38,7 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<IEnumerable<GroupMember>> GetGroupMembersWithStudentAndUser(int groupId)
         {
-            return await dbSet.Where(gm => gm.GroupId == groupId).Include(gm => gm.Student).ThenInclude(gm => gm.User).ToListAsync();
+            return await dbSet.Where(gm => gm.GroupId == groupId && gm.Group.IsCurrentPeriod).Include(gm => gm.Student).ThenInclude(gm => gm.User).ToListAsync();
         }
     }
 }
