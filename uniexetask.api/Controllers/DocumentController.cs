@@ -69,6 +69,50 @@ namespace uniexetask.api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("getByProjectId/{projectId}")]
+        public async Task<IActionResult> GetDocumentsByProjectId(int projectId)
+        {
+            var project = await _projectService.GetProjectById(projectId);
+            if (project == null)
+            {
+                return NotFound("Project not found for the given student.");
+            }
+
+            var documents = await _documentService.GetDocumentsByProjectId(project.ProjectId);
+            var storageObjects = _storageClient.ListObjects(_bucketName, $"Project{project.ProjectId}/").ToList();
+
+            var documentResponses = new List<DocumentRespone>();
+
+            foreach (var doc in documents)
+            {
+                var uploadUser = await _userSerivce.GetUserById(doc.UploadBy);
+                var modifyUser = doc.ModifiedBy.HasValue ? await _userSerivce.GetUserById(doc.ModifiedBy.Value) : null;
+                var storageObject = storageObjects.FirstOrDefault(obj => obj.Name == doc.Url);
+
+                var documentResponse = new DocumentRespone
+                {
+                    DocumentId = doc.DocumentId,
+                    ProjectId = doc.ProjectId,
+                    Name = doc.Name,
+                    Type = doc.Type,
+                    Url = doc.Url,
+                    UploadBy = uploadUser.FullName,
+                    ModifiedBy = modifyUser?.FullName,
+                    ModifiedDate = doc.ModifiedDate,
+                    Size = storageObject != null && storageObject.Size <= long.MaxValue ? (long)storageObject.Size : 0
+                };
+                documentResponses.Add(documentResponse);
+            }
+
+            ApiResponse<IEnumerable<DocumentRespone>> response = new ApiResponse<IEnumerable<DocumentRespone>>
+            {
+                Data = documentResponses
+            };
+
+
+            return Ok(response);
+        }
+
         private string MapMimeTypeToDocumentType(string mimeType)
         {
             var mimeTypeToDocumentType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
