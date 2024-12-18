@@ -53,9 +53,9 @@ namespace uniexetask.infrastructure.Repositories
 
         public async Task<User?> GetUserWithChatGroupByUserIdAsyn(int userId)
         {
-            return await dbSet.Include(i => i.ChatGroups)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+            return await dbSet
+                    .Include(u => u.ChatGroups.Where(cg => !cg.IsDeleted))
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
         public async Task<IEnumerable<User>> SearchUsersByEmailAsync(string query)
@@ -79,6 +79,13 @@ namespace uniexetask.infrastructure.Repositories
         {
             return await dbSet
                 .Select(u => u.Email)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsers()
+        {
+            return await dbSet
+                .AsNoTracking()
                 .ToListAsync();
         }
     }

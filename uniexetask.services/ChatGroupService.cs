@@ -1,4 +1,5 @@
-﻿using uniexetask.core.Interfaces;
+﻿using System.Net.WebSockets;
+using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
@@ -17,7 +18,7 @@ namespace uniexetask.services
         {
             var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
 
-            if (chatGroup == null || chatGroup.Type != nameof(ChatGroupType.Group))
+            if (chatGroup == null || chatGroup.Type != nameof(ChatGroupType.Group) || chatGroup.IsDeleted)
                 return false;
             foreach (var email in emails) 
             {
@@ -110,14 +111,10 @@ namespace uniexetask.services
         {
             var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
             if (chatGroup == null) throw new Exception("Chat Group not found");
+            if (chatGroup.IsDeleted) throw new Exception("Chat group has been deleted");
             var chatMessages = await _unitOfWork.ChatMessages.GetMessagesInChatGroup(chatGroupId, messageIndex, limit);
             if (chatMessages == null) return null;
             return chatMessages;
-        }
-
-        public System.Threading.Tasks.Task MarkAsReadAsync(string chatGroupId, string userId, int lastReadMessageId)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> RemoveMemberOutOfGroupChat(int userId, int chatGroupId)
@@ -141,6 +138,7 @@ namespace uniexetask.services
                 _unitOfWork.BeginTransaction();
                 var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
                 if (chatGroup == null) throw new Exception("Chat Group not found");
+                if (chatGroup.IsDeleted) throw new Exception("Chat group has been deleted");
                 chatGroup.LatestActivity = DateTime.Now;
                 _unitOfWork.ChatGroups.Update(chatGroup);
                 var chatMessage = new ChatMessage
@@ -163,19 +161,16 @@ namespace uniexetask.services
 
         public async Task<bool> CreatePersonalChatGroup(int contactedUserId, int contactUserId, string message)
         {
-            var contactedUserExists = await _unitOfWork.Users.GetByIDAsync(contactedUserId);
-            var contactUserExists = await _unitOfWork.Users.GetByIDAsync(contactUserId);
+            var contactUserExists = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactUserId);
+            var contactedUserExists = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactedUserId);
 
-            if (contactedUserExists == null || contactUserExists == null)
+            if (contactUserExists == null || contactedUserExists == null)
             {
                 throw new Exception("One or more users do not exist.");
             }
 
-            var contactUserWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactUserId);
-            var contactedUserWithChatGroups = await _unitOfWork.Users.GetUserWithChatGroupByUserIdAsyn(contactedUserId);
-
-            var personalChatGroup = contactUserWithChatGroups.ChatGroups
-                    .FirstOrDefault(userGroup => contactedUserWithChatGroups.ChatGroups
+            var personalChatGroup = contactUserExists.ChatGroups
+                    .FirstOrDefault(userGroup => contactedUserExists.ChatGroups
                         .Any(leaderGroup => leaderGroup.ChatGroupId == userGroup.ChatGroupId && leaderGroup.Type == nameof(ChatGroupType.Personal)));
 
             if (personalChatGroup != null)
@@ -231,6 +226,7 @@ namespace uniexetask.services
         {
             var existingChatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
             if (existingChatGroup == null) throw new Exception("Chat group not found.");
+            if (existingChatGroup.IsDeleted) throw new Exception("Chat group has been deleted");
             var isUserInChatGroup = await _unitOfWork.ChatGroups.IsUserInChatGroup(chatGroupId, userId);
             if (!isUserInChatGroup)
             {

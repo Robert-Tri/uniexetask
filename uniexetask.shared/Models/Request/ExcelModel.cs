@@ -1,4 +1,6 @@
-﻿    namespace uniexetask.shared.Models.Request
+﻿using uniexetask.core.Models;
+
+namespace uniexetask.shared.Models.Request
     {
         public class ExcelModel
     {
@@ -16,7 +18,7 @@
 
             public string FullName { get; set; } = null!;
 
-        public string Password { get; set; } = null!;
+        public string? Password { get; set; } = null!;
 
         public string Email { get; set; } = null!;
 
@@ -28,5 +30,6 @@
         public bool IsDeleted { get; set; }
 
         public int RoleId { get; set; }
+        public required User AccountExists { get; set; }
     }
     }
