@@ -61,6 +61,7 @@ namespace uniexetask.services
             if (!mentor.Groups.Any(m => m.GroupId == meetingSchedule.GroupId)) throw new Exception("You are not the mentor of this group.");
             var group = await _groupService.GetGroupById(meetingSchedule.GroupId);
             if (group == null) throw new Exception("You are creating an meeting for a group that does not exist.");
+            if (group.IsDeleted) throw new Exception("The group has been deleted.");
             if (group.Status == nameof(GroupStatus.Initialized)) throw new Exception($"{group.GroupName} Group is in newly created state and has not been assigned a mentor yet.");
             var mentorExists = await _unitOfWork.Mentors.GetByIDAsync(meetingSchedule.MentorId);
             var groupExists = await _unitOfWork.Groups.GetByIDAsync(meetingSchedule.GroupId);
@@ -117,6 +118,9 @@ namespace uniexetask.services
             if (meetingScheduleEntity.Type == nameof(MeetingScheduleType.Offline)) meetingScheduleEntity.Url = null;
             var meetingSchedule = await _unitOfWork.MeetingSchedules.GetByIDAsync(meetingScheduleId);
             if (meetingSchedule == null) throw new Exception("Meeting schedule not found.");
+            var group = await _groupService.GetGroupById(meetingSchedule.GroupId);
+            if (group == null) throw new Exception("Group not found.");
+            if (group.IsDeleted) throw new Exception("The group has been deleted.");
             meetingSchedule.Content = meetingScheduleEntity.Content;
             meetingSchedule.Duration = meetingScheduleEntity.Duration;
             meetingSchedule.Location = meetingScheduleEntity.Location;
@@ -126,7 +130,6 @@ namespace uniexetask.services
             meetingSchedule.MeetingDate = meetingScheduleEntity.MeetingDate;
             _unitOfWork.MeetingSchedules.Update(meetingSchedule);
             _unitOfWork.Save();
-            var group = await _groupService.GetGroupById(meetingSchedule.GroupId);
             var users = await _groupMemberService.GetUsersByGroupId(group.GroupId);
             foreach (var user in users)
             {
