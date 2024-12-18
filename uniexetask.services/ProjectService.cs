@@ -238,5 +238,30 @@ namespace uniexetask.services
             }
             return false;
         }*/
+
+
+        public async Task<Boolean> CheckingProjectOfMentor(int projectId, int mentorId)
+        {
+            try
+            {
+                if (projectId > 0 && mentorId > 0)
+                {
+                    var project = await _unitOfWork.Projects.GetByIDAsync(projectId);
+                    if (project != null)
+                    {
+                        var mentorGroup = await _unitOfWork.Groups.GetMentorInGroup(project.GroupId);
+                        if (mentorId == mentorGroup.MentorId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }
