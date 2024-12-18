@@ -518,11 +518,6 @@ namespace uniexetask.services
             while (numStudents > 0)
             {
                 int groupSize = Math.Min(maxGroupSize, numStudents);
-                if (groupSize < minGroupSize) 
-                {
-                    numStudents -= groupSize;
-                    continue;
-                }
                 groups.Add(groupSize);
                 numStudents -= groupSize;
 
@@ -816,7 +811,7 @@ namespace uniexetask.services
                 GroupId = group.GroupId,
                 GroupName = group.GroupName,
                 Status = group.Status,
-                SubjectCode = group.GroupMembers.FirstOrDefault(gm => gm.Role == "Leader").Student.Subject.SubjectCode,
+                SubjectCode = group.Subject.SubjectCode,
                 CampusCode = group.GroupMembers.FirstOrDefault(gm => gm.Role == "Leader").Student.User.Campus.CampusCode,
                 GroupMembers = group.GroupMembers.Select(gm => new GroupMemberResponseModel
                 {
