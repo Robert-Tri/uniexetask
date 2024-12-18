@@ -518,11 +518,6 @@ namespace uniexetask.services
             while (numStudents > 0)
             {
                 int groupSize = Math.Min(maxGroupSize, numStudents);
-                if (groupSize < minGroupSize) 
-                {
-                    numStudents -= groupSize;
-                    continue;
-                }
                 groups.Add(groupSize);
                 numStudents -= groupSize;
 
@@ -816,6 +811,8 @@ namespace uniexetask.services
                 GroupId = group.GroupId,
                 GroupName = group.GroupName,
                 Status = group.Status,
+                SubjectCode = group.Subject.SubjectCode,
+                CampusCode = group.GroupMembers.FirstOrDefault(gm => gm.Role == "Leader").Student.User.Campus.CampusCode,
                 GroupMembers = group.GroupMembers.Select(gm => new GroupMemberResponseModel
                 {
                     StudentId = gm.StudentId,
@@ -840,6 +837,8 @@ namespace uniexetask.services
             public int GroupId { get; set; }
             public string GroupName { get; set; }
             public string Status { get; set; }
+            public string SubjectCode { get; set; }
+            public string CampusCode { get; set; }
             public List<GroupMemberResponseModel> GroupMembers { get; set; }
             public MentorResponseModel Mentor { get; set; }
         }
