@@ -27,6 +27,7 @@ namespace uniexetask.services.tests.Services
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _fixture.Customize<ChatGroup>(composer => composer
+            .With(chatGroup => chatGroup.IsDeleted, false)
             .Without(x => x.Group)
             .Without(x => x.Users)
             .Without(x => x.ChatMessages)
@@ -353,9 +354,6 @@ namespace uniexetask.services.tests.Services
             chatGroupMock.Type = nameof(ChatGroupType.Personal);
             userMock.ChatGroups.Add(chatGroupMock);
             leaderMock.ChatGroups.Add(chatGroupMock);
-
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
                 .ReturnsAsync(userMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
@@ -372,8 +370,6 @@ namespace uniexetask.services.tests.Services
 
             // Assert
             result.Should().BeTrue();
-            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(userMock.UserId), Times.Once());
-            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(leaderMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()), Times.Once());
@@ -387,9 +383,6 @@ namespace uniexetask.services.tests.Services
             var message = "Sample Message";
             var userMock = _fixture.Create<User>();
             var leaderMock = _fixture.Create<User>();
-
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
                 .ReturnsAsync(userMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
@@ -413,8 +406,6 @@ namespace uniexetask.services.tests.Services
 
             // Assert
             result.Should().BeTrue();
-            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(userMock.UserId), Times.Once());
-            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(leaderMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId), Times.Once());
             _unitOfWorkMock.Verify(x => x.ChatGroups.GetByIDAsync(It.IsAny<int>()), Times.Once());
@@ -431,8 +422,8 @@ namespace uniexetask.services.tests.Services
             User userMock = null;
             User leaderMock = null;
 
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(It.IsAny<int>())).ReturnsAsync(leaderMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>())).ReturnsAsync(userMock);
+            _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>())).ReturnsAsync(leaderMock);
 
             // Act
             Func<System.Threading.Tasks.Task> act = async () => await _sut.CreatePersonalChatGroup(It.IsAny<int>(), It.IsAny<int>(), "Sample Message");
@@ -440,7 +431,7 @@ namespace uniexetask.services.tests.Services
             // Assert
             act.Should().NotBeNull();
             await act.Should().ThrowAsync<Exception>().WithMessage("One or more users do not exist.");
-            _unitOfWorkMock.Verify(x => x.Users.GetByIDAsync(It.IsAny<int>()), Times.Exactly(2));
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -450,9 +441,6 @@ namespace uniexetask.services.tests.Services
             var message = "Sample Message";
             var userMock = _fixture.Create<User>();
             var leaderMock = _fixture.Create<User>();
-
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
                 .ReturnsAsync(userMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
@@ -467,6 +455,7 @@ namespace uniexetask.services.tests.Services
 
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to create chat group");
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>()), Times.Exactly(2));
             _unitOfWorkMock.Verify(x => x.ChatGroups.InsertAsync(It.IsAny<ChatGroup>()), Times.Once());
         }
 
@@ -478,9 +467,6 @@ namespace uniexetask.services.tests.Services
             var userMock = _fixture.Create<User>();
             var leaderMock = _fixture.Create<User>();
             var chatGroupMock = _fixture.Create<ChatGroup>();
-
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
                 .ReturnsAsync(userMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
@@ -498,6 +484,7 @@ namespace uniexetask.services.tests.Services
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to save message");
             _unitOfWorkMock.Verify(x => x.ChatMessages.InsertAsync(It.IsAny<ChatMessage>()), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -508,9 +495,6 @@ namespace uniexetask.services.tests.Services
             var userMock = _fixture.Create<User>();
             var leaderMock = _fixture.Create<User>();
             var chatGroupMock = _fixture.Create<ChatGroup>();
-
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(userMock.UserId)).ReturnsAsync(userMock);
-            _unitOfWorkMock.Setup(x => x.Users.GetByIDAsync(leaderMock.UserId)).ReturnsAsync(leaderMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(userMock.UserId))
                 .ReturnsAsync(userMock);
             _unitOfWorkMock.Setup(x => x.Users.GetUserWithChatGroupByUserIdAsyn(leaderMock.UserId))
@@ -528,6 +512,7 @@ namespace uniexetask.services.tests.Services
             // Assert
             await act.Should().ThrowAsync<Exception>().WithMessage("Failed to update chat group");
             _unitOfWorkMock.Verify(x => x.ChatGroups.Update(It.IsAny<ChatGroup>()), Times.Once());
+            _unitOfWorkMock.Verify(x => x.Users.GetUserWithChatGroupByUserIdAsyn(It.IsAny<int>()), Times.Exactly(2));
         }
     }
 }
