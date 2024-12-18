@@ -259,7 +259,7 @@ namespace uniexetask.api.Controllers
             }
         }
         [Authorize(Roles = nameof(EnumRole.Manager))]
-        [HttpGet("getcurrentgroupswithmembersandMentor")]
+        [HttpGet("getcurrentgroupswithmembersandmentor")]
         public async Task<IActionResult> GetCurrentGroupsWithMemberAndMentor()
         {
             ApiResponse<IEnumerable<GroupDetailsResponseModel>> respone = new ApiResponse<IEnumerable<GroupDetailsResponseModel>>();

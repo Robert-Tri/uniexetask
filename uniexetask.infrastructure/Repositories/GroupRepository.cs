@@ -26,7 +26,7 @@ namespace uniexetask.infrastructure.Repositories
         }
         public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false && g.IsCurrentPeriod).AsNoTracking().ToListAsync();
+            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false).AsNoTracking().ToListAsync();
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {
@@ -43,14 +43,24 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query)
         {
             return await dbSet
-                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && u.Mentors.Any(m => m.MentorId == mentorId) && !u.IsDeleted && u.IsCurrentPeriod)
+                        .Where(u => EF.Functions.Like(u.GroupName, $"%{query}%") && u.Mentors.Any(m => m.MentorId == mentorId) && !u.IsDeleted)
                         .Take(5)
                         .ToListAsync();
         }
-        
+
         public async Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(gm => gm.Student).ThenInclude(s => s.User).Include(g => g.Mentors).ThenInclude(m => m.User).Where(g => g.IsCurrentPeriod && !g.IsDeleted).AsNoTracking().ToListAsync();
+            return await dbSet
+                .Include(g => g.Subject)
+                .Include(g => g.GroupMembers)
+                    .ThenInclude(gm => gm.Student)
+                        .ThenInclude(s => s.User)
+                            .ThenInclude(u => u.Campus) 
+                .Include(g => g.Mentors)
+                    .ThenInclude(m => m.User)
+                .Where(g => g.IsCurrentPeriod && !g.IsDeleted)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async System.Threading.Tasks.Task RemoveMentorFromGroup(int groupId)
