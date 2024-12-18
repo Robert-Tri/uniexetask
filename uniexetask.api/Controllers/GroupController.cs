@@ -235,7 +235,7 @@ namespace uniexetask.api.Controllers
                     throw new Exception("Invalid UserId");
                 }
                 var group = await _groupService.GetGroupByUserId(userId);
-                if (group != null)
+                if (group != null && !group.IsDeleted)
                 {
                     foreach (var member in group.GroupMembers)
                     {
@@ -246,7 +246,6 @@ namespace uniexetask.api.Controllers
                             response.Data = _mapper.Map<GroupModel>(group);
                             return Ok(response);
                         }
-                        
                     }
                 }
                 return Ok(response);

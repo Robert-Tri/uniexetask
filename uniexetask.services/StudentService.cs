@@ -80,7 +80,7 @@ namespace uniexetask.services
         {
             if (userId > 0)
             {
-                var students = await _unitOfWork.Students.GetAsync();
+                var students = await _unitOfWork.Students.GetAsync(includeProperties: "Subject");
 
                 var student = students.FirstOrDefault(s => s.UserId == userId);
                 return student;
