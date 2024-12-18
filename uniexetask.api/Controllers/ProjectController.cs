@@ -315,5 +315,31 @@ namespace uniexetask.api.Controllers
             respone.Data = result;
             return Ok(respone);
         }*/
+
+        [HttpGet("checkingproject")]
+        public async Task<IActionResult> CheckingProjectOfMentor(int projectId)
+        {
+            ApiResponse<Boolean> response = new ApiResponse<Boolean>();
+            try
+            {
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var mentor = await _mentorService.GetMentorByUserId(Int32.Parse(userIdString));
+                if (mentor == null)
+                {
+                    return NotFound();
+                }
+
+                var check = await _projectService.CheckingProjectOfMentor(projectId, mentor.MentorId);
+
+                response.Data = check;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return Ok(response);
+            }
+        }
     }
 }
