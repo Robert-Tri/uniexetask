@@ -143,12 +143,14 @@ namespace uniexetask.services
             var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE101);
             foreach (var group in groups) 
             {
-                
+                var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
+                chatGroup.IsDeleted = true;
                 var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
                 if(project != null)
                 {
                     project.Status = nameof(ProjectStatus.Completed);
                     project.IsCurrentPeriod = false;
+                    project.IsDeleted = true;
                     _unitOfWork.Projects.Update(project);
                 }
                 var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
@@ -169,6 +171,7 @@ namespace uniexetask.services
                     _unitOfWork.GroupMembers.Delete(groupMember);
                 }
                 group.IsCurrentPeriod = false;
+                group.IsDeleted = true;
                 _unitOfWork.Save();
             }
         }
@@ -178,11 +181,14 @@ namespace uniexetask.services
             var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE201);
             foreach (var group in groups)
             {
+                var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
+                chatGroup.IsDeleted = true;
                 var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
                 if (project != null)
                 {
                     project.Status = nameof(ProjectStatus.Completed);
                     project.IsCurrentPeriod = false;
+                    project.IsDeleted = true;
                     _unitOfWork.Projects.Update(project);
                 }
                 var groupMembers = await _unitOfWork.GroupMembers.GetAsync(filter: gm => gm.GroupId == group.GroupId);
@@ -203,6 +209,7 @@ namespace uniexetask.services
                     _unitOfWork.GroupMembers.Delete(groupMember);
                 }
                 group.IsCurrentPeriod = false;
+                group.IsDeleted = true;
                 _unitOfWork.Save();
             }
         }

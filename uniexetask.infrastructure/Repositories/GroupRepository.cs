@@ -47,10 +47,22 @@ namespace uniexetask.infrastructure.Repositories
                         .Take(5)
                         .ToListAsync();
         }
-        
+
         public async Task<IEnumerable<Group>> GetCurrentPeriodGroupsWithMembersAndMentor()
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(gm => gm.Student).ThenInclude(s => s.User).Include(g => g.Mentors).ThenInclude(m => m.User).Where(g => g.IsCurrentPeriod && !g.IsDeleted).AsNoTracking().ToListAsync();
+            return await dbSet
+                .Include(g => g.GroupMembers)
+                    .ThenInclude(gm => gm.Student)
+                        .ThenInclude(s => s.User)
+                            .ThenInclude(u => u.Campus) 
+                .Include(g => g.GroupMembers)
+                    .ThenInclude(gm => gm.Student)
+                        .ThenInclude(s => s.Subject) 
+                .Include(g => g.Mentors)
+                    .ThenInclude(m => m.User)
+                .Where(g => g.IsCurrentPeriod && !g.IsDeleted)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async System.Threading.Tasks.Task RemoveMentorFromGroup(int groupId)

@@ -1,5 +1,6 @@
 ﻿using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -132,7 +133,7 @@ namespace uniexetask.services
         public async Task<IEnumerable<StudentsWithGroup>> GetStudentWithoutGroup()
         {
             List<StudentsWithGroup> students = new List<StudentsWithGroup>();
-            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true, includeProperties: "Lecturer.User,User.Campus");
+            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true, includeProperties: "Subject,Lecturer.User,User.Campus");
             var groupMembers = await _unitOfWork.GroupMembers.GetAsync();
             var studentsWithoutGroup = allStudents
                 .Where(s => !groupMembers.Any(gm => gm.StudentId == s.StudentId))
@@ -147,6 +148,7 @@ namespace uniexetask.services
                     Email = studentWithoutGroup.User.Email,
                     StudentCode = studentWithoutGroup.StudentCode,
                     CampusCode = studentWithoutGroup.User.Campus.CampusCode,
+                    SubjectCode = studentWithoutGroup.Subject.SubjectCode,
                     Major = studentWithoutGroup.Major,
                     Lecturer = studentWithoutGroup.Lecturer.User.FullName,
                 });
@@ -163,6 +165,7 @@ namespace uniexetask.services
         public string? Phone { get; set; } = null;
         public string? StudentCode {  get; set; } = null;
         public string? CampusCode { get; set; } = null;
+        public string? SubjectCode { get; set; } = null;
         public string? Major { get; set; } = null;
         public string? Lecturer { get; set; } = null;
     }
