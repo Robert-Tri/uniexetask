@@ -43,9 +43,9 @@ namespace uniexetask.api.Controllers
             _hubContext = hubContext;
 
             var cloudinaryAccount = new Account(
-               "dan0stbfi",   // Cloud Name
-               "687237422157452",      // API Key
-               "XQbEo1IhkXxbC24rHvpdNJ5BHNw"    // API Secret
+               "dan0stbfi",  
+               "687237422157452",
+               "XQbEo1IhkXxbC24rHvpdNJ5BHNw"   
            );
             _cloudinary = new Cloudinary(cloudinaryAccount);
 
@@ -245,13 +245,10 @@ namespace uniexetask.api.Controllers
         {
             try
             {
-                // Tạo mã ngẫu nhiên 5 chữ số
                 string randomCode = GenerateRandomCode(5);
 
-                // Lưu mã vào bộ nhớ (có thể lưu theo email hoặc một số nhận dạng khác)
                 VerificationCodes[email] = randomCode;
 
-                // Nội dung email bao gồm mã ngẫu nhiên
                 var contentEmail = $@"
 <!DOCTYPE html>
 <html lang='en'>
@@ -306,10 +303,8 @@ namespace uniexetask.api.Controllers
         {
             try
             {
-                // Kiểm tra mã xác minh có tồn tại trong bộ nhớ không
                 if (VerificationCodes.ContainsKey(request.Email))
                 {
-                    // Kiểm tra mã xác minh có khớp không
                     if (VerificationCodes[request.Email] == request.Code)
                     {
                         return Ok(new { message = "Code verified successfully." });
@@ -479,7 +474,6 @@ namespace uniexetask.api.Controllers
         [HttpPut("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel passwordModel)
         {
-
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
@@ -494,7 +488,16 @@ namespace uniexetask.api.Controllers
 
             if (user.Password != null && !PasswordHasher.VerifyPassword(passwordModel.oldPassword, user.Password))
             {
-                return BadRequest("Old password is incorrect.");
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Old password is incorrect." });
+            }
+
+            if (!IsPasswordValid(passwordModel.newPassword))
+            {
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    ErrorMessage = "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number."
+                });
             }
 
             user.Password = PasswordHasher.HashPassword(passwordModel.newPassword);

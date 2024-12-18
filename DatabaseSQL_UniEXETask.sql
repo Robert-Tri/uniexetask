@@ -1204,42 +1204,45 @@ VALUES
 INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
 VALUES
 -- Milestone 1: Project Initiation Phase
-('Project Initiation', 'Complete an overview plan and define entrepreneurship objectives', 15, 1, '2024-01-01', '2024-01-15', GETDATE(), NULL, 0),
+('Project Initiation', 'Complete an overview plan and define entrepreneurship objectives', 15, 1, '2024-10-01', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 2: Market Research
-('Market Research', 'Analyze customer needs and conduct market surveys', 20, 1, '2024-01-16', '2024-01-30', GETDATE(), NULL, 0),
+('Market Research', 'Analyze customer needs and conduct market surveys', 20, 1, '2024-10-16', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 3: Business Plan Development
-('Business Plan Development', 'Complete a detailed business plan', 25, 1, '2024-02-01', '2024-02-15', GETDATE(), NULL, 0),
+('Business Plan Development', 'Complete a detailed business plan', 25, 1, '2024-11-01', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 4: Prototyping
-('Prototyping', 'Design and test a prototype of the product/service', 20, 1, '2024-02-16', '2024-03-01', GETDATE(), NULL, 0),
+('Prototyping', 'Design and test a prototype of the product/service', 20, 1, '2024-11-16', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 5: Evaluation and Refinement
-('Evaluation and Refinement', 'Collect feedback and improve based on real-world testing', 15, 1, '2024-03-02', '2024-03-15', GETDATE(), NULL, 0),
+('Evaluation and Refinement', 'Collect feedback and improve based on real-world testing', 15, 1, '2024-12-02', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 6: Final Presentation
-('Final Presentation', 'Prepare and present the project outcomes to a panel', 5, 1, '2024-03-16', '2024-03-20', GETDATE(), NULL, 0);
+('Final Presentation', 'Prepare and present the project outcomes to a panel', 5, 1, '2024-12-16', '2024-03-20', GETDATE(), NULL, 0);
+
 INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
 VALUES
 -- Milestone 1: Advanced Market Analysis
-('Advanced Market Analysis', 'Conduct in-depth market research with segmentation and competitive analysis', 15, 2, '2024-04-01', '2024-04-15', GETDATE(), NULL, 0),
+('Advanced Market Analysis', 'Conduct in-depth market research with segmentation and competitive analysis', 15, 2, '2024-10-01', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 2: Financial Planning and Funding Strategy
-('Financial Planning & Funding Strategy', 'Develop financial projections and identify funding opportunities', 20, 2, '2024-04-16', '2024-04-30', GETDATE(), NULL, 0),
+('Financial Planning & Funding Strategy', 'Develop financial projections and identify funding opportunities', 20, 2, '2024-10-30', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 3: Building a Scalable Model
-('Building a Scalable Model', 'Design scalable processes and identify key resources for growth', 25, 2, '2024-05-01', '2024-05-15', GETDATE(), NULL, 0),
+('Building a Scalable Model', 'Design scalable processes and identify key resources for growth', 25, 2, '2024-11-01', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 4: Product Refinement and User Feedback
-('Product Refinement', 'Incorporate user feedback to improve product/service offerings', 15, 2, '2024-05-16', '2024-05-31', GETDATE(), NULL, 0),
+('Product Refinement', 'Incorporate user feedback to improve product/service offerings', 15, 2, '2024-11-16', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 5: Legal and Compliance
-('Legal and Compliance', 'Ensure the business adheres to legal standards and secures necessary certifications', 10, 2, '2024-06-01', '2024-06-10', GETDATE(), NULL, 0),
+('Legal and Compliance', 'Ensure the business adheres to legal standards and secures necessary certifications', 10, 2, '2024-12-01', '2024-12-30', GETDATE(), NULL, 0),
 
 -- Milestone 6: Strategic Presentation for Investors
-('Investor Pitch', 'Prepare and present a strategic pitch to potential investors', 15, 2, '2024-06-11', '2024-06-20', GETDATE(), NULL, 0);
+('Investor Pitch', 'Prepare and present a strategic pitch to potential investors', 15, 2, '2024-12-11', '2024-12-30', GETDATE(), NULL, 0);
 
+
+-- Thêm dữ liệu mẫu cho bảng CRITERIA
 INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
 VALUES
 ('Idea Validation', 'Evaluate the feasibility of the business idea based on market trends', 30, 1, GETDATE(), GETDATE(), 0),
@@ -1272,6 +1275,48 @@ VALUES
 ('Business Model Explanation', 'Clearly articulate the business model and its scalability', 35, 6, GETDATE(), GETDATE(), 0),
 ('Investor Q&A', 'Respond effectively to investor questions and concerns', 25, 6, GETDATE(), GETDATE(), 0);
 
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 7
+('Advanced Market Analysis Report', 'Prepare a detailed report with segmentation and competitive insights', 40, 7, GETDATE(), GETDATE(), 0),
+('Market Trends Report', 'Identify and evaluate major market trends', 60, 7, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 8
+('Financial Plan', 'Develop a comprehensive financial plan for the business', 40, 8, GETDATE(), GETDATE(), 0),
+('Funding Sources Identification', 'Identify potential funding sources and strategies', 30, 8, GETDATE(), GETDATE(), 0),
+('Break-even Analysis', 'Perform break-even analysis for financial sustainability', 30, 8, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 9
+('Scalable Process Design', 'Develop processes that support business growth', 40, 9, GETDATE(), GETDATE(), 0),
+('Resource Allocation', 'Identify and allocate critical resources effectively', 30, 9, GETDATE(), GETDATE(), 0),
+('Growth Strategy', 'Define strategies for sustainable scaling of operations', 30, 9, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 10
+('User Feedback Report', 'Collect and analyze feedback from targeted users', 40, 10, GETDATE(), GETDATE(), 0),
+('Product Iteration', 'Improve product/service offerings based on feedback', 30, 10, GETDATE(), GETDATE(), 0),
+('Post-feedback Assessment', 'Assess the impact of changes and improvements', 30, 10, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 11
+('Compliance Checklist', 'Ensure all legal and compliance requirements are met', 65, 11, GETDATE(), GETDATE(), 0),
+('Certification Acquisition', 'Obtain necessary business certifications', 35, 11, GETDATE(), GETDATE(), 0);
+
+INSERT INTO CRITERIA (criteria_name, description, percentage, milestone_id, created_date, updated_date, isDeleted)
+VALUES
+-- Milestone 12
+('Pitch Deck Quality', 'Create a professional and compelling pitch deck', 40, 12, GETDATE(), GETDATE(), 0),
+('Investor Engagement', 'Present effectively and engage with potential investors', 35, 12, GETDATE(), GETDATE(), 0),
+('Follow-up Plan', 'Develop a plan for post-presentation follow-up with investors', 25, 12, GETDATE(), GETDATE(), 0);
+
+
+
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
 INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
@@ -1284,16 +1329,16 @@ INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_dat
 -- Mentor 2 với Group 1
 INSERT INTO MEETING_SCHEDULE (meeting_schedule_name, group_id, mentor_id, location, meeting_date, duration, type, content, url)
 VALUES
-('Project Kickoff', 1, 2, 'Room A101', '2024-12-10 09:00:00', 90, 'Offline', 'Discuss project scope and deliverables', NULL),
-('Design Review', 1, 2, 'Online', '2024-12-15 14:00:00', 60, 'Online', 'Review initial design and feedback', 'https://zoom.us/j/123456789'),
-('Progress Check', 1, 2, 'Room A102', '2024-12-20 10:30:00', 120, 'Offline', 'Discuss progress and resolve challenges', NULL);
+('Project Kickoff', 1, 2, 'Room A101', '2024-12-20 09:00:00', 90, 'Offline', 'Discuss project scope and deliverables', NULL),
+('Design Review', 1, 2, 'Online', '2024-12-25 14:00:00', 60, 'Online', 'Review initial design and feedback', 'https://meet.google.com/tec-zkyy-gsx'),
+('Progress Check', 1, 2, 'Room A102', '2024-12-28 10:30:00', 120, 'Offline', 'Discuss progress and resolve challenges', NULL);
 
 -- Mentor 2 với Group 2
 INSERT INTO MEETING_SCHEDULE (meeting_schedule_name, group_id, mentor_id, location, meeting_date, duration, type, content, url)
 VALUES
-('Planning Session', 2, 2, 'Room B201', '2024-12-11 11:00:00', 90, 'Offline', 'Plan the project timeline and assign tasks', NULL),
-('Code Review', 2, 2, 'Online', '2024-12-16 15:00:00', 60, 'Online', 'Review initial code implementation', 'https://zoom.us/j/987654321'),
-('Final Review', 2, 2, 'Room B202', '2024-12-22 09:00:00', 120, 'Offline', 'Finalize the project deliverables', NULL);
+('Planning Session', 2, 2, 'Room B201', '2024-12-20 11:00:00', 90, 'Offline', 'Plan the project timeline and assign tasks', NULL),
+('Code Review', 2, 2, 'Online', '2024-12-24 15:00:00', 60, 'Online', 'Review initial code implementation', 'https://meet.google.com/tec-zkyy-gsx'),
+('Final Review', 2, 2, 'Room B202', '2024-12-28 08:00:00', 120, 'Offline', 'Finalize the project deliverables', NULL);
 
 
 

@@ -16,10 +16,11 @@ namespace uniexetask.services.Interfaces
         Task<ChatGroup?> GetChatGroupWithUsersByChatGroupId(int chatGroupId);
         Task<ChatMessage?> GetLatestMessageInChatGroup(int chatGroupId);
         Task<IEnumerable<ChatMessage>?> GetMessagesInChatGroup(int chatGroupId, int messageIndex, int limit);
-        System.Threading.Tasks.Task MarkAsReadAsync(string chatGroupId, string userId, int lastReadMessageId);
         Task<bool> RemoveMemberOutOfGroupChat(int userId, int chatGroupId);
         Task<ChatMessage?> SaveMessageAsync(int chatGroupId, int userId, string message);
         Task<bool> CreatePersonalChatGroup(int leaderId, int userId, string message);
         Task<ChatMessage> DeleteMessage(int userId, int messageId);
+        Task<bool> AddUserToChatGroup(int userId, int chatGroupId);
+
     }
 }

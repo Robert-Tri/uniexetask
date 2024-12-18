@@ -10,11 +10,12 @@ namespace uniexetask.services
     {
         public IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly IChatGroupService _chatGroupService;
         private readonly int _min_member_exe101;
         private readonly int _max_member_exe101;
         private readonly int _min_member_exe201;
         private readonly int _max_member_exe201;
-        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService)
+        public GroupService(IUnitOfWork unitOfWork, IEmailService emailService, IChatGroupService chatGroupService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
@@ -22,13 +23,65 @@ namespace uniexetask.services
             _max_member_exe101 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE101)?.Number ?? 6;
             _min_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MIN_MEMBER_EXE201)?.Number ?? 6;
             _max_member_exe201 = _unitOfWork.ConfigSystems.GetConfigSystemByID((int)ConfigSystemName.MAX_MEMBER_EXE201)?.Number ?? 8;
+            _chatGroupService = chatGroupService;
         }
 
         public async Task<IEnumerable<Group>> GetGroupAndSubject()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(includeProperties: "Subject", filter: q => q.IsDeleted == false);
+            var groups = await _unitOfWork.Groups.GetAsync(
+                includeProperties: "Subject",
+                filter: q => q.IsDeleted == false && q.IsCurrentPeriod == true
+            );
             return groups;
         }
+
+        public async Task<IEnumerable<Group>> GetGroupAndSubjecByCampus(List<int> groupIds)
+        {
+            var groups = await _unitOfWork.Groups.GetAsync(
+                includeProperties: "Subject",
+                filter: q => q.IsDeleted == false && q.IsCurrentPeriod == true && groupIds.Contains(q.GroupId)
+            );
+            return groups;
+        }
+
+
+        public async Task<IEnumerable<int>> GetLeaderGroupIdsByCampusAndRole(int userId)
+        {
+            // Lấy thông tin user dựa vào userId
+            var currentUser = await _unitOfWork.Users.GetByIDAsync(userId);
+
+            if (currentUser == null)
+                return new List<int>(); // Trả về danh sách rỗng nếu user không tồn tại
+
+            int campusId = currentUser.CampusId; // Lấy CampusId của user
+
+            // Lọc tất cả user có cùng CampusId và RoleId = 3
+            var users = await _unitOfWork.Users.GetAsync(
+                filter: u => u.CampusId == campusId && u.RoleId == 3 && !u.IsDeleted
+            );
+
+            // Lấy userId từ danh sách user
+            var userIds = users.Select(u => u.UserId).ToList();
+
+            // Lọc danh sách student dựa trên userIds
+            var students = await _unitOfWork.Students.GetAsync(
+                filter: s => userIds.Contains(s.UserId)
+            );
+
+            // Lấy studentId từ danh sách student
+            var studentIds = students.Select(s => s.StudentId).ToList();
+
+            // Lọc GroupMember có studentId nằm trong danh sách và role = "Leader"
+            var groupMembers = await _unitOfWork.GroupMembers.GetAsync(
+                filter: gm => studentIds.Contains(gm.StudentId) && gm.Role == "Leader"
+            );
+
+            // Lấy danh sách groupId từ GroupMember
+            var groupIds = groupMembers.Select(gm => gm.GroupId).Distinct().ToList();
+
+            return groupIds;
+        }
+
 
         public async Task<bool> UpdateGroupApproved(int groupId)
         {
@@ -54,6 +107,24 @@ namespace uniexetask.services
             if (group != null)
             {
                 group.IsDeleted = true;
+                _unitOfWork.Groups.Update(group);
+
+                var result = _unitOfWork.Save();
+
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
+        public async Task<bool> UpdateGroupName(string name, int groupId)
+        {
+            var group = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            if (group != null)
+            {
+                group.GroupName = name;
                 _unitOfWork.Groups.Update(group);
 
                 var result = _unitOfWork.Save();
@@ -673,6 +744,7 @@ namespace uniexetask.services
                 {
                     throw new Exception("The member already belongs to a group.");
                 }
+                var existingChatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
                 if (group.SubjectId == (int)SubjectType.EXE101)
                 {
                     var leader = await _unitOfWork.Students.GetByIDAsync(groupMembers.FirstOrDefault(gm => gm.Role == "Leader").StudentId);
@@ -687,7 +759,15 @@ namespace uniexetask.services
                     }
                     else
                     {
-                         await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
+                        if (existingChatGroup != null)
+                        {
+                            var addUserToChatGroup = await _chatGroupService.AddUserToChatGroup(student.UserId, existingChatGroup.ChatGroupId);
+                        }
+                        else
+                        {
+                            throw new Exception("No group chat found for this group.");
+                        }
+                        await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
                         {
                             GroupId = group.GroupId,
                             StudentId = student.StudentId,
@@ -703,6 +783,14 @@ namespace uniexetask.services
                     }
                     else
                     {
+                        if (existingChatGroup != null)
+                        {
+                            var addUserToChatGroup = await _chatGroupService.AddUserToChatGroup(student.UserId, existingChatGroup.ChatGroupId);
+                        }
+                        else
+                        {
+                            throw new Exception("No group chat found for this group.");
+                        }
                         await _unitOfWork.GroupMembers.InsertAsync(new GroupMember
                         {
                             GroupId = group.GroupId,

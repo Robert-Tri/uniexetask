@@ -8,6 +8,7 @@ namespace uniexetask.services.Interfaces
     {
         Task<IEnumerable<object>> GetApprovedGroupsAsync();
         Task<IEnumerable<Group>> GetGroupAndSubject();
+        Task<IEnumerable<Group>> GetGroupAndSubjecByCampus(List<int> groupIds);
         Task<IEnumerable<Group>> GetGroupsAsync();
         Task<IEnumerable<Group>> GetAllGroup();
         Task<bool> CreateGroup(Group group);
@@ -22,6 +23,10 @@ namespace uniexetask.services.Interfaces
         Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int userId, string query);
         Task<IEnumerable<GroupDetailsResponseModel>> GetCurrentGroupsWithMembersAndMentors();
         Task<bool> DeleteGroup(int groupId);
+        Task<bool> UpdateGroupName(string name, int groupId);
         Task<bool> AddStudentToGroup(int groupId, int studentId);
+
+        Task<IEnumerable<int>> GetLeaderGroupIdsByCampusAndRole(int userId);
+
     }
 }

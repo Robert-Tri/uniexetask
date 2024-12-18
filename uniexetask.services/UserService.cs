@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Transactions;
 using uniexetask.core.Interfaces;
@@ -149,6 +150,7 @@ namespace uniexetask.services
             return null;
         }
 
+
         public async Task<IEnumerable<User>> SearchUsersByEmailAsync(string query)
         {
             return await _unitOfWork.Users.SearchUsersByEmailAsync(query);
@@ -245,7 +247,7 @@ namespace uniexetask.services
                 Campuses = await _campusService.GetAllCampus(),
                 Subjects = await _subjectService.GetSubjects(),
                 Roles = await _roleService.GetAllRole(),
-                ExistingUsers = await GetAllUsers(),
+                ExistingUsers = await _unitOfWork.Users.GetAllUsers(),
                 ExistingStudents = await _studentService.GetAllStudent()
             };
         }
@@ -275,16 +277,17 @@ namespace uniexetask.services
                     for (int row = 2; row <= rowCount; row++)
                     {
                         string fullname = worksheet.Cells[row, 2].Text;
-                        string password = worksheet.Cells[row, 3].Text;
-                        string emailUser = worksheet.Cells[row, 4].Text;
-                        string phoneUser = worksheet.Cells[row, 5].Text;
-                        string campusCode = worksheet.Cells[row, 6].Text;
-                        string roleName = worksheet.Cells[row, 7].Text;
-                        string khoiText = worksheet.Cells[row, 8].Text;
-                        string subjectCode = worksheet.Cells[row, 9].Text;
-                        string studentCode = worksheet.Cells[row, 10].Text;
-                        string major = worksheet.Cells[row, 11].Text;
-                        string lecturer = worksheet.Cells[row, 12].Text;
+                        string? password = null;
+                        User? AccountExists = new ();
+                        string emailUser = worksheet.Cells[row, 3].Text;
+                        string phoneUser = worksheet.Cells[row, 4].Text;
+                        string campusCode = worksheet.Cells[row, 5].Text;
+                        string roleName = worksheet.Cells[row, 6].Text;
+                        string khoiText = worksheet.Cells[row, 7].Text;
+                        string subjectCode = worksheet.Cells[row, 8].Text;
+                        string studentCode = worksheet.Cells[row, 9].Text;
+                        string major = worksheet.Cells[row, 10].Text;
+                        string lecturer = worksheet.Cells[row, 11].Text;
 
                         //Check campus code
                         int campusId = context.Campuses
@@ -341,6 +344,10 @@ namespace uniexetask.services
                                 {
                                     password = PasswordHasher.GenerateRandomPassword(8);
                                 }
+                                else if (khoiNumber < 19 && khoiNumber > 0)
+                                {
+                                    password = null;
+                                }
                             }
                             else
                             {
@@ -349,18 +356,20 @@ namespace uniexetask.services
                         }
 
                         //Check email
+                        var existingUser = context.ExistingUsers.FirstOrDefault(user => user.Email == emailUser);
                         if (string.IsNullOrWhiteSpace(emailUser))
                         {
                             errors.Add($"Line {row} | Email | {emailUser} | Email cannot be blank or contain only white-space characters");
                         }
-                        else if (!Regex.IsMatch(emailUser, emailPattern))
+                        else if (!Regex.IsMatch(emailUser, emailPattern)) errors.Add($"Line {row} | Email | {emailUser} | Invalid email format");
+                        else if (emailList.Contains(emailUser)) errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in file");
+                        else if (existingUser != null) 
                         {
-                            errors.Add($"Line {row} | Email | {emailUser} | Invalid email format");
-                            if (emailList.Contains(emailUser))
+                            if (existingUser.IsDeleted)
                             {
-                                errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in file");
+                                AccountExists = existingUser;
                             }
-                            if (context.ExistingUsers.Any(user => user.Email == emailUser))
+                            else
                             {
                                 errors.Add($"Line {row} | Email | {emailUser} | Duplicate email in database");
                             }
@@ -379,7 +388,14 @@ namespace uniexetask.services
                             }
                             if (context.ExistingStudents.Any(student => student.StudentCode == studentCode))
                             {
-                                errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in database");
+                                if (existingUser != null && existingUser.IsDeleted)
+                                {
+                                    //do nothing
+                                }
+                                else
+                                {
+                                    errors.Add($"Line {row} | Student Code | {studentCode} | Duplicate student code in database");
+                                }
                             }
                         }
 
@@ -399,7 +415,14 @@ namespace uniexetask.services
                                 }
                                 if (context.ExistingUsers.Any(user => user.Phone == phoneUser))
                                 {
-                                    errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in database");
+                                    if (existingUser != null && existingUser.IsDeleted)
+                                    {
+                                        //do nothing
+                                    }
+                                    else
+                                    {
+                                        errors.Add($"Line {row} | Phone | {phoneUser} | Duplicate phone number in database");
+                                    }
                                 }
                             }
                         }
@@ -435,7 +458,8 @@ namespace uniexetask.services
                             StudentCode = studentCode,
                             Major = major,
                             SubjectId = subjectId,
-                            IsCurrentPeriod = true
+                            IsCurrentPeriod = true,
+                            AccountExists = AccountExists
                         };
                         excelList.Add(excel);
                     }
@@ -452,48 +476,59 @@ namespace uniexetask.services
             var userList = new List<User>();
             foreach (var excelModel in excelList)
             {
-                string rawPassword = excelModel.Password;
+                string? rawPassword = excelModel.Password;
+                var passwordLine = string.Empty;
 
-                excelModel.Password = PasswordHasher.HashPassword(excelModel.Password);
-
-                var userModel = new UserModel
+                if (!string.IsNullOrWhiteSpace(rawPassword))
                 {
-                    FullName = excelModel.FullName,
-                    Password = excelModel.Password,
-                    Email = excelModel.Email,
-                    Phone = excelModel.Phone,
-                    CampusId = excelModel.CampusId,
-                    IsDeleted = false,
-                    RoleId = excelModel.RoleId,
-                    Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
-                };
-
-                var userEntity = _mapper.Map<User>(userModel);
-
-                var existedUser = await CheckDuplicateUser(userEntity.Email, userEntity.Phone);
-                if (existedUser)
-                {
-                    throw new Exception("Email or phone number already exists.");
+                    excelModel.Password = PasswordHasher.HashPassword(rawPassword);
+                    passwordLine = $"<li><strong>Password:</strong> <em>{rawPassword}</em>.</li>";
                 }
-                await _unitOfWork.Users.InsertAsync(userEntity);
-                _unitOfWork.Save();
-                var studentModel = new StudentModel
+                if (excelModel.AccountExists.UserId != 0)
                 {
-                    UserId = userEntity.UserId,
-                    LecturerId = excelModel.LecturerId,
-                    StudentCode = excelModel.StudentCode,
-                    Major = excelModel.Major,
-                    SubjectId = excelModel.SubjectId,
-                    IsCurrentPeriod = true
-                };
+                    excelModel.AccountExists.FullName = excelModel.FullName;
+                    excelModel.AccountExists.Password = excelModel.Password;
+                    excelModel.AccountExists.Email = excelModel.Email;
+                    excelModel.AccountExists.Phone = excelModel.Phone;
+                    excelModel.AccountExists.CampusId = excelModel.CampusId;
+                    excelModel.AccountExists.IsDeleted = false;
+                    excelModel.AccountExists.RoleId = excelModel.RoleId;
+                    excelModel.AccountExists.Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg";
+                    _unitOfWork.Users.Update(excelModel.AccountExists);
+                }
+                else
+                {
+                    var userModel = new UserModel
+                    {
+                        FullName = excelModel.FullName,
+                        Password = excelModel.Password,
+                        Email = excelModel.Email,
+                        Phone = excelModel.Phone,
+                        CampusId = excelModel.CampusId,
+                        IsDeleted = false,
+                        RoleId = excelModel.RoleId,
+                        Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg"
+                    };
 
-                var studentEntity = _mapper.Map<Student>(studentModel);
+                    var userEntity = _mapper.Map<User>(userModel);
+                    await _unitOfWork.Users.InsertAsync(userEntity);
+                    _unitOfWork.Save();
 
-                await _unitOfWork.Students.InsertAsync(studentEntity);
+                    var studentModel = new StudentModel
+                    {
+                        UserId = userEntity.UserId,
+                        LecturerId = excelModel.LecturerId,
+                        StudentCode = excelModel.StudentCode,
+                        Major = excelModel.Major,
+                        SubjectId = excelModel.SubjectId,
+                        IsCurrentPeriod = true
+                    };
 
-                await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveImportUserProgress", count++, excelList.Count);
+                    var studentEntity = _mapper.Map<Student>(studentModel);
 
-                var userEmail = $@"
+                    await _unitOfWork.Students.InsertAsync(studentEntity);
+
+                    var userEmail = $@"
                     <!DOCTYPE html>
                     <html lang='en'>
                     <head>
@@ -519,17 +554,19 @@ namespace uniexetask.services
                         <p>We are sending you the following login account information:</p>
                         <ul>
                             <li><strong>Account:</strong> {userModel.Email}</li>
-                            <li><strong>Password: </strong><em>{rawPassword}</em>.</li>
+                            {rawPassword}
                         </ul>
-                        <p>We recommend that you change your password after logging in for the first time.</p>
                         <p>Looking forward to your participation.</p>
                         <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
                     </body>
                     </html>
                     ";
 
-                var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
-                emailTasks.Add(emailTask);
+                    var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
+                    emailTasks.Add(emailTask);
+                }
+
+                await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveImportUserProgress", count++, excelList.Count);
             }
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed

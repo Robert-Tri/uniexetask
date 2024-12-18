@@ -5,6 +5,7 @@ namespace uniexetask.services.Interfaces
     public interface IProjectService
     {
         Task<IEnumerable<Project>> GetAllProjects();
+        Task<IEnumerable<Project>> GetAllProjectsIsCurrentPeriod();
         Task<IEnumerable<Project>> GetAllDocuments();
         Task<Project?> GetProjectPendingByGroupAsync(Group group);
         Task<bool> UpdateProjectStatus(int projectId, string action);
@@ -17,6 +18,7 @@ namespace uniexetask.services.Interfaces
         Task<Project?> GetProjectWithTopicByGroupId(int groupId);
         System.Threading.Tasks.Task UpdateEndDurationEXE101();
         System.Threading.Tasks.Task UpdateEndDurationEXE201();
+        Task<Boolean> CheckingProjectOfMentor(int projectId, int mentorId);
         //Task<bool> ContinueProject(int userId);
     }
 }

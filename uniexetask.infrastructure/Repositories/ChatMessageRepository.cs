@@ -18,14 +18,14 @@ namespace uniexetask.infrastructure.Repositories
         public async Task<ChatMessage?> GetLatestMessageInChatGroup(int chatGroupId)
         {
             return await dbSet
-                    .Where(c => c.ChatGroupId == chatGroupId)
+                    .Where(c => c.ChatGroupId == chatGroupId && !c.IsDeleted)
                     .OrderByDescending(m => m.SendDatetime)
                     .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<ChatMessage>?> GetMessagesInChatGroup(int chatGroupId, int chatGroupIndex, int limit)
         {
-            return await dbSet.Where(c => c.ChatGroupId == chatGroupId)
+            return await dbSet.Where(c => c.ChatGroupId == chatGroupId && !c.IsDeleted)
                 .OrderByDescending(m => m.SendDatetime)
                 .Skip(chatGroupIndex * limit)
                 .Take(limit)
