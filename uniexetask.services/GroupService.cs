@@ -520,21 +520,27 @@ namespace uniexetask.services
                 int groupSize = Math.Min(maxGroupSize, numStudents);
                 groups.Add(groupSize);
                 numStudents -= groupSize;
-
             }
 
             for (int i = 0; i < groups.Count; i++)
             {
                 while (groups[i] < minGroupSize)
                 {
+                    bool adjusted = false;
                     for (int j = 0; j < groups.Count; j++)
                     {
                         if (groups[j] > minGroupSize)
                         {
                             groups[j]--;
                             groups[i]++;
+                            adjusted = true;
                             break;
                         }
+                    }
+
+                    if (!adjusted)
+                    {
+                        return groups.Where(g => g >= minGroupSize).ToList();
                     }
                 }
             }
