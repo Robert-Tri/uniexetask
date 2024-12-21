@@ -31,5 +31,6 @@ namespace uniexetask.shared.Models.Request
 
         public int RoleId { get; set; }
         public required User AccountExists { get; set; }
+        public bool IsK19Before { get; set; }
     }
     }

@@ -162,9 +162,9 @@ namespace uniexetask.services
             return result;
         }
 
-        public async System.Threading.Tasks.Task AddMentorToGroupAutomatically()
+        public async System.Threading.Tasks.Task AddMentorToGroupAutomatically(SubjectType subjectType)
         {
-            var groups = await _unitOfWork.Groups.GetHasNoMentorGroupsWithGroupMembersAndStudent();
+            var groups = await _unitOfWork.Groups.GetHasNoMentorGroupsWithGroupMembersAndStudent(subjectType);
 
             var groupsByCampus = new Dictionary<int, List<Group>>();
 
@@ -667,7 +667,7 @@ namespace uniexetask.services
                     var student = students[0];
                     var groupMember = new GroupMember
                     {
-                        GroupId = (await _unitOfWork.Groups.GetAsync(filter: g => g.GroupName == group.Key.GroupName)).FirstOrDefault().GroupId,
+                        GroupId = (await _unitOfWork.Groups.GetAsync(filter: g => g.GroupId == group.Key.GroupId)).FirstOrDefault().GroupId,
                         StudentId = student.StudentId,
                         Role = i == 0 ? "Leader" : "Member"
                     };

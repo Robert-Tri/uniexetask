@@ -1070,9 +1070,9 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng PROJECT
 INSERT INTO PROJECT (group_id, topic_id, start_date, end_date, subject_id, status, isCurrentPeriod)
 VALUES 
-(1, 1, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
-(2, 2, '2024-09-01', '2025-01-01', 1, 'In_Progress', 1),
-(14, 3, '2024-09-01', '2025-01-01', 2, 'In_Progress', 1);
+(1, 1, '2024-09-01', '2024-12-31', 1, 'In_Progress', 1),
+(2, 2, '2024-09-01', '2024-12-31', 1, 'In_Progress', 1),
+(14, 3, '2024-09-01', '2024-12-31', 2, 'In_Progress', 1);
 
 -- Thêm dữ liệu mẫu cho bảng TASK
 INSERT INTO TASK (project_id, task_name, description, start_date, end_date, status)
@@ -1192,13 +1192,13 @@ VALUES
 -- Thêm dữ liệu mẫu cho bảng REG_TOPIC_FORM
 INSERT INTO REG_TOPIC_FORM (group_id, topic_code, topic_name, description, rejection_reason, status)
 VALUES 
-    (3, 'RegTopic03', 'Reg Topic 03', 'Reg Topic No 03', NULL, 1),
-	(4, 'RegTopic04', 'Reg Topic 04', 'Reg Topic No 04', NULL, 1),
-	(5, 'RegTopic05', 'Reg Topic 05', 'Reg Topic No 05', NULL, 1),
-	(6, 'RegTopic06', 'Reg Topic 06', 'Reg Topic No 06', N'Không phù hợp với thực tế', 0),
-	(6, 'RegTopic06V2', 'Reg Topic 06 V2', 'Reg Topic No 06 V2', Null, 1),
-	(9, 'RegTopic09', 'Reg Topic 09', 'Reg Topic No 09', N'Không phù hợp với thực tiễn', 0),
-	(9, 'RegTopic09V2', 'Reg Topic 09 V2', 'Reg Topic No 09 V2', NULL, 1);
+    (3, 'RegTopic03', 'Reg Topic 03', 'Topic3/EXE201 (1).docx', NULL, 1),
+	(4, 'RegTopic04', 'Reg Topic 04', 'Topic4/EXE201 (1).docx', NULL, 1),
+	(5, 'RegTopic05', 'Reg Topic 05', 'Topic5/EXE201 (1).docx', NULL, 1),
+	(6, 'RegTopic06', 'Reg Topic 06', 'Topic6/EXE201 (1).docx', N'Không phù hợp với thực tế', 0),
+	(6, 'RegTopic06V2', 'Reg Topic 06 V2', 'Topic6/EXE201 (2).docx', Null, 1),
+	(9, 'RegTopic09', 'Reg Topic 09', 'Topic9/EXE201 (1).docx', N'Không phù hợp với thực tiễn', 0),
+	(9, 'RegTopic09V2', 'Topic9/EXE201 (2).docx', 'Reg Topic No 09 V2', NULL, 1);
 
 -- Thêm dữ liệu mẫu cho bảng MILESTONE
 INSERT INTO MILESTONE (milestone_name, description, percentage, subject_id, start_date, end_date, created_date, updated_date, isDeleted)
@@ -1317,14 +1317,14 @@ VALUES
 
 
 
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 1)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Current Term Duration EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Finalize Group EXE101', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-15T00:00:00.000' AS DateTime), 1)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE201', N'Finalize Group EXE201', CAST(N'2024-11-25T00:00:00.000' AS DateTime), CAST(N'2024-11-25T00:00:00.000' AS DateTime), 2)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Finalize Mentor EXE201', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 1)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Finalize Mentor EXE201', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 2)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Update Milestone With Criteria', N'Update Milestone With Criteria', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 1)
-INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Update Milestone With Criteria', N'Update Milestone With Criteria', CAST(N'2024-11-28T00:00:00.000' AS DateTime), CAST(N'2024-11-28T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE101', N'Update the status of groups, projects, and students EXE101', CAST(N'2024-09-01T00:00:00.000' AS DateTime), CAST(N'2024-12-31T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Current Term Duration EXE201', N'Update the status of groups, projects, and students EXE201', CAST(N'2024-09-01T00:00:00.000' AS DateTime), CAST(N'2024-12-31T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE101', N'Automatically create groups and assign students who are not yet in a group EXE101', CAST(N'2024-09-01T00:00:00.000' AS DateTime), CAST(N'2024-09-15T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Group EXE201', N'Automatically create groups and assign students who are not yet in a group EXE201', CAST(N'2024-09-01T00:00:00.000' AS DateTime), CAST(N'2024-09-15T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE101', N'Automatically assign mentors to groups EXE101', CAST(N'2024-09-15T00:00:00.000' AS DateTime), CAST(N'2024-09-22T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Finalize Mentor EXE201', N'Automatically assign mentors to groups EXE201', CAST(N'2024-09-15T00:00:00.000' AS DateTime), CAST(N'2024-09-22T00:00:00.000' AS DateTime), 2)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Update Milestone With Criteria', N'Update Milestone With Criteria', CAST(N'2025-01-01T00:00:00.000' AS DateTime), CAST(N'2025-01-08T00:00:00.000' AS DateTime), 1)
+INSERT [dbo].[TIMELINE] ( [timeline_name], [description], [start_date], [end_date], [subject_id]) VALUES (N'Update Milestone With Criteria', N'Update Milestone With Criteria', CAST(N'2025-01-01T00:00:00.000' AS DateTime), CAST(N'2025-01-08T00:00:00.000' AS DateTime), 2)
 
 -- Mentor 2 với Group 1
 INSERT INTO MEETING_SCHEDULE (meeting_schedule_name, group_id, mentor_id, location, meeting_date, duration, type, content, url)

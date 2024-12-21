@@ -1,7 +1,10 @@
-﻿using System.Net.WebSockets;
+﻿using Azure.Messaging;
+using Microsoft.AspNetCore.SignalR;
+using System.Net.WebSockets;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
+using uniexetask.services.Hubs;
 using uniexetask.services.Interfaces;
 
 namespace uniexetask.services
@@ -9,9 +12,13 @@ namespace uniexetask.services
     public class ChatGroupService : IChatGroupService
     {
         public IUnitOfWork _unitOfWork;
-        public ChatGroupService(IUnitOfWork unitOfWork)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationService _notificationService;
+        public ChatGroupService(IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
+            _notificationService = notificationService;
         }
 
         public async Task<bool> AddMembersToChatGroupAsync(int chatGroupId, List<string> emails)
@@ -136,7 +143,8 @@ namespace uniexetask.services
             try
             {
                 _unitOfWork.BeginTransaction();
-                var chatGroup = await _unitOfWork.ChatGroups.GetByIDAsync(chatGroupId);
+                var chatGroup = await GetChatGroupWithUsersByChatGroupId(chatGroupId);
+
                 if (chatGroup == null) throw new Exception("Chat Group not found");
                 if (chatGroup.IsDeleted) throw new Exception("Chat group has been deleted");
                 chatGroup.LatestActivity = DateTime.Now;
@@ -149,6 +157,29 @@ namespace uniexetask.services
                 };
                 await _unitOfWork.ChatMessages.InsertAsync(chatMessage);
                 _unitOfWork.Save();
+                string messageContent = chatMessage.MessageContent;
+                if (chatMessage.MessageContent.Length > 50)
+                {
+                    messageContent = messageContent.Substring(0, 50) + "...";
+                }
+                foreach (var user in chatGroup.Users)
+                {
+                    if (user.UserId == userId) continue;
+                    var notification = await _unitOfWork.Notifications.GetLatestNotification(user.UserId);
+                    if (notification != null && notification.Message.Contains($"You receive a message from <b>{chatGroup.ChatGroupName}</b>"))
+                    {
+                        notification.Message = $"You receive a message from <b>{chatGroup.ChatGroupName}</b>: {messageContent}";
+                        _unitOfWork.Notifications.Update(notification);
+                        _unitOfWork.Save();
+                        await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", notification);
+                    }
+                    else
+                    {
+                        var newNotification = await _notificationService.CreateNotification(userId, user.UserId,
+$"You receive a message from <b>{chatGroup.ChatGroupName}</b>: {messageContent}");
+                        await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                    }
+                }
                 _unitOfWork.Commit();
                 return chatMessage;
             }

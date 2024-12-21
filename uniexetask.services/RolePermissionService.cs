@@ -58,30 +58,48 @@ namespace uniexetask.services
             return null;
         }
 
-        public async Task<bool> UpdateRolePermissionsAsync(string roleName, List<int> permissionIds)
+        public async Task<bool> UpdateRolePermissionsAsync(int userId, string roleName, List<int> permissionIds)
         {
-            var role = await _unitOfWork.Roles.GetRoleByNameAsync(roleName);
-            if (role == null) return false;
-
-            var roleWithPermission = await _unitOfWork.Roles.GetRoleWithPermissionsAsync(role.RoleId);
-            if(roleWithPermission == null) return false;
-
-            var permissions = roleWithPermission.Permissions.ToList();
-            foreach (var permission in permissions)
+            try
             {
-                roleWithPermission.Permissions.Remove(permission);
+                _unitOfWork.BeginTransaction();
+                var role = await _unitOfWork.Roles.GetRoleByNameAsync(roleName);
+                if (role == null) return false;
+
+                var roleWithPermission = await _unitOfWork.Roles.GetRoleWithPermissionsAsync(role.RoleId);
+                if (roleWithPermission == null) return false;
+
+                var permissions = roleWithPermission.Permissions.ToList();
+                foreach (var permission in permissions)
+                {
+                    roleWithPermission.Permissions.Remove(permission);
+                }
+                _unitOfWork.Roles.Update(roleWithPermission);
+                _unitOfWork.Save();
+                foreach (var permissionId in permissionIds)
+                {
+                    var permission = await _unitOfWork.Permissions.GetByIDAsync(permissionId);
+                    if (permission == null) return false;
+                    roleWithPermission.Permissions.Add(permission);
+                }
+                _unitOfWork.Roles.Update(roleWithPermission);
+                var refreshTokens = await _unitOfWork.RefreshTokens.GetAllActiveRefreshTokens();
+                foreach (var token in refreshTokens)
+                {
+                    if (token.UserId == userId) continue;
+                    token.Status = false;
+                    token.Revoked = DateTime.Now;
+                    _unitOfWork.RefreshTokens.Update(token);
+                }
+                _unitOfWork.Save();
+                _unitOfWork.Commit();
+                return true;
             }
-            _unitOfWork.Roles.Update(roleWithPermission);
-            _unitOfWork.Save();
-            foreach (var permissionId in permissionIds)
+            catch (Exception ex)
             {
-                var permission = await _unitOfWork.Permissions.GetByIDAsync(permissionId);
-                if (permission == null) return false;
-                roleWithPermission.Permissions.Add(permission);
+                _unitOfWork.Rollback();
+                throw new Exception(ex.Message);
             }
-            _unitOfWork.Roles.Update(roleWithPermission);
-            _unitOfWork.Save();
-            return true;
         }
     }
 }

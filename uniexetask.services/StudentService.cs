@@ -133,7 +133,7 @@ namespace uniexetask.services
         public async Task<IEnumerable<StudentsWithGroup>> GetStudentWithoutGroup()
         {
             List<StudentsWithGroup> students = new List<StudentsWithGroup>();
-            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true, includeProperties: "Subject,Lecturer.User,User.Campus");
+            var allStudents = await _unitOfWork.Students.GetAsync(filter: s => s.IsCurrentPeriod == true && !s.User.IsDeleted, includeProperties: "Subject,Lecturer.User,User.Campus");
             var groupMembers = await _unitOfWork.GroupMembers.GetAsync();
             var studentsWithoutGroup = allStudents
                 .Where(s => !groupMembers.Any(gm => gm.StudentId == s.StudentId))

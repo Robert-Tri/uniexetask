@@ -670,6 +670,12 @@ namespace uniexetask.api.Controllers
                 });
             }
 
+            var group = await _groupService.GetGroupById(checkLeader.GroupId);
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot delete." });
+            }
+
             bool isDeleted = await _groupMemberService.DeleteMember(model.GroupId, model.StudentId);
 
             if (isDeleted)

@@ -50,10 +50,10 @@ namespace uniexetask.api.BackgroundServices
                                 break;
 
                             case TimelineType.FinalizeMentorEXE101:
-                                await groupService.AddMentorToGroupAutomatically();
+                                await groupService.AddMentorToGroupAutomatically(SubjectType.EXE101);
                                 break;
                             case TimelineType.FinalizeMentorEXE201:
-                                await groupService.AddMentorToGroupAutomatically();
+                                await groupService.AddMentorToGroupAutomatically(SubjectType.EXE201);
                                 break;
                             default:
                                 break;

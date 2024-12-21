@@ -279,6 +279,7 @@ namespace uniexetask.services
                         string fullname = worksheet.Cells[row, 2].Text;
                         string? password = null;
                         User? AccountExists = new ();
+                        bool isK19Before = false;
                         string emailUser = worksheet.Cells[row, 3].Text;
                         string phoneUser = worksheet.Cells[row, 4].Text;
                         string campusCode = worksheet.Cells[row, 5].Text;
@@ -343,6 +344,7 @@ namespace uniexetask.services
                                 if (khoiNumber >= 19)
                                 {
                                     password = PasswordHasher.GenerateRandomPassword(8);
+                                    isK19Before = true;
                                 }
                                 else if (khoiNumber < 19 && khoiNumber > 0)
                                 {
@@ -459,7 +461,8 @@ namespace uniexetask.services
                             Major = major,
                             SubjectId = subjectId,
                             IsCurrentPeriod = true,
-                            AccountExists = AccountExists
+                            AccountExists = AccountExists,
+                            IsK19Before = isK19Before
                         };
                         excelList.Add(excel);
                     }
@@ -482,7 +485,6 @@ namespace uniexetask.services
                 if (!string.IsNullOrWhiteSpace(rawPassword))
                 {
                     excelModel.Password = PasswordHasher.HashPassword(rawPassword);
-                    passwordLine = $"<li><strong>Password:</strong> <em>{rawPassword}</em>.</li>";
                 }
                 if (excelModel.AccountExists.UserId != 0)
                 {
@@ -495,6 +497,13 @@ namespace uniexetask.services
                     excelModel.AccountExists.RoleId = excelModel.RoleId;
                     excelModel.AccountExists.Avatar = "https://res.cloudinary.com/dan0stbfi/image/upload/v1722340236/xhy3r9wmc4zavds4nq0d.jpg";
                     _unitOfWork.Users.Update(excelModel.AccountExists);
+                    var student = await _unitOfWork.Students.GetStudentByUserId(excelModel.AccountExists.UserId);
+                    if (student == null) throw new Exception("user is not the student.");
+                    var stu = await _unitOfWork.Students.GetByIDAsync(student.StudentId);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    stu.IsCurrentPeriod = true;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    _unitOfWork.Students.Update(stu);
                 }
                 else
                 {
@@ -528,39 +537,39 @@ namespace uniexetask.services
 
                     await _unitOfWork.Students.InsertAsync(studentEntity);
 
-                    var userEmail = $@"
-                    <!DOCTYPE html>
-                    <html lang='en'>
-                    <head>
-                        <meta charset='UTF-8'>
-                        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                        <style>
-                            body {{
-                                font-family: Arial, sans-serif;
-                                line-height: 1.6;
-                                padding: 20px;
-                                background-color: #ffffff;
-                            }}
-                            h2 {{
-                                color: #333;
-                            }}
-                            p {{
-                                margin: 0 0 10px;
-                            }}
-                        </style>
-                    </head>
-                    <body>
-                        <h2>Dear {userModel.FullName},</h2>
-                        <p>We are sending you the following login account information:</p>
-                        <ul>
-                            <li><strong>Account:</strong> {userModel.Email}</li>
-                            {rawPassword}
-                        </ul>
-                        <p>Looking forward to your participation.</p>
-                        <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
-                    </body>
-                    </html>
-                    ";
+                    var userEmail =
+                    $@"
+                        <!DOCTYPE html>
+                        <html lang='en'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <style>
+                                body {{
+                                    font-family: Arial, sans-serif;
+                                    line-height: 1.6;
+                                    padding: 20px;
+                                    background-color: #ffffff;
+                                }}
+                                h2 {{
+                                    color: #333;
+                                }}
+                                p {{
+                                    margin: 0 0 10px;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <h2>Dear {userModel.FullName},</h2>
+                            <p>We are sending you the following login account information:</p>
+                            <ul>
+                                <li><strong>Account:</strong> {userModel.Email}</li>
+                                {(excelModel.IsK19Before ? $"<li><strong>Password:</strong> {rawPassword}</li>" : "<li><strong>Note:</strong> You can log in to the system using your Gmail account above.</li>")}
+                            </ul>
+                            <p>Looking forward to your participation.</p>
+                            <p>This is an automated email, please do not reply to this email. If you need assistance, please contact us at unitask68@gmail.com.</p>
+                        </body>
+                        </html>";
 
                     var emailTask = _emailService.SendEmailAsync(userModel.Email, "Account UniEXETask", userEmail);
                     emailTasks.Add(emailTask);

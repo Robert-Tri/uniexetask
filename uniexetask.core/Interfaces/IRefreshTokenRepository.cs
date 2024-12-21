@@ -11,5 +11,6 @@ namespace uniexetask.core.Interfaces
     {
         Task<List<RefreshToken>> GetRefreshTokensByUserId(int id);
         Task<RefreshToken?> CheckRefreshTokenAsync(string refreshToken);
+        Task<IEnumerable<RefreshToken>> GetAllActiveRefreshTokens();
     }
 }

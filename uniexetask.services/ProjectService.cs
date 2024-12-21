@@ -150,11 +150,15 @@ namespace uniexetask.services
 
         public async System.Threading.Tasks.Task UpdateEndDurationEXE101()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE101);
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE101);
+            var chatGroups = await _unitOfWork.ChatGroups.GetAllChatGroups();
+            foreach (var chatGroup in chatGroups)
+            {
+                chatGroup.Users.Clear();
+                chatGroup.IsDeleted = true;
+            }
             foreach (var group in groups) 
             {
-                var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
-                chatGroup.IsDeleted = true;
                 var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
                 if(project != null)
                 {
@@ -182,17 +186,15 @@ namespace uniexetask.services
                 }
                 group.IsCurrentPeriod = false;
                 group.IsDeleted = true;
-                _unitOfWork.Save();
             }
+            _unitOfWork.Save();
         }
 
         public async System.Threading.Tasks.Task UpdateEndDurationEXE201()
         {
-            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.Status == nameof(GroupStatus.Approved) && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE201);
+            var groups = await _unitOfWork.Groups.GetAsync(filter: g => g.IsCurrentPeriod == true && g.IsDeleted == false && g.SubjectId == (int)SubjectType.EXE201);
             foreach (var group in groups)
             {
-                var chatGroup = await _unitOfWork.ChatGroups.GetChatGroupByGroupId(group.GroupId);
-                chatGroup.IsDeleted = true;
                 var project = (await _unitOfWork.Projects.GetAsync(filter: p => p.GroupId == group.GroupId)).FirstOrDefault();
                 if (project != null)
                 {
@@ -220,8 +222,8 @@ namespace uniexetask.services
                 }
                 group.IsCurrentPeriod = false;
                 group.IsDeleted = true;
-                _unitOfWork.Save();
             }
+            _unitOfWork.Save();
         }
 
         /*public async Task<bool> ContinueProject(int userId)

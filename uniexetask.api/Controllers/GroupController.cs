@@ -201,8 +201,8 @@ namespace uniexetask.api.Controllers
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
-            await _groupService.AddMentorToGroupAutomatically();
-
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE101);
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE201);
             return Ok();
         }
         [HttpGet("/subject/{groupIdStr}")]
@@ -271,7 +271,8 @@ namespace uniexetask.api.Controllers
         [HttpPost("assignmentortogroupautomatically")]
         public async Task<IActionResult> AssignMentorToGroupAutomatically()
         {
-            await _groupService.AddMentorToGroupAutomatically();
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE101);
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE201);
             return Ok();
         }
         [Authorize(Roles = nameof(EnumRole.Manager))]

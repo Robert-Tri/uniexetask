@@ -9,6 +9,7 @@ namespace uniexetask.core.Interfaces
 {
     public interface IChatGroupRepository : IGenericRepository<ChatGroup>
     {
+        Task<IEnumerable<ChatGroup>> GetAllChatGroups();
         Task<ChatGroup?> GetChatGroupByGroupId(int groupId);
         Task<ChatGroup?> GetChatGroupWithUsersByChatGroupIdAsync(int chatGroupId);
         Task<bool> IsUserInChatGroup(int chatGroupId, int userId);

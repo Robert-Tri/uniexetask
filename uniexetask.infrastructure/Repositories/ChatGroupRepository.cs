@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using uniexetask.core.Interfaces;
 using uniexetask.core.Models;
@@ -13,6 +14,13 @@ namespace uniexetask.infrastructure.Repositories
     {
         public ChatGroupRepository(UniExetaskContext dbContext) : base(dbContext)
         {
+        }
+
+        public async Task<IEnumerable<ChatGroup>> GetAllChatGroups()
+        {
+            return await dbSet
+                .Include(e => e.Users)
+                .ToListAsync();
         }
 
         public async Task<ChatGroup?> GetChatGroupByGroupId(int groupId)

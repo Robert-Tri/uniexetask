@@ -6,6 +6,7 @@ using uniexetask.shared.Models.Response;
 using uniexetask.core.Models;
 using uniexetask.core.Models.Enums;
 using uniexetask.services.Interfaces;
+using System.Security.Claims;
 
 namespace uniexetask.api.Controllers
 {
@@ -78,15 +79,20 @@ namespace uniexetask.api.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsModel request)
         {
+            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             ApiResponse<string> response = new ApiResponse<string>();
             try
             {
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new Exception("Invalid User Id");
+                }
                 if (request == null || string.IsNullOrEmpty(request.RoleName) || request.Permissions == null)
                 {
                     throw new Exception("Invalid request data.");
                 }
 
-                var result = await _rolePermissionService.UpdateRolePermissionsAsync(request.RoleName, request.Permissions);
+                var result = await _rolePermissionService.UpdateRolePermissionsAsync(userId, request.RoleName, request.Permissions);
 
                 if (result)
                 {

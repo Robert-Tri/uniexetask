@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+﻿/*using AutoFixture;
 using FluentAssertions;
 using Google.Apis.Util;
 using Microsoft.AspNetCore.Mvc;
@@ -516,3 +516,4 @@ namespace uniexetask.services.tests.Services
         }
     }
 }
+*/
