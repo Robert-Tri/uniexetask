@@ -24,9 +24,9 @@ namespace uniexetask.infrastructure.Repositories
                 .Include(r => r.Subject)
                 .FirstOrDefaultAsync(r => r.GroupId == groupId && r.IsCurrentPeriod);
         }
-        public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent()
+        public async Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent(SubjectType subjectType)
         {
-            return await dbSet.Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false).AsNoTracking().ToListAsync();
+            return await dbSet.Where(g => g.SubjectId == (int)subjectType).Include(g => g.GroupMembers).ThenInclude(g => g.Student).ThenInclude(g => g.User).Where(g => g.HasMentor == false && g.IsDeleted == false).AsNoTracking().ToListAsync();
         }
         public async Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent()
         {

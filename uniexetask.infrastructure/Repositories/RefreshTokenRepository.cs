@@ -25,5 +25,12 @@ namespace uniexetask.infrastructure.Repositories
             return await dbSet.FirstOrDefaultAsync(u =>
                 u.Token.Equals(refreshToken) && u.Expires > DateTime.Now && u.Status == true);
         }
+
+        public async Task<IEnumerable<RefreshToken>> GetAllActiveRefreshTokens()
+        {
+            return await dbSet
+                .Where(rt =>  rt.Status == true)
+                .ToListAsync();
+        }
     }
 }

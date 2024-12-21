@@ -201,8 +201,8 @@ namespace uniexetask.api.Controllers
         [HttpPost("addmentortogroupautomatically")]
         public async Task<IActionResult> AddMentorToGroupAutomatically()
         {
-            await _groupService.AddMentorToGroupAutomatically();
-
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE101);
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE201);
             return Ok();
         }
         [HttpGet("/subject/{groupIdStr}")]
@@ -237,7 +237,7 @@ namespace uniexetask.api.Controllers
                     throw new Exception("Invalid UserId");
                 }
                 var group = await _groupService.GetGroupByUserId(userId);
-                if (group != null)
+                if (group != null && !group.IsDeleted)
                 {
                     foreach (var member in group.GroupMembers)
                     {
@@ -248,7 +248,6 @@ namespace uniexetask.api.Controllers
                             response.Data = _mapper.Map<GroupModel>(group);
                             return Ok(response);
                         }
-                        
                     }
                 }
                 return Ok(response);
@@ -272,7 +271,8 @@ namespace uniexetask.api.Controllers
         [HttpPost("assignmentortogroupautomatically")]
         public async Task<IActionResult> AssignMentorToGroupAutomatically()
         {
-            await _groupService.AddMentorToGroupAutomatically();
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE101);
+            await _groupService.AddMentorToGroupAutomatically(SubjectType.EXE201);
             return Ok();
         }
         [Authorize(Roles = nameof(EnumRole.Manager))]

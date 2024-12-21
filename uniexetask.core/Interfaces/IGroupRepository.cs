@@ -1,4 +1,5 @@
 ﻿using uniexetask.core.Models;
+using uniexetask.core.Models.Enums;
 
 namespace uniexetask.core.Interfaces
 {
@@ -6,7 +7,7 @@ namespace uniexetask.core.Interfaces
     {
         Task<Group?> GetGroupWithProjectAsync(int groupId);
         Task<Group?> GetGroupWithSubjectAsync(int groupId);
-        Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent();
+        Task<IEnumerable<Group>> GetHasNoMentorGroupsWithGroupMembersAndStudent(SubjectType subjectType);
         Task<IEnumerable<Group>> GetApprovedGroupsWithGroupMembersAndStudent();
         Task<Mentor?> GetMentorInGroup(int groupId);
         Task<IEnumerable<Group>> SearchGroupsByGroupNameAsync(int mentorId, string query);

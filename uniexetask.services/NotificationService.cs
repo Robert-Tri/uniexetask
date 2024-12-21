@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Azure.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,14 +25,16 @@ namespace uniexetask.services
         public IUnitOfWork _unitOfWork;
         private readonly IUserService _userService;
         private readonly IConfigSystemService _configSystemService;
+        private readonly IGroupMemberService _groupMemberService;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(IUnitOfWork unitOfWork, IUserService userService, IConfigSystemService configSystemService, IMapper mapper, IHubContext<NotificationHub> hubContext)
+        public NotificationService(IUnitOfWork unitOfWork, IUserService userService, IConfigSystemService configSystemService, IGroupMemberService groupMemberService, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _userService = userService;
             _configSystemService = configSystemService;
+            _groupMemberService = groupMemberService;
             _mapper = mapper;
             _hubContext = hubContext;
         }
@@ -40,17 +44,55 @@ namespace uniexetask.services
             var senderExists = await _unitOfWork.Users.GetByIDAsync(senderId);
             var receiverExists = await _unitOfWork.Users.GetByIDAsync(receiverId);
             var groupExists = await _unitOfWork.Groups.GetByIDAsync(groupId);
+            var studentSenderExists = await _unitOfWork.Students.GetStudentByUserId(senderId);
+            var studentExists = await _unitOfWork.Students.GetStudentByUserId(receiverId);
 
             if (senderExists == null || receiverExists == null || groupExists == null)
             {
                 throw new Exception("One or more users or the group do not exist.");
             }
 
+            if (studentExists == null || studentSenderExists == null) throw new Exception("The inviter or invitee to the group is not a student.");
+
             var existingInvite = await _unitOfWork.GroupInvites.GetPendingInvite(receiverId, groupId);
             if (existingInvite != null)
             {
                 throw new Exception("An invite has already been sent to this user for this group.");
-            }         
+            }
+
+            var role = await _groupMemberService.GetRoleByUserId(senderId);
+            if (role != "Leader")
+            {
+                throw new Exception("You are not a leader to perform this operation.");
+            }
+
+            if (groupExists.Status != nameof(GroupStatus.Initialized))
+            {
+                throw new Exception("Group is eligible, you cannot invite others to join the group.");
+            }
+
+            if (senderExists.CampusId != receiverExists.CampusId)
+            {
+                throw new Exception("You cannot add member from another campus.");
+            }
+
+            bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(studentExists.StudentId);
+
+            if (studentExists.SubjectId != studentSenderExists.SubjectId)
+            {
+                throw new Exception("You cannot add members from a different subject.");
+            }
+            var groupMembers = await _unitOfWork.GroupMembers.GetGroupMembersWithStudentAndUser(groupExists.GroupId);
+
+            var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
+           .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE101");
+            var maxMemberExe201 = (await _configSystemService.GetConfigSystems())
+            .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE201");
+
+            var subject = await _unitOfWork.Subjects.GetByIDAsync(studentExists.SubjectId);
+
+            if (studentExists.SubjectId == 1 && groupMembers.Count() == maxMemberExe101.Number) throw new Exception($"The group already have enough {maxMemberExe101.Number} members for EXE101.");
+            if (studentExists.SubjectId == 2 && groupMembers.Count() == maxMemberExe201.Number) throw new Exception($"The group already have enough {maxMemberExe201.Number} members for EXE201.");
             try
             {
                 _unitOfWork.BeginTransaction();

@@ -91,96 +91,92 @@ namespace uniexetask.api.Controllers
         [HttpPost("AddMemberToGroup")]
         public async Task<IActionResult> AddMemberToGroup([FromBody] AddGroupMemberModel member)
         {
-            var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Unauthorized access." });
-            }
-
-            var studentLeader = await _studentService.GetStudentByUserId(userId);
-
-            var role = await _groupMemberService.GetRoleByUserId(userId);
-
-            if (role != "Leader")
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You are not a leader to perform this operation." });
-            }
-
-            var group = await _groupService.GetGroupById(member.GroupId);
-
-            if (group.Status != nameof(GroupStatus.Initialized))
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot add members." });
-            }
-
-            var student = await _studentService.GetStudentByCode(member.StudentCode);
-            if (student == null)
-            {
-                return BadRequest(new ApiResponse<object>
+                var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    Success = false,
-                    Data = new { StudentCode = member.StudentCode },
-                    ErrorMessage = $"Student with code {member.StudentCode} not found."
-                });
-            }
+                    throw new Exception("Unauthorized access.");
+                }
 
-            var campusLeader = await _campusService.GetCampusByStudentCode(studentLeader.StudentCode);
-            var campusUser = await _campusService.GetCampusByStudentCode(member.StudentCode);
+                var studentLeader = await _studentService.GetStudentByUserId(userId);
 
-            if (campusLeader != campusUser)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You cannot add students from another campus." });
-            }
+                var role = await _groupMemberService.GetRoleByUserId(userId);
 
-            bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
-
-            var users = await _groupMemberService.GetUsersByUserId(userId);
-            var subject = await _studentService.GetStudentById(studentLeader.StudentId);
-
-            if (subject.SubjectId != student.SubjectId)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You cannot add members from a different subject." });
-            }
-
-            var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
-           .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE101");
-            var maxMemberExe201 = (await _configSystemService.GetConfigSystems())
-            .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE201");
-
-            if (subject.SubjectId == 1 && users.Count >= maxMemberExe101.Number)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have enough members for EXE101." });
-            }
-
-            if (subject.SubjectId == 2 && users.Count >= maxMemberExe201.Number)
-            {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "You already have enough members for EXE201." });
-            }
-
-            if (studentExistsInGroup)
-            {
-                return BadRequest(new ApiResponse<object>
+                if (role != "Leader")
                 {
-                    Success = false,
-                    Data = new { StudentCode = member.StudentCode },
-                    ErrorMessage = $"Student with code {member.StudentCode} is already in a group."
-                });
+                    throw new Exception("You are not a leader to perform this operation.");
+                }
+
+                var group = await _groupService.GetGroupById(member.GroupId);
+
+                if (group.Status != nameof(GroupStatus.Initialized))
+                {
+                    throw new Exception("Group is eligible, you cannot add members.");
+                }
+
+                var student = await _studentService.GetStudentByCode(member.StudentCode);
+                if (student == null)
+                {
+                    throw new Exception($"Student with code {member.StudentCode} not found.");
+                }
+
+                var campusLeader = await _campusService.GetCampusByStudentCode(studentLeader.StudentCode);
+                var campusUser = await _campusService.GetCampusByStudentCode(member.StudentCode);
+
+                if (campusLeader != campusUser)
+                {
+                    throw new Exception("You cannot add students from another campus.");
+                }
+
+                bool studentExistsInGroup = await _groupMemberService.CheckIfStudentInGroup(student.StudentId);
+
+                var users = await _groupMemberService.GetUsersByUserId(userId);
+                var subject = await _studentService.GetStudentById(studentLeader.StudentId);
+
+                if (subject.SubjectId != student.SubjectId)
+                {
+                    throw new Exception("You cannot add members from a different subject.");
+                }
+
+                var maxMemberExe101 = (await _configSystemService.GetConfigSystems())
+               .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE101");
+                var maxMemberExe201 = (await _configSystemService.GetConfigSystems())
+                .FirstOrDefault(config => config.ConfigName == "MAX_MEMBER_EXE201");
+
+                if (subject.SubjectId == 1 && users.Count >= maxMemberExe101.Number)
+                {
+                    throw new Exception("You already have enough members for EXE101.");
+                }
+
+                if (subject.SubjectId == 2 && users.Count >= maxMemberExe201.Number)
+                {
+                    throw new Exception("You already have enough members for EXE201.");
+                }
+
+                if (studentExistsInGroup)
+                {
+                    throw new Exception($"Student with code {member.StudentCode} is already in a group.");
+                }
+
+                if (group == null)
+                {
+                    throw new Exception($"Group with ID {member.GroupId} not found.");
+                }
+
+                var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: student.UserId, groupId: member.GroupId, groupName: group.GroupName);
+                await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
+
+                response.Data = $"Invitation to join the group has been sent to student with code {member.StudentCode}.";
+                return Ok(response);
             }
-
-            
-            if (group == null)
+            catch (Exception ex)
             {
-                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = $"Group with ID {member.GroupId} not found." });
+                response.Success = false;
+                response.ErrorMessage = ex.Message;
+                return BadRequest(response);
             }
-
-            var newNotification = await _notificationService.CreateGroupInvite(senderId: userId, receiverId: student.UserId, groupId: member.GroupId, groupName: group.GroupName);
-            await _hubContext.Clients.User(student.UserId.ToString()).SendAsync("ReceiveNotification", newNotification);
-
-            var response = new ApiResponse<object>
-            {
-                Data = new { Message = $"Invitation to join the group has been sent to student with code {member.StudentCode}." }
-            };
-            return Ok(response);
         }
 
         [Authorize(Roles = nameof(EnumRole.Student))]
@@ -672,6 +668,12 @@ namespace uniexetask.api.Controllers
                     Success = false,
                     ErrorMessage = "You can not delete yourself ."
                 });
+            }
+
+            var group = await _groupService.GetGroupById(checkLeader.GroupId);
+            if (group.Status != nameof(GroupStatus.Initialized))
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, ErrorMessage = "Group is eligible, you cannot delete." });
             }
 
             bool isDeleted = await _groupMemberService.DeleteMember(model.GroupId, model.StudentId);

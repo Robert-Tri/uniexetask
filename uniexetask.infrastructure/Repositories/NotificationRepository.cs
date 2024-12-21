@@ -16,6 +16,14 @@ namespace uniexetask.infrastructure.Repositories
         {
         }
 
+        public async Task<Notification?> GetLatestNotification(int userId)
+        {
+            return await dbSet
+                .Where(n => n.ReceiverId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<Notification>?> GetNotificationsWithGroupInviteByUserId(int userId, int notificationIndex, int limit, string keyword)
         {
             return await dbSet
