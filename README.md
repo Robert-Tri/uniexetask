@@ -8,7 +8,8 @@
 ```markdown
 # 🧠 UniEXETask – Backend
 
-**UniEXETask** là hệ thống quản lý dự án khởi nghiệp dành cho sinh viên Đại học FPT. Backend được xây dựng bằng ASP.NET API để đảm bảo hiệu suất, bảo mật và khả năng mở rộng.
+**UniEXETask** là hệ thống quản lý dự án khởi nghiệp dành cho sinh viên Đại học FPT.
+Backend được xây dựng bằng ASP.NET API để đảm bảo hiệu suất, bảo mật và khả năng mở rộng.
 
 ---
 
